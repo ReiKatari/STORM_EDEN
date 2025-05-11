@@ -102,7 +102,7 @@ jobs:
         uses: forgejo/upload-artifact@v4
         with:
           name: linux.zip
-          path: ./*.AppImage
+          path: ./*.AppImage*
 
   android:
     runs-on: android
@@ -177,6 +177,7 @@ jobs:
           mkdir -p dist
 
           cp linux.zip/Eden-*.AppImage dist/Eden-Linux-${{ env.VERSION }}-amd64.AppImage
+          cp linux.zip/Eden-*.AppImage.zsync dist/Eden-Linux-${{ env.VERSION }}-amd64.AppImage.zsync
           cp msvc.zip/eden-windows-msvc*.zip dist/Eden-Windows-MSVC-${{ env.VERSION }}-amd64.zip
           cp android.zip/eden-android*.apk dist/Eden-Android-${{ env.VERSION }}.apk
           cp android.zip/eden-android*.aab dist/Eden-Android-${{ env.VERSION }}.aab

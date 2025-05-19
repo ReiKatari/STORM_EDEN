@@ -93,7 +93,7 @@ jobs:
           fetch-tags: true
 
       - name: Build
-        run: ./.ci/linux/build.sh v3 8
+        run: TARGET=appimage ./.ci/linux/build.sh v3 8
 
       - name: Package AppImage
         run: ./.ci/linux/package.sh v3 &> /dev/null

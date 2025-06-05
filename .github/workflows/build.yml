@@ -22,6 +22,7 @@ jobs:
       - name: Upload
         uses: forgejo/upload-artifact@v4
         with:
+          retention-days: 2
           name: source.zip
           path: artifacts/
 
@@ -77,6 +78,7 @@ jobs:
       - name: Upload Windows artifacts
         uses: forgejo/upload-artifact@v4
         with:
+          retention-days: 2
           name: ${{ matrix.target }}.zip
           path: artifacts/*
 
@@ -104,6 +106,7 @@ jobs:
       - name: Upload Linux artifacts
         uses: forgejo/upload-artifact@v4
         with:
+          retention-days: 2
           name: linux.zip
           path: ./*.AppImage
 
@@ -140,5 +143,6 @@ jobs:
       - name: Upload Android artifacts
         uses: forgejo/upload-artifact@v4
         with:
+          retention-days: 2
           name: android.zip
           path: artifacts/*

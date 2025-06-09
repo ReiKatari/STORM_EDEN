@@ -12,8 +12,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch master branch
-        run: git fetch origin master:master
+      - name: Fetch
+        run: git fetch origin
 
       - name: Make script executable
         run: chmod +x ./.ci/license-header.rb

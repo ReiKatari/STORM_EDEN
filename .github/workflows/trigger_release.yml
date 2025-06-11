@@ -132,7 +132,11 @@ jobs:
           echo $GIT_TAG_NAME
 
       - name: Build
-        run: ANDROID_HOME=/opt/android-sdk ./.ci/android/build.sh
+        run: ANDROID_HOME=/home/runner/sdk ./.ci/android/build.sh
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
 
       - name: Package Android artifacts
         run: ./.ci/android/package.sh

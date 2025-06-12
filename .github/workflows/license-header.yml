@@ -6,7 +6,7 @@ on:
 
 jobs:
   license-header:
-    runs-on: linux
+    runs-on: source
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,6 +15,7 @@ jobs:
       - name: Fetch
         run: git fetch origin
 
+        # TODO: fix the script
       - name: Make script executable
         run: chmod +x ./.ci/license-header.rb
 

@@ -12,7 +12,7 @@ on:
 jobs:
   source:
     if: ${{ !github.head_ref }}
-    runs-on: linux
+    runs-on: source
     steps:
       - uses: actions/checkout@v4
         with:

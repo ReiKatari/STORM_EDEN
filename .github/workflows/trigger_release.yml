@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   source:
-    runs-on: linux
+    runs-on: source
     steps:
       - uses: actions/checkout@v4
         with:

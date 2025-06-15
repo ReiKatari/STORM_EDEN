@@ -1,7 +1,7 @@
 name: eden-license
 
 on:
-  pull_request_target:
+  pull_request:
     branches: [ master ]
 
 jobs:
@@ -13,9 +13,8 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch
-        run: git fetch origin
+        run: git fetch origin master:master
 
-        # TODO: fix the script
       - name: Make script executable
         run: chmod +x ./.ci/license-header.rb
 

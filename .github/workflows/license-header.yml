@@ -16,7 +16,7 @@ jobs:
         run: git fetch origin master:master
 
       - name: Make script executable
-        run: chmod +x ./.ci/license-header.rb
+        run: chmod +x ./.ci/license-header.sh
 
       - name: Check license headers
-        run: ./.ci/license-header.rb
+        run: ./.ci/license-header.sh

@@ -5,8 +5,6 @@ name: eden-build
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ master ]
 
 # TODO: combine build.yml into trigger_release.yml
 jobs:

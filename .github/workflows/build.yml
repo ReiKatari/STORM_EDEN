@@ -70,12 +70,14 @@ jobs:
 
       - name: Configure & Build
         shell: bash
-        run: DEVEL=true ./.ci/windows/build.sh
+        run: |
+          ./.ci/windows/qt-envvars.sh
+          DEVEL=true ./.ci/windows/build.sh
 
       - name: Package artifacts
         shell: bash
         run: |
-          export PATH="${PATH}:/c/Qt/6.9.0/msvc2022_64/bin"
+          ./.ci/windows/qt-envvars.sh
           ./.ci/windows/package.sh
 
       - name: Upload Windows artifacts

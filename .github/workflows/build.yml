@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           ./.ci/windows/qt-envvars.sh
-          DEVEL=true .ci/windows/build.sh -DCMAKE_PREFIX_PATH=C:/Qt/6.9.0/msvc2022_64/lib/cmake/Qt6
+          DEVEL=true WINDEPLOYQT="/c/Qt/6.9.0/msvc2022_64/bin/windeployqt6.exe" .ci/windows/build.sh -DCMAKE_PREFIX_PATH=C:/Qt/6.9.0/msvc2022_64/lib/cmake/Qt6
 
       - name: Package artifacts
         shell: bash

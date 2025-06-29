@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           ./.ci/windows/qt-envvars.sh
-          DEVEL=true ./.ci/windows/build.sh
+          DEVEL=true ./.ci/windows/build.sh -DCMAKE_PREFIX_PATH="${QT_ROOT_DIR}/lib/cmake/Qt6"
 
       - name: Package artifacts
         shell: bash

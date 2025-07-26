@@ -2,9 +2,9 @@
 # some stuff needs cleaned up etc
 name: eden-build
 
-on:
-  push:
-    branches: [ "master" ]
+#on:
+#  push:
+#    branches: [ "master" ]
 
 # TODO: combine build.yml into trigger_release.yml
 jobs:

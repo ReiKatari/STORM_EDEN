@@ -96,7 +96,7 @@ jobs:
           fetch-tags: true
 
       - name: Build
-        run: TARGET=appimage RELEASE=1 ./.ci/linux/build.sh v3 8
+        run: TARGET=appimage RELEASE=1 DEVEL=false ./.ci/linux/build.sh v3 8
 
       - name: Package AppImage
         run: ./.ci/linux/package.sh v3 &> /dev/null
@@ -133,7 +133,7 @@ jobs:
           echo $GIT_TAG_NAME
 
       - name: Build
-        run: ANDROID_HOME=/home/runner/sdk ./.ci/android/build.sh
+        run: DEVEL=false ANDROID_HOME=/home/runner/sdk ./.ci/android/build.sh
         env:
           ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}

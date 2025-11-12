@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  license-header:
+  sources:
     runs-on: source
     steps:
       - uses: actions/checkout@v4

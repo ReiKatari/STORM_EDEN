@@ -13,7 +13,7 @@ jobs:
           fetch-depth: 0
 
       - name: Find Unused Strings
-        run: ./tools/find-unused-strings.sh
+        run: ./tools/unused-strings.sh
 
       - name: Find Stale Translations
         run: ./tools/stale-translations.sh

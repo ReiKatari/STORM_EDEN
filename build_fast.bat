@@ -27,4 +27,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"
+pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"
+if %ERRORLEVEL% neq 0 (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"
+)

@@ -274,6 +274,9 @@ public:
         : path(std::move(path_)), name(std::move(name_)) {
         std::error_code ec;
         std::filesystem::create_directories(path.parent_path(), ec);
+        {
+            Common::FS::IOFile creator(path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
+        }
         file.Open(path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
     }
     

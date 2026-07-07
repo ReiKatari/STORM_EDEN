@@ -1,0 +1,40 @@
+# Build directories (any nesting level)
+**/[Bb]uild*/
+**/intermediates/
+**/tmp/
+**/eden/
+doc-build/
+out/
+AppDir/
+uruntime
+/.cache/
+/.patch/
+
+# Logs and debugs
+*.log
+debug_log.txt
+game_run.log
+run.log
+crash_dump_global.txt
+loading_screen_debug.txt
+
+# Editor / project settings
+.vs/
+.vscode/
+*.swp
+.idea/
+CMakeSettings.json
+CMakeLists.txt.user*
+
+# Temporary files
+*~
+*.core
+/test_cs.exe
+/test_cs.res
+
+# Scrap test files
+/test.py
+/test_correct_vars.py
+/test_cs.cs
+/test_dp0.bat
+/test_folders.py

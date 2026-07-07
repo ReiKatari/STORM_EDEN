@@ -27,6 +27,7 @@
 #include "core/loader/nca.h"
 #include "core/loader/nsp.h"
 #include "core/file_sys/vfs/vfs_vector.h"
+#include "core/file_sys/ncz_virtual_file.h"
 
 namespace Loader {
 
@@ -344,47 +345,13 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
         return status;
     }
 
-    // If the update NCA comes from an NCZ, it must be fully decompressed into memory
-    // before BKTR patching, because BKTR (AesCtrEx) requires random access which NCZ
-    // streaming decompression cannot support.
-    // Decompressing to a temporary disk file cache instead of RAM prevents OOM/freezing
-    // on large files (e.g. 14GB update files).
+    // If the update NCA comes from an NCZ, we wrap it in a CachedOnDemandVfsFile
+    // to perform fast, thread-safe, on-demand block decompression on the fly.
+    // This makes loading instant and persists the decompressed cache across runs.
     if (read->IsNczFile()) {
-        const std::size_t total_size = read->GetSize();
-        LOG_INFO(Loader, "Update NCA is NCZ-compressed ({} bytes). Decompressing fully to disk cache for BKTR...", total_size);
-
         const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
-        const auto temp_path = temp_dir / fmt::format("{}.tmp_decompressed", read->GetName());
-        
-        auto disk_file = std::make_shared<DiskVfsFile>(temp_path, read->GetName());
-        if (!disk_file->IsWritable()) {
-            LOG_ERROR(Loader, "Failed to create temporary decompressed file on disk: {}", temp_path.string());
-            return ResultStatus::ErrorNoPackedUpdate;
-        }
-
-        constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
-        std::vector<u8> buffer(CHUNK_SIZE);
-        
-        std::size_t offset = 0;
-        while (offset < total_size) {
-            const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
-            const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
-            if (bytes_read == 0) {
-                LOG_ERROR(Loader, "Failed to decompress NCZ chunk at offset {}", offset);
-                return ResultStatus::ErrorNoPackedUpdate;
-            }
-            
-            const std::size_t bytes_written = disk_file->Write(buffer.data(), bytes_read, offset);
-            if (bytes_written != bytes_read) {
-                LOG_ERROR(Loader, "Failed to write decompressed NCZ chunk to disk at offset {}", offset);
-                return ResultStatus::ErrorNoPackedUpdate;
-            }
-            
-            offset += bytes_read;
-        }
-
-        out_file = disk_file;
-        LOG_INFO(Loader, "Update NCA decompressed successfully to disk cache ({} bytes).", total_size);
+        out_file = std::make_shared<FileSys::CachedOnDemandVfsFile>(read, temp_dir);
+        LOG_INFO(Loader, "Update NCA is NCZ-compressed. Mapped CachedOnDemandVfsFile successfully for instant loading.");
     } else {
         out_file = read;
     }

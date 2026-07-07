@@ -12,6 +12,7 @@
 #include "common/hex_util.h"
 #include "common/logging.h"
 #include "common/settings.h"
+#include "common/fs/path_util.h"
 #ifndef _WIN32
 #include "common/string_util.h"
 #endif
@@ -27,6 +28,7 @@
 #include "core/file_sys/vfs/vfs_cached.h"
 #include "core/file_sys/vfs/vfs_layered.h"
 #include "core/file_sys/vfs/vfs_vector.h"
+#include "core/file_sys/ncz_virtual_file.h"
 #include "core/hle/service/filesystem/filesystem.h"
 #include "core/hle/service/ns/language.h"
 #include "core/hle/service/set/settings_server.h"
@@ -686,19 +688,13 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
         }
     }
 
-    // Helper: if an update NCA is NCZ-compressed, fully decompress it into memory
-    // because BKTR (AesCtrEx) patching requires random access which NCZ can't provide.
+    // Helper: if an update NCA is NCZ-compressed, we wrap it in a CachedOnDemandVfsFile
+    // to perform fast, thread-safe, on-demand block decompression on the fly.
     auto DecompressIfNcz = [](VirtualFile& vf) {
         if (vf && vf->IsNczFile()) {
-            const std::size_t total_size = vf->GetSize();
-            LOG_INFO(Loader, "PatchRomFS: Decompressing NCZ update NCA ({} bytes) for BKTR...", total_size);
-            std::vector<u8> data(total_size);
-            const std::size_t bytes_read = vf->Read(data.data(), total_size, 0);
-            if (bytes_read == total_size) {
-                vf = std::make_shared<VectorVfsFile>(std::move(data), vf->GetName());
-            } else {
-                LOG_ERROR(Loader, "PatchRomFS: NCZ decompression failed ({}/{} bytes)", bytes_read, total_size);
-            }
+            const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
+            vf = std::make_shared<CachedOnDemandVfsFile>(vf, temp_dir);
+            LOG_INFO(Loader, "PatchRomFS: Update NCA is NCZ-compressed. Mapped CachedOnDemandVfsFile successfully for instant loading.");
         }
     };
 

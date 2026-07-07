@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "core/file_sys/ncz_virtual_file.h"
@@ -638,6 +638,125 @@ bool NCZVirtualFile::HasDecryptedSections() const {
 
 bool NCZVirtualFile::Rename(std::string_view name) {
     return file->Rename(name);
+}
+
+CachedOnDemandVfsFile::CachedOnDemandVfsFile(VirtualFile source_, std::filesystem::path cache_dir_)
+    : source(std::move(source_)) {
+    
+    std::error_code ec;
+    std::filesystem::create_directories(cache_dir_, ec);
+    
+    total_size = source->GetSize();
+    
+    std::string safe_name = source->GetName();
+    for (char& c : safe_name) {
+        if (c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|') {
+            c = '_';
+        }
+    }
+    
+    final_path = cache_dir_ / fmt::format("{}.decompressed", safe_name);
+    tmp_path = cache_dir_ / fmt::format("{}.decompressed.tmp", safe_name);
+    
+    if (std::filesystem::exists(final_path, ec) && std::filesystem::file_size(final_path, ec) == total_size) {
+        decompressed_until = total_size;
+        is_tmp = false;
+        cache_file.Open(final_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+    } else {
+        (void)std::filesystem::remove(tmp_path, ec);
+        (void)std::filesystem::remove(final_path, ec);
+        
+        {
+            Common::FS::IOFile creator(tmp_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
+        }
+        
+        decompressed_until = 0;
+        is_tmp = true;
+        cache_file.Open(tmp_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+    }
+}
+
+CachedOnDemandVfsFile::~CachedOnDemandVfsFile() {
+    std::lock_guard<std::mutex> lock(io_mutex);
+    cache_file.Close();
+    if (is_tmp) {
+        std::error_code ec;
+        (void)std::filesystem::remove(tmp_path, ec);
+    }
+}
+
+std::string CachedOnDemandVfsFile::GetName() const {
+    return source->GetName();
+}
+
+std::string CachedOnDemandVfsFile::GetExtension() const {
+    return source->GetExtension();
+}
+
+std::size_t CachedOnDemandVfsFile::GetSize() const {
+    return total_size;
+}
+
+bool CachedOnDemandVfsFile::Resize(std::size_t new_size) {
+    return false;
+}
+
+VirtualDir CachedOnDemandVfsFile::GetContainingDirectory() const {
+    return nullptr;
+}
+
+bool CachedOnDemandVfsFile::IsWritable() const {
+    return false;
+}
+
+bool CachedOnDemandVfsFile::IsReadable() const {
+    return true;
+}
+
+std::size_t CachedOnDemandVfsFile::Read(u8* data, std::size_t length, std::size_t offset) const {
+    if (length == 0 || offset >= total_size) return 0;
+    
+    std::size_t real_length = std::min(length, total_size - offset);
+    std::size_t target_end = offset + real_length;
+    
+    std::lock_guard<std::mutex> lock(io_mutex);
+    
+    if (target_end > decompressed_until) {
+        constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024;
+        std::vector<u8> buffer(CHUNK_SIZE);
+        
+        while (decompressed_until < target_end) {
+            std::size_t to_read = std::min(CHUNK_SIZE, total_size - decompressed_until);
+            std::size_t read_bytes = source->Read(buffer.data(), to_read, decompressed_until);
+            if (read_bytes == 0) {
+                break;
+            }
+            
+            (void)cache_file.Seek(decompressed_until);
+            (void)cache_file.WriteSpan(std::span<const u8>(buffer.data(), read_bytes));
+            
+            decompressed_until += read_bytes;
+        }
+        
+        if (decompressed_until == total_size && is_tmp) {
+            cache_file.Close();
+            std::error_code ec;
+            (void)std::filesystem::rename(tmp_path, final_path, ec);
+            is_tmp = false;
+            cache_file.Open(final_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+        }
+    }
+    
+    if (!cache_file.Seek(offset)) return 0;
+    return cache_file.ReadSpan(std::span<u8>(data, real_length));
+}
+
+std::size_t CachedOnDemandVfsFile::Write(const u8* data, std::size_t length, std::size_t offset) {
+    return 0;
+}
+
+bool CachedOnDemandVfsFile::Rename(std::string_view name) {
+    return false;
 }
 
 } // namespace FileSys

@@ -10,6 +10,9 @@
 #include "common/swap.h"
 #include "core/file_sys/vfs/vfs.h"
 
+#include <filesystem>
+#include "common/fs/file.h"
+
 namespace FileSys {
 
 class NCZVirtualFile : public VfsFile {
@@ -112,6 +115,33 @@ public:
     // NCZ files store the raw encrypted NCA header, but body data is pre-decrypted.
     // This cache allows reads at < 0x4000 to return decrypted header bytes.
     std::vector<u8> decrypted_header;
+};
+
+class CachedOnDemandVfsFile : public VfsFile {
+public:
+    CachedOnDemandVfsFile(VirtualFile source_, std::filesystem::path cache_dir_);
+    ~CachedOnDemandVfsFile() override;
+
+    std::string GetName() const override;
+    std::string GetExtension() const override;
+    std::size_t GetSize() const override;
+    bool Resize(std::size_t new_size) override;
+    VirtualDir GetContainingDirectory() const override;
+    bool IsWritable() const override;
+    bool IsReadable() const override;
+    std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override;
+    std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override;
+    bool Rename(std::string_view name) override;
+
+private:
+    VirtualFile source;
+    std::filesystem::path final_path;
+    std::filesystem::path tmp_path;
+    std::size_t total_size = 0;
+    mutable std::size_t decompressed_until = 0;
+    mutable bool is_tmp = false;
+    mutable Common::FS::IOFile cache_file;
+    mutable std::mutex io_mutex;
 };
 
 } // namespace FileSys

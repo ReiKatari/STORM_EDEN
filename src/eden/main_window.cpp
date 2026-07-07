@@ -2535,10 +2535,68 @@ bool MainWindow::OnShutdownBegin() {
     return true;
 }
 
+class ShutdownDialog : public QDialog {
+public:
+    explicit ShutdownDialog(QWidget* parent) : QDialog(parent) {
+        setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
+        setModal(true);
+        setAttribute(Qt::WA_TranslucentBackground);
+        
+        setFixedSize(360, 160);
+        
+        auto* layout = new QVBoxLayout(this);
+        layout->setContentsMargins(10, 10, 10, 10);
+        
+        auto* container = new QWidget(this);
+        container->setObjectName(QStringLiteral("Container"));
+        
+        auto* container_layout = new QVBoxLayout(container);
+        container_layout->setContentsMargins(20, 20, 20, 20);
+        container_layout->setAlignment(Qt::AlignCenter);
+        
+        auto* label = new QLabel(tr("Завершение работы..."), container);
+        label->setObjectName(QStringLiteral("MessageLabel"));
+        label->setAlignment(Qt::AlignCenter);
+        
+        QFont font = label->font();
+        font.setPointSize(14);
+        font.setBold(true);
+        label->setFont(font);
+        
+        container_layout->addWidget(label);
+        layout->addWidget(container);
+        
+        auto* pulse_timer = new QTimer(this);
+        connect(pulse_timer, &QTimer::timeout, this, [this, pulse_val = 0.2f, going_up = true]() mutable {
+            if (going_up) {
+                pulse_val += 0.02f;
+                if (pulse_val >= 0.8f) going_up = false;
+            } else {
+                pulse_val -= 0.02f;
+                if (pulse_val <= 0.2f) going_up = true;
+            }
+            this->setStyleSheet(QStringLiteral(
+                "QWidget#Container {"
+                "  background-color: rgba(20, 20, 20, 0.9);"
+                "  border: 2px solid rgba(0, 190, 255, %1);"
+                "  border-radius: 16px;"
+                "}"
+                "QLabel#MessageLabel {"
+                "  color: #FFFFFF;"
+                "}"
+            ).arg(pulse_val));
+        });
+        pulse_timer->start(30);
+        
+        if (parent) {
+            auto parent_geometry = parent->geometry();
+            move(parent_geometry.center() - rect().center());
+        }
+    }
+};
+
 void MainWindow::OnShutdownBeginDialog() {
-    shutdown_dialog =
-        new OverlayDialog(this, *QtCommon::system, QString{}, tr("Closing software..."), QString{},
-                          QString{}, Qt::AlignHCenter | Qt::AlignVCenter);
+    shutdown_dialog = new ShutdownDialog(this);
     shutdown_dialog->open();
 }
 

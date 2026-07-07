@@ -514,7 +514,7 @@ private:
     GameList* game_list = nullptr;
     LoadingScreen* loading_screen = nullptr;
     QTimer shutdown_timer;
-    OverlayDialog* shutdown_dialog{};
+    QDialog* shutdown_dialog{};
     PerformanceOverlay* perf_overlay = nullptr;
 
     GameListPlaceholder* game_list_placeholder = nullptr;

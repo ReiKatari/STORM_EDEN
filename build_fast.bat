@@ -26,3 +26,5 @@ if %ERRORLEVEL% neq 0 (
     echo [ERROR] MSBuild eden_cmd failed!
     exit /b %ERRORLEVEL%
 )
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"

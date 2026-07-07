@@ -272,6 +272,8 @@ class DiskVfsFile : public FileSys::VfsFile {
 public:
     DiskVfsFile(std::filesystem::path path_, std::string name_)
         : path(std::move(path_)), name(std::move(name_)) {
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec);
         file.Open(path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
     }
     
@@ -283,23 +285,25 @@ public:
     
     std::string GetName() const override { return name; }
     std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
-    std::size_t GetSize() const override { return file.GetSize(); }
-    bool Resize(std::size_t new_size) override { return file.SetSize(new_size); }
+    std::size_t GetSize() const override { return file.IsOpen() ? file.GetSize() : 0; }
+    bool Resize(std::size_t new_size) override { return file.IsOpen() && file.SetSize(new_size); }
     FileSys::VirtualDir GetContainingDirectory() const override { return nullptr; }
-    bool IsWritable() const override { return true; }
-    bool IsReadable() const override { return true; }
+    bool IsWritable() const override { return file.IsOpen(); }
+    bool IsReadable() const override { return file.IsOpen(); }
     bool Rename(std::string_view name_) override {
         name = name_;
         return true;
     }
     
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
+        if (!file.IsOpen()) return 0;
         std::lock_guard<std::mutex> lock(io_mutex);
         if (!file.Seek(offset)) return 0;
         return file.ReadSpan(std::span<u8>(data, length));
     }
     
     std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
+        if (!file.IsOpen()) return 0;
         std::lock_guard<std::mutex> lock(io_mutex);
         if (!file.Seek(offset)) return 0;
         return file.WriteSpan(std::span<const u8>(data, length));

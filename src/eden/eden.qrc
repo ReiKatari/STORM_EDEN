@@ -1,0 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2021 yuzu Emulator Project
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+
+<RCC>
+    <qresource prefix="/img">
+        <file alias="eden.ico">../../dist/eden.ico</file>
+        <file alias="nintendo_switch_logo.jpg">nintendo_switch_logo.jpg</file>
+        <file alias="nintendo_switch_logo.gif">nintendo_switch_logo.gif</file>
+    </qresource>
+</RCC>

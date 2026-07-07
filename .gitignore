@@ -2,7 +2,7 @@
 **/[Bb]uild*/
 **/intermediates/
 **/tmp/
-**/eden/
+/eden/
 doc-build/
 out/
 AppDir/

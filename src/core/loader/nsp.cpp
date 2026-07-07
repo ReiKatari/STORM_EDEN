@@ -1,13 +1,16 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <vector>
+#include <mutex>
+#include <filesystem>
 
 #include "common/common_types.h"
 #include "common/string_util.h"
+#include "common/fs/file.h"
 #include "common/fs/path_util.h"
 #include "core/core.h"
 #include "core/file_sys/content_archive.h"
@@ -264,6 +267,52 @@ ResultStatus AppLoader_NSP::ReadRomFS(FileSys::VirtualFile& out_file) {
     return out_file == nullptr ? ResultStatus::ErrorNoRomFS : ResultStatus::Success;
 }
 
+namespace {
+class DiskVfsFile : public FileSys::VfsFile {
+public:
+    DiskVfsFile(std::filesystem::path path_, std::string name_)
+        : path(std::move(path_)), name(std::move(name_)) {
+        file.Open(path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+    }
+    
+    ~DiskVfsFile() override {
+        file.Close();
+        std::error_code ec;
+        std::filesystem::remove(path, ec);
+    }
+    
+    std::string GetName() const override { return name; }
+    std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
+    std::size_t GetSize() const override { return file.GetSize(); }
+    bool Resize(std::size_t new_size) override { return file.SetSize(new_size); }
+    FileSys::VirtualDir GetContainingDirectory() const override { return nullptr; }
+    bool IsWritable() const override { return true; }
+    bool IsReadable() const override { return true; }
+    bool Rename(std::string_view name_) override {
+        name = name_;
+        return true;
+    }
+    
+    std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
+        std::lock_guard<std::mutex> lock(io_mutex);
+        if (!file.Seek(offset)) return 0;
+        return file.ReadSpan(std::span<u8>(data, length));
+    }
+    
+    std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
+        std::lock_guard<std::mutex> lock(io_mutex);
+        if (!file.Seek(offset)) return 0;
+        return file.WriteSpan(std::span<const u8>(data, length));
+    }
+    
+private:
+    std::filesystem::path path;
+    std::string name;
+    mutable Common::FS::IOFile file;
+    mutable std::mutex io_mutex;
+};
+} // Anonymous namespace
+
 ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     if (nsp->IsExtractedType()) {
         return ResultStatus::ErrorNoPackedUpdate;
@@ -291,19 +340,44 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     // If the update NCA comes from an NCZ, it must be fully decompressed into memory
     // before BKTR patching, because BKTR (AesCtrEx) requires random access which NCZ
     // streaming decompression cannot support.
+    // Decompressing to a temporary disk file cache instead of RAM prevents OOM/freezing
+    // on large files (e.g. 14GB update files).
     if (read->IsNczFile()) {
         const std::size_t total_size = read->GetSize();
-        LOG_INFO(Loader, "Update NCA is NCZ-compressed ({} bytes). Decompressing fully for BKTR...", total_size);
+        LOG_INFO(Loader, "Update NCA is NCZ-compressed ({} bytes). Decompressing fully to disk cache for BKTR...", total_size);
 
-        std::vector<u8> decompressed(total_size);
-        const std::size_t bytes_read = read->Read(decompressed.data(), total_size, 0);
-        if (bytes_read != total_size) {
-            LOG_ERROR(Loader, "Failed to fully decompress update NCZ. Read {} of {} bytes.", bytes_read, total_size);
+        const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
+        const auto temp_path = temp_dir / fmt::format("{}.tmp_decompressed", read->GetName());
+        
+        auto disk_file = std::make_shared<DiskVfsFile>(temp_path, read->GetName());
+        if (!disk_file->IsWritable()) {
+            LOG_ERROR(Loader, "Failed to create temporary decompressed file on disk: {}", temp_path.string());
             return ResultStatus::ErrorNoPackedUpdate;
         }
 
-        out_file = std::make_shared<FileSys::VectorVfsFile>(std::move(decompressed), read->GetName());
-        LOG_INFO(Loader, "Update NCA decompressed successfully ({} bytes).", total_size);
+        constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
+        std::vector<u8> buffer(CHUNK_SIZE);
+        
+        std::size_t offset = 0;
+        while (offset < total_size) {
+            const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
+            const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
+            if (bytes_read == 0) {
+                LOG_ERROR(Loader, "Failed to decompress NCZ chunk at offset {}", offset);
+                return ResultStatus::ErrorNoPackedUpdate;
+            }
+            
+            const std::size_t bytes_written = disk_file->Write(buffer.data(), bytes_read, offset);
+            if (bytes_written != bytes_read) {
+                LOG_ERROR(Loader, "Failed to write decompressed NCZ chunk to disk at offset {}", offset);
+                return ResultStatus::ErrorNoPackedUpdate;
+            }
+            
+            offset += bytes_read;
+        }
+
+        out_file = disk_file;
+        LOG_INFO(Loader, "Update NCA decompressed successfully to disk cache ({} bytes).", total_size);
     } else {
         out_file = read;
     }

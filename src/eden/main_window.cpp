@@ -5773,8 +5773,8 @@ void MainWindow::OnDLCButtonClicked() {
     layout->setContentsMargins(16, 16, 16, 16);
     layout->setSpacing(8);
 
-    QLabel* title = new QLabel(tr("ДОПОЛНЕНИЯ ИГРЫ"));
-    title->setStyleSheet(QStringLiteral("color: #FFFFFF; font-size: 18px; font-weight: bold; margin-bottom: 12px; letter-spacing: 1px;"));
+    QLabel* title = new QLabel(tr("ДОПОЛНЕНИЯ"));
+    title->setStyleSheet(QStringLiteral("color: #FFFFFF; font-size: 18px; font-weight: bold; margin-bottom: 12px; letter-spacing: 1px; background-color: transparent;"));
     layout->addWidget(title);
 
     QListWidget* listWidget = new QListWidget();

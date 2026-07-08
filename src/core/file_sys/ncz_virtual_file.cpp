@@ -8,6 +8,8 @@
 #include <cstring>
 #include <algorithm>
 #include <mutex>
+#include <atomic>
+#include <chrono>
 #include "core/file_sys/fssystem/fssystem_utility.h"
 #include <vector>
 #include <span>
@@ -656,16 +658,17 @@ CachedOnDemandVfsFile::CachedOnDemandVfsFile(VirtualFile source_, std::filesyste
     }
     
     final_path = cache_dir_ / fmt::format("{}.decompressed", safe_name);
-    tmp_path = cache_dir_ / fmt::format("{}.decompressed.tmp", safe_name);
+    
+    static std::atomic<u64> temp_counter{0};
+    u64 timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+    tmp_path = cache_dir_ / fmt::format("{}_{}_{}.decompressed.tmp", safe_name, timestamp, temp_counter.fetch_add(1));
     
     if (std::filesystem::exists(final_path, ec) && std::filesystem::file_size(final_path, ec) == total_size) {
         decompressed_until = total_size;
         is_tmp = false;
-        cache_file.Open(final_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+        cache_file.Open(final_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
     } else {
-        (void)std::filesystem::remove(tmp_path, ec);
-        (void)std::filesystem::remove(final_path, ec);
-        
         {
             Common::FS::IOFile creator(tmp_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
         }
@@ -741,9 +744,13 @@ std::size_t CachedOnDemandVfsFile::Read(u8* data, std::size_t length, std::size_
         if (decompressed_until == total_size && is_tmp) {
             cache_file.Close();
             std::error_code ec;
-            (void)std::filesystem::rename(tmp_path, final_path, ec);
+            if (!std::filesystem::exists(final_path, ec)) {
+                (void)std::filesystem::rename(tmp_path, final_path, ec);
+            } else {
+                (void)std::filesystem::remove(tmp_path, ec);
+            }
             is_tmp = false;
-            cache_file.Open(final_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+            cache_file.Open(final_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
         }
     }
     

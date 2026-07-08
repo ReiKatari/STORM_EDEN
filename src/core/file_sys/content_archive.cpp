@@ -34,10 +34,6 @@ static u8 MasterKeyIdForKeyGeneration(u8 key_generation) {
 NCA::NCA(VirtualFile file_, const NCA* base_nca)
     : keys{Core::Crypto::KeyManager::Instance()} {
     file = std::move(file_);
-    if (file && file->IsNczFile()) {
-        const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
-        file = std::make_shared<CachedOnDemandVfsFile>(file, temp_dir);
-    }
 
     if (file == nullptr) {
         status = Loader::ResultStatus::ErrorNullFile;

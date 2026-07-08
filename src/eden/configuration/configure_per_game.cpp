@@ -90,7 +90,7 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     ui->tabWidget->addTab(addons_tab.get(), tr("Add-ons"));
     ui->tabWidget->addTab(gamebanana_tab.get(), tr("GameBanana Mods"));
     ui->tabWidget->addTab(system_tab.get(), tr("System"));
-    ui->tabWidget->addTab(cpu_tab.get(), tr("CPU"));
+    ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
     ui->tabWidget->addTab(graphics_tab.get(), tr("Graphics"));
     ui->tabWidget->addTab(graphics_advanced_tab.get(), tr("Adv. Graphics"));
     ui->tabWidget->addTab(graphics_extensions_tab.get(), tr("Ext. Graphics"));

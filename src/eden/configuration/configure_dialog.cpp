@@ -73,7 +73,7 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
 
     ui->tabWidget->addTab(applets_tab.get(), tr("Applets"));
     ui->tabWidget->addTab(audio_tab.get(), tr("Audio"));
-    ui->tabWidget->addTab(cpu_tab.get(), tr("CPU"));
+    ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
     ui->tabWidget->addTab(debug_tab_tab.get(), tr("Debug"));
     ui->tabWidget->addTab(filesystem_tab.get(), tr("Filesystem"));
     ui->tabWidget->addTab(general_tab.get(), tr("General"));
@@ -205,7 +205,7 @@ void ConfigureDialog::PopulateSelectionList() {
          {tr("System"),
           {system_tab.get(), profile_tab.get(), network_tab.get(), filesystem_tab.get(),
            applets_tab.get()}},
-         {tr("CPU"), {cpu_tab.get()}},
+         {tr("ЦП"), {cpu_tab.get()}},
          {tr("Graphics"),
           {graphics_tab.get(), graphics_advanced_tab.get(), graphics_extensions_tab.get()}},
          {tr("Audio"), {audio_tab.get()}},

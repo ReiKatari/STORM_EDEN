@@ -21,6 +21,8 @@
 
 #endif
 
+// Optimized for NVIDIA Pascal (Warp Size 32, 2 warps per workgroup)
+// 8x8 workgroup yields exactly 64 threads, ensuring 100% warp occupancy.
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 BEGIN_PUSH_CONSTANTS

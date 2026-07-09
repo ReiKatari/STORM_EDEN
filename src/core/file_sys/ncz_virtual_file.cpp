@@ -8,8 +8,6 @@
 #include <cstring>
 #include <algorithm>
 #include <mutex>
-#include <atomic>
-#include <chrono>
 #include "core/file_sys/fssystem/fssystem_utility.h"
 #include <vector>
 #include <span>
@@ -17,6 +15,9 @@
 
 namespace {
 class ZstdContextPool {
+private:
+    std::mutex mutex;
+    std::vector<ZSTD_DCtx*> pool;
 public:
     static ZstdContextPool& Get() {
         static ZstdContextPool instance;
@@ -24,10 +25,10 @@ public:
     }
 
     ZSTD_DCtx* Acquire() {
-        thread_local std::vector<ZSTD_DCtx*> local_pool;
-        if (!local_pool.empty()) {
-            ZSTD_DCtx* ctx = local_pool.back();
-            local_pool.pop_back();
+        std::lock_guard<std::mutex> lock(mutex);
+        if (!pool.empty()) {
+            ZSTD_DCtx* ctx = pool.back();
+            pool.pop_back();
             ZSTD_DCtx_reset(ctx, ZSTD_reset_session_only);
             return ctx;
         }
@@ -36,15 +37,19 @@ public:
 
     void Release(ZSTD_DCtx* ctx) {
         if (!ctx) return;
-        thread_local std::vector<ZSTD_DCtx*> local_pool;
-        if (local_pool.size() < 8) {
-            local_pool.push_back(ctx);
+        std::lock_guard<std::mutex> lock(mutex);
+        if (pool.size() < 16) {
+            pool.push_back(ctx);
         } else {
             ZSTD_freeDCtx(ctx);
         }
     }
 
-    ~ZstdContextPool() {}
+    ~ZstdContextPool() {
+        for (auto* ctx : pool) {
+            ZSTD_freeDCtx(ctx);
+        }
+    }
 };
 }
 
@@ -640,130 +645,6 @@ bool NCZVirtualFile::HasDecryptedSections() const {
 
 bool NCZVirtualFile::Rename(std::string_view name) {
     return file->Rename(name);
-}
-
-CachedOnDemandVfsFile::CachedOnDemandVfsFile(VirtualFile source_, std::filesystem::path cache_dir_)
-    : source(std::move(source_)) {
-    
-    std::error_code ec;
-    std::filesystem::create_directories(cache_dir_, ec);
-    
-    total_size = source->GetSize();
-    
-    std::string safe_name = source->GetName();
-    for (char& c : safe_name) {
-        if (c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|') {
-            c = '_';
-        }
-    }
-    
-    final_path = cache_dir_ / fmt::format("{}.decompressed", safe_name);
-    
-    static std::atomic<u64> temp_counter{0};
-    u64 timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()).count();
-    tmp_path = cache_dir_ / fmt::format("{}_{}_{}.decompressed.tmp", safe_name, timestamp, temp_counter.fetch_add(1));
-    
-    if (std::filesystem::exists(final_path, ec) && std::filesystem::file_size(final_path, ec) == total_size) {
-        decompressed_until = total_size;
-        is_tmp = false;
-        cache_file.Open(final_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
-    } else {
-        {
-            Common::FS::IOFile creator(tmp_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
-        }
-        
-        decompressed_until = 0;
-        is_tmp = true;
-        cache_file.Open(tmp_path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
-    }
-}
-
-CachedOnDemandVfsFile::~CachedOnDemandVfsFile() {
-    std::lock_guard<std::mutex> lock(io_mutex);
-    cache_file.Close();
-    if (is_tmp) {
-        std::error_code ec;
-        (void)std::filesystem::remove(tmp_path, ec);
-    }
-}
-
-std::string CachedOnDemandVfsFile::GetName() const {
-    return source->GetName();
-}
-
-std::string CachedOnDemandVfsFile::GetExtension() const {
-    return source->GetExtension();
-}
-
-std::size_t CachedOnDemandVfsFile::GetSize() const {
-    return total_size;
-}
-
-bool CachedOnDemandVfsFile::Resize(std::size_t new_size) {
-    return false;
-}
-
-VirtualDir CachedOnDemandVfsFile::GetContainingDirectory() const {
-    return nullptr;
-}
-
-bool CachedOnDemandVfsFile::IsWritable() const {
-    return false;
-}
-
-bool CachedOnDemandVfsFile::IsReadable() const {
-    return true;
-}
-
-std::size_t CachedOnDemandVfsFile::Read(u8* data, std::size_t length, std::size_t offset) const {
-    if (length == 0 || offset >= total_size) return 0;
-    
-    std::size_t real_length = std::min(length, total_size - offset);
-    std::size_t target_end = offset + real_length;
-    
-    std::lock_guard<std::mutex> lock(io_mutex);
-    
-    if (target_end > decompressed_until) {
-        constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024;
-        std::vector<u8> buffer(CHUNK_SIZE);
-        
-        while (decompressed_until < target_end) {
-            std::size_t to_read = std::min(CHUNK_SIZE, total_size - decompressed_until);
-            std::size_t read_bytes = source->Read(buffer.data(), to_read, decompressed_until);
-            if (read_bytes == 0) {
-                break;
-            }
-            
-            (void)cache_file.Seek(decompressed_until);
-            (void)cache_file.WriteSpan(std::span<const u8>(buffer.data(), read_bytes));
-            
-            decompressed_until += read_bytes;
-        }
-        
-        if (decompressed_until == total_size && is_tmp) {
-            cache_file.Close();
-            std::error_code ec;
-            if (!std::filesystem::exists(final_path, ec)) {
-                (void)std::filesystem::rename(tmp_path, final_path, ec);
-            } else {
-                (void)std::filesystem::remove(tmp_path, ec);
-            }
-            is_tmp = false;
-            cache_file.Open(final_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
-        }
-    }
-    
-    if (!cache_file.Seek(offset)) return 0;
-    return cache_file.ReadSpan(std::span<u8>(data, real_length));
-}
-
-std::size_t CachedOnDemandVfsFile::Write(const u8* data, std::size_t length, std::size_t offset) {
-    return 0;
-}
-
-bool CachedOnDemandVfsFile::Rename(std::string_view name) {
-    return false;
 }
 
 } // namespace FileSys

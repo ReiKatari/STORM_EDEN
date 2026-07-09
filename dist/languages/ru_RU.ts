@@ -1360,7 +1360,7 @@ When a program attempts to open the controller applet, it is immediately closed.
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="395" />
             <source>CPU</source>
-            <translation>CPU</translation>
+            <translation>ЦП</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="396" />
@@ -2408,7 +2408,7 @@ When a program attempts to open the controller applet, it is immediately closed.
         <message>
             <location filename="../../src/eden/configuration/configure_cpu.ui" line="17" />
             <source>CPU</source>
-            <translation>CPU</translation>
+            <translation>ЦП</translation>
         </message>
         <message>
             <location filename="../../src/eden/configuration/configure_cpu.ui" line="28" />
@@ -4316,7 +4316,7 @@ Would you like to delete the old save data?</source>
         <message>
             <location filename="../../src/eden/configuration/configure_input_player.ui" line="2851" />
             <source>Mouse panning</source>
-            <translation>Панорамирование мыши</translation>
+            <translation>Панорамирование мышки</translation>
         </message>
         <message>
             <location filename="../../src/eden/configuration/configure_input_player.ui" line="2875" />
@@ -7023,6 +7023,10 @@ Debug Message: </source>
     </context>
     <context>
         <name>MainWindow</name>
+        <message>
+            <source>Game updates cannot be loaded directly. Load the base game instead.</source>
+            <translation>Обновления не могут быть загружены напрямую. Запустите базовую игру.</translation>
+        </message>
         <message>
             <location filename="../../src/eden/main.ui" line="14" />
             <location filename="../../src/eden/main_window.cpp" line="5087" />

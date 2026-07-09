@@ -226,8 +226,10 @@ struct GPU::Impl {
     /// This can be used to launch any necessary threads and register any necessary
     /// core timing events.
     void Start() {
+        LOG_CRITICAL(Render_Vulkan, "GPU::Start() entering");
         Settings::UpdateGPUAccuracy();
         gpu_thread.StartThread(*renderer, renderer->Context(), *scheduler);
+        LOG_CRITICAL(Render_Vulkan, "GPU::Start() finished");
     }
 
     void NotifyShutdown() {

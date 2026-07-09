@@ -1593,7 +1593,14 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
                                                    runtime->ViewFormats(info.format))),
       aspect_mask(ImageAspectMask(info.format)) {
     if (IsPixelFormatASTC(info.format) && !runtime->device.IsOptimalAstcSupported()) {
-        switch (Settings::values.accelerate_astc.GetValue()) {
+        auto decode_mode = Settings::values.accelerate_astc.GetValue();
+        
+        // FORCE GPU ASTC DECODE FOR NVIDIA PASCAL (GTX 10-series) AND LATER
+        if (runtime->device.GetDriverID() == VK_DRIVER_ID_NVIDIA_PROPRIETARY) {
+            decode_mode = Settings::AstcDecodeMode::Gpu;
+        }
+
+        switch (decode_mode) {
         case Settings::AstcDecodeMode::Gpu:
             if (Settings::values.astc_recompression.GetValue() ==
                     Settings::AstcRecompression::Uncompressed &&

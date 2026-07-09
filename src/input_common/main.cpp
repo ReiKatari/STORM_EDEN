@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: 2017 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <future>
 #include <memory>
 #include "common/input.h"
 #include "common/param_package.h"
@@ -72,33 +73,43 @@ struct InputSubsystem::Impl {
         Common::Input::RegisterOutputFactory(engine->GetEngineName(), std::move(output_factory));
     }
 
+    std::shared_future<void> init_future;
+
     void Initialize() {
-        mapping_factory = std::make_shared<MappingFactory>();
+        init_future = std::async(std::launch::async, [this]() {
+            mapping_factory = std::make_shared<MappingFactory>();
 
-        RegisterEngine("updater", update_engine);
-        RegisterEngine("keyboard", keyboard);
-        RegisterEngine("mouse", mouse);
-        RegisterEngine("touch", touch_screen);
+            RegisterEngine("updater", update_engine);
+            RegisterEngine("keyboard", keyboard);
+            RegisterEngine("mouse", mouse);
+            RegisterEngine("touch", touch_screen);
 #ifdef ENABLE_LIBUSB
-        RegisterEngine("gcpad", gcadapter);
+            RegisterEngine("gcpad", gcadapter);
 #endif
-        RegisterEngine("cemuhookudp", udp_client);
-        RegisterEngine("tas", tas_input);
-        RegisterEngine("camera", camera);
+            RegisterEngine("cemuhookudp", udp_client);
+            RegisterEngine("tas", tas_input);
+            RegisterEngine("camera", camera);
 #ifdef ANDROID
-        RegisterEngine("android", android);
+            RegisterEngine("android", android);
 #endif
-        RegisterEngine("virtual_amiibo", virtual_amiibo);
-        RegisterEngine("virtual_gamepad", virtual_gamepad);
+            RegisterEngine("virtual_amiibo", virtual_amiibo);
+            RegisterEngine("virtual_gamepad", virtual_gamepad);
 #ifdef HAVE_SDL2
-        RegisterEngine("sdl", sdl);
-        RegisterEngine("joycon", joycon);
+            RegisterEngine("sdl", sdl);
+            RegisterEngine("joycon", joycon);
 #endif
 
-        Common::Input::RegisterInputFactory("touch_from_button",
-                                            std::make_shared<TouchFromButton>());
-        Common::Input::RegisterInputFactory("analog_from_button",
-                                            std::make_shared<StickFromButton>());
+            Common::Input::RegisterInputFactory("touch_from_button",
+                                                std::make_shared<TouchFromButton>());
+            Common::Input::RegisterInputFactory("analog_from_button",
+                                                std::make_shared<StickFromButton>());
+        });
+    }
+
+    void WaitForInit() const {
+        if (init_future.valid()) {
+            init_future.wait();
+        }
     }
 
     template <typename Engine>
@@ -109,6 +120,7 @@ struct InputSubsystem::Impl {
     }
 
     void Shutdown() {
+        WaitForInit();
         UnregisterEngine(update_engine);
         UnregisterEngine(keyboard);
         UnregisterEngine(mouse);
@@ -373,96 +385,119 @@ void InputSubsystem::Shutdown() {
 }
 
 Keyboard* InputSubsystem::GetKeyboard() {
+    impl->WaitForInit();
     return impl->keyboard.get();
 }
 
 const Keyboard* InputSubsystem::GetKeyboard() const {
+    impl->WaitForInit();
     return impl->keyboard.get();
 }
 
 Mouse* InputSubsystem::GetMouse() {
+    impl->WaitForInit();
     return impl->mouse.get();
 }
 
 const Mouse* InputSubsystem::GetMouse() const {
+    impl->WaitForInit();
     return impl->mouse.get();
 }
 
 TouchScreen* InputSubsystem::GetTouchScreen() {
+    impl->WaitForInit();
     return impl->touch_screen.get();
 }
 
 const TouchScreen* InputSubsystem::GetTouchScreen() const {
+    impl->WaitForInit();
     return impl->touch_screen.get();
 }
 
 TasInput::Tas* InputSubsystem::GetTas() {
+    impl->WaitForInit();
     return impl->tas_input.get();
 }
 
 const TasInput::Tas* InputSubsystem::GetTas() const {
+    impl->WaitForInit();
     return impl->tas_input.get();
 }
 
 Camera* InputSubsystem::GetCamera() {
+    impl->WaitForInit();
     return impl->camera.get();
 }
 
 const Camera* InputSubsystem::GetCamera() const {
+    impl->WaitForInit();
     return impl->camera.get();
 }
 
 #ifdef ANDROID
 Android* InputSubsystem::GetAndroid() {
+    impl->WaitForInit();
     return impl->android.get();
 }
 
 const Android* InputSubsystem::GetAndroid() const {
+    impl->WaitForInit();
     return impl->android.get();
 }
 #endif
 
 VirtualAmiibo* InputSubsystem::GetVirtualAmiibo() {
+    impl->WaitForInit();
     return impl->virtual_amiibo.get();
 }
 
 const VirtualAmiibo* InputSubsystem::GetVirtualAmiibo() const {
+    impl->WaitForInit();
     return impl->virtual_amiibo.get();
 }
 
 VirtualGamepad* InputSubsystem::GetVirtualGamepad() {
+    impl->WaitForInit();
     return impl->virtual_gamepad.get();
 }
 
 const VirtualGamepad* InputSubsystem::GetVirtualGamepad() const {
+    impl->WaitForInit();
     return impl->virtual_gamepad.get();
 }
 
 std::vector<Common::ParamPackage> InputSubsystem::GetInputDevices() const {
+    impl->WaitForInit();
     return impl->GetInputDevices();
 }
 
 AnalogMapping InputSubsystem::GetAnalogMappingForDevice(const Common::ParamPackage& device) const {
+    impl->WaitForInit();
     return impl->GetAnalogMappingForDevice(device);
 }
 
 ButtonMapping InputSubsystem::GetButtonMappingForDevice(const Common::ParamPackage& device) const {
+    impl->WaitForInit();
     return impl->GetButtonMappingForDevice(device);
 }
 
 MotionMapping InputSubsystem::GetMotionMappingForDevice(const Common::ParamPackage& device) const {
+    impl->WaitForInit();
     return impl->GetMotionMappingForDevice(device);
 }
 
 Common::Input::ButtonNames InputSubsystem::GetButtonName(const Common::ParamPackage& params) const {
+    impl->WaitForInit();
     return impl->GetButtonName(params);
 }
 
 bool InputSubsystem::IsController(const Common::ParamPackage& params) const {
+    impl->WaitForInit();
     return impl->IsController(params);
 }
 
 bool InputSubsystem::IsStickInverted(const Common::ParamPackage& params) const {
+    impl->WaitForInit();
     if (params.Has("axis_x") && params.Has("axis_y")) {
         return impl->IsStickInverted(params);
     }
@@ -470,24 +505,29 @@ bool InputSubsystem::IsStickInverted(const Common::ParamPackage& params) const {
 }
 
 void InputSubsystem::ReloadInputDevices() {
+    impl->WaitForInit();
     impl->udp_client.get()->ReloadSockets();
 }
 
 void InputSubsystem::BeginMapping(Polling::InputType type) {
+    impl->WaitForInit();
     impl->BeginConfiguration();
     impl->mapping_factory->BeginMapping(type);
 }
 
 Common::ParamPackage InputSubsystem::GetNextInput() const {
+    impl->WaitForInit();
     return impl->mapping_factory->GetNextInput();
 }
 
 void InputSubsystem::StopMapping() const {
+    impl->WaitForInit();
     impl->EndConfiguration();
     impl->mapping_factory->StopMapping();
 }
 
 void InputSubsystem::PumpEvents() const {
+    impl->WaitForInit();
     impl->PumpEvents();
 }
 

@@ -101,6 +101,8 @@
 #include <QMimeData>
 #include <QPalette>
 #include <QProgressDialog>
+#include <QProgressBar>
+#include <QGraphicsDropShadowEffect>
 #include <QScreen>
 #include <QShortcut>
 #include <QStatusBar>
@@ -2248,11 +2250,22 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
                 const auto title =
                     tr("Error while loading ROM! %1", "%1 signifies a numeric error code.")
                         .arg(QString::fromStdString(error_code));
+                        
+                QString translated_error_string;
+                switch (static_cast<Loader::ResultStatus>(error_id)) {
+                case Loader::ResultStatus::ErrorMissingBKTRBaseRomFS:
+                    translated_error_string = tr("Game updates cannot be loaded directly. Load the base game instead.");
+                    break;
+                default:
+                    translated_error_string = QString::fromStdString(
+                        GetResultStatusString(static_cast<Loader::ResultStatus>(error_id)));
+                    break;
+                }
+
                 const auto description =
                     tr("%1<br>Please redump your files or ask on Discord/Stoat for help.",
                        "%1 signifies an error string.")
-                        .arg(QString::fromStdString(
-                            GetResultStatusString(static_cast<Loader::ResultStatus>(error_id))));
+                        .arg(translated_error_string);
 
                 QMessageBox::critical(this, title, description);
             } else {
@@ -2384,6 +2397,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
 
     if (!LoadROM(filename, params)) {
         loading_screen->hide();
+        render_window->hide();
         if (game_list->IsEmpty()) {
             game_list_placeholder->show();
         } else {
@@ -2542,51 +2556,89 @@ public:
         setModal(true);
         setAttribute(Qt::WA_TranslucentBackground);
         
-        setFixedSize(360, 160);
+        setFixedSize(400, 180);
         
         auto* layout = new QVBoxLayout(this);
-        layout->setContentsMargins(10, 10, 10, 10);
+        layout->setContentsMargins(15, 15, 15, 15);
         
         auto* container = new QWidget(this);
         container->setObjectName(QStringLiteral("Container"));
         
+        auto* shadow = new QGraphicsDropShadowEffect(container);
+        shadow->setBlurRadius(20);
+        shadow->setColor(QColor(0, 0, 0, 160));
+        shadow->setOffset(0, 6);
+        container->setGraphicsEffect(shadow);
+        
         auto* container_layout = new QVBoxLayout(container);
-        container_layout->setContentsMargins(20, 20, 20, 20);
+        container_layout->setContentsMargins(25, 25, 25, 25);
         container_layout->setAlignment(Qt::AlignCenter);
         
-        auto* label = new QLabel(tr("Завершение работы..."), container);
-        label->setObjectName(QStringLiteral("MessageLabel"));
-        label->setAlignment(Qt::AlignCenter);
+        auto* title_label = new QLabel(tr("Завершение работы"), container);
+        title_label->setObjectName(QStringLiteral("TitleLabel"));
+        title_label->setAlignment(Qt::AlignCenter);
         
-        QFont font = label->font();
-        font.setPointSize(14);
-        font.setBold(true);
-        label->setFont(font);
+        QFont title_font = title_label->font();
+        title_font.setFamily(QStringLiteral("Segoe UI"));
+        title_font.setPointSize(16);
+        title_font.setBold(true);
+        title_label->setFont(title_font);
         
-        container_layout->addWidget(label);
+        auto* subtitle_label = new QLabel(tr("Остановка эмуляции и освобождение ресурсов..."), container);
+        subtitle_label->setObjectName(QStringLiteral("SubtitleLabel"));
+        subtitle_label->setAlignment(Qt::AlignCenter);
+        
+        QFont subtitle_font = subtitle_label->font();
+        subtitle_font.setFamily(QStringLiteral("Segoe UI"));
+        subtitle_font.setPointSize(10);
+        subtitle_label->setFont(subtitle_font);
+        
+        auto* progress = new QProgressBar(container);
+        progress->setObjectName(QStringLiteral("ProgressBar"));
+        progress->setRange(0, 0); // Indeterminate progress
+        progress->setTextVisible(false);
+        progress->setFixedHeight(6);
+        
+        container_layout->addWidget(title_label);
+        container_layout->addWidget(subtitle_label);
+        container_layout->addSpacing(10);
+        container_layout->addWidget(progress);
+        
         layout->addWidget(container);
         
         auto* pulse_timer = new QTimer(this);
-        connect(pulse_timer, &QTimer::timeout, this, [this, pulse_val = 0.2f, going_up = true]() mutable {
+        connect(pulse_timer, &QTimer::timeout, this, [this, pulse_val = 0.3f, going_up = true]() mutable {
             if (going_up) {
-                pulse_val += 0.02f;
+                pulse_val += 0.015f;
                 if (pulse_val >= 0.8f) going_up = false;
             } else {
-                pulse_val -= 0.02f;
-                if (pulse_val <= 0.2f) going_up = true;
+                pulse_val -= 0.015f;
+                if (pulse_val <= 0.3f) going_up = true;
             }
             this->setStyleSheet(QStringLiteral(
                 "QWidget#Container {"
-                "  background-color: rgba(20, 20, 20, 0.9);"
-                "  border: 2px solid rgba(0, 190, 255, %1);"
+                "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1b20, stop:1 #111215);"
+                "  border: 1px solid rgba(0, 190, 255, %1);"
                 "  border-radius: 16px;"
                 "}"
-                "QLabel#MessageLabel {"
-                "  color: #FFFFFF;"
+                "QLabel#TitleLabel {"
+                "  color: #ffffff;"
                 "}"
-            ).arg(pulse_val));
+                "QLabel#SubtitleLabel {"
+                "  color: #8a8d9a;"
+                "}"
+                "QProgressBar#ProgressBar {"
+                "  background: rgba(255, 255, 255, 0.08);"
+                "  border-radius: 3px;"
+                "  border: none;"
+                "}"
+                "QProgressBar#ProgressBar::chunk {"
+                "  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0055ff, stop:1 #00bfff);"
+                "  border-radius: 3px;"
+                "}"
+            ).arg(static_cast<double>(pulse_val)));
         });
-        pulse_timer->start(30);
+        pulse_timer->start(20);
         
         if (parent) {
             auto parent_geometry = parent->geometry();

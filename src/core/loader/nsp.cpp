@@ -27,7 +27,6 @@
 #include "core/loader/nca.h"
 #include "core/loader/nsp.h"
 #include "core/file_sys/vfs/vfs_vector.h"
-#include "core/file_sys/ncz_virtual_file.h"
 
 namespace Loader {
 
@@ -275,51 +274,36 @@ public:
         : path(std::move(path_)), name(std::move(name_)) {
         std::error_code ec;
         std::filesystem::create_directories(path.parent_path(), ec);
-        {
-            Common::FS::IOFile creator(path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
-        }
-        file.Open(path, Common::FS::FileAccessMode::ReadWrite, Common::FS::FileType::BinaryFile);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
     }
-    
-    ~DiskVfsFile() override {
-        file.Close();
-        std::error_code ec;
-        std::filesystem::remove(path, ec);
-    }
-    
+
     std::string GetName() const override { return name; }
     std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
     std::size_t GetSize() const override { return file.IsOpen() ? file.GetSize() : 0; }
-    bool Resize(std::size_t new_size) override { return file.IsOpen() && file.SetSize(new_size); }
+    bool Resize(std::size_t new_size) override { return false; }
     FileSys::VirtualDir GetContainingDirectory() const override { return nullptr; }
-    bool IsWritable() const override { return file.IsOpen(); }
+    bool IsWritable() const override { return false; }
     bool IsReadable() const override { return file.IsOpen(); }
-    bool Rename(std::string_view name_) override {
-        name = name_;
-        return true;
-    }
-    
+    bool Rename(std::string_view name_) override { return false; }
+
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
         if (!file.IsOpen()) return 0;
         std::lock_guard<std::mutex> lock(io_mutex);
-        if (!file.Seek(offset)) return 0;
+        if (!file.Seek(static_cast<s64>(offset))) return 0;
         return file.ReadSpan(std::span<u8>(data, length));
     }
-    
+
     std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
-        if (!file.IsOpen()) return 0;
-        std::lock_guard<std::mutex> lock(io_mutex);
-        if (!file.Seek(offset)) return 0;
-        return file.WriteSpan(std::span<const u8>(data, length));
+        return 0;
     }
-    
+
 private:
     std::filesystem::path path;
     std::string name;
     mutable Common::FS::IOFile file;
     mutable std::mutex io_mutex;
 };
-} // Anonymous namespace
+} // namespace
 
 ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     if (nsp->IsExtractedType()) {
@@ -345,13 +329,45 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
         return status;
     }
 
-    // If the update NCA comes from an NCZ, we wrap it in a CachedOnDemandVfsFile
-    // to perform fast, thread-safe, on-demand block decompression on the fly.
-    // This makes loading instant and persists the decompressed cache across runs.
     if (read->IsNczFile()) {
+        const std::size_t total_size = read->GetSize();
         const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
-        out_file = std::make_shared<FileSys::CachedOnDemandVfsFile>(read, temp_dir);
-        LOG_INFO(Loader, "Update NCA is NCZ-compressed. Mapped CachedOnDemandVfsFile successfully for instant loading.");
+        const auto cache_path = temp_dir / (read->GetName() + ".decompressed_cache");
+        
+        std::error_code ec;
+        bool cache_valid = std::filesystem::exists(cache_path, ec) && 
+                           std::filesystem::file_size(cache_path, ec) == total_size;
+                           
+        if (!cache_valid) {
+            LOG_INFO(Loader, "Update NCA cache not found or invalid. Decompressing NCZ update NCA ({} bytes) to disk cache...", total_size);
+            std::filesystem::create_directories(temp_dir, ec);
+            
+            Common::FS::IOFile out_disk(cache_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
+            if (out_disk.IsOpen()) {
+                constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
+                std::vector<u8> buffer(CHUNK_SIZE);
+                std::size_t offset = 0;
+                while (offset < total_size) {
+                    const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
+                    const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
+                    if (bytes_read == 0) {
+                        LOG_ERROR(Loader, "Failed to read NCZ chunk at offset {}", offset);
+                        break;
+                    }
+                    out_disk.WriteSpan(std::span<const u8>(buffer.data(), bytes_read));
+                    offset += bytes_read;
+                }
+                out_disk.Close();
+                LOG_INFO(Loader, "Update NCA decompressed and cached to disk successfully.");
+            } else {
+                LOG_ERROR(Loader, "Failed to open update NCA cache file for writing");
+                return ResultStatus::ErrorNoPackedUpdate;
+            }
+        } else {
+            LOG_INFO(Loader, "Using cached decompressed update NCA");
+        }
+        
+        out_file = std::make_shared<DiskVfsFile>(cache_path, read->GetName());
     } else {
         out_file = read;
     }

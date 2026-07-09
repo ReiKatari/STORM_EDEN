@@ -91,19 +91,24 @@ void EmuThread::run() {
 
     emit LoadProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
     if (Settings::values.use_disk_shader_cache.GetValue()) {
-        try {
-            m_system.Renderer().ReadRasterizer()->LoadDiskResources(
-                m_system.GetApplicationProcessProgramID(), stop_token,
-                [this](VideoCore::LoadCallbackStage stage, std::size_t value, std::size_t total) {
-                    emit LoadProgress(stage, value, total);
-                });
-        } catch (const std::exception& e) {
-            LOG_CRITICAL(Frontend, "CRASH PREVENTED: Exception in LoadDiskResources: {}", e.what());
-        } catch (...) {
-            LOG_CRITICAL(Frontend, "CRASH PREVENTED: Unknown exception in LoadDiskResources!");
-        }
+        std::thread([this, stop_token]() {
+            Common::SetCurrentThreadName("ShaderCacheLoader");
+            try {
+                m_system.Renderer().ReadRasterizer()->LoadDiskResources(
+                    m_system.GetApplicationProcessProgramID(), stop_token,
+                    [this](VideoCore::LoadCallbackStage stage, std::size_t value, std::size_t total) {
+                        emit LoadProgress(stage, value, total);
+                    });
+            } catch (const std::exception& e) {
+                LOG_CRITICAL(Frontend, "CRASH PREVENTED: Exception in LoadDiskResources: {}", e.what());
+            } catch (...) {
+                LOG_CRITICAL(Frontend, "CRASH PREVENTED: Unknown exception in LoadDiskResources!");
+            }
+            emit LoadProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
+        }).detach();
+    } else {
+        emit LoadProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
     }
-    emit LoadProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
 
     gpu.ReleaseContext();
     gpu.Start();

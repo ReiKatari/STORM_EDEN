@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -15,8 +15,6 @@
 #include "core/crypto/ctr_encryption_layer.h"
 #include "core/crypto/key_manager.h"
 #include "core/file_sys/content_archive.h"
-#include "core/file_sys/ncz_virtual_file.h"
-#include "common/fs/path_util.h"
 #include "core/file_sys/partition_filesystem.h"
 #include "core/file_sys/vfs/vfs_offset.h"
 #include "core/loader/loader.h"
@@ -32,9 +30,7 @@ static u8 MasterKeyIdForKeyGeneration(u8 key_generation) {
 }
 
 NCA::NCA(VirtualFile file_, const NCA* base_nca)
-    : keys{Core::Crypto::KeyManager::Instance()} {
-    file = std::move(file_);
-
+    : file(std::move(file_)), keys{Core::Crypto::KeyManager::Instance()} {
     if (file == nullptr) {
         status = Loader::ResultStatus::ErrorNullFile;
         return;

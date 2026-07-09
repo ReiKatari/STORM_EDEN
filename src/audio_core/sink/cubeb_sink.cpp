@@ -6,6 +6,10 @@
 
 #include <span>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
 #include "audio_core/common/common.h"
 #include "audio_core/sink/cubeb_sink.h"
@@ -25,29 +29,17 @@ namespace AudioCore::Sink {
  */
 class CubebSinkStream final : public SinkStream {
 public:
-    /**
-     * Create a new sink stream.
-     *
-     * @param ctx_             - Cubeb context to create this stream with.
-     * @param device_channels_ - Number of channels supported by the hardware.
-     * @param system_channels_ - Number of channels the audio systems expect.
-     * @param output_device    - Cubeb output device id.
-     * @param input_device     - Cubeb input device id.
-     * @param name_            - Name of this stream.
-     * @param type_            - Type of this stream.
-     * @param system_          - Core system.
-     * @param event            - Event used only for audio renderer, signalled on buffer consume.
-     */
     CubebSinkStream(cubeb* ctx_, u32 device_channels_, u32 system_channels_,
                     cubeb_devid output_device, cubeb_devid input_device, const std::string& name_,
                     StreamType type_, Core::System& system_)
         : SinkStream(system_, type_), ctx{ctx_} {
-#ifdef _WIN32
-        CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-#endif
         name = name_;
         device_channels = device_channels_;
         system_channels = system_channels_;
+
+        if (!ctx) {
+            return;
+        }
 
         cubeb_stream_params params{};
         params.rate = TargetSampleRate;
@@ -95,60 +87,37 @@ public:
 
         if (init_error != CUBEB_OK) {
             LOG_CRITICAL(Audio_Sink, "Error initializing cubeb stream, error: {}", init_error);
-            return;
         }
     }
 
-    /**
-     * Destroy the sink stream.
-     */
     ~CubebSinkStream() override {
         LOG_DEBUG(Service_Audio, "Destructing cubeb stream {}", name);
-
-        if (!ctx) {
-            return;
-        }
-
         Finalize();
-
-#ifdef _WIN32
-        CoUninitialize();
-#endif
     }
 
-    /**
-     * Finalize the sink stream.
-     */
     void Finalize() override {
-        Stop();
-        cubeb_stream_destroy(stream_backend);
-    }
-
-    /**
-     * Start the sink stream.
-     *
-     * @param resume - Set to true if this is resuming the stream a previously-active stream.
-     *                 Default false.
-     */
-    void Start(bool resume = false) override {
-        if (!ctx || !paused) {
+        if (!ctx || !stream_backend) {
             return;
         }
+        cubeb_stream_stop(stream_backend);
+        cubeb_stream_destroy(stream_backend);
+        stream_backend = nullptr;
+    }
 
-        paused = false;
+    void Start(bool resume = false) override {
+        if (!ctx || !stream_backend || !paused) {
+            return;
+        }
         if (cubeb_stream_start(stream_backend) != CUBEB_OK) {
             LOG_CRITICAL(Audio_Sink, "Error starting cubeb stream");
         }
+        paused = false;
     }
 
-    /**
-     * Stop the sink stream.
-     */
     void Stop() override {
-        if (!ctx || paused) {
+        if (!ctx || !stream_backend || paused) {
             return;
         }
-
         SignalPause();
         if (cubeb_stream_stop(stream_backend) != CUBEB_OK) {
             LOG_CRITICAL(Audio_Sink, "Error stopping cubeb stream");
@@ -156,16 +125,6 @@ public:
     }
 
 private:
-    /**
-     * Main callback from Cubeb. Either expects samples from us (audio render/audio out), or will
-     * provide samples to be copied (audio in).
-     *
-     * @param stream      - Cubeb-specific data about the stream.
-     * @param user_data   - Custom data pointer passed along, points to a CubebSinkStream.
-     * @param in_buff     - Input buffer to be used if the stream is an input type.
-     * @param out_buff    - Output buffer to be used if the stream is an output type.
-     * @param num_frames_ - Number of frames of audio in the buffers. Note: Not number of samples.
-     */
     static long DataCallback([[maybe_unused]] cubeb_stream* stream, void* user_data,
                              [[maybe_unused]] const void* in_buff, void* out_buff,
                              long num_frames_) {
@@ -190,18 +149,9 @@ private:
         return num_frames_;
     }
 
-    /**
-     * Cubeb callback for if a device state changes. Unused currently.
-     *
-     * @param stream      - Cubeb-specific data about the stream.
-     * @param user_data   - Custom data pointer passed along, points to a CubebSinkStream.
-     * @param state       - New state of the device.
-     */
     static void StateCallback(cubeb_stream*, void*, cubeb_state) {}
 
-    /// Main Cubeb context
     cubeb* ctx{};
-    /// Cubeb stream backend
     cubeb_stream* stream_backend{};
 };
 

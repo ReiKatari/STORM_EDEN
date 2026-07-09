@@ -1360,14 +1360,14 @@ const QStringList GameList::supported_file_extensions = {
     QStringLiteral("ncz"), QStringLiteral("nsz"), QStringLiteral("xcz")};
 
 void GameList::RefreshGameDirectory() {
-    // Reset the externals watcher whenever the game list is reloaded,
-    // primarily ensures that new titles and external dirs are caught.
-    ResetExternalWatcher();
-
     if (system.IsPoweredOn()) {
         LOG_INFO(Frontend, "Game list refresh ignored because emulator is running.");
         return;
     }
+
+    // Reset the externals watcher whenever the game list is reloaded,
+    // primarily ensures that new titles and external dirs are caught.
+    ResetExternalWatcher();
 
     if (!UISettings::values.game_dirs.empty() && current_worker != nullptr) {
         LOG_INFO(Frontend, "Change detected in the games directory. Reloading game list.");

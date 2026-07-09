@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
@@ -143,13 +143,13 @@ Result IApplicationAccessor::RequestForApplicationToGetForeground() {
 }
 
 Result IApplicationAccessor::CheckRightsEnvironmentAvailable(Out<bool> out_is_available) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_is_available = true;
     R_SUCCEED();
 }
 
 Result IApplicationAccessor::GetNsRightsEnvironmentHandle(Out<u64> out_handle) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_handle = 0xdeadbeef;
     R_SUCCEED();
 }

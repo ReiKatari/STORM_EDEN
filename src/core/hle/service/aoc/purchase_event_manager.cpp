@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/hle/service/aoc/purchase_event_manager.h"
@@ -32,14 +32,14 @@ IPurchaseEventManager::~IPurchaseEventManager() {
 
 Result IPurchaseEventManager::SetDefaultDeliveryTarget(
     ClientProcessId process_id, InBuffer<BufferAttr_HipcMapAlias> in_buffer) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called, process_id={}", process_id.pid);
+    LOG_DEBUG(Service_AOC, "(STUBBED) called, process_id={}", process_id.pid);
 
     R_SUCCEED();
 }
 
 Result IPurchaseEventManager::SetDeliveryTarget(u64 unknown,
                                                 InBuffer<BufferAttr_HipcMapAlias> in_buffer) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called, unknown={}", unknown);
+    LOG_DEBUG(Service_AOC, "(STUBBED) called, unknown={}", unknown);
 
     R_SUCCEED();
 }

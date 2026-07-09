@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/hle/service/am/service/cradle_firmware_updater.h"
@@ -27,24 +27,24 @@ ICradleFirmwareUpdater::ICradleFirmwareUpdater(Core::System& system_)
 ICradleFirmwareUpdater::~ICradleFirmwareUpdater() = default;
 
 Result ICradleFirmwareUpdater::StartUpdate() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 
 Result ICradleFirmwareUpdater::FinishUpdate() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 
 Result ICradleFirmwareUpdater::GetCradleDeviceInfo(Out<CradleDeviceInfo> out_cradle_device_info) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_cradle_device_info = {};
     R_SUCCEED();
 }
 
 Result ICradleFirmwareUpdater::GetCradleDeviceInfoChangeEvent(
     OutCopyHandle<Kernel::KReadableEvent> out_event) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_event = m_cradle_device_info_event.GetHandle();
     R_SUCCEED();
 }

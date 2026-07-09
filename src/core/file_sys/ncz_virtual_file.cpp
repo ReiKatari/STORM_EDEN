@@ -4,6 +4,7 @@
 #include "core/file_sys/ncz_virtual_file.h"
 #include "common/zstd_compression.h"
 #include "common/logging.h"
+#include "common/fs/file.h"
 
 #include <cstring>
 #include <algorithm>
@@ -645,6 +646,122 @@ bool NCZVirtualFile::HasDecryptedSections() const {
 
 bool NCZVirtualFile::Rename(std::string_view name) {
     return file->Rename(name);
+}
+
+bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) const {
+    if (!is_solid_stream) return false;
+
+    Common::FS::IOFile out_file(dest_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
+    if (!out_file.IsOpen()) return false;
+
+    // 1. Write the decrypted header if we have one
+    if (!decrypted_header.empty()) {
+        out_file.WriteSpan(std::span<const u8>(decrypted_header.data(), decrypted_header.size()));
+    } else {
+        // Fallback: copy first 0x4000 bytes from raw file
+        std::vector<u8> temp(0x4000);
+        std::size_t r = file->Read(temp.data(), 0x4000, 0);
+        if (r > 0) {
+            out_file.WriteSpan(std::span<const u8>(temp.data(), r));
+        }
+    }
+
+    // 2. Initialize ZSTD stream decompression
+    std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)> dctx(ZSTD_createDCtx(), &ZSTD_freeDCtx);
+    if (!dctx) return false;
+
+    std::size_t comp_offset = solid_compressed_offset;
+    std::size_t remaining_comp = solid_compressed_size;
+    std::vector<u8> comp_chunk(1024 * 1024);
+    std::vector<u8> decomp_buffer(1024 * 1024);
+    std::size_t carry_over = 0;
+
+    auto SafeRead = [](const VirtualFile& f, u8* d, std::size_t l, std::size_t o) -> std::size_t {
+        try {
+            return f->Read(d, l, o);
+        } catch (...) {
+            return 0;
+        }
+    };
+
+    // 3. Decompress each section sequentially
+    for (const auto& sec : sections) {
+        u64 sec_offset = static_cast<u64>(sec.offset);
+        u64 sec_size = static_cast<u64>(sec.size);
+
+        u64 zstd_sec_start = is_header_uncompressed
+            ? std::max<u64>(sec_offset, 0x4000)
+            : sec_offset;
+        
+        // Write the uncompressed prefix if needed
+        if (sec_offset < zstd_sec_start) {
+            u64 prefix_size = zstd_sec_start - sec_offset;
+            if (!decrypted_header.empty() && sec_offset < decrypted_header.size()) {
+                std::size_t copy_size = std::min<std::size_t>(
+                    static_cast<std::size_t>(prefix_size),
+                    decrypted_header.size() - static_cast<std::size_t>(sec_offset)
+                );
+                if (out_file.Seek(static_cast<s64>(sec_offset))) {
+                    out_file.WriteSpan(std::span<const u8>(decrypted_header.data() + sec_offset, copy_size));
+                }
+            }
+        }
+
+        u64 remaining_in_sec = (sec_offset + sec_size) > zstd_sec_start
+            ? (sec_offset + sec_size) - zstd_sec_start
+            : 0;
+
+        u64 write_offset = zstd_sec_start;
+        if (remaining_in_sec > 0) {
+            if (!out_file.Seek(static_cast<s64>(write_offset))) {
+                return false;
+            }
+        }
+
+        while (remaining_in_sec > 0) {
+            // Fill input buffer if needed
+            std::size_t to_read = std::min<std::size_t>(comp_chunk.size() - carry_over, remaining_comp);
+            if (to_read > 0) {
+                std::size_t r = SafeRead(file, comp_chunk.data() + carry_over, to_read, comp_offset);
+                if (r > 0) {
+                    comp_offset += r;
+                    remaining_comp -= r;
+                    carry_over += r;
+                }
+            }
+
+            ZSTD_inBuffer input = { comp_chunk.data(), carry_over, 0 };
+            ZSTD_outBuffer output = { decomp_buffer.data(), std::min<std::size_t>(decomp_buffer.size(), remaining_in_sec), 0 };
+
+            std::size_t ret = ZSTD_decompressStream(dctx.get(), &output, &input);
+            if (ZSTD_isError(ret)) {
+                LOG_ERROR(Service_FS, "DecompressSolidTo: ZSTD Error: {}", ZSTD_getErrorName(ret));
+                return false;
+            }
+
+            std::size_t consumed = input.pos;
+            std::size_t produced = output.pos;
+
+            if (produced > 0) {
+                out_file.WriteSpan(std::span<const u8>(decomp_buffer.data(), produced));
+                remaining_in_sec -= produced;
+            }
+
+            if (consumed > 0) {
+                carry_over -= consumed;
+                if (carry_over > 0) {
+                    std::memmove(comp_chunk.data(), comp_chunk.data() + consumed, carry_over);
+                }
+            }
+
+            if (consumed == 0 && produced == 0 && to_read == 0) {
+                // Done or stuck
+                break;
+            }
+        }
+    }
+
+    return true;
 }
 
 } // namespace FileSys

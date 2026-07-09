@@ -18,6 +18,7 @@
 #include "core/file_sys/nca_metadata.h"
 #include "core/file_sys/patch_manager.h"
 #include "core/file_sys/registered_cache.h"
+#include "core/file_sys/ncz_virtual_file.h"
 #include "core/file_sys/romfs_factory.h"
 #include "core/file_sys/partition_filesystem.h"
 #include "core/file_sys/submission_package.h"
@@ -342,25 +343,38 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
             LOG_INFO(Loader, "Update NCA cache not found or invalid. Decompressing NCZ update NCA ({} bytes) to disk cache...", total_size);
             std::filesystem::create_directories(temp_dir, ec);
             
-            Common::FS::IOFile out_disk(cache_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
-            if (out_disk.IsOpen()) {
-                constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
-                std::vector<u8> buffer(CHUNK_SIZE);
-                std::size_t offset = 0;
-                while (offset < total_size) {
-                    const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
-                    const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
-                    if (bytes_read == 0) {
-                        LOG_ERROR(Loader, "Failed to read NCZ chunk at offset {}", offset);
-                        break;
+            bool decompressed_success = false;
+            auto ncz_file = read->IsNczFile() ? std::static_pointer_cast<FileSys::NCZVirtualFile>(read) : nullptr;
+            if (ncz_file && ncz_file->is_solid_stream) {
+                decompressed_success = ncz_file->DecompressSolidTo(cache_path);
+            }
+            
+            if (!decompressed_success) {
+                // Fallback to block-by-block copy (for block NCZ or if cast/decompression failed)
+                Common::FS::IOFile out_disk(cache_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
+                if (out_disk.IsOpen()) {
+                    constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
+                    std::vector<u8> buffer(CHUNK_SIZE);
+                    std::size_t offset = 0;
+                    while (offset < total_size) {
+                        const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
+                        const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
+                        if (bytes_read == 0) {
+                            LOG_ERROR(Loader, "Failed to read NCZ chunk at offset {}", offset);
+                            break;
+                        }
+                        out_disk.WriteSpan(std::span<const u8>(buffer.data(), bytes_read));
+                        offset += bytes_read;
                     }
-                    out_disk.WriteSpan(std::span<const u8>(buffer.data(), bytes_read));
-                    offset += bytes_read;
+                    out_disk.Close();
+                    decompressed_success = true;
                 }
-                out_disk.Close();
+            }
+            
+            if (decompressed_success) {
                 LOG_INFO(Loader, "Update NCA decompressed and cached to disk successfully.");
             } else {
-                LOG_ERROR(Loader, "Failed to open update NCA cache file for writing");
+                LOG_ERROR(Loader, "Failed to decompress update NCA cache file");
                 return ResultStatus::ErrorNoPackedUpdate;
             }
         } else {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
@@ -120,7 +120,7 @@ Result ICommonStateGetter::GetCurrentFocusState(Out<FocusState> out_focus_state)
 }
 
 Result ICommonStateGetter::RequestToAcquireSleepLock() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     // Sleep lock is acquired immediately.
     m_applet->sleep_lock_event.Signal();
@@ -128,14 +128,14 @@ Result ICommonStateGetter::RequestToAcquireSleepLock() {
 }
 
 Result ICommonStateGetter::ReleaseSleepLock() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     m_applet->sleep_lock_event.Clear();
     R_SUCCEED();
 }
 
 Result ICommonStateGetter::ReleaseSleepLockTransiently() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     m_applet->sleep_lock_event.Clear();
     R_SUCCEED();
@@ -217,20 +217,20 @@ Result ICommonStateGetter::SetVrModeEnabled(bool is_vr_mode_enabled) {
 }
 
 Result ICommonStateGetter::SetLcdBacklighOffEnabled(bool is_lcd_backlight_off_enabled) {
-    LOG_WARNING(Service_AM, "(STUBBED) called. is_lcd_backlight_off_enabled={}",
+    LOG_DEBUG(Service_AM, "(STUBBED) called. is_lcd_backlight_off_enabled={}",
                 is_lcd_backlight_off_enabled);
     R_SUCCEED();
 }
 
 Result ICommonStateGetter::BeginVrModeEx() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     std::scoped_lock lk{m_applet->lock};
     m_applet->vr_mode_enabled = true;
     R_SUCCEED();
 }
 
 Result ICommonStateGetter::EndVrModeEx() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     std::scoped_lock lk{m_applet->lock};
     m_applet->vr_mode_enabled = false;
     R_SUCCEED();
@@ -268,7 +268,7 @@ void ICommonStateGetter::SetCpuBoostMode(HLERequestContext& ctx) {
 }
 
 Result ICommonStateGetter::GetBuiltInDisplayType(Out<s32> out_display_type) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_display_type = 0;
     R_SUCCEED();
 }
@@ -312,7 +312,7 @@ Result ICommonStateGetter::PerformSystemButtonPressingIfInFocus(SystemButtonType
 }
 
 Result ICommonStateGetter::GetOperationModeSystemInfo(Out<u32> out_operation_mode_system_info) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_operation_mode_system_info = 0;
     R_SUCCEED();
 }
@@ -341,7 +341,7 @@ Result ICommonStateGetter::GetSettingsPlatformRegion(
 }
 
 Result ICommonStateGetter::SetRequestExitToLibraryAppletAtExecuteNextProgramEnabled() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     std::scoped_lock lk{m_applet->lock};
     m_applet->request_exit_to_library_applet_at_execute_next_program_enabled = true;
@@ -364,12 +364,12 @@ Result ICommonStateGetter::SetHandlingHomeButtonShortPressedEnabled(bool enabled
 }
 
 Result ICommonStateGetter::Unknown610() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 
 Result ICommonStateGetter::Unknown611() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 

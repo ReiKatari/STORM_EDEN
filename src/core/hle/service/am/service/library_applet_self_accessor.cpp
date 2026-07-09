@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
@@ -139,7 +139,7 @@ Result ILibraryAppletSelfAccessor::GetLibraryAppletInfo(
 
 Result ILibraryAppletSelfAccessor::GetMainAppletIdentityInfo(
     Out<AppletIdentityInfo> out_identity_info) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_identity_info = {
         .applet_id = AppletId::QLaunch,
         .application_id = 0x0100000000001000ull,
@@ -149,14 +149,14 @@ Result ILibraryAppletSelfAccessor::GetMainAppletIdentityInfo(
 
 Result ILibraryAppletSelfAccessor::CanUseApplicationCore(Out<bool> out_can_use_application_core) {
     // TODO: This appears to read the NPDM from state and check the core mask of the applet.
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_can_use_application_core = false;
     R_SUCCEED();
 }
 
 Result ILibraryAppletSelfAccessor::GetMainAppletApplicationControlProperty(
     OutLargeData<std::array<u8, 0x4000>, BufferAttr_HipcMapAlias> out_nacp) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     // TODO: this should be the main applet, not the caller applet
     const auto application = GetCallerIdentity(*m_applet);
@@ -215,26 +215,26 @@ Result ILibraryAppletSelfAccessor::GetCallerAppletIdentityInfoStack(
 }
 
 Result ILibraryAppletSelfAccessor::GetDesirableKeyboardLayout(Out<u32> out_desirable_layout) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_desirable_layout = 0;
     R_SUCCEED();
 }
 
 Result ILibraryAppletSelfAccessor::ReportVisibleError(ErrorCode error_code) {
-    LOG_WARNING(Service_AM, "(STUBBED) called, error {}-{}", error_code.category,
+    LOG_DEBUG(Service_AM, "(STUBBED) called, error {}-{}", error_code.category,
                 error_code.number);
     R_SUCCEED();
 }
 
 Result ILibraryAppletSelfAccessor::ReportVisibleErrorWithErrorContext(
     ErrorCode error_code, InLargeData<ErrorContext, BufferAttr_HipcMapAlias> error_context) {
-    LOG_WARNING(Service_AM, "(STUBBED) called, error {}-{}", error_code.category,
+    LOG_DEBUG(Service_AM, "(STUBBED) called, error {}-{}", error_code.category,
                 error_code.number);
     R_SUCCEED();
 }
 
 Result ILibraryAppletSelfAccessor::UnpopInData() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 
@@ -291,7 +291,7 @@ Result ILibraryAppletSelfAccessor::GetMainAppletApplicationDesiredLanguage(
 }
 
 Result ILibraryAppletSelfAccessor::GetCurrentApplicationId(Out<u64> out_application_id) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
 
     // TODO: this should be the main applet, not the caller applet
     const auto main_applet = GetCallerIdentity(*m_applet);

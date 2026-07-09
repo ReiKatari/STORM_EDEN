@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "core/hle/service/am/applet.h"
@@ -101,7 +101,7 @@ namespace Service::AM {
     }
 
     Result IOverlayFunctions::SetAutoSleepTimeAndDimmingTimeEnabled(bool enabled) {
-        LOG_WARNING(Service_AM, "(STUBBED) called, enabled={}", enabled);
+        LOG_DEBUG(Service_AM, "(STUBBED) called, enabled={}", enabled);
         std::scoped_lock lk{m_applet->lock};
         m_applet->auto_sleep_disabled = !enabled;
         R_SUCCEED();

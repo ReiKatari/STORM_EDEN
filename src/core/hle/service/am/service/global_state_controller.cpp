@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/hle/service/am/service/cradle_firmware_updater.h"
@@ -46,7 +46,7 @@ Result IGlobalStateController::StartRebootSequence() {
 IGlobalStateController::~IGlobalStateController() = default;
 
 Result IGlobalStateController::LoadAndApplyIdlePolicySettings() {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     R_SUCCEED();
 }
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/hle/service/am/applet.h"
@@ -74,7 +74,7 @@ Result IWindowController::SetAppletWindowVisibility(bool visible) {
 }
 
 Result IWindowController::SetAppletGpuTimeSlice(s64 time_slice) {
-    LOG_WARNING(Service_AM, "(STUBBED) called, time_slice={}", time_slice);
+    LOG_DEBUG(Service_AM, "(STUBBED) called, time_slice={}", time_slice);
     R_SUCCEED();
 }
 

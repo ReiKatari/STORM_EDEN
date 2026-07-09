@@ -6,6 +6,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <filesystem>
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/file_sys/vfs/vfs.h"
@@ -29,6 +30,7 @@ public:
     std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override;
     bool Rename(std::string_view name) override;
     bool IsNczFile() const override { return is_valid && !is_raw_nca; }
+    bool DecompressSolidTo(const std::filesystem::path& dest_path) const;
     
     struct PartitionInfo {
         s32 fs_index;

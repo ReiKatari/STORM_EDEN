@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
@@ -49,14 +49,14 @@ IAppletCommonFunctions::~IAppletCommonFunctions() = default;
 
 Result IAppletCommonFunctions::SetHomeButtonDoubleClickEnabled(
     bool home_button_double_click_enabled) {
-    LOG_WARNING(Service_AM, "(STUBBED) called, home_button_double_click_enabled={}",
+    LOG_DEBUG(Service_AM, "(STUBBED) called, home_button_double_click_enabled={}",
                 home_button_double_click_enabled);
     R_SUCCEED();
 }
 
 Result IAppletCommonFunctions::GetHomeButtonDoubleClickEnabled(
     Out<bool> out_home_button_double_click_enabled) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_home_button_double_click_enabled = false;
     R_SUCCEED();
 }
@@ -70,25 +70,25 @@ Result IAppletCommonFunctions::SetDisplayMagnification(f32 x, f32 y, f32 width, 
 }
 
 Result IAppletCommonFunctions::SetCpuBoostRequestPriority(s32 priority) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     std::scoped_lock lk{applet->lock};
     applet->cpu_boost_request_priority = priority;
     R_SUCCEED();
 }
 
 Result IAppletCommonFunctions::GetCurrentApplicationId(Out<u64> out_application_id) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_application_id = system.GetApplicationProcessProgramID() & ~0xFFFULL;
     R_SUCCEED();
 }
 
 Result IAppletCommonFunctions::SetGpuTimeSliceBoost(s64 time_span) {
-    LOG_WARNING(Service_AM, "(STUBBED) called, time_span={}", time_span);
+    LOG_DEBUG(Service_AM, "(STUBBED) called, time_span={}", time_span);
     R_SUCCEED();
 }
 
 Result IAppletCommonFunctions::Unknown350(Out<u16> out_unknown) {
-    LOG_WARNING(Service_AM, "(STUBBED) called");
+    LOG_DEBUG(Service_AM, "(STUBBED) called");
     *out_unknown = 0;
     R_SUCCEED();
 }

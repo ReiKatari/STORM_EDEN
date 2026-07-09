@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -158,7 +158,7 @@ Result IAddOnContentManager::GetAddOnContentBaseId(Out<u64> out_title_id,
 }
 
 Result IAddOnContentManager::PrepareAddOnContent(s32 addon_index, ClientProcessId process_id) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called with addon_index={}, process_id={}", addon_index,
+    LOG_DEBUG(Service_AOC, "(STUBBED) called with addon_index={}, process_id={}", addon_index,
                 process_id.pid);
 
     R_SUCCEED();
@@ -166,7 +166,7 @@ Result IAddOnContentManager::PrepareAddOnContent(s32 addon_index, ClientProcessI
 
 Result IAddOnContentManager::GetAddOnContentListChangedEvent(
     OutCopyHandle<Kernel::KReadableEvent> out_event) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     *out_event = &aoc_change_event->GetReadableEvent();
 
@@ -175,7 +175,7 @@ Result IAddOnContentManager::GetAddOnContentListChangedEvent(
 
 Result IAddOnContentManager::GetAddOnContentListChangedEventWithProcessId(
     OutCopyHandle<Kernel::KReadableEvent> out_event, ClientProcessId process_id) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     *out_event = &aoc_change_event->GetReadableEvent();
 
@@ -183,26 +183,26 @@ Result IAddOnContentManager::GetAddOnContentListChangedEventWithProcessId(
 }
 
 Result IAddOnContentManager::NotifyMountAddOnContent() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::NotifyUnmountAddOnContent() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::CheckAddOnContentMountStatus() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::CreateEcPurchasedEventManager(
     OutInterface<IPurchaseEventManager> out_interface) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     *out_interface = std::make_shared<IPurchaseEventManager>(system);
 
@@ -211,7 +211,7 @@ Result IAddOnContentManager::CreateEcPurchasedEventManager(
 
 Result IAddOnContentManager::CreatePermanentEcPurchasedEventManager(
     OutInterface<IPurchaseEventManager> out_interface) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_DEBUG(Service_AOC, "(STUBBED) called");
 
     *out_interface = std::make_shared<IPurchaseEventManager>(system);
 

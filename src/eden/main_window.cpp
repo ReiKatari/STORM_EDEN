@@ -472,6 +472,7 @@ inline static bool isDarkMode() {
 MainWindow::MainWindow(bool has_broken_vulkan)
     : ui{std::make_unique<Ui::MainWindow>()},
       input_subsystem{std::make_shared<InputCommon::InputSubsystem>()}, user_data_migrator{this} {
+    input_subsystem->Initialize();
     QtCommon::Init(this);
 
     Common::FS::CreateEdenPaths();
@@ -643,6 +644,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
         df << "MW: After ConnectWidgetEvents()\n"; df.flush();
     }
 
+    input_subsystem->ReloadInputDevices();
     QtCommon::system->HIDCore().ReloadInputDevices();
     controller_dialog->refreshConfiguration();
 

@@ -79,7 +79,6 @@ private:
 
 static VirtualFile DecompressIfNCZ(VirtualFile file) {
     if (file == nullptr) return nullptr;
-    if (!Settings::is_booting) return file;
     auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<NCZVirtualFile>(file) : nullptr;
     if (ncz_file && ncz_file->is_solid_stream) {
         std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";
@@ -95,19 +94,21 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
             }
         }
 
-        if (!cache_valid) {
-            LOG_INFO(Loader, "NCA: Decompressing solid NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
-            if (ncz_file->DecompressSolidTo(cache_path)) {
-                LOG_INFO(Loader, "NCA: Solid NCZ NCA decompressed and cached to disk successfully.");
-            } else {
-                LOG_ERROR(Loader, "NCA: Failed to decompress solid NCZ NCA");
-                return file;
-            }
-        } else {
+        if (cache_valid) {
             LOG_INFO(Loader, "NCA: Using cached decompressed solid NCA");
+            return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
         }
 
-        return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
+        if (!Settings::is_booting) return file;
+
+        LOG_INFO(Loader, "NCA: Decompressing solid NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
+        if (ncz_file->DecompressSolidTo(cache_path)) {
+            LOG_INFO(Loader, "NCA: Solid NCZ NCA decompressed and cached to disk successfully.");
+            return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
+        } else {
+            LOG_ERROR(Loader, "NCA: Failed to decompress solid NCZ NCA");
+            return file;
+        }
     }
     return file;
 }

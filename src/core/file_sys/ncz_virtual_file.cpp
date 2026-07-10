@@ -253,6 +253,11 @@ void NCZVirtualFile::SetDecryptedHeader(const u8* data, std::size_t size) {
 }
 
 NCZVirtualFile::~NCZVirtualFile() {
+    if (prefetch_future.valid()) {
+        try {
+            prefetch_future.wait();
+        } catch (...) {}
+    }
     if (solid_dctx) {
         ZstdContextPool::Get().Release(static_cast<ZSTD_DCtx*>(solid_dctx));
     }

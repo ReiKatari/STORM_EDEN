@@ -88,6 +88,7 @@ SWITCHABLE(ConfirmStop, true);
 #endif
 
 Values values;
+bool is_booting = false;
 
 std::string GetTimeZoneString(TimeZone time_zone) {
     const auto time_zone_index = static_cast<std::size_t>(time_zone);

@@ -2331,6 +2331,8 @@ void MainWindow::ConfigureFilesystemProvider(const std::string& filepath) {
 
 void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletParameters params,
                           StartGameType type) {
+    Settings::is_booting = true;
+    SCOPE_EXIT { Settings::is_booting = false; };
     LOG_INFO(Frontend, "Eden starting...");
 
     if (params.program_id == 0 ||

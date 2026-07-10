@@ -28,6 +28,10 @@
 #include "core/file_sys/fssystem/fssystem_crypto_configuration.h"
 #include "core/file_sys/fssystem/fssystem_nca_file_system_driver.h"
 
+namespace Settings {
+extern bool is_booting;
+}
+
 namespace FileSys {
 
 static u8 MasterKeyIdForKeyGeneration(u8 key_generation) {
@@ -71,8 +75,11 @@ private:
     mutable std::mutex io_mutex;
 };
 
+
+
 static VirtualFile DecompressIfNCZ(VirtualFile file) {
     if (file == nullptr) return nullptr;
+    if (!Settings::is_booting) return file;
     auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<NCZVirtualFile>(file) : nullptr;
     if (ncz_file && ncz_file->is_solid_stream) {
         std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";

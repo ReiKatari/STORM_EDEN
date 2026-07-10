@@ -26,6 +26,10 @@
 #include "common/fs/path_util.h"
 #include "core/file_sys/ncz_virtual_file.h"
 
+namespace Settings {
+extern bool is_booting;
+}
+
 namespace Loader {
 
 static u32 CalculatePointerBufferSize(size_t heap_size) {
@@ -75,8 +79,11 @@ private:
     mutable std::mutex io_mutex;
 };
 
+
+
 static FileSys::VirtualFile DecompressIfNCZ(FileSys::VirtualFile file) {
     if (file == nullptr) return nullptr;
+    if (!Settings::is_booting) return file;
     auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<FileSys::NCZVirtualFile>(file) : nullptr;
     if (ncz_file && ncz_file->is_solid_stream) {
         std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";

@@ -889,4 +889,6 @@ void RestoreGlobalState(bool is_powered_on);
 bool IsConfiguringGlobal();
 void SetConfiguringGlobal(bool is_global);
 
+extern bool is_booting;
+
 } // namespace Settings

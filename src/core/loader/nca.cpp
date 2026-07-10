@@ -20,6 +20,11 @@
 #include "core/loader/deconstructed_rom_directory.h"
 #include "core/loader/nca.h"
 #include "common/literals.h"
+#include <mutex>
+#include <filesystem>
+#include "common/fs/file.h"
+#include "common/fs/path_util.h"
+#include "core/file_sys/ncz_virtual_file.h"
 
 namespace Loader {
 
@@ -33,8 +38,80 @@ static u32 CalculatePointerBufferSize(size_t heap_size) {
     }
 }
 
+namespace {
+class DiskVfsFile : public FileSys::VfsFile {
+public:
+    DiskVfsFile(std::filesystem::path path_, std::string name_)
+        : path(std::move(path_)), name(std::move(name_)) {
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
+    }
+
+    std::string GetName() const override { return name; }
+    std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
+    std::size_t GetSize() const override { return file.IsOpen() ? file.GetSize() : 0; }
+    bool Resize(std::size_t new_size) override { return false; }
+    FileSys::VirtualDir GetContainingDirectory() const override { return nullptr; }
+    bool IsWritable() const override { return false; }
+    bool IsReadable() const override { return file.IsOpen(); }
+    bool Rename(std::string_view name_) override { return false; }
+
+    std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
+        if (!file.IsOpen()) return 0;
+        std::lock_guard<std::mutex> lock(io_mutex);
+        if (!file.Seek(static_cast<s64>(offset))) return 0;
+        return file.ReadSpan(std::span<u8>(data, length));
+    }
+
+    std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
+        return 0;
+    }
+
+private:
+    std::filesystem::path path;
+    std::string name;
+    mutable Common::FS::IOFile file;
+    mutable std::mutex io_mutex;
+};
+
+static FileSys::VirtualFile DecompressIfNCZ(FileSys::VirtualFile file) {
+    if (file == nullptr) return nullptr;
+    auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<FileSys::NCZVirtualFile>(file) : nullptr;
+    if (ncz_file && ncz_file->is_solid_stream) {
+        std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";
+        std::error_code ec;
+        std::filesystem::create_directories(temp_dir, ec);
+        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".decompressed_cache");
+
+        bool cache_valid = false;
+        if (std::filesystem::exists(cache_path, ec)) {
+            std::size_t disk_size = std::filesystem::file_size(cache_path, ec);
+            if (disk_size == ncz_file->GetSize()) {
+                cache_valid = true;
+            }
+        }
+
+        if (!cache_valid) {
+            LOG_INFO(Loader, "Decompressing base NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
+            if (ncz_file->DecompressSolidTo(cache_path)) {
+                LOG_INFO(Loader, "Base NCZ NCA decompressed and cached to disk successfully.");
+            } else {
+                LOG_ERROR(Loader, "Failed to decompress base NCZ NCA");
+                return file;
+            }
+        } else {
+            LOG_INFO(Loader, "Using cached decompressed base NCA");
+        }
+
+        return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
+    }
+    return file;
+}
+}
+
 AppLoader_NCA::AppLoader_NCA(FileSys::VirtualFile file_)
-    : AppLoader(std::move(file_)), nca(std::make_unique<FileSys::NCA>(file)) {}
+    : AppLoader(DecompressIfNCZ(std::move(file_))), nca(std::make_unique<FileSys::NCA>(file)) {}
 
 AppLoader_NCA::~AppLoader_NCA() = default;
 

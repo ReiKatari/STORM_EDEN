@@ -549,11 +549,20 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
         if (!is_solid_stream) {
             std::unique_lock<std::mutex> cache_lock(cache_mutex);
-            if (prefetch_future.valid()) {
+            
+            auto cache_it = std::find_if(block_cache.begin(), block_cache.end(),
+                [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
+                
+            if (cache_it == block_cache.end() && prefetching_block_index == block_index && prefetch_future.valid()) {
+                std::shared_future<void> fut = prefetch_future;
                 cache_lock.unlock();
-                prefetch_future.get();
+                fut.wait();
                 cache_lock.lock();
+                
+                cache_it = std::find_if(block_cache.begin(), block_cache.end(),
+                    [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
             }
+
             const auto& block = blocks[block_index];
             std::size_t expected_decompressed_size = block_size;
             if (block_index == blocks.size() - 1) {
@@ -567,9 +576,6 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 if (read == 0) break;
                 copy_size = read;
             } else {
-                auto cache_it = std::find_if(block_cache.begin(), block_cache.end(),
-                    [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
-                
                 const std::vector<u8>* decompressed_ptr = nullptr;
                 
                 if (cache_it != block_cache.end()) {
@@ -607,7 +613,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                         auto prefetch_it = std::find_if(block_cache.begin(), block_cache.end(),
                             [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
                             
-                        if (prefetch_it == block_cache.end()) {
+                        if (prefetch_it == block_cache.end() && prefetching_block_index != next_idx) {
                             const auto& next_block = blocks[next_idx];
                             std::size_t next_expected_size = block_size;
                             if (next_idx == blocks.size() - 1) {
@@ -619,6 +625,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                             auto block_offset_val = next_block.offset;
                             auto block_comp_size = next_block.compressed_size;
                             
+                            prefetching_block_index = next_idx;
                             prefetch_future = std::async(std::launch::async, [this, f, next_idx, block_offset_val, block_comp_size, next_expected_size]() {
                                 std::vector<u8> comp(block_comp_size);
                                 if (f->Read(comp.data(), block_comp_size, block_offset_val) == block_comp_size) {
@@ -639,7 +646,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                                         }
                                     }
                                 }
-                            });
+                            }).share();
                         }
                     }
                     last_accessed_block = block_index;

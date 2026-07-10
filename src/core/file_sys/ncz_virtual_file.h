@@ -110,7 +110,8 @@ public:
     mutable std::mutex cache_mutex;
     mutable std::mutex solid_mutex;
     mutable std::size_t last_accessed_block = SIZE_MAX;
-    mutable std::future<void> prefetch_future;
+    mutable std::shared_future<void> prefetch_future;
+    mutable std::size_t prefetching_block_index = SIZE_MAX;
     
     // Decrypted NCA header cache (0x0-0x3FFF) - set by NCA driver after header decryption.
     // NCZ files store the raw encrypted NCA header, but body data is pre-decrypted.

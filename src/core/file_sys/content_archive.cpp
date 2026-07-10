@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -15,6 +15,11 @@
 #include "core/crypto/ctr_encryption_layer.h"
 #include "core/crypto/key_manager.h"
 #include "core/file_sys/content_archive.h"
+#include <mutex>
+#include <filesystem>
+#include "common/fs/file.h"
+#include "common/fs/path_util.h"
+#include "core/file_sys/ncz_virtual_file.h"
 #include "core/file_sys/partition_filesystem.h"
 #include "core/file_sys/vfs/vfs_offset.h"
 #include "core/loader/loader.h"
@@ -29,8 +34,80 @@ static u8 MasterKeyIdForKeyGeneration(u8 key_generation) {
     return std::max<u8>(key_generation, 1) - 1;
 }
 
+namespace {
+class DiskVfsFile : public VfsFile {
+public:
+    DiskVfsFile(std::filesystem::path path_, std::string name_)
+        : path(std::move(path_)), name(std::move(name_)) {
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
+    }
+
+    std::string GetName() const override { return name; }
+    std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
+    std::size_t GetSize() const override { return file.IsOpen() ? file.GetSize() : 0; }
+    bool Resize(std::size_t new_size) override { return false; }
+    VirtualDir GetContainingDirectory() const override { return nullptr; }
+    bool IsWritable() const override { return false; }
+    bool IsReadable() const override { return file.IsOpen(); }
+    bool Rename(std::string_view name_) override { return false; }
+
+    std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
+        if (!file.IsOpen()) return 0;
+        std::lock_guard<std::mutex> lock(io_mutex);
+        if (!file.Seek(static_cast<s64>(offset))) return 0;
+        return file.ReadSpan(std::span<u8>(data, length));
+    }
+
+    std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
+        return 0;
+    }
+
+private:
+    std::filesystem::path path;
+    std::string name;
+    mutable Common::FS::IOFile file;
+    mutable std::mutex io_mutex;
+};
+
+static VirtualFile DecompressIfNCZ(VirtualFile file) {
+    if (file == nullptr) return nullptr;
+    auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<NCZVirtualFile>(file) : nullptr;
+    if (ncz_file && ncz_file->is_solid_stream) {
+        std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";
+        std::error_code ec;
+        std::filesystem::create_directories(temp_dir, ec);
+        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".decompressed_cache");
+
+        bool cache_valid = false;
+        if (std::filesystem::exists(cache_path, ec)) {
+            std::size_t disk_size = std::filesystem::file_size(cache_path, ec);
+            if (disk_size == ncz_file->GetSize()) {
+                cache_valid = true;
+            }
+        }
+
+        if (!cache_valid) {
+            LOG_INFO(Loader, "NCA: Decompressing solid NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
+            if (ncz_file->DecompressSolidTo(cache_path)) {
+                LOG_INFO(Loader, "NCA: Solid NCZ NCA decompressed and cached to disk successfully.");
+            } else {
+                LOG_ERROR(Loader, "NCA: Failed to decompress solid NCZ NCA");
+                return file;
+            }
+        } else {
+            LOG_INFO(Loader, "NCA: Using cached decompressed solid NCA");
+        }
+
+        return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
+    }
+    return file;
+}
+}
+
 NCA::NCA(VirtualFile file_, const NCA* base_nca)
-    : file(std::move(file_)), keys{Core::Crypto::KeyManager::Instance()} {
+    : file(DecompressIfNCZ(std::move(file_))), keys{Core::Crypto::KeyManager::Instance()} {
     if (file == nullptr) {
         status = Loader::ResultStatus::ErrorNullFile;
         return;

@@ -45,7 +45,7 @@ public:
         : path(std::move(path_)), name(std::move(name_)) {
         std::error_code ec;
         std::filesystem::create_directories(path.parent_path(), ec);
-        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile, Common::FS::FileShareFlag::ShareReadOnly);
     }
 
     std::string GetName() const override { return name; }

@@ -275,7 +275,7 @@ public:
         : path(std::move(path_)), name(std::move(name_)) {
         std::error_code ec;
         std::filesystem::create_directories(path.parent_path(), ec);
-        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile, Common::FS::FileShareFlag::ShareReadOnly);
     }
 
     std::string GetName() const override { return name; }
@@ -330,7 +330,13 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
         return status;
     }
 
-    if (read->IsNczFile()) {
+    bool use_decompressed_cache = false;
+    auto ncz_file = read->IsNczFile() ? std::static_pointer_cast<FileSys::NCZVirtualFile>(read) : nullptr;
+    if (ncz_file && ncz_file->is_solid_stream) {
+        use_decompressed_cache = true;
+    }
+
+    if (use_decompressed_cache) {
         const std::size_t total_size = read->GetSize();
         const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
         const auto cache_path = temp_dir / (read->GetName() + ".decompressed_cache");
@@ -340,41 +346,13 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
                            std::filesystem::file_size(cache_path, ec) == total_size;
                            
         if (!cache_valid) {
-            LOG_INFO(Loader, "Update NCA cache not found or invalid. Decompressing NCZ update NCA ({} bytes) to disk cache...", total_size);
+            LOG_INFO(Loader, "Update NCA cache not found or invalid. Decompressing solid NCZ update NCA ({} bytes) to disk cache...", total_size);
             std::filesystem::create_directories(temp_dir, ec);
             
-            bool decompressed_success = false;
-            auto ncz_file = read->IsNczFile() ? std::static_pointer_cast<FileSys::NCZVirtualFile>(read) : nullptr;
-            if (ncz_file && ncz_file->is_solid_stream) {
-                decompressed_success = ncz_file->DecompressSolidTo(cache_path);
-            }
-            
-            if (!decompressed_success) {
-                // Fallback to block-by-block copy (for block NCZ or if cast/decompression failed)
-                Common::FS::IOFile out_disk(cache_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
-                if (out_disk.IsOpen()) {
-                    constexpr std::size_t CHUNK_SIZE = 4ULL * 1024 * 1024; // 4MB chunks
-                    std::vector<u8> buffer(CHUNK_SIZE);
-                    std::size_t offset = 0;
-                    while (offset < total_size) {
-                        const std::size_t to_read = std::min<std::size_t>(CHUNK_SIZE, total_size - offset);
-                        const std::size_t bytes_read = read->Read(buffer.data(), to_read, offset);
-                        if (bytes_read == 0) {
-                            LOG_ERROR(Loader, "Failed to read NCZ chunk at offset {}", offset);
-                            break;
-                        }
-                        out_disk.WriteSpan(std::span<const u8>(buffer.data(), bytes_read));
-                        offset += bytes_read;
-                    }
-                    out_disk.Close();
-                    decompressed_success = true;
-                }
-            }
-            
-            if (decompressed_success) {
+            if (ncz_file->DecompressSolidTo(cache_path)) {
                 LOG_INFO(Loader, "Update NCA decompressed and cached to disk successfully.");
             } else {
-                LOG_ERROR(Loader, "Failed to decompress update NCA cache file");
+                LOG_ERROR(Loader, "Failed to decompress solid NCZ update NCA to disk cache");
                 return ResultStatus::ErrorNoPackedUpdate;
             }
         } else {

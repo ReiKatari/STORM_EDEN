@@ -7,6 +7,7 @@
 #include <mutex>
 #include <vector>
 #include <filesystem>
+#include <future>
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/file_sys/vfs/vfs.h"
@@ -109,6 +110,7 @@ public:
     mutable std::mutex cache_mutex;
     mutable std::mutex solid_mutex;
     mutable std::size_t last_accessed_block = SIZE_MAX;
+    mutable std::future<void> prefetch_future;
     
     // Decrypted NCA header cache (0x0-0x3FFF) - set by NCA driver after header decryption.
     // NCZ files store the raw encrypted NCA header, but body data is pre-decrypted.

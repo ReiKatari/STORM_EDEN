@@ -46,10 +46,13 @@ public:
     }
 
     void CloseReference(size_t how_many = 1) {
-        if (how_many > references.load(std::memory_order_relaxed)) {
-            UNREACHABLE();
+        size_t current = references.load(std::memory_order_relaxed);
+        while (true) {
+            size_t next = (how_many > current) ? 0 : (current - how_many);
+            if (references.compare_exchange_weak(current, next, std::memory_order_relaxed)) {
+                break;
+            }
         }
-        references.fetch_sub(how_many, std::memory_order_relaxed);
     }
 
     void Close() {

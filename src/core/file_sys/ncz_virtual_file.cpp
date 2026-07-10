@@ -548,7 +548,12 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
         }
 
         if (!is_solid_stream) {
-            std::lock_guard<std::mutex> cache_lock(cache_mutex);
+            std::unique_lock<std::mutex> cache_lock(cache_mutex);
+            if (prefetch_future.valid()) {
+                cache_lock.unlock();
+                prefetch_future.get();
+                cache_lock.lock();
+            }
             const auto& block = blocks[block_index];
             std::size_t expected_decompressed_size = block_size;
             if (block_index == blocks.size() - 1) {
@@ -593,24 +598,48 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                         block_cache.pop_back();
                     }
                     block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
-                    // Read-ahead: prefetch next block if sequential access pattern
+                    
+                    // Async Read-ahead: prefetch next block if sequential access pattern
                     if (last_accessed_block != SIZE_MAX && block_index == last_accessed_block + 1 &&
                         block_index + 1 < blocks.size()) {
+                        
+                        std::size_t next_idx = block_index + 1;
                         auto prefetch_it = std::find_if(block_cache.begin(), block_cache.end(),
-                            [next = block_index + 1](const BlockCacheEntry& entry) { return entry.index == next; });
+                            [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
+                            
                         if (prefetch_it == block_cache.end()) {
-                            const auto& next_block = blocks[block_index + 1];
-                            thread_local std::vector<u8> prefetch_comp;
-                            prefetch_comp.resize(next_block.compressed_size);
-                            if (file->Read(prefetch_comp.data(), next_block.compressed_size, next_block.offset) == next_block.compressed_size) {
-                                auto prefetch_decomp = Common::Compression::DecompressDataZSTD(prefetch_comp);
-                                if (!prefetch_decomp.empty()) {
-                                    if (block_cache.size() >= 32) {
-                                        block_cache.pop_back();
-                                    }
-                                    block_cache.push_back({block_index + 1, std::move(prefetch_decomp)});
-                                }
+                            const auto& next_block = blocks[next_idx];
+                            std::size_t next_expected_size = block_size;
+                            if (next_idx == blocks.size() - 1) {
+                                next_expected_size = packed_size % block_size;
+                                if (next_expected_size == 0) next_expected_size = block_size;
                             }
+                            
+                            auto f = file;
+                            auto block_offset_val = next_block.offset;
+                            auto block_comp_size = next_block.compressed_size;
+                            
+                            prefetch_future = std::async(std::launch::async, [this, f, next_idx, block_offset_val, block_comp_size, next_expected_size]() {
+                                std::vector<u8> comp(block_comp_size);
+                                if (f->Read(comp.data(), block_comp_size, block_offset_val) == block_comp_size) {
+                                    std::vector<u8> decomp = Common::Compression::DecompressDataZSTD(comp);
+                                    if (!decomp.empty()) {
+                                        if (decomp.size() != next_expected_size) {
+                                            LOG_CRITICAL(Service_FS, "ZSTD block {} size mismatch! Expected: {}, Got: {}, compressed_size: {}, file: {}",
+                                                         next_idx, next_expected_size, decomp.size(), block_comp_size, f->GetName());
+                                        }
+                                        std::lock_guard<std::mutex> lock(cache_mutex);
+                                        auto it = std::find_if(block_cache.begin(), block_cache.end(),
+                                            [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
+                                        if (it == block_cache.end()) {
+                                            if (block_cache.size() >= 32) {
+                                                block_cache.pop_back();
+                                            }
+                                            block_cache.push_back({next_idx, std::move(decomp)});
+                                        }
+                                    }
+                                }
+                            });
                         }
                     }
                     last_accessed_block = block_index;
@@ -672,8 +701,8 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
 
     std::size_t comp_offset = solid_compressed_offset;
     std::size_t remaining_comp = solid_compressed_size;
-    std::vector<u8> comp_chunk(1024 * 1024);
-    std::vector<u8> decomp_buffer(1024 * 1024);
+    std::vector<u8> comp_chunk(16 * 1024 * 1024);
+    std::vector<u8> decomp_buffer(16 * 1024 * 1024);
     std::size_t carry_over = 0;
 
     auto SafeRead = [](const VirtualFile& f, u8* d, std::size_t l, std::size_t o) -> std::size_t {
@@ -683,6 +712,13 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
             return 0;
         }
     };
+
+    u64 total_decompressed_size = 0;
+    for (const auto& sec : sections) {
+        total_decompressed_size += sec.size;
+    }
+    u64 total_decompressed_so_far = 0;
+    u64 last_log_progress = 0;
 
     // 3. Decompress each section sequentially
     for (const auto& sec : sections) {
@@ -703,6 +739,7 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
                 );
                 if (out_file.Seek(static_cast<s64>(sec_offset))) {
                     out_file.WriteSpan(std::span<const u8>(decrypted_header.data() + sec_offset, copy_size));
+                    total_decompressed_so_far += copy_size;
                 }
             }
         }
@@ -745,6 +782,15 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
             if (produced > 0) {
                 out_file.WriteSpan(std::span<const u8>(decomp_buffer.data(), produced));
                 remaining_in_sec -= produced;
+                total_decompressed_so_far += produced;
+                
+                if (total_decompressed_so_far - last_log_progress >= 512ULL * 1024 * 1024 || total_decompressed_so_far == total_decompressed_size) {
+                    double progress_pct = (double)total_decompressed_so_far / total_decompressed_size * 100.0;
+                    LOG_INFO(Service_FS, "DecompressSolidTo: Decompressed {:.1f}% ({:.2f} / {:.2f} GB)...",
+                             progress_pct, (double)total_decompressed_so_far / (1024*1024*1024),
+                             (double)total_decompressed_size / (1024*1024*1024));
+                    last_log_progress = total_decompressed_so_far;
+                }
             }
 
             if (consumed > 0) {

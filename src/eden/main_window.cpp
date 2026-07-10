@@ -2618,6 +2618,9 @@ public:
                 if (pulse_val <= 0.3f) going_up = true;
             }
             this->setStyleSheet(QStringLiteral(
+                "QDialog {"
+                "  background: transparent;"
+                "}"
                 "QWidget#Container {"
                 "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1b20, stop:1 #111215);"
                 "  border: 1px solid rgba(0, 190, 255, %1);"
@@ -2625,9 +2628,11 @@ public:
                 "}"
                 "QLabel#TitleLabel {"
                 "  color: #ffffff;"
+                "  background: transparent;"
                 "}"
                 "QLabel#SubtitleLabel {"
                 "  color: #8a8d9a;"
+                "  background: transparent;"
                 "}"
                 "QProgressBar#ProgressBar {"
                 "  background: rgba(255, 255, 255, 0.08);"

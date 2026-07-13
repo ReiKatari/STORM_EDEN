@@ -62,28 +62,38 @@ size_t IntegrityVerificationStorage::Read(u8* buffer, size_t size, size_t offset
     // Validate arguments.
     ASSERT(buffer != nullptr);
 
-    // Validate the offset.
+    // Validate the offset gracefully without crashing the emulator.
     s64 data_size = m_data_storage->GetSize();
-    ASSERT(offset <= static_cast<size_t>(data_size));
+    if (offset > static_cast<size_t>(data_size)) {
+        LOG_WARNING(Service_FS, "Out of bounds read offset in IntegrityVerificationStorage: offset={:X}, data_size={:X}", offset, data_size);
+        return 0; // EOF
+    }
 
-    // Validate the access range.
-    ASSERT(R_SUCCEEDED(IStorage::CheckAccessRange(
-        offset, size, Common::AlignUp(data_size, static_cast<size_t>(m_verification_block_size)))));
+    // Validate the access range gracefully without crashing the emulator.
+    size_t aligned_data_size = Common::AlignUp(data_size, static_cast<size_t>(m_verification_block_size));
+    if (R_FAILED(IStorage::CheckAccessRange(offset, size, aligned_data_size))) {
+        // Log as warning instead of error so the console isn't flooded with red text
+        LOG_WARNING(Service_FS, "Out of bounds read in IntegrityVerificationStorage: offset={:X}, size={:X}, aligned_data_size={:X}", offset, size, aligned_data_size);
+        if (offset >= aligned_data_size) {
+            return 0; // EOF
+        }
+        size = aligned_data_size - offset; // Clamp to available size
+    }
 
     // Determine the read extents.
     size_t read_size = size;
     if (static_cast<s64>(offset + read_size) > data_size) {
-        // Determine the padding sizes.
-        s64 padding_offset = data_size - offset;
-        size_t padding_size = static_cast<size_t>(
-            m_verification_block_size - (padding_offset & (m_verification_block_size - 1)));
-        ASSERT(static_cast<s64>(padding_size) < m_verification_block_size);
+        // The valid data size from this offset to the end of the real data.
+        s64 valid_data_size = std::max<s64>(0, data_size - offset);
+        
+        // The rest of the requested size must be padded with 0s.
+        size_t padding_size = size - static_cast<size_t>(valid_data_size);
 
-        // Clear the padding.
-        std::memset(static_cast<u8*>(buffer) + padding_offset, 0, padding_size);
+        // Clear the padding within the bounds of the requested buffer size.
+        std::memset(static_cast<u8*>(buffer) + valid_data_size, 0, padding_size);
 
-        // Set the new in-bounds size.
-        read_size = static_cast<size_t>(data_size - offset);
+        // Set the new in-bounds size for the underlying read.
+        read_size = static_cast<size_t>(valid_data_size);
     }
 
     // Perform the read.

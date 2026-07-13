@@ -8,12 +8,14 @@
 #include <cstddef>
 #include <iterator>
 #include <utility>
+#include <fmt/format.h>
 #include "common/assert.h"
 #include "common/fs/file.h"
 #include "common/fs/fs.h"
 #include "common/fs/path_util.h"
 #include "common/logging.h"
 #include "core/file_sys/vfs/vfs.h"
+#include "core/file_sys/vfs/vfs_concat.h"
 #include "core/file_sys/vfs/vfs_real.h"
 
 // For FileTimeStampRaw
@@ -84,16 +86,55 @@ VirtualFile RealVfsFilesystem::OpenFileFromEntry(std::string_view path_, std::op
                                                  std::optional<std::string> parent_path,
                                                  OpenMode perms) {
     const auto path = FS::SanitizePath(path_, FS::DirectorySeparator::PlatformDefault);
-    std::scoped_lock lk{list_lock};
-
-    if (auto it = cache.find(path); it != cache.end()) {
-        if (auto file = it->second.lock(); file) {
-            return file;
+    
+    {
+        std::scoped_lock lk{list_lock};
+        if (auto it = cache.find(path); it != cache.end()) {
+            if (auto file = it->second.lock(); file) {
+                return file;
+            }
         }
     }
 
     if (!size && !FS::IsFile(path)) {
+        if (FS::IsDir(path)) {
+            const auto name = FS::GetFilename(path);
+            if (name.ends_with(".nsp") || name.ends_with(".nsz") || name.ends_with(".xci") || name.ends_with(".xcz") || 
+                name.ends_with(".NSP") || name.ends_with(".NSZ") || name.ends_with(".XCI") || name.ends_with(".XCZ")) {
+                
+                auto dir = std::shared_ptr<RealVfsDirectory>(new RealVfsDirectory(*this, path, perms));
+                std::vector<VirtualFile> concat;
+                for (std::size_t i = 0; i < 0x100; ++i) {
+                    auto next = dir->GetFile(fmt::format("{:02X}", i));
+                    if (next != nullptr) {
+                        concat.push_back(std::move(next));
+                    } else {
+                        next = dir->GetFile(fmt::format("{:02x}", i));
+                        if (next != nullptr) {
+                            concat.push_back(std::move(next));
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (!concat.empty()) {
+                    auto file = ConcatenatedVfsFile::MakeConcatenatedFile(std::string(name), std::move(concat));
+                    std::scoped_lock lk{list_lock};
+                    cache[path] = file;
+                    return file;
+                }
+            }
+        }
         return nullptr;
+    }
+
+    std::scoped_lock lk{list_lock};
+
+    // Re-check cache in case it was added while we didn't have the lock
+    if (auto it = cache.find(path); it != cache.end()) {
+        if (auto file = it->second.lock(); file) {
+            return file;
+        }
     }
 
     auto reference = std::make_unique<FileReference>();

@@ -89,7 +89,8 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
         bool cache_valid = false;
         if (std::filesystem::exists(cache_path, ec)) {
             std::size_t disk_size = std::filesystem::file_size(cache_path, ec);
-            if (disk_size == ncz_file->GetSize()) {
+            std::filesystem::path completed_path = cache_path.string() + ".completed";
+            if (disk_size == ncz_file->GetSize() && std::filesystem::exists(completed_path, ec)) {
                 cache_valid = true;
             }
         }
@@ -104,6 +105,10 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
         LOG_INFO(Loader, "NCA: Decompressing solid NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
         if (ncz_file->DecompressSolidTo(cache_path)) {
             LOG_INFO(Loader, "NCA: Solid NCZ NCA decompressed and cached to disk successfully.");
+            std::filesystem::path completed_path = cache_path.string() + ".completed";
+            if (std::FILE* marker = std::fopen(completed_path.string().c_str(), "w")) {
+                std::fclose(marker);
+            }
             return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
         } else {
             LOG_ERROR(Loader, "NCA: Failed to decompress solid NCZ NCA");
@@ -123,7 +128,7 @@ NCA::NCA(VirtualFile file_, const NCA* base_nca)
 
     reader = std::make_shared<NcaReader>();
     if (Result rc = reader->Initialize(file, GetCryptoConfiguration(), GetNcaCompressionConfiguration()); R_FAILED(rc)) {
-        LOG_CRITICAL(Loader, "NcaReader Initialize failed with rc={:08X}", rc.raw);
+        LOG_DEBUG(Loader, "NcaReader Initialize failed with rc={:08X}", rc.raw);
         status = Loader::ResultStatus::ErrorBadNCAHeader;
         return;
     }
@@ -166,6 +171,14 @@ NCA::NCA(VirtualFile file_, const NCA* base_nca)
         }
 
         reader->SetExternalDecryptionKey(titlekey.data(), titlekey.size());
+    }
+
+    const auto content_type = reader->GetContentType();
+    if ((content_type == NcaHeader::ContentType::Program ||
+         content_type == NcaHeader::ContentType::Data) &&
+        !Settings::is_booting) {
+        status = Loader::ResultStatus::Success;
+        return;
     }
 
     const s32 fs_count = reader->GetFsCount();

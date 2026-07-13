@@ -93,7 +93,8 @@ static FileSys::VirtualFile DecompressIfNCZ(FileSys::VirtualFile file) {
         bool cache_valid = false;
         if (std::filesystem::exists(cache_path, ec)) {
             std::size_t disk_size = std::filesystem::file_size(cache_path, ec);
-            if (disk_size == ncz_file->GetSize()) {
+            std::filesystem::path completed_path = cache_path.string() + ".completed";
+            if (disk_size == ncz_file->GetSize() && std::filesystem::exists(completed_path, ec)) {
                 cache_valid = true;
             }
         }
@@ -108,6 +109,10 @@ static FileSys::VirtualFile DecompressIfNCZ(FileSys::VirtualFile file) {
         LOG_INFO(Loader, "Decompressing base NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
         if (ncz_file->DecompressSolidTo(cache_path)) {
             LOG_INFO(Loader, "Base NCZ NCA decompressed and cached to disk successfully.");
+            std::filesystem::path completed_path = cache_path.string() + ".completed";
+            if (std::FILE* marker = std::fopen(completed_path.string().c_str(), "w")) {
+                std::fclose(marker);
+            }
             return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
         } else {
             LOG_ERROR(Loader, "Failed to decompress base NCZ NCA");

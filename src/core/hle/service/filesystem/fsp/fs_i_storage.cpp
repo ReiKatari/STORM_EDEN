@@ -7,11 +7,15 @@
 #include "core/file_sys/errors.h"
 #include "core/hle/service/cmif_serialization.h"
 #include "core/hle/service/filesystem/fsp/fs_i_storage.h"
+#include "core/file_sys/vfs/vfs_vector.h"
 
 namespace Service::FileSystem {
 
 IStorage::IStorage(Core::System& system_, FileSys::VirtualFile backend_)
     : ServiceFramework{system_, "IStorage"}, backend(std::move(backend_)) {
+    if (backend == nullptr) {
+        backend = std::make_shared<FileSys::VectorVfsFile>();
+    }
     const FunctionInfo functions[] = {
         {0, D<&IStorage::Read>, "Read"},
         {1, nullptr, "Write"},

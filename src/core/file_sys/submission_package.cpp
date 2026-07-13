@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -245,39 +245,36 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
         std::fprintf(dbg, "[NSP DEBUG] ReadNCAs called. Container: %s, file count: %zu\n", file->GetName().c_str(), files.size());
         std::fflush(dbg); std::fclose(dbg);
     }
+    
+    bool is_nsz_container = file->GetName().ends_with(".nsz") || file->GetName().ends_with(".xcz") || 
+                            file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ");
+                  
     for (const auto& outer_file : files) {
         if (outer_file == nullptr) {
             continue;
         }
+        
         bool is_cnmt_ncz = outer_file->GetName().ends_with(".cnmt.ncz");
-        if (!is_cnmt_ncz && (outer_file->GetName().size() < 9 ||
-            outer_file->GetName().substr(outer_file->GetName().size() - 9) != ".cnmt.nca")) {
-            continue;
-        }
-
-        if (std::FILE* dbg = nullptr) {
-            std::fprintf(dbg, "[NSP DEBUG] Processing CNMT: %s (size=%zu)\n", outer_file->GetName().c_str(), outer_file->GetSize());
-            std::fflush(dbg); std::fclose(dbg);
-        }
+        bool is_cnmt_nca = is_cnmt_ncz || (outer_file->GetName().size() >= 9 &&
+                           outer_file->GetName().substr(outer_file->GetName().size() - 9) == ".cnmt.nca");
 
         VirtualFile file_to_use = outer_file;
-        bool is_nsz = file->GetName().ends_with(".nsz") || file->GetName().ends_with(".xcz") || 
-                      file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ");
-                      
-        if (is_cnmt_ncz || is_nsz || IsNczFile(outer_file)) {
-            if (std::FILE* dbg = nullptr) {
-                std::fprintf(dbg, "[NSP DEBUG] Wrapping CNMT in NCZVirtualFile (is_nsz=%d, is_cnmt_ncz=%d)\n", is_nsz, is_cnmt_ncz);
-                std::fflush(dbg); std::fclose(dbg);
-            }
+        
+        if (is_nsz_container || is_cnmt_ncz || IsNczFile(outer_file)) {
             file_to_use = std::make_shared<NCZVirtualFile>(outer_file);
         }
 
-
-        LOG_DEBUG(Loader, "NSP DEBUG: Creating NCA from CNMT file (size={}, IsNcz={})", file_to_use->GetSize(), file_to_use->IsNczFile());
         const auto nca = std::make_shared<NCA>(file_to_use);
-        LOG_DEBUG(Loader, "NSP DEBUG: NCA status: {}, subdirs: {}", static_cast<int>(nca->GetStatus()), nca->GetSubdirectories().size());
         if (nca->GetStatus() != Loader::ResultStatus::Success || nca->GetSubdirectories().empty()) {
+            if (!is_cnmt_nca && nca->GetStatus() != Loader::ResultStatus::Success) {
+                // Not a CNMT by name, and not a valid NCA. Skip it.
+                continue;
+            }
             program_status[nca->GetTitleId()] = nca->GetStatus();
+            continue;
+        }
+        
+        if (!is_cnmt_nca && nca->GetType() != NCAContentType::Meta) {
             continue;
         }
 
@@ -294,17 +291,14 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
 
             for (const auto& rec : cnmt.GetContentRecords()) {
                 const auto id_string = Common::HexToString(rec.nca_id, false);
-                LOG_DEBUG(Loader, "NSP DEBUG: Looking for content NCA: {}.nca (type={})", id_string, static_cast<int>(rec.type));
                 auto next_file = pfs->GetFile(fmt::format("{}.nca", id_string));
 
                 if (next_file == nullptr) {
                     next_file = pfs->GetFile(fmt::format("{}.ncz", id_string));
                     if (next_file != nullptr) {
-                        LOG_DEBUG(Loader, "NSP DEBUG: Found as .ncz, wrapping in NCZVirtualFile (size={})", next_file->GetSize());
                         next_file = std::make_shared<NCZVirtualFile>(next_file);
                     }
-                } else if (is_nsz || IsNczFile(next_file)) {
-                    LOG_DEBUG(Loader, "NSP DEBUG: Found as .nca in NSZ or detected NCZ magic, wrapping in NCZVirtualFile (size={})", next_file->GetSize());
+                } else if (is_nsz_container || IsNczFile(next_file)) {
                     next_file = std::make_shared<NCZVirtualFile>(next_file);
                 }
 
@@ -314,16 +308,13 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                         if (potential_file == nullptr) continue;
                         
                         std::string name = potential_file->GetName();
-                        bool is_ncz = name.ends_with(".ncz") || IsNczFile(potential_file);
-                        bool is_nca = name.ends_with(".nca");
-                        if (!is_ncz && !is_nca) continue;
                         
                         if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos) {
-                            continue;
+                            continue; // We know it's a CNMT, skip
                         }
                         
                         VirtualFile temp_file = potential_file;
-                        if (is_ncz || is_nsz) {
+                        if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
                             temp_file = std::make_shared<NCZVirtualFile>(temp_file);
                         }
                         
@@ -370,27 +361,11 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                                     "NCA with ID {}.nca is listed in content metadata, but cannot "
                                     "be found in PFS. NSP appears to be corrupted.",
                                     id_string);
-                        if (std::FILE* dbg = nullptr) {
-                            std::fprintf(dbg, "[NSP DEBUG] WARNING: NCA %s not found in PFS!\n", id_string.c_str());
-                            std::fflush(dbg); std::fclose(dbg);
-                        }
                     }
-
                     continue;
                 }
 
-                if (std::FILE* dbg = nullptr) {
-                    std::fprintf(dbg, "[NSP DEBUG] Creating NCA object from content file (IsNcz=%d, size=%zu)\n", next_file->IsNczFile(), next_file->GetSize());
-                    std::fflush(dbg); std::fclose(dbg);
-                }
                 auto next_nca = std::make_shared<NCA>(std::move(next_file));
-                if (std::FILE* dbg = nullptr) {
-                    std::fprintf(dbg, "[NSP DEBUG] Content NCA created. Type=%d, TitleID=%016llX, Status=%d\n",
-                                 static_cast<int>(next_nca->GetType()),
-                                 static_cast<unsigned long long>(next_nca->GetTitleId()),
-                                 static_cast<int>(next_nca->GetStatus()));
-                    std::fflush(dbg); std::fclose(dbg);
-                }
 
                 if (next_nca->GetType() == NCAContentType::Program) {
                     program_status[next_nca->GetTitleId()] = next_nca->GetStatus();

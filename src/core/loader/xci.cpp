@@ -27,8 +27,7 @@ AppLoader_XCI::AppLoader_XCI(FileSys::VirtualFile file_,
                              const Service::FileSystem::FileSystemController& fsc,
                              const FileSys::ContentProvider& content_provider, u64 program_id,
                              std::size_t program_index)
-    : AppLoader(file_), xci(std::make_unique<FileSys::XCI>(file_, program_id, program_index)),
-      nca_loader(std::make_unique<AppLoader_NCA>(xci->GetProgramNCAFile())) {
+    : AppLoader(file_), xci(std::make_unique<FileSys::XCI>(file_, program_id, program_index)) {
     if (xci->GetStatus() != ResultStatus::Success) {
         return;
     }
@@ -65,6 +64,13 @@ FileType AppLoader_XCI::IdentifyType(const FileSys::VirtualFile& xci_file) {
     return FileType::Error;
 }
 
+void AppLoader_XCI::EnsureNcaLoader() {
+    if (nca_loader != nullptr) {
+        return;
+    }
+    nca_loader = std::make_unique<AppLoader_NCA>(xci->GetProgramNCAFile());
+}
+
 AppLoader_XCI::LoadResult AppLoader_XCI::Load(Kernel::KProcess& process, Core::System& system) {
     if (is_loaded) {
         return {ResultStatus::ErrorAlreadyLoaded, {}};
@@ -83,6 +89,8 @@ AppLoader_XCI::LoadResult AppLoader_XCI::Load(Kernel::KProcess& process, Core::S
     if (!xci->HasProgramNCA() && !Core::Crypto::KeyManager::KeyFileExists(false)) {
         return {ResultStatus::ErrorMissingProductionKeyFile, {}};
     }
+
+    EnsureNcaLoader();
 
     const auto result = nca_loader->Load(process, system);
     if (result.first != ResultStatus::Success) {
@@ -135,12 +143,12 @@ ResultStatus AppLoader_XCI::VerifyIntegrity(std::function<bool(size_t, size_t)> 
 }
 
 ResultStatus AppLoader_XCI::ReadRomFS(FileSys::VirtualFile& out_file) {
+    EnsureNcaLoader();
     return nca_loader->ReadRomFS(out_file);
 }
 
 ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
-    u64 program_id{};
-    nca_loader->ReadProgramId(program_id);
+    u64 program_id = xci->GetProgramTitleID();
     if (program_id == 0) {
         return ResultStatus::ErrorXCIMissingProgramNCA;
     }
@@ -161,7 +169,11 @@ ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
 }
 
 ResultStatus AppLoader_XCI::ReadProgramId(u64& out_program_id) {
-    return nca_loader->ReadProgramId(out_program_id);
+    out_program_id = xci->GetProgramTitleID();
+    if (out_program_id == 0) {
+        return ResultStatus::ErrorXCIMissingProgramNCA;
+    }
+    return ResultStatus::Success;
 }
 
 ResultStatus AppLoader_XCI::ReadProgramIds(std::vector<u64>& out_program_ids) {
@@ -209,14 +221,17 @@ ResultStatus AppLoader_XCI::ReadManualRomFS(FileSys::VirtualFile& out_file) {
 }
 
 ResultStatus AppLoader_XCI::ReadBanner(std::vector<u8>& buffer) {
+    EnsureNcaLoader();
     return nca_loader->ReadBanner(buffer);
 }
 
 ResultStatus AppLoader_XCI::ReadLogo(std::vector<u8>& buffer) {
+    EnsureNcaLoader();
     return nca_loader->ReadLogo(buffer);
 }
 
 ResultStatus AppLoader_XCI::ReadNSOModules(Modules& modules) {
+    EnsureNcaLoader();
     return nca_loader->ReadNSOModules(modules);
 }
 

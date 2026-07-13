@@ -204,6 +204,9 @@ typename P::ImageView& TextureCache<P>::GetImageView(ImageViewId id) noexcept {
 
 template <class P>
 typename P::ImageView& TextureCache<P>::GetImageView(u32 index) noexcept {
+    if (!channel_state) {
+        return slot_image_views[NULL_IMAGE_VIEW_ID];
+    }
     const auto image_view_id = VisitImageView(channel_state->graphics_image_table,
                                               channel_state->graphics_image_view_ids, index);
     return slot_image_views[image_view_id];
@@ -217,12 +220,24 @@ void TextureCache<P>::MarkModification(ImageId id) noexcept {
 template <class P>
 template <bool has_blacklists>
 void TextureCache<P>::FillGraphicsImageViews(std::span<ImageViewInOut> views) {
+    if (!channel_state) {
+        for (auto& view : views) {
+            view.id = {};
+        }
+        return;
+    }
     FillImageViews<has_blacklists>(channel_state->graphics_image_table,
                                    channel_state->graphics_image_view_ids, views);
 }
 
 template <class P>
 void TextureCache<P>::FillComputeImageViews(std::span<ImageViewInOut> views) {
+    if (!channel_state) {
+        for (auto& view : views) {
+            view.id = {};
+        }
+        return;
+    }
     FillImageViews<true>(channel_state->compute_image_table, channel_state->compute_image_view_ids,
                          views);
 }
@@ -341,6 +356,9 @@ typename P::Sampler& TextureCache<P>::GetSampler(SamplerId id) noexcept {
 
 template <class P>
 void TextureCache<P>::SynchronizeGraphicsDescriptors() {
+    if (!channel_state) {
+        return;
+    }
     using SamplerBinding = Tegra::Engines::Maxwell3D::Regs::SamplerBinding;
     const bool linked_tsc = maxwell3d->regs.sampler_binding == SamplerBinding::ViaHeaderBinding;
     const u32 tic_limit = maxwell3d->regs.tex_header.limit;
@@ -363,6 +381,9 @@ void TextureCache<P>::SynchronizeGraphicsDescriptors() {
 
 template <class P>
 void TextureCache<P>::SynchronizeComputeDescriptors() {
+    if (!channel_state) {
+        return;
+    }
     const bool linked_tsc = kepler_compute->launch_description.linked_tsc;
     const u32 tic_limit = kepler_compute->regs.tic.limit;
     const u32 tsc_limit = linked_tsc ? tic_limit : kepler_compute->regs.tsc.limit;

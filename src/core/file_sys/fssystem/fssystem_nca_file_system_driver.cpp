@@ -332,6 +332,20 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
     if (patch_info.HasAesCtrExTable()) {
         auto effective_encryption_type = is_ncz_body ? NcaFsHeader::EncryptionType::None : out_header_reader->GetEncryptionType();
 
+        std::array<u8, 16> magic_buf{};
+        if (effective_encryption_type != NcaFsHeader::EncryptionType::None && 
+            storage->Read(magic_buf.data(), magic_buf.size(), 0) == magic_buf.size()) {
+            u32 magic = 0;
+            std::memcpy(&magic, magic_buf.data(), 4);
+            if (magic == Common::MakeMagic('P', 'F', 'S', '0') || 
+                magic == Common::MakeMagic('H', 'F', 'S', '0') ||
+                magic == Common::MakeMagic('I', 'V', 'F', 'C')) {
+                LOG_WARNING(Loader, "STORM SWITCH BOX HACK: Detected plaintext {} in NCA partition (AesCtrEx), skipping AES-CTR decryption!", 
+                            magic == Common::MakeMagic('I', 'V', 'F', 'C') ? "IVFC" : "PFS0/HFS0");
+                effective_encryption_type = NcaFsHeader::EncryptionType::None;
+            }
+        }
+
         // Check the encryption type.
         ASSERT(effective_encryption_type == NcaFsHeader::EncryptionType::None ||
                effective_encryption_type == NcaFsHeader::EncryptionType::AesCtrEx ||
@@ -377,17 +391,48 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
                 R_TRY(this->CreateAesXtsStorage(std::addressof(storage), std::move(storage),
                                                 fs_data_offset));
                 break;
-            case NcaFsHeader::EncryptionType::AesCtr:
+            case NcaFsHeader::EncryptionType::AesCtr: {
+                std::array<u8, 16> magic_buf{};
+                if (storage->Read(magic_buf.data(), magic_buf.size(), 0) == magic_buf.size()) {
+                    u32 magic = 0;
+                    std::memcpy(&magic, magic_buf.data(), 4);
+                    if (magic == Common::MakeMagic('P', 'F', 'S', '0') || 
+                        magic == Common::MakeMagic('H', 'F', 'S', '0') ||
+                        magic == Common::MakeMagic('I', 'V', 'F', 'C')) {
+                        LOG_WARNING(Loader, "STORM SWITCH BOX HACK: Detected plaintext {} in NCA partition, skipping AES-CTR decryption!", 
+                                    magic == Common::MakeMagic('I', 'V', 'F', 'C') ? "IVFC" : "PFS0/HFS0");
+                        break;
+                    }
+                }
                 R_TRY(this->CreateAesCtrStorage(std::addressof(storage), std::move(storage),
                                                 fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
                                                 AlignmentStorageRequirement::None));
                 break;
+            }
             case NcaFsHeader::EncryptionType::AesCtrSkipLayerHash: {
-                // Create the aes ctr storage.
+                std::array<u8, 16> magic_buf{};
+                bool is_plaintext = false;
+                if (storage->Read(magic_buf.data(), magic_buf.size(), 0) == magic_buf.size()) {
+                    u32 magic = 0;
+                    std::memcpy(&magic, magic_buf.data(), 4);
+                    if (magic == Common::MakeMagic('P', 'F', 'S', '0') || 
+                        magic == Common::MakeMagic('H', 'F', 'S', '0') ||
+                        magic == Common::MakeMagic('I', 'V', 'F', 'C')) {
+                        LOG_WARNING(Loader, "STORM SWITCH BOX HACK: Detected plaintext {} in NCA partition (SkipLayerHash), skipping AES-CTR decryption!", 
+                                    magic == Common::MakeMagic('I', 'V', 'F', 'C') ? "IVFC" : "PFS0/HFS0");
+                        is_plaintext = true;
+                    }
+                }
+                
                 VirtualFile aes_ctr_storage;
-                R_TRY(this->CreateAesCtrStorage(std::addressof(aes_ctr_storage), storage,
-                                                fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
-                                                AlignmentStorageRequirement::None));
+                if (is_plaintext) {
+                    aes_ctr_storage = storage;
+                } else {
+                    // Create the aes ctr storage.
+                    R_TRY(this->CreateAesCtrStorage(std::addressof(aes_ctr_storage), storage,
+                                                    fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
+                                                    AlignmentStorageRequirement::None));
+                }
 
                 // Create region switch storage.
                 R_TRY(this->CreateRegionSwitchStorage(std::addressof(storage), out_header_reader,

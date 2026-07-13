@@ -166,6 +166,8 @@ add_library(core STATIC
     file_sys/system_archive/time_zone_binary.h
     file_sys/vfs/vfs.cpp
     file_sys/vfs/vfs.h
+    file_sys/vfs/vfs_buffered.cpp
+    file_sys/vfs/vfs_buffered.h
     file_sys/vfs/vfs_cached.cpp
     file_sys/vfs/vfs_cached.h
     file_sys/vfs/vfs_concat.cpp

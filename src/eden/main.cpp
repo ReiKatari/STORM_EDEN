@@ -6,6 +6,9 @@
 #include <QStyleOptionMenuItem>
 #include <QPainter>
 #include <QtPlugin>
+#include <exception>
+#include <csignal>
+#include <cstdlib>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 Q_IMPORT_PLUGIN(QGifPlugin)
@@ -142,14 +145,93 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 #ifdef _WIN32
 #include <windows.h>
 #include <fstream>
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib")
+
 LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
-    std::ofstream os("crash_dump_global.txt", std::ios::app);
-    os << "HARD CRASH DETECTED!\n";
-    os << "Exception Code: " << std::hex << ExceptionInfo->ExceptionRecord->ExceptionCode << "\n";
-    os << "Exception Address: " << ExceptionInfo->ExceptionRecord->ExceptionAddress << "\n";
+    // Write to the exe directory so we can always find the file
+    char exe_path[MAX_PATH] = {};
+    GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
+    std::string crash_file(exe_path);
+    auto last_sep = crash_file.find_last_of("\\/");
+    if (last_sep != std::string::npos) {
+        crash_file = crash_file.substr(0, last_sep + 1);
+    }
+    crash_file += "crash_dump_global.txt";
+
+    std::ofstream os(crash_file, std::ios::app);
+    os << "=== HARD CRASH DETECTED ===\n";
+    os << "Thread ID: " << std::dec << GetCurrentThreadId() << "\n";
+    os << "Exception Code: 0x" << std::hex << ExceptionInfo->ExceptionRecord->ExceptionCode << "\n";
+    os << "Exception Address: 0x" << (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress << "\n";
+
+    // For Access Violations, show what address was being accessed and how
+    if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
+        ExceptionInfo->ExceptionRecord->NumberParameters >= 2) {
+        const char* av_type = "unknown";
+        switch (ExceptionInfo->ExceptionRecord->ExceptionInformation[0]) {
+            case 0: av_type = "READ"; break;
+            case 1: av_type = "WRITE"; break;
+            case 8: av_type = "DEP"; break;
+        }
+        os << "AV Type: " << av_type << "\n";
+        os << "AV Target Address: 0x" << std::hex
+           << ExceptionInfo->ExceptionRecord->ExceptionInformation[1] << "\n";
+    }
+
+    // Dump key registers from crash context
+#ifdef _M_X64
+    if (ExceptionInfo->ContextRecord) {
+        auto* ctx = ExceptionInfo->ContextRecord;
+        os << "Registers:\n";
+        os << "  RIP=0x" << std::hex << ctx->Rip << "  RSP=0x" << ctx->Rsp << "  RBP=0x" << ctx->Rbp << "\n";
+        os << "  RAX=0x" << ctx->Rax << "  RBX=0x" << ctx->Rbx << "  RCX=0x" << ctx->Rcx << "\n";
+        os << "  RDX=0x" << ctx->Rdx << "  RSI=0x" << ctx->Rsi << "  RDI=0x" << ctx->Rdi << "\n";
+        os << "  R8=0x"  << ctx->R8  << "  R9=0x"  << ctx->R9  << "  R10=0x" << ctx->R10 << "\n";
+        os << "  R11=0x" << ctx->R11 << "  R12=0x" << ctx->R12 << "  R13=0x" << ctx->R13 << "\n";
+        os << "  R14=0x" << ctx->R14 << "  R15=0x" << ctx->R15 << "\n";
+    }
+#endif
+
+    // Walk the stack using CaptureStackBackTrace
+    void* stack[64] = {};
+    USHORT frames = CaptureStackBackTrace(0, 64, stack, nullptr);
+    os << "Stack frames captured: " << std::dec << frames << "\n";
+
+    // Enumerate loaded modules to resolve addresses to module+offset
+    HANDLE process = GetCurrentProcess();
+    HMODULE modules[256] = {};
+    DWORD needed = 0;
+    EnumProcessModules(process, modules, sizeof(modules), &needed);
+    DWORD num_modules = needed / sizeof(HMODULE);
+
+    for (USHORT i = 0; i < frames; i++) {
+        uintptr_t addr = (uintptr_t)stack[i];
+        // Find which module this address belongs to
+        const char* mod_name = "???";
+        uintptr_t mod_offset = addr;
+        char mod_filename[MAX_PATH] = {};
+        for (DWORD m = 0; m < num_modules; m++) {
+            MODULEINFO mi = {};
+            GetModuleInformation(process, modules[m], &mi, sizeof(mi));
+            uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
+            if (addr >= base && addr < base + mi.SizeOfImage) {
+                GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
+                // Extract just the filename
+                const char* p = strrchr(mod_filename, '\\');
+                mod_name = p ? p + 1 : mod_filename;
+                mod_offset = addr - base;
+                break;
+            }
+        }
+        os << "  [" << std::dec << i << "] " << mod_name << " + 0x" << std::hex << mod_offset << "\n";
+    }
+
+    os << "=== END CRASH ===\n\n";
     os.flush();
-    return EXCEPTION_CONTINUE_SEARCH; // Let Windows still show the WER dialog if configured
+    return EXCEPTION_CONTINUE_SEARCH;
 }
+
 #endif
 
 
@@ -157,6 +239,125 @@ LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
 int main(int argc, char* argv[]) {
 #ifdef _WIN32
     SetUnhandledExceptionFilter(GlobalCrashHandler);
+
+    // Disable the abort dialog and __fastfail behavior so abort() goes through
+    // our signal handler instead of killing the process silently
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+    
+    // Install SIGABRT handler to catch abort() calls
+    signal(SIGABRT, [](int) {
+        char exe_path[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
+        std::string crash_file(exe_path);
+        auto last_sep = crash_file.find_last_of("\\/");
+        if (last_sep != std::string::npos) {
+            crash_file = crash_file.substr(0, last_sep + 1);
+        }
+        crash_file += "crash_dump_global.txt";
+
+        std::ofstream os(crash_file, std::ios::app);
+        os << "=== SIGABRT CAUGHT ===\n";
+
+        void* stack[64] = {};
+        USHORT frames = CaptureStackBackTrace(0, 64, stack, nullptr);
+        os << "Stack frames: " << std::dec << frames << "\n";
+
+        HANDLE process = GetCurrentProcess();
+        HMODULE modules[256] = {};
+        DWORD needed = 0;
+        EnumProcessModules(process, modules, sizeof(modules), &needed);
+        DWORD num_modules = needed / sizeof(HMODULE);
+
+        for (USHORT i = 0; i < frames; i++) {
+            uintptr_t addr = (uintptr_t)stack[i];
+            const char* mod_name = "???";
+            uintptr_t mod_offset = addr;
+            char mod_filename[MAX_PATH] = {};
+            for (DWORD m = 0; m < num_modules; m++) {
+                MODULEINFO mi = {};
+                GetModuleInformation(process, modules[m], &mi, sizeof(mi));
+                uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
+                if (addr >= base && addr < base + mi.SizeOfImage) {
+                    GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
+                    const char* p = strrchr(mod_filename, '\\');
+                    mod_name = p ? p + 1 : mod_filename;
+                    mod_offset = addr - base;
+                    break;
+                }
+            }
+            os << "  [" << std::dec << i << "] " << mod_name << " + 0x" << std::hex << mod_offset << "\n";
+        }
+
+        os << "=== END SIGABRT ===\n\n";
+        os.flush();
+        // Exit without calling abort() again
+        _exit(3);
+    });
+
+    // Catch unhandled C++ exceptions that go through std::terminate → abort
+    std::set_terminate([] {
+        // Get the exe directory for the crash file
+        char exe_path[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
+        std::string crash_file(exe_path);
+        auto last_sep = crash_file.find_last_of("\\/");
+        if (last_sep != std::string::npos) {
+            crash_file = crash_file.substr(0, last_sep + 1);
+        }
+        crash_file += "crash_dump_global.txt";
+
+        std::ofstream os(crash_file, std::ios::app);
+        os << "=== std::terminate() CALLED ===\n";
+
+        // Try to get the current exception
+        try {
+            auto eptr = std::current_exception();
+            if (eptr) {
+                std::rethrow_exception(eptr);
+            } else {
+                os << "No active exception (terminate called directly)\n";
+            }
+        } catch (const std::exception& e) {
+            os << "Unhandled std::exception: " << e.what() << "\n";
+        } catch (...) {
+            os << "Unhandled unknown exception (not std::exception)\n";
+        }
+
+        // Capture stack trace
+        void* stack[64] = {};
+        USHORT frames = CaptureStackBackTrace(0, 64, stack, nullptr);
+        os << "Stack frames: " << std::dec << frames << "\n";
+
+        HANDLE process = GetCurrentProcess();
+        HMODULE modules[256] = {};
+        DWORD needed = 0;
+        EnumProcessModules(process, modules, sizeof(modules), &needed);
+        DWORD num_modules = needed / sizeof(HMODULE);
+
+        for (USHORT i = 0; i < frames; i++) {
+            uintptr_t addr = (uintptr_t)stack[i];
+            const char* mod_name = "???";
+            uintptr_t mod_offset = addr;
+            char mod_filename[MAX_PATH] = {};
+            for (DWORD m = 0; m < num_modules; m++) {
+                MODULEINFO mi = {};
+                GetModuleInformation(process, modules[m], &mi, sizeof(mi));
+                uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
+                if (addr >= base && addr < base + mi.SizeOfImage) {
+                    GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
+                    const char* p = strrchr(mod_filename, '\\');
+                    mod_name = p ? p + 1 : mod_filename;
+                    mod_offset = addr - base;
+                    break;
+                }
+            }
+            os << "  [" << std::dec << i << "] " << mod_name << " + 0x" << std::hex << mod_offset << "\n";
+        }
+
+        os << "=== END TERMINATE ===\n\n";
+        os.flush();
+        std::abort();
+    });
 #endif
 
 

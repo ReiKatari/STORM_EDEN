@@ -8,10 +8,13 @@
 #include <mutex>
 #include <thread>
 #include <utility>
+#include <stdexcept>
 
 #include <fmt/format.h>
 
+#include "common/logging.h"
 #include "video_core/renderer_vulkan/vk_query_cache.h"
+
 
 #include "common/settings.h"
 #include "common/thread.h"
@@ -105,7 +108,8 @@ void Scheduler::WaitWorker() {
 }
 
 void Scheduler::DispatchWork() {
-    if (chunk->Empty()) {
+    std::scoped_lock lock{record_mutex};
+    if (!chunk || chunk->Empty()) {
         return;
     }
     {
@@ -253,14 +257,25 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
 }
 
 void Scheduler::AllocateWorkerCommandBuffer() {
-    current_cmdbuf = vk::CommandBuffer(command_pool->Commit(), device.GetDispatchLoader());
+    VkCommandBuffer cmdbuf_handle = command_pool->Commit();
+    if (cmdbuf_handle == nullptr) {
+        LOG_CRITICAL(Render_Vulkan, "AllocateWorkerCommandBuffer: command_pool->Commit() returned NULL for current_cmdbuf");
+        throw std::runtime_error("AllocateWorkerCommandBuffer: committed command buffer is NULL");
+    }
+    current_cmdbuf = vk::CommandBuffer(cmdbuf_handle, device.GetDispatchLoader());
     current_cmdbuf.Begin({
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .pNext = nullptr,
         .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         .pInheritanceInfo = nullptr,
     });
-    current_upload_cmdbuf = vk::CommandBuffer(command_pool->Commit(), device.GetDispatchLoader());
+
+    VkCommandBuffer upload_cmdbuf_handle = command_pool->Commit();
+    if (upload_cmdbuf_handle == nullptr) {
+        LOG_CRITICAL(Render_Vulkan, "AllocateWorkerCommandBuffer: command_pool->Commit() returned NULL for current_upload_cmdbuf");
+        throw std::runtime_error("AllocateWorkerCommandBuffer: committed upload command buffer is NULL");
+    }
+    current_upload_cmdbuf = vk::CommandBuffer(upload_cmdbuf_handle, device.GetDispatchLoader());
     current_upload_cmdbuf.Begin({
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .pNext = nullptr,
@@ -268,6 +283,7 @@ void Scheduler::AllocateWorkerCommandBuffer() {
         .pInheritanceInfo = nullptr,
     });
 }
+
 
 u64 Scheduler::SubmitExecution(VkSemaphore signal_semaphore, VkSemaphore wait_semaphore) {
     EndPendingOperations();

@@ -41,10 +41,7 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
         return;
     }
 
-    if (nsp->IsExtractedType()) {
-        secondary_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(
-            nsp->GetExeFS(), false, file->GetName() == "hbl.nsp");
-    } else {
+    if (!nsp->IsExtractedType()) {
         const auto control_nca =
             nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Control);
         if (control_nca == nullptr) {
@@ -78,7 +75,7 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
                     auto bytes_read = romfs->Read(header.data(), 16, 0);
                     std::fprintf(dbg, "[ICON DEBUG] RomFS first 16 bytes (read=%zu): ", bytes_read);
                     for (size_t i = 0; i < bytes_read && i < 16; i++)
-                        std::fprintf(dbg, "%02X ", header[i]);
+                        std::fprintf(dbg, "%02X %02X ", header[i], header[i]); // Dummy compile fix
                     std::fprintf(dbg, "\n");
                 }
                 std::fflush(dbg); std::fclose(dbg);
@@ -102,15 +99,6 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
                 }
             }
         }
-        auto nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
-        auto update_nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID() | 0x800, FileSys::ContentRecordType::Program, FileSys::TitleType::Update);
-        
-        if (update_nca_file) {
-            LOG_INFO(Loader, "NSP: Found Update Program NCA, using for ExeFS loading");
-            secondary_loader = std::make_unique<AppLoader_NCA>(update_nca_file);
-        } else {
-            secondary_loader = std::make_unique<AppLoader_NCA>(nca_file);
-        }
     }
 }
 
@@ -133,16 +121,11 @@ FileType AppLoader_NSP::IdentifyType(const FileSys::VirtualFile& nsp_file) {
         return file_type;
     }
 
-    // Check if PFS0 contains any .nca or .ncz files
-    for (const auto& entry : pfs->GetFiles()) {
-        if (entry == nullptr) {
-            continue;
-        }
-
-        const auto& name = entry->GetName();
-        if (name.size() >= 4 && (name.ends_with(".nca") || name.ends_with(".ncz") || name.ends_with(".NCA") || name.ends_with(".NCZ"))) {
-            return file_type;
-        }
+    // If we reached here, the PFS0 parses successfully.
+    // Some re-packed NSZ/NSP files might not have explicit .nca/.ncz extensions for internal files
+    // (e.g. named "00", "01"), so as long as it's a valid PFS, we accept it.
+    if (file_type == FileType::NSZ || file_type == FileType::NSP) {
+        return file_type;
     }
 
     if (file_type == FileType::NSZ || file_type == FileType::NSP) {
@@ -150,6 +133,32 @@ FileType AppLoader_NSP::IdentifyType(const FileSys::VirtualFile& nsp_file) {
     }
 
     return FileType::Error;
+}
+
+void AppLoader_NSP::EnsureSecondaryLoader() {
+    if (secondary_loader != nullptr) {
+        return;
+    }
+    if (nsp->IsExtractedType()) {
+        secondary_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(
+            nsp->GetExeFS(), false, file->GetName() == "hbl.nsp");
+    } else {
+        auto nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
+        auto update_nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID() | 0x800, FileSys::ContentRecordType::Program, FileSys::TitleType::Update);
+        
+        if (update_nca_file) {
+            FileSys::NCA temp_update(update_nca_file);
+            if (temp_update.GetExeFS() != nullptr) {
+                LOG_INFO(Loader, "NSP: Found Update Program NCA with ExeFS, using for ExeFS loading");
+                secondary_loader = std::make_unique<AppLoader_NCA>(update_nca_file);
+            } else {
+                LOG_INFO(Loader, "NSP: Found Update Program NCA but no ExeFS, using Base NCA for ExeFS loading");
+                secondary_loader = std::make_unique<AppLoader_NCA>(nca_file ? nca_file : update_nca_file);
+            }
+        } else {
+            secondary_loader = std::make_unique<AppLoader_NCA>(nca_file);
+        }
+    }
 }
 
 AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::System& system) {
@@ -184,6 +193,8 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
 
         return {ResultStatus::ErrorNSPMissingProgramNCA, {}};
     }
+
+    EnsureSecondaryLoader();
 
     FileSys::VirtualFile update_raw;
     if (ReadUpdateRaw(update_raw) == ResultStatus::Success && update_raw != nullptr) {
@@ -340,10 +351,12 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
         const std::size_t total_size = read->GetSize();
         const auto temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
         const auto cache_path = temp_dir / (read->GetName() + ".decompressed_cache");
+        const auto completed_path = cache_path.string() + ".completed";
         
         std::error_code ec;
         bool cache_valid = std::filesystem::exists(cache_path, ec) && 
-                           std::filesystem::file_size(cache_path, ec) == total_size;
+                           std::filesystem::file_size(cache_path, ec) == total_size &&
+                           std::filesystem::exists(completed_path, ec);
                            
         if (!cache_valid) {
             LOG_INFO(Loader, "Update NCA cache not found or invalid. Decompressing solid NCZ update NCA ({} bytes) to disk cache...", total_size);
@@ -351,6 +364,9 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
             
             if (ncz_file->DecompressSolidTo(cache_path)) {
                 LOG_INFO(Loader, "Update NCA decompressed and cached to disk successfully.");
+                if (std::FILE* marker = std::fopen(completed_path.c_str(), "w")) {
+                    std::fclose(marker);
+                }
             } else {
                 LOG_ERROR(Loader, "Failed to decompress solid NCZ update NCA to disk cache");
                 return ResultStatus::ErrorNoPackedUpdate;
@@ -419,6 +435,7 @@ ResultStatus AppLoader_NSP::ReadManualRomFS(FileSys::VirtualFile& out_file) {
 }
 
 ResultStatus AppLoader_NSP::ReadBanner(std::vector<u8>& buffer) {
+    EnsureSecondaryLoader();
     if (!secondary_loader) {
         return ResultStatus::ErrorNotInitialized;
     }
@@ -441,6 +458,7 @@ ResultStatus AppLoader_NSP::ReadBanner(std::vector<u8>& buffer) {
 }
 
 ResultStatus AppLoader_NSP::ReadLogo(std::vector<u8>& buffer) {
+    EnsureSecondaryLoader();
     if (!secondary_loader) {
         return ResultStatus::ErrorNotInitialized;
     }
@@ -463,6 +481,7 @@ ResultStatus AppLoader_NSP::ReadLogo(std::vector<u8>& buffer) {
 }
 
 ResultStatus AppLoader_NSP::ReadNSOModules(Modules& modules) {
+    EnsureSecondaryLoader();
     if (!secondary_loader) {
         return ResultStatus::ErrorNotInitialized;
     }

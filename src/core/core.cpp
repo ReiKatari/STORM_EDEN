@@ -603,16 +603,15 @@ struct System::Impl {
 #include <windows.h>
 
 LONG WINAPI MyUnhandledExceptionFilter(struct _EXCEPTION_POINTERS *ExceptionInfo) {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "CRASH CAUGHT BY SEH FILTER! Exception Code: " 
-//        << std::hex << ExceptionInfo->ExceptionRecord->ExceptionCode << "\n";
-//     df << "Instruction Pointer: " << std::hex << ExceptionInfo->ContextRecord->Rip << "\n";
-//     df.flush();
-    return EXCEPTION_EXECUTE_HANDLER;
+    // Delegate to the GlobalCrashHandler set in main.cpp
+    // Do NOT override it here.
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
 System::System() {
-    SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
+    // NOTE: Do NOT call SetUnhandledExceptionFilter here.
+    // The proper crash handler (GlobalCrashHandler) is set in main.cpp.
+
     {
 //         std::ofstream df("debug_log.txt", std::ios::app);
 //         df << "Checkpoint 3.0.1: Inside System::System(), before Impl allocation\n";

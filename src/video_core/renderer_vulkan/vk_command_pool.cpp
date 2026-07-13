@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstddef>
+#include <stdexcept>
 
+#include "common/logging.h"
 #include "video_core/renderer_vulkan/vk_command_pool.h"
 #include "video_core/vulkan_common/vulkan_device.h"
 #include "video_core/vulkan_common/vulkan_wrapper.h"
@@ -39,7 +41,26 @@ VkCommandBuffer CommandPool::Commit() {
     const size_t index = CommitResource();
     const auto pool_index = index / COMMAND_BUFFER_POOL_SIZE;
     const auto sub_index = index % COMMAND_BUFFER_POOL_SIZE;
-    return pools[pool_index].cmdbufs[sub_index];
+
+    if (pool_index >= pools.size()) {
+        LOG_CRITICAL(Render_Vulkan, "CommandPool::Commit: pool_index ({}) out of bounds (pools size: {})", pool_index, pools.size());
+        throw std::runtime_error("CommandPool::Commit: pool_index out of bounds");
+    }
+
+    const auto& pool = pools[pool_index];
+    if (pool.cmdbufs.IsOutOfPoolMemory()) {
+        LOG_CRITICAL(Render_Vulkan, "CommandPool::Commit: CommandBuffers allocation failed (out of pool memory or allocation returned empty)");
+        throw std::runtime_error("CommandPool::Commit: CommandBuffers allocation failed");
+    }
+
+    VkCommandBuffer cmdbuf = pool.cmdbufs[sub_index];
+    if (cmdbuf == nullptr) {
+        LOG_CRITICAL(Render_Vulkan, "CommandPool::Commit: Allocated VkCommandBuffer at pool_index {}, sub_index {} is NULL", pool_index, sub_index);
+        throw std::runtime_error("CommandPool::Commit: Allocated VkCommandBuffer is NULL");
+    }
+
+    return cmdbuf;
 }
+
 
 } // namespace Vulkan

@@ -62,6 +62,8 @@ public:
     ResultStatus ReadNSOModules(Modules& modules) override;
 
 private:
+    void EnsureSecondaryLoader();
+
     std::unique_ptr<FileSys::NSP> nsp;
     std::unique_ptr<AppLoader> secondary_loader;
 

@@ -91,10 +91,17 @@ public:
     template <typename T>
         requires std::is_invocable_v<T, vk::CommandBuffer, vk::CommandBuffer>
     void RecordWithUploadBuffer(T&& command) {
+        std::scoped_lock lock{record_mutex};
+        if (!chunk) {
+            AcquireNewChunk();
+        }
         if (chunk->Record(command)) {
             return;
         }
         DispatchWork();
+        if (!chunk) {
+            AcquireNewChunk();
+        }
         (void)chunk->Record(command);
     }
 
@@ -290,6 +297,7 @@ private:
     std::mutex execution_mutex;
     std::mutex reserve_mutex;
     std::mutex queue_mutex;
+    std::recursive_mutex record_mutex;
     std::condition_variable_any event_cv;
     std::jthread worker_thread;
 

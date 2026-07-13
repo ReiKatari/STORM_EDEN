@@ -24,6 +24,8 @@
 #include "core/file_sys/patch_manager.h"
 #include "core/file_sys/registered_cache.h"
 #include "core/file_sys/romfs.h"
+#include "core/file_sys/vfs/vfs.h"
+#include "core/file_sys/vfs/vfs_buffered.h"
 #include "core/file_sys/vfs/vfs_cached.h"
 #include "core/file_sys/vfs/vfs_layered.h"
 #include "core/file_sys/vfs/vfs_vector.h"
@@ -521,12 +523,20 @@ static void ApplyLayeredFS(VirtualFile& romfs, u64 title_id, ContentRecordType t
     }
 
     const auto& disabled = Settings::values.disabled_addons[title_id];
-    std::vector<VirtualDir> patch_dirs = load_dir->GetSubdirectories();
-    if (std::find(disabled.cbegin(), disabled.cend(), "SDMC") == disabled.cend()) {
+    std::vector<VirtualDir> patch_dirs;
+    if (load_dir != nullptr) {
+        patch_dirs = load_dir->GetSubdirectories();
+    }
+    if (sdmc_load_dir != nullptr && std::find(disabled.cbegin(), disabled.cend(), "SDMC") == disabled.cend()) {
         patch_dirs.push_back(sdmc_load_dir);
     }
     std::sort(patch_dirs.begin(), patch_dirs.end(),
-              [](const VirtualDir& l, const VirtualDir& r) { return l->GetName() < r->GetName(); });
+              [](const VirtualDir& l, const VirtualDir& r) {
+                  if (l == nullptr && r == nullptr) return false;
+                  if (l == nullptr) return true;
+                  if (r == nullptr) return false;
+                  return l->GetName() < r->GetName();
+              });
 
     std::vector<VirtualDir> layers;
     std::vector<VirtualDir> layers_ext;
@@ -725,6 +735,10 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
     // LayeredFS
     if (apply_layeredfs) {
         ApplyLayeredFS(romfs, title_id, type, fs_controller);
+    }
+
+    if (romfs) {
+        romfs = std::make_shared<BufferedVfsFile>(std::move(romfs), 1024 * 1024); // 1 MB buffer
     }
 
     return romfs;

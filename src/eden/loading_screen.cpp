@@ -9,7 +9,7 @@
 #include <QFile>
 #include <QGraphicsOpacityEffect>
 #include <QIODevice>
-#include <fstream>
+
 #include <QImage>
 #include <QImageReader>
 #include <QLabel>
@@ -132,9 +132,6 @@ LoadingScreen::LoadingScreen(QWidget* parent)
 LoadingScreen::~LoadingScreen() = default;
 
 void LoadingScreen::Prepare(Loader::AppLoader& loader) {
-    std::ofstream dbg("loading_screen_debug.txt", std::ios::app);
-    dbg << "\n=== LoadingScreen::Prepare ===\n";
-
     // Clear and reset all UI elements immediately to prevent design-time placeholders from flashing
     ui->logo->setPixmap(QPixmap());
     game_title->setText(QStringLiteral(""));
@@ -154,21 +151,6 @@ void LoadingScreen::Prepare(Loader::AppLoader& loader) {
         ui->logo->setVisible(false);
     }
 
-    std::string title;
-    if (loader.ReadTitle(title) == Loader::ResultStatus::Success) {
-        game_title->setText(QString::fromStdString(title));
-    }
-
-
-
-
-    if (loader.ReadIcon(buffer) == Loader::ResultStatus::Success) {
-        QPixmap map;
-        map.loadFromData(buffer.data(), static_cast<uint>(buffer.size()));
-        ui->logo->setPixmap(map);
-        ui->logo->setVisible(true);
-    }
-
     // Read the game title dynamically
     std::string name;
     if (loader.ReadTitle(name) == Loader::ResultStatus::Success) {
@@ -180,9 +162,7 @@ void LoadingScreen::Prepare(Loader::AppLoader& loader) {
     slow_shader_compile_start = false;
     compile_start_time = {};
     initial_value = 0;
-    
 
-    
     OnLoadProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
 }
 

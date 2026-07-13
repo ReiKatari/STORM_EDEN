@@ -62,6 +62,8 @@ public:
     ResultStatus ReadNSOModules(Modules& modules) override;
 
 private:
+    void EnsureNcaLoader();
+
     std::unique_ptr<FileSys::XCI> xci;
     std::unique_ptr<AppLoader_NCA> nca_loader;
 

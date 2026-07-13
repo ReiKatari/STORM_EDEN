@@ -15,12 +15,14 @@ constexpr inline size_t Aes128KeySize = 0x10;
 constexpr const std::array<u8, Aes128KeySize> ZeroKey{};
 
 constexpr Result CheckNcaMagic(u32 magic) {
-    // STORM SWITCH BOX God Mode: Always accept NCA magic
-    if (magic != NcaHeader::Magic3) {
-        // Only warn, don't fail
+    // Accept all valid NCA magic versions (NCA0, NCA1, NCA2, NCA3).
+    // The previous "God Mode" hack that always returned success broke the
+    // plaintext header fallback logic. Now we properly validate.
+    if (magic == NcaHeader::Magic0 || magic == NcaHeader::Magic1 ||
+        magic == NcaHeader::Magic2 || magic == NcaHeader::Magic3) {
+        R_SUCCEED();
     }
-
-    R_SUCCEED();
+    R_THROW(ResultInvalidNcaHeader);
 }
 
 } // namespace
@@ -72,7 +74,11 @@ Result NcaReader::Initialize(VirtualFile base_storage, const NcaCryptoConfigurat
     VirtualFile xts_base = base_storage;
     if (base_storage->IsNczFile()) {
         auto* ncz_file = static_cast<NCZVirtualFile*>(base_storage.get());
-        xts_base = ncz_file->file;
+        if (ncz_file->is_header_uncompressed || ncz_file->is_raw_nca) {
+            xts_base = ncz_file->file;
+        } else {
+            xts_base = base_storage;
+        }
     }
     work_header_storage = std::make_unique<AesXtsStorageForNcaHeader>(
         xts_base, header_decryption_keys[0].data(), header_decryption_keys[1].data(),

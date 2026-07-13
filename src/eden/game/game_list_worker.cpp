@@ -32,6 +32,7 @@
 #include "core/file_sys/registered_cache.h"
 #include "core/file_sys/romfs.h"
 #include "core/file_sys/submission_package.h"
+#include "core/file_sys/vfs/vfs_buffered.h"
 #include "core/loader/loader.h"
 #include "qt_common/config/uisettings.h"
 #include "eden/compatibility_list.h"
@@ -365,10 +366,24 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
         if (stop_requested) {
             return false;
         }
-        if (Common::FS::IsDir(path)) {
-            std::scoped_lock lk(watch_list_mutex);
-            watch_list.append(QString::fromStdString(Common::FS::PathToUTF8String(path)));
-        } else {
+        
+        bool is_dir = Common::FS::IsDir(path);
+        bool is_split_file = false;
+        
+        if (is_dir) {
+            std::string name = path.filename().string();
+            if (name.ends_with(".nsp") || name.ends_with(".nsz") || name.ends_with(".xci") || name.ends_with(".xcz") || 
+                name.ends_with(".NSP") || name.ends_with(".NSZ") || name.ends_with(".XCI") || name.ends_with(".XCZ")) {
+                is_split_file = true;
+            }
+            
+            if (!is_split_file) {
+                std::scoped_lock lk(watch_list_mutex);
+                watch_list.append(QString::fromStdString(Common::FS::PathToUTF8String(path)));
+            }
+        }
+        
+        if (!is_dir || is_split_file) {
             files.push_back(path);
         }
         return true;
@@ -393,10 +408,12 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
         if (!(HasSupportedFileExtension(physical_name) || IsExtractedNCAMain(physical_name))) {
             return;
         }
-        const auto file = vfs->OpenFile(physical_name, FileSys::OpenMode::Read);
+        auto file = vfs->OpenFile(physical_name, FileSys::OpenMode::Read);
         if (!file) {
             return;
         }
+
+        file = std::make_shared<FileSys::BufferedVfsFile>(std::move(file), 1024 * 1024);
 
         auto loader = Loader::GetLoader(system, file);
         if (!loader) {

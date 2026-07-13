@@ -433,10 +433,7 @@ FactoryListType<InputDeviceType> FactoryList<InputDeviceType>::list;
  */
 template <typename InputDeviceType>
 void RegisterFactory(const std::string& name, std::shared_ptr<Factory<InputDeviceType>> factory) {
-    auto pair = std::make_pair(name, std::move(factory));
-    if (!Impl::FactoryList<InputDeviceType>::list.insert(std::move(pair)).second) {
-        LOG_ERROR(Input, "Factory '{}' already registered", name);
-    }
+    Impl::FactoryList<InputDeviceType>::list.insert_or_assign(name, std::move(factory));
 }
 
 inline void RegisterInputFactory(const std::string& name,

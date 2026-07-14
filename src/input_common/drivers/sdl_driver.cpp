@@ -270,14 +270,14 @@ public:
                 break;
             }
             const auto name = SDL_GameControllerName(sdl_controller.get());
-            if (name) {
+            if (name && std::strlen(name) > 0) {
                 return name;
             }
         }
 
         if (sdl_joystick) {
             const auto name = SDL_JoystickName(sdl_joystick.get());
-            if (name) {
+            if (name && std::strlen(name) > 0) {
                 return name;
             }
         }

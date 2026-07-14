@@ -661,9 +661,7 @@ void GRenderWindow::mousePressEvent(QMouseEvent* event) {
     if (event->source() == Qt::MouseEventSynthesizedBySystem) {
         return;
     }
-    // Qt sometimes returns the parent coordinates. To avoid this we read the global mouse
-    // coordinates and map them to the current render area
-    const auto pos = mapFromGlobal(QCursor::pos());
+    const auto pos = event->position();
     const auto [x, y] = ScaleTouch(pos);
     const auto [touch_x, touch_y] = MapToTouchScreen(x, y);
     const auto button = QtButtonToMouseButton(event->button());
@@ -680,9 +678,7 @@ void GRenderWindow::mouseMoveEvent(QMouseEvent* event) {
     if (event->source() == Qt::MouseEventSynthesizedBySystem) {
         return;
     }
-    // Qt sometimes returns the parent coordinates. To avoid this we read the global mouse
-    // coordinates and map them to the current render area
-    const auto pos = mapFromGlobal(QCursor::pos());
+    const auto pos = event->position();
     const auto [x, y] = ScaleTouch(pos);
     const auto [touch_x, touch_y] = MapToTouchScreen(x, y);
     const int center_x = width() / 2;
@@ -730,8 +726,8 @@ void GRenderWindow::ConstrainMouse() {
 
     if (Settings::values.mouse_enabled) {
         const auto pos = mapFromGlobal(QCursor::pos());
-        const int new_pos_x = std::clamp(pos.x(), 0, width());
-        const int new_pos_y = std::clamp(pos.y(), 0, height());
+        const int new_pos_x = std::clamp(static_cast<int>(pos.x()), 0, width());
+        const int new_pos_y = std::clamp(static_cast<int>(pos.y()), 0, height());
 
         QCursor::setPos(mapToGlobal(QPoint{new_pos_x, new_pos_y}));
         return;

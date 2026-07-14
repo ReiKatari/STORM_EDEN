@@ -237,6 +237,10 @@ LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
 
 
 int main(int argc, char* argv[]) {
+    // Force software rendering for Qt UI to prevent OpenGL driver crashes (e.g. nvoglv64.dll)
+    qputenv("QT_OPENGL", "software");
+    qputenv("QT_OPENGL_BUGLIST", ":/disable_gpu");
+
 #ifdef _WIN32
     SetUnhandledExceptionFilter(GlobalCrashHandler);
 

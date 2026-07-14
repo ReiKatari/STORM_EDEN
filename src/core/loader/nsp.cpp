@@ -143,20 +143,26 @@ void AppLoader_NSP::EnsureSecondaryLoader() {
         secondary_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(
             nsp->GetExeFS(), false, file->GetName() == "hbl.nsp");
     } else {
-        auto nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
-        auto update_nca_file = nsp->GetNCAFile(nsp->GetProgramTitleID() | 0x800, FileSys::ContentRecordType::Program, FileSys::TitleType::Update);
-        
-        if (update_nca_file) {
-            FileSys::NCA temp_update(update_nca_file);
-            if (temp_update.GetExeFS() != nullptr) {
-                LOG_INFO(Loader, "NSP: Found Update Program NCA with ExeFS, using for ExeFS loading");
-                secondary_loader = std::make_unique<AppLoader_NCA>(update_nca_file);
+        const auto title_id = nsp->GetProgramTitleID();
+        auto base_nca_file = nsp->GetNCAFile(title_id, FileSys::ContentRecordType::Program);
+        auto update_nca_file = nsp->GetNCAFile(title_id | 0x800, FileSys::ContentRecordType::Program, FileSys::TitleType::Update);
+
+        if (base_nca_file) {
+            // Always use the base NCA as the primary loader.
+            // The update NCA (if present) will be passed via SetUpdateRaw in Load().
+            if (update_nca_file) {
+                LOG_INFO(Loader, "NSP: Found both Base and Update Program NCAs. Using Base NCA for loading, Update will be applied via SetUpdateRaw.");
             } else {
-                LOG_INFO(Loader, "NSP: Found Update Program NCA but no ExeFS, using Base NCA for ExeFS loading");
-                secondary_loader = std::make_unique<AppLoader_NCA>(nca_file ? nca_file : update_nca_file);
+                LOG_INFO(Loader, "NSP: Using Base Program NCA for loading (no update found in NSP).");
             }
+            secondary_loader = std::make_unique<AppLoader_NCA>(base_nca_file);
+        } else if (update_nca_file) {
+            // No base NCA found — only an update NCA exists.
+            // This is an update-only NSP, which cannot be loaded standalone.
+            LOG_ERROR(Loader, "NSP: Only Update Program NCA found (no Base). This NSP cannot be loaded directly.");
+            secondary_loader = std::make_unique<AppLoader_NCA>(update_nca_file);
         } else {
-            secondary_loader = std::make_unique<AppLoader_NCA>(nca_file);
+            LOG_ERROR(Loader, "NSP: No Program NCA found at all for title {:016X}", title_id);
         }
     }
 }

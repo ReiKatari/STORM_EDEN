@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -79,12 +79,8 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
     {
         auto parent = nso_file.GetContainingDirectory();
         std::string parent_name = parent ? parent->GetName() : "unknown";
-        if (std::FILE* f = nullptr) {
-            std::fprintf(f, "[NSO Loader SOURCE] File: %s, Size: %zu, Flags: 0x%08X, ParentDir: %s\n",
-                         nso_file.GetName().c_str(), nso_file.GetSize(), nso_header.flags, parent_name.c_str());
-            std::fflush(f);
-            std::fclose(f);
-        }
+        LOG_INFO(Loader, "[NSO] File: {}, Size: {}, Flags: 0x{:08X}, ParentDir: {}",
+                 nso_file.GetName(), nso_file.GetSize(), nso_header.flags, parent_name);
     }
     if (nso_header.segments.empty())
         return std::nullopt;
@@ -115,35 +111,32 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
         })->size);
         for (std::size_t i = 0; i < nso_header.segments.size(); ++i) {
             std::size_t bytes_read = nso_file.Read(compressed_data.data(), nso_header.segments_compressed_size[i], nso_header.segments[i].offset);
+
+            LOG_INFO(Loader, "[NSO] Segment {} of '{}': compressed={}, decompressed={}, "
+                     "offset={}, read={}, is_compressed={}",
+                     i, nso_file.GetName(),
+                     nso_header.segments_compressed_size[i], nso_header.segments[i].size,
+                     nso_header.segments[i].offset, bytes_read,
+                     nso_header.IsSegmentCompressed(i) ? 1 : 0);
+
             if (bytes_read != nso_header.segments_compressed_size[i]) {
-                if (std::FILE* f = nullptr) {
-                    std::fprintf(f, "[NSO Loader ERROR] Segment %zu: Read incomplete! Requested %u bytes, read %zu bytes at offset %u from file %s\n",
-                                 i, nso_header.segments_compressed_size[i], bytes_read, nso_header.segments[i].offset, nso_file.GetName().c_str());
-                    std::fflush(f);
-                    std::fclose(f);
-                }
+                LOG_ERROR(Loader, "[NSO] Segment {}: Read incomplete! Requested {} bytes, "
+                          "read {} bytes at offset {} from file {}",
+                          i, nso_header.segments_compressed_size[i], bytes_read,
+                          nso_header.segments[i].offset, nso_file.GetName());
             }
-            // Dump first 32 bytes of compressed data for debugging
-            if (std::FILE* f = nullptr) {
-                std::fprintf(f, "[NSO Loader DIAG] Segment %zu of '%s': compressed_size=%u, decompressed_size=%u, offset=%u, bytes_read=%zu, is_compressed=%d\n",
-                             i, nso_file.GetName().c_str(), nso_header.segments_compressed_size[i], nso_header.segments[i].size,
-                             nso_header.segments[i].offset, bytes_read, nso_header.IsSegmentCompressed(i) ? 1 : 0);
-                std::fprintf(f, "[NSO Loader DIAG]   First 32 bytes: ");
-                for (std::size_t b = 0; b < std::min<std::size_t>(32, bytes_read); ++b) {
-                    std::fprintf(f, "%02X ", compressed_data[b]);
-                }
-                std::fprintf(f, "\n");
-                // Check for all-zero data (sign of encryption failure or unmapped read)
-                bool all_zero = true;
-                for (std::size_t b = 0; b < std::min<std::size_t>(256, bytes_read); ++b) {
-                    if (compressed_data[b] != 0) { all_zero = false; break; }
-                }
-                if (all_zero) {
-                    std::fprintf(f, "[NSO Loader DIAG]   WARNING: First 256 bytes are all zeros! Data may be unmapped or corrupted.\n");
-                }
-                std::fflush(f);
-                std::fclose(f);
+
+            // Check for all-zero data (sign of encryption failure or unmapped read)
+            bool all_zero = true;
+            for (std::size_t b = 0; b < std::min<std::size_t>(256, bytes_read); ++b) {
+                if (compressed_data[b] != 0) { all_zero = false; break; }
             }
+            if (all_zero && bytes_read > 0) {
+                LOG_ERROR(Loader, "[NSO] Segment {} of '{}': WARNING: First 256 bytes are "
+                          "all zeros! Data may be corrupted or still encrypted.",
+                          i, nso_file.GetName());
+            }
+
             if (nso_header.IsSegmentCompressed(i)) {
                 int r = Common::Compression::DecompressDataLZ4(decompressed_size.data(), nso_header.segments[i].size, compressed_data.data(), nso_header.segments_compressed_size[i]);
                 if (r < 0) {
@@ -158,6 +151,18 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
             codeset.segments[i].addr = module_start + nso_header.segments[i].location;
             codeset.segments[i].offset = module_start + nso_header.segments[i].location;
             codeset.segments[i].size = nso_header.segments[i].size;
+        }
+    }
+
+    // Verify .text segment has valid AArch64 code (segment 0)
+    if (codeset.segments[0].size >= 4) {
+        u32 first_instr = 0;
+        std::memcpy(&first_instr, codeset.memory.data() + codeset.segments[0].offset, 4);
+        LOG_INFO(Loader, "[NSO] '{}' .text first instruction: 0x{:08X} (at offset {})",
+                 nso_file.GetName(), first_instr, codeset.segments[0].offset);
+        if (first_instr == 0) {
+            LOG_ERROR(Loader, "[NSO] '{}' .text starts with 0x00000000! Code is likely "
+                      "corrupted, empty, or still encrypted.", nso_file.GetName());
         }
     }
 

@@ -1,6 +1,6 @@
 @echo off
 set MSBUILD="C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\amd64\MSBuild.exe"
-set PARAMS=/m /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /p:TrackFileAccess=false
+set PARAMS=/m /nr:false /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /p:TrackFileAccess=false
 
 echo Building common...
 %MSBUILD% build\src\common\common.vcxproj %PARAMS%
@@ -52,7 +52,10 @@ if %ERRORLEVEL% neq 0 (
 )
 echo [SUCCESS] Compilation completed successfully.
 
-"C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\amd64\MSBuild.exe" build\src\eden_cmd\eden-cmd.vcxproj /m /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /p:TrackFileAccess=false
+echo Copying gamecontrollerdb.txt...
+copy /Y "dist\gamecontrollerdb.txt" "build\bin\Release\gamecontrollerdb.txt"
+
+%MSBUILD% build\src\eden_cmd\eden-cmd.vcxproj %PARAMS%
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] MSBuild eden_cmd failed!
     exit /b %ERRORLEVEL%

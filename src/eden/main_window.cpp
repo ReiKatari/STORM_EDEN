@@ -2258,6 +2258,9 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
                 case Loader::ResultStatus::ErrorMissingBKTRBaseRomFS:
                     translated_error_string = tr("Game updates cannot be loaded directly. Load the base game instead.");
                     break;
+                case Loader::ResultStatus::ErrorNoExeFS:
+                    translated_error_string = tr("The Program-type NCA contains no executable. An update may be required.");
+                    break;
                 default:
                     translated_error_string = QString::fromStdString(
                         GetResultStatusString(static_cast<Loader::ResultStatus>(error_id)));

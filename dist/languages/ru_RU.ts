@@ -7024,6 +7024,10 @@ Debug Message: </source>
     <context>
         <name>MainWindow</name>
         <message>
+            <source>The Program-type NCA contains no executable. An update may be required.</source>
+            <translation>NCA типа Program не содержит исполняемого файла. Возможно, требуется обновление.</translation>
+        </message>
+        <message>
             <source>Game updates cannot be loaded directly. Load the base game instead.</source>
             <translation>Обновления не могут быть загружены напрямую. Запустите базовую игру.</translation>
         </message>

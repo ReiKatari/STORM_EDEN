@@ -72,8 +72,10 @@ struct PatchCollection {
 };
 
 AppLoader_DeconstructedRomDirectory::AppLoader_DeconstructedRomDirectory(FileSys::VirtualFile file_,
-                                                                         bool override_update_)
-    : AppLoader(std::move(file_)), override_update(override_update_), is_hbl(false) {
+                                                                         bool override_update_,
+                                                                         bool skip_exefs_update_)
+    : AppLoader(std::move(file_)), override_update(override_update_), is_hbl(false),
+      skip_exefs_update(skip_exefs_update_) {
     const auto file_dir = file->GetContainingDirectory();
 
     // Title ID
@@ -124,9 +126,9 @@ AppLoader_DeconstructedRomDirectory::AppLoader_DeconstructedRomDirectory(FileSys
 }
 
 AppLoader_DeconstructedRomDirectory::AppLoader_DeconstructedRomDirectory(
-    FileSys::VirtualDir directory, bool override_update_, bool is_hbl_)
+    FileSys::VirtualDir directory, bool override_update_, bool is_hbl_, bool skip_exefs_update_)
     : AppLoader(directory->GetFile("main")), dir(std::move(directory)),
-      override_update(override_update_), is_hbl(is_hbl_) {}
+      override_update(override_update_), is_hbl(is_hbl_), skip_exefs_update(skip_exefs_update_) {}
 
 FileType AppLoader_DeconstructedRomDirectory::IdentifyType(const FileSys::VirtualFile& dir_file) {
     if (FileSys::IsDirectoryExeFS(dir_file->GetContainingDirectory())) {
@@ -164,7 +166,7 @@ AppLoader_DeconstructedRomDirectory::LoadResult AppLoader_DeconstructedRomDirect
     if (override_update) {
         const FileSys::PatchManager patch_manager(
             metadata.GetTitleID(), system.GetFileSystemController(), system.GetContentProvider());
-        dir = patch_manager.PatchExeFS(dir);
+        dir = patch_manager.PatchExeFS(dir, skip_exefs_update);
     }
 
     // Reread in case PatchExeFS affected the main.npdm
@@ -253,19 +255,30 @@ AppLoader_DeconstructedRomDirectory::LoadResult AppLoader_DeconstructedRomDirect
             continue;
         }
 
+        // Verify the NSO magic before attempting to load
+        std::vector<u8> magic_check(4);
+        auto magic_read = module_file->Read(magic_check.data(), 4, 0);
+        LOG_INFO(Loader, "Loading module '{}': size={} bytes, magic={:02X}{:02X}{:02X}{:02X} (read={})",
+                 module, module_file->GetSize(),
+                 magic_check[0], magic_check[1], magic_check[2], magic_check[3], magic_read);
+
         const VAddr load_addr{next_load_addr};
         const bool should_pass_arguments = std::strcmp(module, "rtld") == 0;
         const auto tentative_next_load_addr = AppLoader_NSO::LoadModule(
             process, system, *module_file, load_addr, should_pass_arguments, true, pm,
             patch_ctx.GetPatchers(), patch_ctx.GetIndex(i));
         if (!tentative_next_load_addr) {
+            LOG_ERROR(Loader, "Failed to load module '{}' at address {:#X}", module, load_addr);
             return {ResultStatus::ErrorLoadingNSO, {}};
         }
 
         next_load_addr = *tentative_next_load_addr;
         modules.insert_or_assign(load_addr, module);
-        LOG_DEBUG(Loader, "loaded module {} @ {:#X}", module, load_addr);
+        LOG_INFO(Loader, "Loaded module '{}' @ {:#X} - {:#X}", module, load_addr, next_load_addr);
     }
+
+    LOG_INFO(Loader, "All modules loaded: {} modules, address range {:#X} - {:#X}",
+             modules.size(), base_address, next_load_addr);
 
     is_loaded = true;
     return {ResultStatus::Success,

@@ -15,6 +15,7 @@
 #include "core/file_sys/nca_metadata.h"
 #include "core/file_sys/registered_cache.h"
 #include "core/file_sys/romfs_factory.h"
+#include "core/file_sys/program_metadata.h"
 #include "core/hle/kernel/k_process.h"
 #include "core/hle/service/filesystem/filesystem.h"
 #include "core/loader/deconstructed_rom_directory.h"
@@ -154,17 +155,47 @@ AppLoader_NCA::LoadResult AppLoader_NCA::Load(Kernel::KProcess& process, Core::S
     }
 
     auto exefs = nca->GetExeFS();
+    bool exefs_from_update = false;
+
+    LOG_INFO(Loader, "NCA Load: base NCA ExeFS = {}, base NCA title_id = {:016X}",
+             exefs != nullptr ? "present" : "null", nca->GetTitleId());
 
     // If we have a packed update (NSZ/NSP), prefer its ExeFS!
     if (update_raw != nullptr) {
-        LOG_INFO(Loader, "Checking packed update NCA for ExeFS...");
+        LOG_INFO(Loader, "Checking packed update NCA for ExeFS... (update_raw size: {})",
+                 update_raw->GetSize());
         FileSys::NCA update_nca(update_raw, nca.get());
+        LOG_INFO(Loader, "Update NCA status: {}, type: {}, is_update: {}",
+                 static_cast<int>(update_nca.GetStatus()),
+                 static_cast<int>(update_nca.GetType()),
+                 update_nca.IsUpdate());
         if (update_nca.GetStatus() == ResultStatus::Success) {
             auto update_exefs = update_nca.GetExeFS();
             if (update_exefs != nullptr) {
+                // Log update ExeFS contents for diagnostics
+                LOG_INFO(Loader, "Update ExeFS contents:");
+                for (const auto& f : update_exefs->GetFiles()) {
+                    LOG_INFO(Loader, "  {} ({} bytes)", f->GetName(), f->GetSize());
+                }
+
+                // Verify main NSO is readable
+                auto main_nso = update_exefs->GetFile("main");
+                if (main_nso) {
+                    std::vector<u8> header(4);
+                    auto read = main_nso->Read(header.data(), 4, 0);
+                    LOG_INFO(Loader, "  main NSO header: {:02X} {:02X} {:02X} {:02X} (read {} bytes)",
+                             header[0], header[1], header[2], header[3], read);
+                }
+
                 exefs = update_exefs;
+                exefs_from_update = true;
                 LOG_INFO(Loader, "Using ExeFS from packed update NCA");
+            } else {
+                LOG_WARNING(Loader, "Update NCA has no ExeFS!");
             }
+        } else {
+            LOG_WARNING(Loader, "Update NCA status is not Success: {}",
+                        static_cast<int>(update_nca.GetStatus()));
         }
     }
 
@@ -185,20 +216,23 @@ AppLoader_NCA::LoadResult AppLoader_NCA::Load(Kernel::KProcess& process, Core::S
         }
     }
 
-    directory_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(exefs, true);
+    // When ExeFS already comes from the packed update NCA, tell PatchExeFS to skip
+    // applying the update again from the content provider (prevents double-patching).
+    directory_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(exefs, true,
+                                                                            false, exefs_from_update);
 
-    // Read heap size from main.npdm in ExeFS
+    // Read system resource size from main.npdm in ExeFS using the proper parser
     u64 heap_size = 0;
 
     if (exefs) {
         const auto npdm_file = exefs->GetFile("main.npdm");
         if (npdm_file) {
-            auto npdm_data = npdm_file->ReadAllBytes();
-            if (npdm_data.size() >= 0x30) {
-                heap_size = *reinterpret_cast<const u64*>(&npdm_data[0x28]);
-                LOG_INFO(Loader, "Read heap size {:#x} bytes from main.npdm", heap_size);
+            FileSys::ProgramMetadata npdm_meta;
+            if (npdm_meta.Load(npdm_file) == ResultStatus::Success) {
+                heap_size = npdm_meta.GetSystemResourceSize();
+                LOG_INFO(Loader, "Read system resource size {:#x} bytes from main.npdm", heap_size);
             } else {
-                LOG_WARNING(Loader, "main.npdm too small to read heap size!");
+                LOG_WARNING(Loader, "Failed to parse main.npdm for system resource size");
             }
         } else {
             LOG_WARNING(Loader, "No main.npdm found in ExeFS!");

@@ -172,13 +172,19 @@ u64 PatchManager::GetTitleID() const {
     return title_id;
 }
 
-VirtualDir PatchManager::PatchExeFS(VirtualDir exefs) const {
-    LOG_INFO(Loader, "Patching ExeFS for title_id={:016X}", title_id);
+VirtualDir PatchManager::PatchExeFS(VirtualDir exefs, bool skip_update) const {
+    LOG_INFO(Loader, "Patching ExeFS for title_id={:016X}{}", title_id, skip_update ? " (skip_update: ExeFS already from packed update)" : "");
 
     if (exefs == nullptr)
         return exefs;
 
     const auto& disabled = Settings::values.disabled_addons[title_id];
+
+    // Skip the entire update-from-content-provider logic if ExeFS already came from the
+    // packed update NCA (via AppLoader_NCA::SetUpdateRaw).  Applying it again would either
+    // be a no-op or, worse, create a second NCA instance without a BKTR base context,
+    // potentially returning corrupted data.
+    if (!skip_update) {
 
     bool update_disabled = true;
     std::optional<u32> enabled_version;
@@ -305,15 +311,25 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs) const {
         exefs = update->GetExeFS();
     }
 
+    } // end if (!skip_update)
+
     // LayeredExeFS
     const auto load_dir = fs_controller.GetModificationLoadRoot(title_id);
     const auto sdmc_load_dir = fs_controller.GetSDMCModificationLoadRoot(title_id);
 
-    std::vector<VirtualDir> patch_dirs = {sdmc_load_dir};
+    std::vector<VirtualDir> patch_dirs;
+    if (sdmc_load_dir != nullptr) {
+        patch_dirs.push_back(sdmc_load_dir);
+    }
     if (load_dir != nullptr) {
         const auto load_patch_dirs = load_dir->GetSubdirectories();
         patch_dirs.insert(patch_dirs.end(), load_patch_dirs.begin(), load_patch_dirs.end());
     }
+
+    // Remove any null entries before sorting
+    patch_dirs.erase(std::remove_if(patch_dirs.begin(), patch_dirs.end(),
+                                     [](const VirtualDir& d) { return d == nullptr; }),
+                     patch_dirs.end());
 
     std::sort(patch_dirs.begin(), patch_dirs.end(),
               [](const VirtualDir& l, const VirtualDir& r) { return l->GetName() < r->GetName(); });
@@ -321,6 +337,8 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs) const {
     std::vector<VirtualDir> layers;
     layers.reserve(patch_dirs.size() + 1);
     for (const auto& subdir : patch_dirs) {
+        if (subdir == nullptr)
+            continue;
         if (std::find(disabled.begin(), disabled.end(), subdir->GetName()) != disabled.end())
             continue;
 

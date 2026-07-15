@@ -95,8 +95,11 @@ struct InputSubsystem::Impl {
             RegisterEngine("virtual_amiibo", virtual_amiibo);
             RegisterEngine("virtual_gamepad", virtual_gamepad);
 #ifdef HAVE_SDL2
+            LOG_INFO(Input, "InputSubsystem: HAVE_SDL2 is defined, registering sdl and joycon engines");
             RegisterEngine("sdl", sdl);
             RegisterEngine("joycon", joycon);
+#else
+            LOG_INFO(Input, "InputSubsystem: HAVE_SDL2 is NOT defined!");
 #endif
 
             Common::Input::RegisterInputFactory("touch_from_button",

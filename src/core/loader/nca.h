@@ -53,6 +53,10 @@ public:
         update_raw = std::move(update_file);
     }
 
+    const FileSys::NCA* GetNCA() const {
+        return nca.get();
+    }
+
 private:
     std::unique_ptr<FileSys::NCA> nca;
     std::unique_ptr<FileSys::NCA> update_nca_ptr;

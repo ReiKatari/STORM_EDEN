@@ -59,6 +59,7 @@ private:
 
     ContentProvider& content_provider;
     Service::FileSystem::FileSystemController& filesystem_controller;
+    const NCA* base_nca = nullptr;
 };
 
 } // namespace FileSys

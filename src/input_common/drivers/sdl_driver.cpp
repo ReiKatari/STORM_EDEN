@@ -492,6 +492,7 @@ void SDLDriver::CloseJoysticks() {
 }
 
 SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_engine_)) {
+    LOG_INFO(Input, "SDLDriver constructor called");
     // Set our application name. Currently passed to DBus by SDL and visible to the user through
     // their desktop environment.
     SDL_SetHint(SDL_HINT_APP_NAME, "Eden");

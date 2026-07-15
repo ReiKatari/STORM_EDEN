@@ -17,6 +17,7 @@
 #include "core/hle/kernel/k_process.h"
 #include "core/hle/service/filesystem/filesystem.h"
 #include "core/loader/loader.h"
+#include "core/loader/nca.h"
 
 namespace FileSys {
 
@@ -26,6 +27,11 @@ RomFSFactory::RomFSFactory(Loader::AppLoader& app_loader, ContentProvider& provi
     // Load the RomFS from the app
     if (app_loader.ReadRomFS(file) != Loader::ResultStatus::Success) {
         LOG_WARNING(Service_FS, "Unable to read base RomFS");
+    }
+
+    if (app_loader.GetFileType() == Loader::FileType::NCA) {
+        auto& nca_loader = static_cast<Loader::AppLoader_NCA&>(app_loader);
+        base_nca = nca_loader.GetNCA();
     }
 
     updatable = app_loader.IsRomFSUpdatable();
@@ -44,9 +50,10 @@ VirtualFile RomFSFactory::OpenCurrentProcess(u64 current_process_title_id) const
 
     const auto type = ContentRecordType::Program;
     const auto nca = content_provider.GetEntry(current_process_title_id, type);
+    const NCA* actual_base_nca = nca ? nca.get() : base_nca;
     const PatchManager patch_manager{current_process_title_id, filesystem_controller,
                                      content_provider};
-    return patch_manager.PatchRomFS(nca.get(), file, ContentRecordType::Program, packed_update_raw);
+    return patch_manager.PatchRomFS(actual_base_nca, file, ContentRecordType::Program, packed_update_raw);
 }
 
 VirtualFile RomFSFactory::OpenPatchedRomFS(u64 title_id, ContentRecordType type) const {

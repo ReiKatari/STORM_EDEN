@@ -359,6 +359,9 @@ void SDLDriver::InitJoystick(int joystick_index) {
     }
 
     const auto guid = GetGUID(sdl_joystick);
+    const auto name = sdl_gamecontroller ? SDL_GameControllerName(sdl_gamecontroller) : SDL_JoystickName(sdl_joystick);
+    LOG_INFO(Input, "Joystick connected: name=\"{}\", guid={}, is_gamecontroller={}",
+             name ? name : "Unknown", guid.RawString(), sdl_gamecontroller != nullptr);
 
     if (Settings::values.enable_joycon_driver) {
         if (guid.uuid[5] == 0x05 && guid.uuid[4] == 0x7e &&

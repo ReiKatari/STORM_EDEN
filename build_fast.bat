@@ -52,8 +52,6 @@ if %ERRORLEVEL% neq 0 (
 )
 echo [SUCCESS] Compilation completed successfully.
 
-echo Copying gamecontrollerdb.txt...
-copy /Y "dist\gamecontrollerdb.txt" "build\bin\Release\gamecontrollerdb.txt"
 
 %MSBUILD% build\src\eden_cmd\eden-cmd.vcxproj %PARAMS%
 if %ERRORLEVEL% neq 0 (

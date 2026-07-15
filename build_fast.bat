@@ -30,6 +30,13 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
+echo Building input_common...
+%MSBUILD% build\src\input_common\input_common.vcxproj %PARAMS%
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] MSBuild input_common failed!
+    exit /b %ERRORLEVEL%
+)
+
 echo Building qt_common...
 %MSBUILD% build\src\qt_common\qt_common.vcxproj %PARAMS%
 if %ERRORLEVEL% neq 0 (

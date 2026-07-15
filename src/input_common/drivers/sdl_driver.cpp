@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: 2018 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "common/fs/fs.h"
-#include "common/fs/path_util.h"
 #include "common/logging.h"
 #include "common/math_util.h"
 #include "common/param_package.h"
@@ -537,13 +535,6 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     if (start_thread && SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
         LOG_CRITICAL(Input, "SDL_Init failed with: {}", SDL_GetError());
         return;
-    }
-
-    const auto db_path = Common::FS::GetExeDirectory() / "gamecontrollerdb.txt";
-    if (SDL_GameControllerAddMappingsFromFile(Common::FS::ToU8String(db_path).c_str()) < 0) {
-        LOG_INFO(Input, "Failed to load gamecontrollerdb.txt from bin dir: {}", SDL_GetError());
-    } else {
-        LOG_INFO(Input, "Loaded gamecontrollerdb.txt successfully");
     }
 
     SDL_AddEventWatch(&SDLEventWatcher, this);

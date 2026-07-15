@@ -55,6 +55,7 @@ public:
 
 private:
     std::unique_ptr<FileSys::NCA> nca;
+    std::unique_ptr<FileSys::NCA> update_nca_ptr;
     std::unique_ptr<AppLoader_DeconstructedRomDirectory> directory_loader;
     FileSys::VirtualFile update_raw;
 };

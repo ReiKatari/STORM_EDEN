@@ -24,13 +24,17 @@ public:
 
 private:
     void SearchMods();
-    void OnSearchFinished(QNetworkReply* reply);
+    void FetchGameMods(const QString& query);
+    void ExecuteModSearch(const QString& query, const std::vector<int>& mod_ids);
+    void OnSearchFinished(QNetworkReply* reply, const QString& query);
     void DownloadSelectedMod();
     void OnDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void OnDownloadFinished();
+    QString GetGameName() const;
 
     Core::System& system;
     u64 title_id;
+    int gamebanana_game_id = 0;
 
     QListWidget* list_widget;
     QLineEdit* search_box;

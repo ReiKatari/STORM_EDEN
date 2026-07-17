@@ -4969,6 +4969,10 @@ Current values are %1% and %2% respectively.</source>
             <translation>Отмена</translation>
         </message>
         <message>
+            <source>Apply</source>
+            <translation>Применить</translation>
+        </message>
+        <message>
             <location filename="../../src/eden/configuration/configure_per_game.cpp" line="91" />
             <source>GameBanana Mods</source>
             <translation>Моды GameBanana</translation>

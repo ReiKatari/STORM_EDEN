@@ -109,8 +109,26 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     ui->icon_view->setScene(scene);
     ui->icon_view->setStyleSheet(QStringLiteral("background: transparent; border: none;"));
 
+    this->setStyleSheet(QStringLiteral(
+        "QTreeView::indicator { border: 1.5px solid #999999; background-color: #2D2D30; border-radius: 3px; width: 14px; height: 14px; }"
+        "QTreeView::indicator:hover { border-color: #00E5FF; }"
+        "QTreeView::indicator:checked { image: none; background-color: #00E5FF; border-color: #00E5FF; }"
+        "QTreeView::indicator:unchecked { image: none; background-color: transparent; border-color: #999999; }"
+        
+        "QCheckBox::indicator { border: 1.5px solid #999999; background-color: #2D2D30; border-radius: 3px; width: 14px; height: 14px; }"
+        "QCheckBox::indicator:hover { border-color: #00E5FF; }"
+        "QCheckBox::indicator:checked { image: none; background-color: #00E5FF; border-color: #00E5FF; }"
+        "QCheckBox::indicator:unchecked { image: none; background-color: transparent; border-color: #999999; }"
+        
+        "QGroupBox::indicator { border: 1.5px solid #999999; background-color: #2D2D30; border-radius: 3px; width: 14px; height: 14px; }"
+        "QGroupBox::indicator:hover { border-color: #00E5FF; }"
+        "QGroupBox::indicator:checked { image: none; background-color: #00E5FF; border-color: #00E5FF; }"
+        "QGroupBox::indicator:unchecked { image: none; background-color: transparent; border-color: #999999; }"
+    ));
+
     if (system.IsPoweredOn()) {
         QPushButton* apply_button = ui->buttonBox->addButton(QDialogButtonBox::Apply);
+        apply_button->setText(tr("Apply"));
         connect(apply_button, &QAbstractButton::clicked, this,
                 &ConfigurePerGame::HandleApplyButtonClicked);
     }
@@ -194,18 +212,40 @@ void ConfigurePerGame::LoadConfiguration() {
             result.format_string = Loader::GetFileTypeString(loader->GetFileType());
         }
         
+        std::string control_ver;
         if (control.first != nullptr) {
-            result.version_string = control.first->GetVersionString();
+            control_ver = control.first->GetVersionString();
             result.application_name = control.first->GetApplicationName();
             result.developer_name = control.first->GetDeveloperName();
         } else {
-            if (loader->ReadTitle(result.application_name) != Loader::ResultStatus::Success) {
+            if (loader != nullptr) {
+                if (loader->ReadTitle(result.application_name) != Loader::ResultStatus::Success) {
+                    result.application_name = "Unknown";
+                }
+                FileSys::NACP nacp;
+                if (loader->ReadControlData(nacp) == Loader::ResultStatus::Success) {
+                    result.developer_name = nacp.GetDeveloperName();
+                }
+            } else {
                 result.application_name = "Unknown";
             }
-            FileSys::NACP nacp;
-            if (loader->ReadControlData(nacp) == Loader::ResultStatus::Success) {
-                result.developer_name = nacp.GetDeveloperName();
+        }
+
+        std::string loader_ver;
+        if (loader != nullptr) {
+            FileSys::NACP nacp_loader;
+            if (loader->ReadControlData(nacp_loader) == Loader::ResultStatus::Success) {
+                loader_ver = nacp_loader.GetVersionString();
             }
+        }
+
+        if (!control_ver.empty() && control_ver != "1.0.0") {
+            result.version_string = control_ver;
+        } else if (!loader_ver.empty()) {
+            result.version_string = loader_ver;
+        } else if (!control_ver.empty()) {
+            result.version_string = control_ver;
+        } else {
             result.version_string = "1.0.0";
         }
         

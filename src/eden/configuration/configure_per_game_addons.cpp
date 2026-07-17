@@ -68,9 +68,10 @@ ConfigurePerGameAddons::ConfigurePerGameAddons(Core::System& system_, QWidget* p
     layout = new QVBoxLayout;
     tree_view = new QTreeView;
     tree_view->setStyleSheet(QStringLiteral(
-        "QTreeView::indicator { border: 1.5px solid #999999; background-color: #2D2D30; border-radius: 3px; }"
+        "QTreeView::indicator { border: 1.5px solid #999999; background-color: #2D2D30; border-radius: 3px; width: 14px; height: 14px; }"
         "QTreeView::indicator:hover { border-color: #00E5FF; }"
-        "QTreeView::indicator:checked { background-color: #00E5FF; border-color: #00E5FF; }"
+        "QTreeView::indicator:checked { image: none; background-color: #00E5FF; border-color: #00E5FF; }"
+        "QTreeView::indicator:unchecked { image: none; background-color: transparent; border-color: #999999; }"
     ));
     item_model = new QStandardItemModel(tree_view);
     tree_view->setModel(item_model);

@@ -61,6 +61,8 @@ public:
 
     ResultStatus ReadNSOModules(Modules& modules) override;
 
+    const FileSys::NCA* GetNCA() const override;
+
 private:
     void EnsureNcaLoader();
 

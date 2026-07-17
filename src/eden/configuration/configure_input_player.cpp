@@ -1172,7 +1172,15 @@ void ConfigureInputPlayer::UpdateInputDevices() {
     input_devices = input_subsystem->GetInputDevices();
     ui->comboDevices->clear();
     for (const auto& device : input_devices) {
-        ui->comboDevices->addItem(QString::fromStdString(device.Get("display", "Unknown")), {});
+        QString display_name = QString::fromStdString(device.Get("display", "Unknown"));
+        if (display_name == QStringLiteral("Any")) {
+            display_name = tr("Any");
+        } else if (display_name == QStringLiteral("Keyboard Only")) {
+            display_name = tr("Keyboard Only");
+        } else if (display_name == QStringLiteral("Keyboard/Mouse")) {
+            display_name = tr("Keyboard/Mouse");
+        }
+        ui->comboDevices->addItem(display_name, {});
     }
 }
 

@@ -1241,7 +1241,15 @@ bool ManualContentProvider::HasEntry(u64 title_id, ContentRecordType type) const
 }
 
 std::optional<u32> ManualContentProvider::GetEntryVersion(u64 title_id) const {
-    return std::nullopt;
+    std::optional<u32> highest_version;
+    for (const auto& entry : multi_version_entries) {
+        if (entry.title_id == title_id) {
+            if (!highest_version.has_value() || entry.version > *highest_version) {
+                highest_version = entry.version;
+            }
+        }
+    }
+    return highest_version;
 }
 
 VirtualFile ManualContentProvider::GetEntryUnparsed(u64 title_id, ContentRecordType type) const {
@@ -1359,9 +1367,9 @@ void ExternalContentProvider::ScanDirectory(const VirtualDir& dir) {
 
         const auto extension = Common::ToLower(filename.substr(dot_pos + 1));
 
-        if (extension == "nsp") {
+        if (extension == "nsp" || extension == "nsz") {
             ProcessNSP(file);
-        } else if (extension == "xci") {
+        } else if (extension == "xci" || extension == "xcz") {
             ProcessXCI(file);
         }
     }

@@ -91,6 +91,9 @@ bool DynarmicCallbacks32::MemoryWriteExclusive64(u32 vaddr, u64 value, u64 expec
 void DynarmicCallbacks32::ExceptionRaised(u32 pc, Dynarmic::A32::Exception exception) {
     switch (exception) {
     case Dynarmic::A32::Exception::NoExecuteFault:
+        if (pc < 0x1000) {
+            LOG_CRITICAL(Core_ARM, "Guest crashed at a null-like address ({:#08x})! This is usually caused by broken/incompatible mods or corrupted game data.", pc);
+        }
         LOG_CRITICAL(Core_ARM, "Cannot execute instruction at unmapped address {:#08x}", pc);
         ReturnException(pc, PrefetchAbort);
         return;

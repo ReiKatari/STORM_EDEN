@@ -29,10 +29,7 @@ RomFSFactory::RomFSFactory(Loader::AppLoader& app_loader, ContentProvider& provi
         LOG_WARNING(Service_FS, "Unable to read base RomFS");
     }
 
-    if (app_loader.GetFileType() == Loader::FileType::NCA) {
-        auto& nca_loader = static_cast<Loader::AppLoader_NCA&>(app_loader);
-        base_nca = nca_loader.GetNCA();
-    }
+    base_nca = app_loader.GetNCA();
 
     updatable = app_loader.IsRomFSUpdatable();
 }

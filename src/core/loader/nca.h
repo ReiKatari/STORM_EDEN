@@ -53,7 +53,7 @@ public:
         update_raw = std::move(update_file);
     }
 
-    const FileSys::NCA* GetNCA() const {
+    const FileSys::NCA* GetNCA() const override {
         return nca.get();
     }
 

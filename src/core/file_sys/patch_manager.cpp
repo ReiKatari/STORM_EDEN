@@ -29,6 +29,9 @@
 #include "core/file_sys/vfs/vfs_cached.h"
 #include "core/file_sys/vfs/vfs_layered.h"
 #include "core/file_sys/vfs/vfs_vector.h"
+#include "core/file_sys/ncz_virtual_file.h"
+#include "core/crypto/aes_util.h"
+
 #include "core/hle/service/filesystem/filesystem.h"
 #include "core/hle/service/ns/language.h"
 #include "core/hle/service/set/settings_server.h"
@@ -276,6 +279,7 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs, bool skip_update) const {
 
     // Game Updates
     std::unique_ptr<NCA> update = nullptr;
+    auto base_nca = content_provider.GetEntry(title_id, ContentRecordType::Program);
 
     // If we have a specific enabled version from external provider, use it
     if (enabled_version.has_value() && content_union) {
@@ -283,7 +287,7 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs, bool skip_update) const {
         if (external_provider) {
             auto file = external_provider->GetEntryForVersion(update_tid, ContentRecordType::Program, *enabled_version);
             if (file != nullptr) {
-                update = std::make_unique<NCA>(file);
+                update = std::make_unique<NCA>(file, base_nca.get());
             }
         }
 
@@ -294,7 +298,7 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs, bool skip_update) const {
             if (manual_provider) {
                 auto file = manual_provider->GetEntryForVersion(update_tid, ContentRecordType::Program, *enabled_version);
                 if (file != nullptr) {
-                    update = std::make_unique<NCA>(file);
+                    update = std::make_unique<NCA>(file, base_nca.get());
                 }
             }
         }
@@ -302,12 +306,34 @@ VirtualDir PatchManager::PatchExeFS(VirtualDir exefs, bool skip_update) const {
 
     // Fallback to regular content provider if no external update was loaded
     if (update == nullptr && !update_disabled) {
-        update = content_provider.GetEntry(update_tid, ContentRecordType::Program);
+        auto raw_file = content_provider.GetEntryUnparsed(update_tid, ContentRecordType::Program);
+        if (raw_file != nullptr) {
+            update = std::make_unique<NCA>(raw_file, base_nca.get());
+        }
+        if (update == nullptr || update->GetStatus() != Loader::ResultStatus::Success) {
+            update = content_provider.GetEntry(update_tid, ContentRecordType::Program);
+        }
     }
 
     if (!update_disabled && update != nullptr && update->GetExeFS() != nullptr) {
         LOG_INFO(Loader, "    ExeFS: Update ({}) applied successfully",
                  FormatTitleVersion(content_provider.GetEntryVersion(update_tid).value_or(0)));
+        LOG_INFO(Loader, "STORM EDEN DEBUG: update NCA TitleID={:016X}, Status={}", update->GetTitleId(), (int)update->GetStatus());
+        if (base_nca != nullptr) {
+            LOG_INFO(Loader, "STORM EDEN DEBUG: base NCA TitleID={:016X}, Status={}", base_nca->GetTitleId(), (int)base_nca->GetStatus());
+            if (base_nca->GetExeFS() != nullptr) {
+                for (const auto& f : base_nca->GetExeFS()->GetFiles()) {
+                    LOG_INFO(Loader, "STORM EDEN DEBUG: base ExeFS file: '{}', size={}", f->GetName(), f->GetSize());
+                }
+            } else {
+                LOG_INFO(Loader, "STORM EDEN DEBUG: base ExeFS is null");
+            }
+        } else {
+            LOG_INFO(Loader, "STORM EDEN DEBUG: base NCA is null");
+        }
+        for (const auto& f : update->GetExeFS()->GetFiles()) {
+            LOG_INFO(Loader, "STORM EDEN DEBUG: update ExeFS file: '{}', size={}", f->GetName(), f->GetSize());
+        }
         exefs = update->GetExeFS();
     }
 
@@ -723,6 +749,27 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
             std::vector<u8> data(total_size);
             const std::size_t bytes_read = vf->Read(data.data(), total_size, 0);
             if (bytes_read == total_size) {
+                // If the file has decrypted sections, we MUST re-encrypt them here
+                // because VectorVfsFile is a raw pass-through storage that skips NCZ's
+                // HasDecryptedSections() bypass, which would cause double-decryption.
+                auto* ncz = vf->GetNczFilePointer();
+                if (ncz) {
+                    const auto& sections = ncz->GetSections();
+                    for (const auto& sec : sections) {
+                        if (sec.crypto_type == 3 && sec.offset + sec.size <= total_size) {
+                            std::array<u8, 16> iv{};
+                            std::memcpy(iv.data(), sec.crypto_counter.data(), 8);
+                            u64 counter_val = sec.offset / 16;
+                            for (int i = 0; i < 8; ++i) {
+                                iv[16 - i - 1] = counter_val & 0xFF;
+                                counter_val >>= 8;
+                            }
+                            Core::Crypto::AESCipher<std::array<u8, 16>> cipher(sec.crypto_key, Core::Crypto::Mode::CTR);
+                            cipher.SetIV(iv);
+                            cipher.Transcode(data.data() + sec.offset, sec.size, data.data() + sec.offset, Core::Crypto::Op::Encrypt);
+                        }
+                    }
+                }
                 vf = std::make_shared<VectorVfsFile>(std::move(data), vf->GetName());
             } else {
                 LOG_ERROR(Loader, "PatchRomFS: NCZ decompression failed ({}/{} bytes)", bytes_read, total_size);

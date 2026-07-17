@@ -8,6 +8,7 @@
 #include "core/arm/debug.h"
 #include "core/core.h"
 #include "core/hle/kernel/k_process.h"
+#include "core/memory.h"
 
 namespace Core {
 
@@ -40,6 +41,20 @@ void ArmInterface::LogBacktrace(Kernel::KProcess* process) const {
     auto const backtrace = GetBacktraceFromContext(process, ctx);
     for (auto const& entry : backtrace)
         msg += fmt::format("{:20}{:016X}    {:016X}    {:016X}    {}\n", entry.module, entry.address, entry.original_address, entry.offset, entry.name);
+    if (process) {
+        auto& memory = process->GetMemory();
+        msg += "\nGuest Stack Dump (around SP):\n";
+        // Stack grows down, so SP - offset contains stack frames, SP + offset might contain initial arguments
+        for (int offset = -128; offset <= 512; offset += 8) {
+            u64 addr = ctx.sp + offset;
+            u64 val = 0;
+            if (memory.ReadBlock(addr, &val, sizeof(val))) {
+                msg += fmt::format("  SP{:+04X} [{:016X}] = {:016X}\n", offset, addr, val);
+            } else {
+                msg += fmt::format("  SP{:+04X} [{:016X}] = UNMAPPED\n", offset, addr);
+            }
+        }
+    }
     LOG_ERROR(Core_ARM, "{}", msg);
 }
 

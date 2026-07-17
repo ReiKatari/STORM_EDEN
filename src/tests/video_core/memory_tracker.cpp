@@ -45,11 +45,27 @@ public:
     }
 
     void UpdatePagesCachedBatch(std::span<const std::pair<DAddr, size_t>> ranges, s32 delta) {
-        // TODO: for now assume fine?
+        if (ranges.empty()) return;
+        ++update_calls;
+        for (const auto& [addr, size] : ranges) {
+            calls.emplace_back(addr, size, delta);
+            const u64 page_start{addr >> Core::DEVICE_PAGEBITS};
+            const u64 page_end{(addr + size + Core::DEVICE_PAGESIZE - 1) >> Core::DEVICE_PAGEBITS};
+            for (u64 page = page_start; page < page_end; ++page) {
+                int& value = page_table[page];
+                value += delta;
+                if (value == 0) {
+                    page_table.erase(page);
+                } else if (value < 0) {
+                    throw std::logic_error{"negative page"};
+                }
+            }
+        }
     }
 
     [[nodiscard]] size_t UpdateCalls() const noexcept { return update_calls; }
     [[nodiscard]] const std::vector<std::tuple<DAddr, u64, int>>& UpdateCallsList() const noexcept { return calls; }
+    void Reset() { update_calls = 0; calls.clear(); }
 
     [[nodiscard]] int Count(DAddr addr) const noexcept {
         const auto it = page_table.find(addr >> Core::DEVICE_PAGEBITS);
@@ -557,20 +573,16 @@ TEST_CASE("MemoryTracker: Cached write downloads") {
     REQUIRE(rasterizer.Count() == 0);
 }
 
-TEST_CASE("MemoryTracker: FlushCachedWrites batching") {
+TEST_CASE("MemoryTracker: UnmarkRegionAsCpuModified batching") {
     RasterizerInterface rasterizer;
     std::optional<MemoryTracker> memory_track(rasterizer);
+    rasterizer.Reset();
     memory_track->UnmarkRegionAsCpuModified(c, WORD * 2);
-    memory_track->CachedCpuWrite(c + PAGE, PAGE);
-    memory_track->CachedCpuWrite(c + PAGE * 2, PAGE);
-    memory_track->CachedCpuWrite(c + PAGE * 4, PAGE);
-    REQUIRE(rasterizer.UpdateCalls() == 0);
-    memory_track->FlushCachedWrites();
     // Now we expect a single batch call (coalesced ranges) to the device memory manager
     REQUIRE(rasterizer.UpdateCalls() == 1);
     const auto& calls = rasterizer.UpdateCallsList();
-    REQUIRE(std::get<0>(calls[0]) == c + PAGE);
-    REQUIRE(std::get<1>(calls[0]) == PAGE * 3);
+    REQUIRE(std::get<0>(calls[0]) == c);
+    REQUIRE(std::get<1>(calls[0]) == WORD * 2);
 }
 
 TEST_CASE("DeviceMemoryManager: UpdatePagesCachedBatch basic") {

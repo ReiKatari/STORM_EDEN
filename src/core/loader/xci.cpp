@@ -45,6 +45,10 @@ AppLoader_XCI::AppLoader_XCI(FileSys::VirtualFile file_,
 
 AppLoader_XCI::~AppLoader_XCI() = default;
 
+const FileSys::NCA* AppLoader_XCI::GetNCA() const {
+    return nca_loader ? nca_loader->GetNCA() : nullptr;
+}
+
 FileType AppLoader_XCI::IdentifyType(const FileSys::VirtualFile& xci_file) {
     const FileSys::XCI xci(xci_file);
 

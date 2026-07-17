@@ -104,6 +104,10 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
 
 AppLoader_NSP::~AppLoader_NSP() = default;
 
+const FileSys::NCA* AppLoader_NSP::GetNCA() const {
+    return secondary_loader ? secondary_loader->GetNCA() : nullptr;
+}
+
 FileType AppLoader_NSP::IdentifyType(const FileSys::VirtualFile& nsp_file) {
     LOG_DEBUG(Loader, "NSP DEBUG: IdentifyType called for file {}", nsp_file->GetName());
     

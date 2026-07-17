@@ -193,7 +193,6 @@ NcaHeader::DistributionType NcaReader::GetDistributionType() const {
 }
 
 NcaHeader::ContentType NcaReader::GetContentType() const {
-    ASSERT(m_body_storage != nullptr);
     return m_header.content_type;
 }
 
@@ -218,7 +217,6 @@ u64 NcaReader::GetContentSize() const {
 }
 
 u64 NcaReader::GetProgramId() const {
-    ASSERT(m_body_storage != nullptr);
     return m_header.program_id;
 }
 

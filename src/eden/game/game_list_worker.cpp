@@ -191,10 +191,55 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
 
             // Display container name for packed updates
             if (is_update && ver == "PACKED") {
-                ver = Loader::GetFileTypeString(loader.GetFileType());
+                std::string control_ver;
+                const auto control = patch_manager.GetControlMetadata();
+                if (control.first != nullptr) {
+                    control_ver = control.first->GetVersionString();
+                }
+                std::string loader_ver;
+                FileSys::NACP nacp;
+                if (loader.ReadControlData(nacp) == Loader::ResultStatus::Success) {
+                    loader_ver = nacp.GetVersionString();
+                }
+
+                if (!control_ver.empty() && control_ver != "1.0.0") {
+                    ver = control_ver;
+                } else if (!loader_ver.empty()) {
+                    ver = loader_ver;
+                } else if (!control_ver.empty()) {
+                    ver = control_ver;
+                } else {
+                    ver = Loader::GetFileTypeString(loader.GetFileType());
+                }
             }
 
             out.append(QStringLiteral("%1 (%2)\n").arg(type, QString::fromStdString(ver)));
+        }
+    }
+
+    if (!out.contains(QStringLiteral("Update"))) {
+        const auto control = patch_manager.GetControlMetadata();
+        std::string control_ver;
+        if (control.first != nullptr) {
+            control_ver = control.first->GetVersionString();
+        }
+        std::string loader_ver;
+        FileSys::NACP nacp;
+        if (loader.ReadControlData(nacp) == Loader::ResultStatus::Success) {
+            loader_ver = nacp.GetVersionString();
+        }
+
+        std::string version = "1.0.0";
+        if (!control_ver.empty() && control_ver != "1.0.0") {
+            version = control_ver;
+        } else if (!loader_ver.empty()) {
+            version = loader_ver;
+        } else if (!control_ver.empty()) {
+            version = control_ver;
+        }
+
+        if (!version.empty() && version != "1.0.0" && version != "1.0") {
+            out.prepend(QStringLiteral("Update (%1)\n").arg(QString::fromStdString(version)));
         }
     }
 
@@ -217,7 +262,7 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
     auto const file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
 
     QString patch_versions = GetGameListCachedObject(
-        fmt::format("{:016X}", patch.GetTitleID()), "pv.txt", [&patch, &loader] {
+        fmt::format("{:016X}", patch.GetTitleID()), "pv_v3.txt", [&patch, &loader] {
             return FormatPatchNameVersions(patch, loader, loader.IsRomFSUpdatable());
         });
 

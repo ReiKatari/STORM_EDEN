@@ -25,6 +25,7 @@ class System;
 
 namespace FileSys {
 class NACP;
+class NCA;
 } // namespace FileSys
 
 namespace Kernel {
@@ -304,6 +305,10 @@ public:
      */
     virtual bool IsRomFSUpdatable() const {
         return true;
+    }
+
+    virtual const FileSys::NCA* GetNCA() const {
+        return nullptr;
     }
 
     /**

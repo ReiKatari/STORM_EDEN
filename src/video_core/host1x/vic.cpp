@@ -138,7 +138,8 @@ void Vic::Execute() noexcept {
                     }
                     Blend(config, slot_config, config.output_surface_config.out_pixel_format);
                 } else {
-                    LOG_ERROR(HW_GPU, "Vic {} failed to get frame with offset {:#X}", id, luma_offset);
+                    LOG_WARNING(HW_GPU, "Vic {} failed to get frame with offset {:#X}", id, luma_offset);
+                    std::fill(output_surface.begin(), output_surface.end(), Pixel{});
                 }
             }
         }

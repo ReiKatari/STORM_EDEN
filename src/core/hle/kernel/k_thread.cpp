@@ -63,6 +63,7 @@ static void ResetThreadContext64(Kernel::Svc::ThreadContext& ctx, u64 stack_top,
     ctx.sp = stack_top;
     ctx.fpcr = 0;
     ctx.fpsr = 0;
+    LOG_CRITICAL(Kernel, "STORM EDEN DEBUG: ResetThreadContext64: entry_point=0x{:016X}, arg=0x{:016X}, stack_top=0x{:016X}", entry_point, arg, stack_top);
 }
 } // namespace
 

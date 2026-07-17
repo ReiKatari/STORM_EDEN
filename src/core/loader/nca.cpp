@@ -34,13 +34,7 @@ extern bool is_booting;
 namespace Loader {
 
 static u32 CalculatePointerBufferSize(size_t heap_size) {
-    if (heap_size > 1073741824) { // Games with 1 GiB
-        return 0x10000;
-    } else if (heap_size > 536870912) { // Games with 512 MiB
-        return 0xC000;
-    } else {
-        return 0x8000; // Default for all other games
-    }
+    return 0x10000;
 }
 
 AppLoader_NCA::AppLoader_NCA(FileSys::VirtualFile file_)

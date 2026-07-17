@@ -36,6 +36,10 @@ public:
     bool Rename(std::string_view new_name) override;
 
     std::size_t GetOffset() const;
+    VirtualFile GetUnderlyingFile() const override;
+    NCZVirtualFile* GetNczFilePointer() override;
+
+
 
 private:
     std::size_t TrimToFit(std::size_t r_size, std::size_t r_offset) const;

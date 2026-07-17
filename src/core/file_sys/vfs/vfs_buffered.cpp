@@ -39,6 +39,16 @@ bool BufferedVfsFile::IsNczFile() const {
     return file->IsNczFile();
 }
 
+VirtualFile BufferedVfsFile::GetUnderlyingFile() const {
+    return file;
+}
+
+NCZVirtualFile* BufferedVfsFile::GetNczFilePointer() {
+    return file ? file->GetNczFilePointer() : nullptr;
+}
+
+
+
 std::size_t BufferedVfsFile::Read(u8* data, std::size_t length, std::size_t offset) const {
     if (length == 0) {
         return 0;

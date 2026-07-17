@@ -129,8 +129,6 @@ void AESCipher<Key, KeySize>::Transcode(const u8* src, std::size_t size, u8* des
     if (size == 0)
         return;
 
-    // reset
-    ASSERT(EVP_CipherInit_ex(context, nullptr, nullptr, nullptr, nullptr, -1));
 
     const int block_size = EVP_CIPHER_CTX_get_block_size(context);
     ASSERT(block_size > 0 && block_size <= int(AesBlockBytes));
@@ -139,11 +137,17 @@ void AESCipher<Key, KeySize>::Transcode(const u8* src, std::size_t size, u8* des
     int written = 0;
 
     if (whole_block_bytes != 0) {
-        ASSERT(EVP_CipherUpdate(context, dest, &written, src, static_cast<int>(whole_block_bytes)));
-
-        if (std::size_t(written) != whole_block_bytes) {
-            LOG_WARNING(Crypto, "Not all data was processed requested={:016X}, actual={:016X}.",
-                        whole_block_bytes, written);
+        std::size_t processed = 0;
+        constexpr std::size_t chunk_size = 0x40000000; // 1 GB chunks
+        while (processed < whole_block_bytes) {
+            const std::size_t remaining_chunk = whole_block_bytes - processed;
+            const int current_chunk_size = static_cast<int>(std::min<std::size_t>(remaining_chunk, chunk_size));
+            ASSERT(EVP_CipherUpdate(context, dest + processed, &written, src + processed, current_chunk_size));
+            if (written != current_chunk_size) {
+                LOG_WARNING(Crypto, "Not all data was processed requested={}, actual={}.",
+                            current_chunk_size, written);
+            }
+            processed += current_chunk_size;
         }
     }
 

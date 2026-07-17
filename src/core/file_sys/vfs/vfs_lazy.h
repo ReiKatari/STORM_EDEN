@@ -70,6 +70,22 @@ public:
         return true;
     }
 
+    bool IsNczFile() const override {
+        const auto& file = EnsureResolved();
+        return file ? file->IsNczFile() : false;
+    }
+
+    std::shared_ptr<VfsFile> GetUnderlyingFile() const override {
+        return EnsureResolved();
+    }
+
+    NCZVirtualFile* GetNczFilePointer() override {
+        const auto& file = EnsureResolved();
+        return file ? file->GetNczFilePointer() : nullptr;
+    }
+
+
+
     std::size_t Read(u8* data, std::size_t length, std::size_t offset = 0) const override {
         const auto& file = EnsureResolved();
         if (!file) {

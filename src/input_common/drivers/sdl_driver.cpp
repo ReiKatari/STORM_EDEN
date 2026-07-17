@@ -3,7 +3,10 @@
 // SPDX-FileCopyrightText: 2018 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/fs/fs.h"
+#include "common/fs/path_util.h"
 #include "common/logging.h"
+
 #include "common/math_util.h"
 #include "common/param_package.h"
 #include "common/settings.h"
@@ -540,6 +543,7 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
         LOG_CRITICAL(Input, "SDL_Init failed with: {}", SDL_GetError());
         return;
     }
+
 
     SDL_AddEventWatch(&SDLEventWatcher, this);
 

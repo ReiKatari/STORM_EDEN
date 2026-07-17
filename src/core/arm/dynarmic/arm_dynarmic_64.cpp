@@ -131,6 +131,9 @@ void DynarmicCallbacks64::ExceptionRaised(u64 pc, Dynarmic::A64::Exception excep
         LOG_TRACE(Core_ARM, "ExceptionRaised(exception = {}, pc = {:08X}, code = {:08X}, cached = {:08X})", std::size_t(exception), pc, m_memory.Read32(pc), MemoryReadCode(pc).value_or(0));
         return;
     case Dynarmic::A64::Exception::NoExecuteFault:
+        if (pc < 0x1000) {
+            LOG_CRITICAL(Core_ARM, "Guest crashed at a null-like address ({:#016x})! This is usually caused by broken/incompatible mods (e.g. Zelda BotW without BCML/UKMM) or corrupted game data.", pc);
+        }
         LOG_CRITICAL(Core_ARM, "Cannot execute instruction at unmapped address {:#016x}", pc);
         ReturnException(pc, PrefetchAbort);
         return;

@@ -10,11 +10,48 @@
 #include <algorithm>
 #include <mutex>
 #include "core/file_sys/fssystem/fssystem_utility.h"
+#include "common/fs/path_util.h"
 #include <vector>
 #include <span>
 #include <zstd.h>
 
 namespace {
+class DiskVfsFile : public FileSys::VfsFile {
+public:
+    DiskVfsFile(std::filesystem::path path_, std::string name_)
+        : path(std::move(path_)), name(std::move(name_)) {
+        std::error_code ec;
+        std::filesystem::create_directories(path.parent_path(), ec);
+        file.Open(path, Common::FS::FileAccessMode::Read, Common::FS::FileType::BinaryFile, Common::FS::FileShareFlag::ShareReadOnly);
+    }
+
+    std::string GetName() const override { return name; }
+    std::string GetExtension() const override { return name.substr(name.find_last_of('.') + 1); }
+    std::size_t GetSize() const override { return file.IsOpen() ? file.GetSize() : 0; }
+    bool Resize(std::size_t new_size) override { return false; }
+    FileSys::VirtualDir GetContainingDirectory() const override { return nullptr; }
+    bool IsWritable() const override { return false; }
+    bool IsReadable() const override { return file.IsOpen(); }
+    bool Rename(std::string_view name_) override { return false; }
+
+    std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
+        if (!file.IsOpen()) return 0;
+        std::lock_guard<std::mutex> lock(io_mutex);
+        if (!file.Seek(static_cast<s64>(offset))) return 0;
+        return file.ReadSpan(std::span<u8>(data, length));
+    }
+
+    std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override {
+        return 0;
+    }
+
+private:
+    std::filesystem::path path;
+    std::string name;
+    mutable Common::FS::IOFile file;
+    mutable std::mutex io_mutex;
+};
+
 class ZstdContextPool {
 private:
     std::mutex mutex;
@@ -404,143 +441,70 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
         if (is_solid_stream && !solid_decompressed) {
             std::lock_guard<std::mutex> solid_lock(solid_mutex);
-            std::size_t required_size = mapped_offset + copy_size;
-            
-            // Check if we can just serve from cache
-            if (required_size <= solid_header_cache.size()) {
-                std::memcpy(data + bytes_read, solid_header_cache.data() + mapped_offset, copy_size);
+            if (!disk_cache_file) {
+                std::filesystem::path temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
+                std::error_code ec;
+                std::filesystem::create_directories(temp_dir, ec);
+                std::filesystem::path cache_path = temp_dir / (GetName() + ".v2.decompressed_cache");
+                std::filesystem::path completed_path = cache_path.string() + ".completed";
+                
+                bool cache_valid = std::filesystem::exists(cache_path, ec) && 
+                                   std::filesystem::file_size(cache_path, ec) == decompressed_size &&
+                                   std::filesystem::exists(completed_path, ec);
+                
+                if (!cache_valid && !disk_cache_checked) {
+                    LOG_INFO(Service_FS, "NCZ: Decompressing solid stream to disk cache ({} bytes)...", decompressed_size);
+                    if (DecompressSolidTo(cache_path)) {
+                        if (std::FILE* marker = std::fopen(completed_path.string().c_str(), "w")) {
+                            std::fclose(marker);
+                        }
+                        cache_valid = true;
+                    } else {
+                        LOG_ERROR(Service_FS, "NCZ: Failed to decompress solid stream to disk cache");
+                    }
+                    disk_cache_checked = true;
+                }
+                
+                if (cache_valid) {
+                    disk_cache_file = std::make_shared<DiskVfsFile>(cache_path, GetName());
+                }
+            }
+
+            if (disk_cache_file) {
+                std::size_t r = disk_cache_file->Read(data + bytes_read, copy_size, virtual_offset_in_nca);
+                if (r == 0) {
+                    // Fallback to zeros if read fails
+                    std::memset(data + bytes_read, 0, copy_size);
+                    r = copy_size;
+                }
+                bytes_read += r;
+                current_offset += r;
+                remaining -= r;
+                continue;
+            } else {
+                LOG_ERROR(Service_FS, "NCZ: Cannot read solid stream without valid disk cache!");
+                std::memset(data + bytes_read, 0, copy_size);
                 bytes_read += copy_size;
                 current_offset += copy_size;
                 remaining -= copy_size;
                 continue;
             }
-
-            // Correctly copy cached prefix if the request crosses the boundary
-            if (mapped_offset < solid_header_cache.size()) {
-                std::size_t cached_copy = std::min<std::size_t>(copy_size, solid_header_cache.size() - mapped_offset);
-                std::memcpy(data + bytes_read, solid_header_cache.data() + mapped_offset, cached_copy);
-                bytes_read += cached_copy;
-                current_offset += cached_copy;
-                remaining -= cached_copy;
-                continue;
-            }
-
-            // If we need data before the current stream position, rewind.
-            if (solid_dctx && solid_decomp_offset > mapped_offset) {
-                ZstdContextPool::Get().Release(static_cast<ZSTD_DCtx*>(solid_dctx));
-                solid_dctx = nullptr;
-            }
-
-            if (!solid_dctx) {
-                solid_dctx = ZstdContextPool::Get().Acquire();
-                solid_comp_offset = solid_compressed_offset;
-                solid_remaining_comp = solid_compressed_size;
-                solid_comp_chunk.resize(1024 * 1024);
-                solid_carry_over = 0;
-                solid_decomp_offset = 0;
-            }
-
-            std::vector<u8> decomp_buffer(1024 * 1024);
-            std::size_t actual_copied = 0;
-
-            while (solid_decomp_offset < required_size) {
-                std::size_t to_read = std::min<std::size_t>(solid_comp_chunk.size() - solid_carry_over, solid_remaining_comp);
-                if (to_read > 0) {
-                    std::size_t r = SafeRead(file, solid_comp_chunk.data() + solid_carry_over, to_read, solid_comp_offset);
-                    if (r == 0) break;
-                    to_read = r;
-                }
-                
-                ZSTD_inBuffer input = { solid_comp_chunk.data(), to_read + solid_carry_over, 0 };
-                ZSTD_outBuffer output = { decomp_buffer.data(), decomp_buffer.size(), 0 };
-                
-                std::size_t ret = ZSTD_decompressStream(static_cast<ZSTD_DCtx*>(solid_dctx), &output, &input);
-                if (ZSTD_isError(ret)) {
-                    LOG_ERROR(Service_FS, "Failed to stream solid stream! ZSTD Error: {}", ZSTD_getErrorName(ret));
-                    break;
-                }
-                
-                std::size_t consumed = input.pos;
-                std::size_t produced = output.pos;
-                
-                if (consumed == 0 && produced == 0 && to_read == 0) {
-                    break;
-                }
-                
-                std::size_t chunk_start = solid_decomp_offset;
-                std::size_t chunk_end = solid_decomp_offset + produced;
-
-                // 1. Cache the entire decompressed stream (Zero-Copy emulation concept)
-                if (produced > 0) {
-                    if (chunk_end <= MAX_SOLID_CACHE_SIZE) {
-                        if (solid_header_cache.size() < chunk_end) {
-                            solid_header_cache.resize(chunk_end);
-                        }
-                        std::memcpy(solid_header_cache.data() + chunk_start, decomp_buffer.data(), produced);
-                    } else if (chunk_start < MAX_SOLID_CACHE_SIZE) {
-                        // Partially cache the part that fits
-                        std::size_t fit_produced = MAX_SOLID_CACHE_SIZE - chunk_start;
-                        if (solid_header_cache.size() < MAX_SOLID_CACHE_SIZE) {
-                            solid_header_cache.resize(MAX_SOLID_CACHE_SIZE);
-                        }
-                        std::memcpy(solid_header_cache.data() + chunk_start, decomp_buffer.data(), fit_produced);
-                    }
-                }
-
-                // 2. Copy to user buffer if it overlaps
-                std::size_t req_start = mapped_offset;
-                std::size_t req_end = mapped_offset + copy_size;
-                
-                std::size_t overlap_start = std::max(chunk_start, req_start);
-                std::size_t overlap_end = std::min(chunk_end, req_end);
-                
-                if (overlap_start < overlap_end) {
-                    std::size_t overlap_size = overlap_end - overlap_start;
-                    std::size_t src_offset = overlap_start - chunk_start;
-                    std::size_t dst_offset = overlap_start - req_start;
-                    
-                    std::memcpy(data + bytes_read + dst_offset, decomp_buffer.data() + src_offset, overlap_size);
-                    actual_copied += overlap_size;
-                }
-
-                solid_decomp_offset += produced;
-                
-                solid_comp_offset += to_read;
-                solid_remaining_comp -= to_read;
-                
-                solid_carry_over = input.size - consumed;
-                if (solid_carry_over > 0) {
-                    std::memmove(solid_comp_chunk.data(), solid_comp_chunk.data() + consumed, solid_carry_over);
-                }
-            }
-            if (actual_copied < copy_size) {
-                std::memset(data + bytes_read, 0, copy_size - actual_copied);
-                actual_copied = copy_size;
-            }
-            
-            bytes_read += actual_copied;
-            current_offset += actual_copied;
-            remaining -= actual_copied;
-            
-            continue;
         }
 
         std::size_t block_index = 0;
         std::size_t block_offset = 0;
         
         if (!is_solid_stream) {
-            u64 relative_offset = mapped_offset;
-            if (is_header_uncompressed) {
-                if (mapped_offset < 0x4000) {
-                    // Header area - should have been handled above by decrypted_header or direct read
-                    std::memset(data + bytes_read, 0, copy_size);
-                    bytes_read += copy_size;
-                    current_offset += copy_size;
-                    remaining -= copy_size;
-                    continue;
-                }
-                relative_offset = mapped_offset - 0x4000;
+            if (mapped_offset < 0x4000) {
+                // Header area - should have been handled above by decrypted_header or direct read
+                std::memset(data + bytes_read, 0, copy_size);
+                bytes_read += copy_size;
+                current_offset += copy_size;
+                remaining -= copy_size;
+                continue;
             }
+            u64 relative_offset = mapped_offset - 0x4000;
+
             
             block_index = relative_offset / block_size;
             block_offset = relative_offset % block_size;
@@ -708,17 +672,6 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
     Common::FS::IOFile out_file(dest_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
     if (!out_file.IsOpen()) return false;
 
-    // 1. Write the decrypted header if we have one
-    if (!decrypted_header.empty()) {
-        out_file.WriteSpan(std::span<const u8>(decrypted_header.data(), decrypted_header.size()));
-    } else {
-        // Fallback: copy first 0x4000 bytes from raw file
-        std::vector<u8> temp(0x4000);
-        std::size_t r = file->Read(temp.data(), 0x4000, 0);
-        if (r > 0) {
-            out_file.WriteSpan(std::span<const u8>(temp.data(), r));
-        }
-    }
 
     // 2. Initialize ZSTD stream decompression
     std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)> dctx(ZSTD_createDCtx(), &ZSTD_freeDCtx);
@@ -745,7 +698,24 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
     u64 total_decompressed_so_far = 0;
     u64 last_log_progress = 0;
 
-    // 3. Decompress each section sequentially
+    // 3. Write decrypted header or uncompressed header
+    if (!decrypted_header.empty()) {
+        if (out_file.Seek(0)) {
+            (void)out_file.WriteSpan(std::span<const u8>(decrypted_header.data(), decrypted_header.size()));
+            total_decompressed_so_far += decrypted_header.size();
+        }
+    } else {
+        std::vector<u8> header_temp(0x4000);
+        std::size_t r = SafeRead(file, header_temp.data(), 0x4000, 0);
+        if (r > 0) {
+            if (out_file.Seek(0)) {
+                (void)out_file.WriteSpan(std::span<const u8>(header_temp.data(), r));
+                total_decompressed_so_far += r;
+            }
+        }
+    }
+
+    // 4. Decompress each section sequentially
     for (const auto& sec : sections) {
         u64 sec_offset = static_cast<u64>(sec.offset);
         u64 sec_size = static_cast<u64>(sec.size);
@@ -753,21 +723,6 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
         u64 zstd_sec_start = is_header_uncompressed
             ? std::max<u64>(sec_offset, 0x4000)
             : sec_offset;
-        
-        // Write the uncompressed prefix if needed
-        if (sec_offset < zstd_sec_start) {
-            u64 prefix_size = zstd_sec_start - sec_offset;
-            if (!decrypted_header.empty() && sec_offset < decrypted_header.size()) {
-                std::size_t copy_size = std::min<std::size_t>(
-                    static_cast<std::size_t>(prefix_size),
-                    decrypted_header.size() - static_cast<std::size_t>(sec_offset)
-                );
-                if (out_file.Seek(static_cast<s64>(sec_offset))) {
-                    out_file.WriteSpan(std::span<const u8>(decrypted_header.data() + sec_offset, copy_size));
-                    total_decompressed_so_far += copy_size;
-                }
-            }
-        }
 
         u64 remaining_in_sec = (sec_offset + sec_size) > zstd_sec_start
             ? (sec_offset + sec_size) - zstd_sec_start
@@ -805,7 +760,7 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
             std::size_t produced = output.pos;
 
             if (produced > 0) {
-                out_file.WriteSpan(std::span<const u8>(decomp_buffer.data(), produced));
+                (void)out_file.WriteSpan(std::span<const u8>(decomp_buffer.data(), produced));
                 remaining_in_sec -= produced;
                 total_decompressed_so_far += produced;
                 

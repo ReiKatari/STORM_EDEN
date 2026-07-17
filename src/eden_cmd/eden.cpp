@@ -227,6 +227,9 @@ int main(int argc, char** argv) {
         return -1;
     }
     debug_file << "Checkpoint 0.9: argv_w size: " << argc_w << "\n";
+    for (int i = 0; i < argc_w; i++) {
+        debug_file << "  argv_w[" << i << "]: " << Common::UTF16ToUTF8(argv_w[i]) << "\n";
+    }
     debug_file.flush();
 #endif
     std::string filepath;
@@ -452,7 +455,9 @@ int main(int argc, char** argv) {
     Service::AM::FrontendAppletParameters load_parameters{
         .applet_id = Service::AM::AppletId::Application,
     };
+    Settings::is_booting = true;
     const Core::SystemResultStatus load_result{system.Load(*emu_window, filepath, load_parameters)};
+    Settings::is_booting = false;
 
     switch (load_result) {
     case Core::SystemResultStatus::ErrorGetLoader:

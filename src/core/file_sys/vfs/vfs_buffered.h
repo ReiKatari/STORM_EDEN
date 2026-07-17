@@ -21,6 +21,10 @@ public:
     bool IsWritable() const override;
     bool IsReadable() const override;
     bool IsNczFile() const override;
+    VirtualFile GetUnderlyingFile() const override;
+    NCZVirtualFile* GetNczFilePointer() override;
+
+
 
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override;
     std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override;

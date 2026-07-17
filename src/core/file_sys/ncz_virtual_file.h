@@ -31,6 +31,8 @@ public:
     std::size_t Write(const u8* data, std::size_t length, std::size_t offset) override;
     bool Rename(std::string_view name) override;
     bool IsNczFile() const override { return is_valid && !is_raw_nca; }
+    NCZVirtualFile* GetNczFilePointer() override { return this; }
+
     bool DecompressSolidTo(const std::filesystem::path& dest_path) const;
     
     struct PartitionInfo {
@@ -45,6 +47,7 @@ public:
     void RegisterPartition(s32 fs_index, s64 virtual_offset, s64 virtual_size, s64 physical_offset, s64 physical_size);
     void SetDecryptedHeader(const u8* data, std::size_t size);
     bool HasDecryptedSections() const;
+
 
 #pragma pack(push, 1)
     struct NCZBlockHeader {
@@ -67,6 +70,8 @@ public:
         std::array<u8, 16> crypto_counter;
     };
 #pragma pack(pop)
+
+    const std::vector<NCZSection>& GetSections() const { return sections; }
 
     VirtualFile file;
     std::size_t decompressed_size = 0;
@@ -100,6 +105,9 @@ public:
     mutable std::vector<u8> solid_comp_chunk;
     mutable std::size_t solid_carry_over = 0;
     mutable std::size_t solid_decomp_offset = 0;
+    
+    mutable std::shared_ptr<VfsFile> disk_cache_file;
+    mutable bool disk_cache_checked = false;
     
     struct BlockCacheEntry {
         std::size_t index;

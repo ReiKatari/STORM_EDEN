@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <fstream>
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
@@ -81,6 +82,13 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
         std::string parent_name = parent ? parent->GetName() : "unknown";
         LOG_INFO(Loader, "[NSO] File: {}, Size: {}, Flags: 0x{:08X}, ParentDir: {}",
                  nso_file.GetName(), nso_file.GetSize(), nso_header.flags, parent_name);
+        LOG_INFO(Loader, "[NSO] Extents for '{}': DynSynOffset={:#X}, DynSynSize={:#X}, DynStrOffset={:#X}, DynStrSize={:#X}",
+                 nso_file.GetName(), nso_header.dynsyn_extent.data_offset, nso_header.dynsyn_extent.size,
+                 nso_header.dynstr_extent.data_offset, nso_header.dynstr_extent.size);
+        LOG_INFO(Loader, "[NSO] Segments for '{}': TextLoc={:#X}, TextSize={:#X}, RoDataLoc={:#X}, RoDataSize={:#X}, DataLoc={:#X}, DataSize={:#X}",
+                 nso_file.GetName(), nso_header.segments[0].location, nso_header.segments[0].size,
+                 nso_header.segments[1].location, nso_header.segments[1].size,
+                 nso_header.segments[2].location, nso_header.segments[2].size);
     }
     if (nso_header.segments.empty())
         return std::nullopt;
@@ -148,6 +156,7 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
             } else {
                 std::memcpy(codeset.memory.data() + module_start + nso_header.segments[i].location, compressed_data.data(), nso_header.segments[i].size);
             }
+
             codeset.segments[i].addr = module_start + nso_header.segments[i].location;
             codeset.segments[i].offset = module_start + nso_header.segments[i].location;
             codeset.segments[i].size = nso_header.segments[i].size;
@@ -163,6 +172,14 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
         if (first_instr == 0) {
             LOG_ERROR(Loader, "[NSO] '{}' .text starts with 0x00000000! Code is likely "
                       "corrupted, empty, or still encrypted.", nso_file.GetName());
+        }
+        if (codeset.segments[0].size >= 0x20460) {
+            std::vector<u32> instrs(8);
+            std::memcpy(instrs.data(), codeset.memory.data() + codeset.segments[0].offset + 0x20440, 32);
+            LOG_INFO(Loader, "[NSO] '{}' instructions at offset 0x20440: "
+                     "{:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X} {:08X}",
+                     nso_file.GetName(), instrs[0], instrs[1], instrs[2], instrs[3],
+                     instrs[4], instrs[5], instrs[6], instrs[7]);
         }
     }
 

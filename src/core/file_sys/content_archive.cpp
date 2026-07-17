@@ -81,10 +81,10 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
     if (file == nullptr) return nullptr;
     auto ncz_file = file->IsNczFile() ? std::static_pointer_cast<NCZVirtualFile>(file) : nullptr;
     if (ncz_file && ncz_file->is_solid_stream) {
-        std::filesystem::path temp_dir = std::filesystem::path("user") / "cache";
+        std::filesystem::path temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
         std::error_code ec;
         std::filesystem::create_directories(temp_dir, ec);
-        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".decompressed_cache");
+        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".v2.decompressed_cache");
 
         bool cache_valid = false;
         if (std::filesystem::exists(cache_path, ec)) {

@@ -3,10 +3,7 @@
 // SPDX-FileCopyrightText: 2018 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "common/fs/fs.h"
-#include "common/fs/path_util.h"
 #include "common/logging.h"
-
 #include "common/math_util.h"
 #include "common/param_package.h"
 #include "common/settings.h"
@@ -271,14 +268,14 @@ public:
                 break;
             }
             const auto name = SDL_GameControllerName(sdl_controller.get());
-            if (name && std::strlen(name) > 0) {
+            if (name) {
                 return name;
             }
         }
 
         if (sdl_joystick) {
             const auto name = SDL_JoystickName(sdl_joystick.get());
-            if (name && std::strlen(name) > 0) {
+            if (name) {
                 return name;
             }
         }
@@ -362,9 +359,6 @@ void SDLDriver::InitJoystick(int joystick_index) {
     }
 
     const auto guid = GetGUID(sdl_joystick);
-    const auto name = sdl_gamecontroller ? SDL_GameControllerName(sdl_gamecontroller) : SDL_JoystickName(sdl_joystick);
-    LOG_INFO(Input, "Joystick connected: name=\"{}\", guid={}, is_gamecontroller={}",
-             name ? name : "Unknown", guid.RawString(), sdl_gamecontroller != nullptr);
 
     if (Settings::values.enable_joycon_driver) {
         if (guid.uuid[5] == 0x05 && guid.uuid[4] == 0x7e &&
@@ -495,7 +489,6 @@ void SDLDriver::CloseJoysticks() {
 }
 
 SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_engine_)) {
-    LOG_INFO(Input, "SDLDriver constructor called");
     // Set our application name. Currently passed to DBus by SDL and visible to the user through
     // their desktop environment.
     SDL_SetHint(SDL_HINT_APP_NAME, "Eden");
@@ -543,7 +536,6 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
         LOG_CRITICAL(Input, "SDL_Init failed with: {}", SDL_GetError());
         return;
     }
-
 
     SDL_AddEventWatch(&SDLEventWatcher, this);
 

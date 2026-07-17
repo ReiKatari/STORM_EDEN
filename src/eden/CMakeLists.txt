@@ -464,13 +464,6 @@ if (WIN32)
         )
     endif()
 
-    # Copy gamecontrollerdb.txt to output dir
-    add_custom_command(TARGET eden POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PROJECT_SOURCE_DIR}/dist/gamecontrollerdb.txt"
-            "$<TARGET_FILE_DIR:eden>/gamecontrollerdb.txt"
-        COMMENT "Copying gamecontrollerdb.txt to output directory..."
-    )
 endif()
 
 if (ARCHITECTURE_x86_64 OR ARCHITECTURE_arm64)

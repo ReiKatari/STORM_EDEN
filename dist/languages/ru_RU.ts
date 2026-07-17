@@ -3354,6 +3354,38 @@ Would you like to delete the old save data?</source>
             <source>Failed to download mod.</source>
             <translation>Не удалось скачать мод.</translation>
         </message>
+        <message>
+            <source>Warning</source>
+            <translation>Предупреждение</translation>
+        </message>
+        <message>
+            <source>Please enter at least 2 characters to search.</source>
+            <translation>Пожалуйста, введите не менее 2 символов для поиска.</translation>
+        </message>
+        <message>
+            <source>Could not find this game on GameBanana.</source>
+            <translation>Не удалось найти эту игру на GameBanana.</translation>
+        </message>
+        <message>
+            <source>Information</source>
+            <translation>Информация</translation>
+        </message>
+        <message>
+            <source>No mods found for this game on GameBanana.</source>
+            <translation>Для этой игры не найдено модов на GameBanana.</translation>
+        </message>
+        <message>
+            <source>Failed to fetch game mods.</source>
+            <translation>Не удалось загрузить моды игры.</translation>
+        </message>
+        <message>
+            <source>Failed to fetch mod details from GameBanana.</source>
+            <translation>Не удалось загрузить подробности о модах с GameBanana.</translation>
+        </message>
+        <message>
+            <source>No matching mods found.</source>
+            <translation>Подходящих модов не найдено.</translation>
+        </message>
     </context>
     <context>
         <name>ConfigureGeneral</name>
@@ -4562,6 +4594,21 @@ To invert the axes, first move your joystick vertically, and then horizontally.<
             <location filename="../../src/eden/configuration/configure_input_player.cpp" line="1663" />
             <source>Failed to save the input profile "%1"</source>
             <translation>Не удалось сохранить профиль управления "%1"</translation>
+        </message>
+        <message>
+            <location filename="../../src/eden/configuration/configure_input_player.cpp" line="1173" />
+            <source>Any</source>
+            <translation>Любой</translation>
+        </message>
+        <message>
+            <location filename="../../src/eden/configuration/configure_input_player.cpp" line="1175" />
+            <source>Keyboard Only</source>
+            <translation>Только клавиатура</translation>
+        </message>
+        <message>
+            <location filename="../../src/eden/configuration/configure_input_player.cpp" line="1177" />
+            <source>Keyboard/Mouse</source>
+            <translation>Клавиатура/Мышь</translation>
         </message>
     </context>
     <context>

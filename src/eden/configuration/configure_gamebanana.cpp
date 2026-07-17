@@ -16,6 +16,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QFile>
+#include <QRegularExpression>
 #include <fmt/format.h>
 
 #include "common/fs/fs.h"
@@ -64,7 +65,7 @@ ConfigureGameBanana::~ConfigureGameBanana() = default;
 
 void ConfigureGameBanana::SearchMods() {
     QString query = search_box->text().trimmed();
-    if (query.length() < 2) {
+    if (!query.isEmpty() && query.length() < 2) {
         QMessageBox::warning(this, tr("Warning"), tr("Please enter at least 2 characters to search."));
         return;
     }
@@ -169,7 +170,7 @@ void ConfigureGameBanana::ExecuteModSearch(const QString& query, const std::vect
     for (size_t i = 0; i < count; ++i) {
         query_params.addQueryItem(QStringLiteral("itemtype[]"), QStringLiteral("Mod"));
         query_params.addQueryItem(QStringLiteral("itemid[]"), QString::number(mod_ids[i]));
-        query_params.addQueryItem(QStringLiteral("fields[]"), QStringLiteral("name,Url().sProfileUrl(),Files().aFiles()"));
+        query_params.addQueryItem(QStringLiteral("fields[]"), QStringLiteral("name,Url().sProfileUrl(),Files().aFiles(),description"));
     }
     query_params.addQueryItem(QStringLiteral("format"), QStringLiteral("json"));
     url.setQuery(query_params);
@@ -213,13 +214,14 @@ void ConfigureGameBanana::OnSearchFinished(QNetworkReply* reply, const QString& 
             QJsonArray records = jsonResponse.array();
             for (const auto& recordVal : records) {
                 QJsonArray fields = recordVal.toArray();
-                if (fields.size() >= 3) {
+                if (fields.size() >= 4) {
                     QString name = fields[0].toString();
                     QString profile_url = fields[1].toString();
                     QJsonObject files_obj = fields[2].toObject();
+                    QString description = fields[3].toString();
                     
-                    // Filter mod name locally with exact case-insensitive match
-                    if (name.contains(query, Qt::CaseInsensitive)) {
+                    // Filter mod name locally with exact case-insensitive match (always matches if query is empty)
+                    if (query.isEmpty() || name.contains(query, Qt::CaseInsensitive)) {
                         QString download_url;
                         // Find first file in files_obj
                         for (auto it = files_obj.begin(); it != files_obj.end(); ++it) {
@@ -232,7 +234,20 @@ void ConfigureGameBanana::OnSearchFinished(QNetworkReply* reply, const QString& 
                         
                         if (!download_url.isEmpty()) {
                             current_mods.push_back({name, download_url});
-                            list_widget->addItem(name);
+                            
+                            // Strip HTML tags and simplify description
+                            QString clean_desc = description;
+                            clean_desc.remove(QRegularExpression(QStringLiteral("<[^>]*>")));
+                            clean_desc = clean_desc.simplified();
+                            if (clean_desc.length() > 80) {
+                                clean_desc = clean_desc.left(77) + QStringLiteral("...");
+                            }
+                            
+                            QString display_name = name;
+                            if (!clean_desc.isEmpty()) {
+                                display_name += QStringLiteral(" — ") + clean_desc;
+                            }
+                            list_widget->addItem(display_name);
                         }
                     }
                 }

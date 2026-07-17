@@ -2335,7 +2335,6 @@ void MainWindow::ConfigureFilesystemProvider(const std::string& filepath) {
 void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletParameters params,
                           StartGameType type) {
     Settings::is_booting = true;
-    SCOPE_EXIT { Settings::is_booting = false; };
     LOG_INFO(Frontend, "Eden starting...");
 
     if (params.program_id == 0 ||
@@ -2403,6 +2402,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     Settings::LogSettings();
 
     if (!LoadROM(filename, params)) {
+        Settings::is_booting = false;
         loading_screen->hide();
         render_window->hide();
         if (game_list->IsEmpty()) {
@@ -2671,6 +2671,7 @@ void MainWindow::OnEmulationStopTimeExpired() {
 }
 
 void MainWindow::OnEmulationStopped() {
+    Settings::is_booting = false;
     shutdown_timer.stop();
     if (emu_thread) {
         emu_thread->disconnect();
@@ -5852,6 +5853,7 @@ void MainWindow::OnDLCButtonClicked() {
 
     int dlc_total = 0;
     int dlc_active = 0;
+    int dlc_counter = 0;
 
     for (int i = 0; i <= 2000; i++) {
         u64 tid = FileSys::GetAOCBaseTitleID(base_title_id) + i;
@@ -5863,10 +5865,20 @@ void MainWindow::OnDLCButtonClicked() {
             it = titledb_object.find(idStrLower);
         }
 
-        if (it != titledb_object.end()) {
-            QJsonObject item = it.value().toObject();
-            dlc_total++;
-            bool installed = std::find(installed_dlc.begin(), installed_dlc.end(), tid) != installed_dlc.end();
+        bool installed = std::find(installed_dlc.begin(), installed_dlc.end(), tid) != installed_dlc.end();
+        bool in_db = (it != titledb_object.end());
+
+        if (in_db || installed) {
+            dlc_counter++;
+            QString dlc_name;
+            if (in_db) {
+                QJsonObject item = it.value().toObject();
+                dlc_name = item.value(QStringLiteral("name")).toString();
+                dlc_total++;
+            } else {
+                dlc_name = QStringLiteral("Unknown DLC [%1]").arg(idStrUpper);
+            }
+
             if (installed) dlc_active++;
 
             QWidget* row = new QWidget();
@@ -5874,11 +5886,11 @@ void MainWindow::OnDLCButtonClicked() {
             QHBoxLayout* rowLayout = new QHBoxLayout(row);
             rowLayout->setContentsMargins(16, 14, 16, 14);
 
-            QLabel* numLabel = new QLabel(QString::number(dlc_total) + QStringLiteral("."));
+            QLabel* numLabel = new QLabel(QString::number(dlc_counter) + QStringLiteral("."));
             numLabel->setStyleSheet(QStringLiteral("color: #757575; font-size: 14px; font-weight: bold; border: none; background: transparent;"));
             numLabel->setFixedWidth(30);
             
-            QLabel* nameLabel = new QLabel(item.value(QStringLiteral("name")).toString());
+            QLabel* nameLabel = new QLabel(dlc_name);
             nameLabel->setStyleSheet(QStringLiteral("color: #E0E0E0; font-size: 15px; font-weight: 500; border: none; background: transparent;"));
             nameLabel->setWordWrap(true);
             nameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -5920,7 +5932,7 @@ void MainWindow::OnDLCButtonClicked() {
 
     if (dlc_total == 0) {
         QLabel* emptyLabel = new QLabel(tr("Нет известных дополнений Tinfoil для этой игры."));
-        emptyLabel->setStyleSheet(QStringLiteral("color: #888; font-style: italic;"));
+        emptyLabel->setStyleSheet(QStringLiteral("color: #888; font-style: italic; background: transparent; border: none;"));
         layout->addWidget(emptyLabel);
     }
 
@@ -6085,11 +6097,11 @@ void MainWindow::UpdateDLCButtonText() {
             it = titledb_object.find(idStrLower);
         }
 
-        if (it != titledb_object.end()) {
-            dlc_total++;
-            bool installed = std::find(installed_dlc.begin(), installed_dlc.end(), tid) != installed_dlc.end();
-            if (installed) dlc_active++;
-        }
+        bool installed = std::find(installed_dlc.begin(), installed_dlc.end(), tid) != installed_dlc.end();
+        bool in_db = (it != titledb_object.end());
+
+        if (in_db) dlc_total++;
+        if (installed) dlc_active++;
     }
 
     dlc_button->setText(QStringLiteral("ДОПОЛНЕНИЯ (%1/%2)").arg(dlc_active).arg(dlc_total));

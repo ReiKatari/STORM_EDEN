@@ -305,7 +305,7 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
     auto const file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
 
     QString patch_versions = GetGameListCachedObject(
-        fmt::format("{:016X}_{}", patch.GetTitleID(), size), "pv_v4.txt", [&patch, &loader] {
+        fmt::format("{:016X}_{}", patch.GetTitleID(), size), "pv_v5.txt", [&patch, &loader] {
             return FormatPatchNameVersions(patch, loader, loader.IsRomFSUpdatable());
         });
 

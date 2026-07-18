@@ -679,8 +679,8 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_XBOX, "0");
 
     LOG_INFO(Input, "SDLDriver: start_thread query starting. SDL_WasInit={}", SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD));
-    start_thread = SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) == 0;
-    if (start_thread && !SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
+    start_thread = true;
+    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
         LOG_CRITICAL(Input, "SDL_InitSubSystem failed with: {}", SDL_GetError());
         return;
     }
@@ -719,7 +719,6 @@ SDLDriver::~SDLDriver() {
     initialized = false;
     if (start_thread) {
         vibration_thread.join();
-        SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD);
     }
 }
 

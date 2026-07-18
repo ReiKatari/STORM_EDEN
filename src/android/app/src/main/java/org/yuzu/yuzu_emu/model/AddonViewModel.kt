@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.utils.NativeConfig
+import org.yuzu.yuzu_emu.utils.TitleDbManager
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AddonViewModel : ViewModel() {
@@ -67,6 +68,43 @@ class AddonViewModel : ViewModel() {
                 } ?: return@launch
 
                 val patchList = patches.toMutableList()
+
+                // Generate and add inactive DLCs from Tinfoil DB
+                try {
+                    val installedDlcIds = patchList.filter { PatchType.from(it.type) == PatchType.DLC }
+                        .map { it.titleId }
+                        .toSet()
+
+                    val baseTitleId = currentGame.programId.toLong() and 0xFFFFFFFFFFFFE000uL.toLong()
+                    val aocBaseTitleId = baseTitleId + 0x1000L
+
+                    for (i in 0..2000) {
+                        val tid = aocBaseTitleId + i
+                        val tidHex = "0" + tid.toString(16).uppercase()
+                        val tidDecStr = tid.toString()
+
+                        if (!installedDlcIds.contains(tidDecStr)) {
+                            val dlcName = TitleDbManager.getDlcName(tidHex)
+                            if (dlcName != null) {
+                                patchList.add(
+                                    Patch(
+                                        enabled = false,
+                                        name = dlcName,
+                                        version = "НЕ АКТИВНО",
+                                        type = PatchType.DLC.int,
+                                        programId = currentGame.programId,
+                                        titleId = tidDecStr,
+                                        numericVersion = 0L,
+                                        source = Patch.SOURCE_UNKNOWN
+                                    )
+                                )
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 patchList.sortBy { it.name }
 
                 // Ensure only one update is enabled

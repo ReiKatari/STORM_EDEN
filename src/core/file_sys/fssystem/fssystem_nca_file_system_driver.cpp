@@ -161,8 +161,8 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
                           next_physical_offset = p_offset + p_size;
                      } else {
                           p_offset = next_physical_offset;
-                          if (v_offset < NcaHeaderSize) {
-                              p_size = std::max<s64>(0, v_size - (NcaHeaderSize - v_offset));
+                          if (v_offset < static_cast<s64>(NcaHeaderSize)) {
+                              p_size = std::max<s64>(0, v_size - (static_cast<s64>(NcaHeaderSize) - v_offset));
                           } else {
                               p_size = v_size;
                           }
@@ -171,20 +171,20 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
                      
                      s64 reg_v_offset = v_offset;
                      s64 reg_v_size = v_size;
-                     if (v_offset < NcaHeaderSize) {
-                         reg_v_offset = NcaHeaderSize;
-                         reg_v_size = std::max<s64>(0, v_size - (NcaHeaderSize - v_offset));
+                     if (v_offset < static_cast<s64>(NcaHeaderSize)) {
+                         reg_v_offset = static_cast<s64>(NcaHeaderSize);
+                         reg_v_size = std::max<s64>(0, v_size - (static_cast<s64>(NcaHeaderSize) - v_offset));
                      }
                     
 
                     
                     // Decrypt the part of the partition that lies in the NCA header (if it is AES-CTR encrypted)
-                    if (v_offset < NcaHeaderSize && read > 0) {
+                    if (v_offset < static_cast<s64>(NcaHeaderSize) && read > 0) {
                         const auto* fs_header = reinterpret_cast<const NcaFsHeader*>(hdr_buf.data() + 0x400 + i * 0x200);
                         auto orig_enc_type = fs_header->encryption_type;
                         if (orig_enc_type == NcaFsHeader::EncryptionType::AesCtr || orig_enc_type == NcaFsHeader::EncryptionType::AesCtrSkipLayerHash) {
                             s64 enc_offset = v_offset;
-                            s64 enc_size = std::min<s64>(v_size, NcaHeaderSize - v_offset);
+                            s64 enc_size = std::min<s64>(v_size, static_cast<s64>(NcaHeaderSize) - v_offset);
                             enc_size = (enc_size / 16) * 16;
                             
                             if (enc_size > 0 && read >= static_cast<std::size_t>(enc_offset + enc_size)) {

@@ -163,7 +163,17 @@ class GameAdapter(private val activity: AppCompatActivity) :
             GameIconUtils.loadGameIcon(model, listBinding.imageGameScreen)
 
             listBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
-            listBinding.textGameDeveloper.text = model.developer
+            val gameVersion = model.version
+            if (gameVersion.isNotEmpty() && gameVersion != "1.0.0" && gameVersion != "v1.0.0" && gameVersion != "0" && gameVersion != "0.0.0") {
+                val formattedVersion = if (gameVersion.startsWith("v", ignoreCase = true)) gameVersion else "v$gameVersion"
+                listBinding.textGameDeveloper.text = if (model.developer.isNotEmpty()) {
+                    "${model.developer} | $formattedVersion"
+                } else {
+                    formattedVersion
+                }
+            } else {
+                listBinding.textGameDeveloper.text = model.developer
+            }
 
             listBinding.textGameTitle.marquee()
             listBinding.cardGameList.setOnClickListener { onClick(model) }

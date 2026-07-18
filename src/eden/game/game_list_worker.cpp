@@ -212,7 +212,7 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
                 
                 if (ver == "1.0.0" || ver == "PACKED") {
                     u32 v = 0;
-                    if (loader->ReadUpdateVersion(v) == Loader::ResultStatus::Success && v != 0) {
+                    if (loader.ReadUpdateVersion(v) == Loader::ResultStatus::Success && v != 0) {
                         std::array<u8, 4> bytes{};
                         bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
                         bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;

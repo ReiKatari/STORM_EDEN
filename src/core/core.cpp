@@ -279,7 +279,7 @@ struct System::Impl {
         if (!file.IsOpen()) return false;
 
         u64 magic = 0x5354415445534E50; // "STATESNP"
-        file.WriteObject(magic);
+        if (!file.WriteObject(magic)) return false;
         
         core_timing.SyncPause(false);
         kernel.SuspendEmulation(false);
@@ -296,7 +296,7 @@ struct System::Impl {
         if (!file.IsOpen()) return false;
 
         u64 magic = 0;
-        file.ReadObject(magic);
+        if (!file.ReadObject(magic)) return false;
         if (magic != 0x5354415445534E50) return false;
 
         core_timing.SyncPause(false);
@@ -600,6 +600,7 @@ struct System::Impl {
     }
 };
 
+#ifdef _WIN32
 #include <windows.h>
 
 LONG WINAPI MyUnhandledExceptionFilter(struct _EXCEPTION_POINTERS *ExceptionInfo) {
@@ -607,6 +608,7 @@ LONG WINAPI MyUnhandledExceptionFilter(struct _EXCEPTION_POINTERS *ExceptionInfo
     // Do NOT override it here.
     return EXCEPTION_CONTINUE_SEARCH;
 }
+#endif
 
 System::System() {
     // NOTE: Do NOT call SetUnhandledExceptionFilter here.

@@ -48,6 +48,7 @@ import org.yuzu.yuzu_emu.model.TaskState
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.FileUtil
 import org.yuzu.yuzu_emu.utils.GameHelper
+import org.yuzu.yuzu_emu.utils.GameMetadata
 import org.yuzu.yuzu_emu.utils.GameIconUtils
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
 import org.yuzu.yuzu_emu.utils.MemoryUtil
@@ -73,6 +74,9 @@ class GamePropertiesFragment : Fragment() {
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Y, true)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false)
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
+
+        // Force reload and cache the latest game version
+        args.game.version = GameMetadata.getVersion(args.game.path, true)
     }
 
     override fun onCreateView(
@@ -166,12 +170,17 @@ class GamePropertiesFragment : Fragment() {
             val seconds = playTimeSeconds % 60
 
             val readablePlayTime = when {
-            hours > 0 -> "$hours${getString(R.string.hours_abbr)} $minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
-            minutes > 0 -> "$minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
-            else -> "$seconds${getString(R.string.seconds_abbr)}"
-}
+                hours > 0 -> "$hours${getString(R.string.hours_abbr)} $minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
+                minutes > 0 -> "$minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
+                else -> "$seconds${getString(R.string.seconds_abbr)}"
+            }
 
             append(getString(R.string.playtime) + " " + readablePlayTime)
+
+            val gameVersion = args.game.version
+            if (gameVersion.isNotEmpty()) {
+                append(" | ${getString(R.string.version)}: $gameVersion")
+            }
         }
 
         binding.playtime.setOnClickListener {

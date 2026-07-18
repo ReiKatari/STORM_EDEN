@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.lifecycleScope
 
 class MainActivity : AppCompatActivity(), ThemeProvider {
     private lateinit var binding: ActivityMainBinding
@@ -165,6 +166,9 @@ class MainActivity : AppCompatActivity(), ThemeProvider {
 
         if (!firstTimeSetup && NativeLibrary.isUpdateCheckerEnabled() && BooleanSetting.ENABLE_UPDATE_CHECKS.getBoolean()) {
              checkForUpdates()
+        }
+        lifecycleScope.launch {
+            TitleDbManager.init(applicationContext)
         }
         setInsets()
         applyFullscreenPreference()

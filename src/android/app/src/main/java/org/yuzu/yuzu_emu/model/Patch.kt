@@ -28,5 +28,5 @@ data class Patch(
     }
 
     val isRemovable: Boolean
-        get() = source != SOURCE_EXTERNAL && source != SOURCE_PACKED
+        get() = source != SOURCE_UNKNOWN && source != SOURCE_EXTERNAL && source != SOURCE_PACKED
 }

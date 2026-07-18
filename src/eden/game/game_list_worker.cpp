@@ -141,10 +141,10 @@ std::pair<std::vector<u8>, std::string> GetGameListCachedObject(
     return std::make_pair(vec, data.toStdString());
 }
 
-void GetMetadataFromControlNCA(const FileSys::PatchManager& patch_manager, const FileSys::NCA& nca,
+void GetMetadataFromControlNCA(const FileSys::PatchManager& patch_manager, const FileSys::NCA& nca, size_t size,
                                std::vector<u8>& icon, std::string& name) {
     std::tie(icon, name) = GetGameListCachedObject(
-        fmt::format("{:016X}", patch_manager.GetTitleID()), {}, [&patch_manager, &nca] {
+        fmt::format("{:016X}_{}", patch_manager.GetTitleID(), size), {}, [&patch_manager, &nca] {
             const auto [nacp, icon_f] = patch_manager.ParseControlNCA(nca);
             return std::make_pair(icon_f->ReadAllBytes(), nacp->GetApplicationName());
         });
@@ -208,7 +208,25 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
                     ver = loader_ver;
                 } else if (!control_ver.empty()) {
                     ver = control_ver;
-                } else {
+                }
+                
+                if (ver == "1.0.0" || ver == "PACKED") {
+                    auto game_ver = patch_manager.GetGameVersion();
+                    if (game_ver.has_value() && *game_ver != 0) {
+                        u32 v = *game_ver;
+                        std::array<u8, 4> bytes{};
+                        bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
+                        bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;
+                        bytes[2] = static_cast<u8>(v % 0x100); v /= 0x100;
+                        bytes[3] = static_cast<u8>(v % 0x100);
+                        auto cnmt_ver = fmt::format("{}.{}.{}", bytes[3], bytes[2], bytes[1]);
+                        if (cnmt_ver != "1.0.0") {
+                            ver = cnmt_ver;
+                        }
+                    }
+                }
+                
+                if (ver == "1.0.0" || ver == "PACKED") {
                     ver = Loader::GetFileTypeString(loader.GetFileType());
                 }
             }
@@ -238,6 +256,22 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
             version = control_ver;
         }
 
+        if (version == "1.0.0") {
+            auto game_ver = patch_manager.GetGameVersion();
+            if (game_ver.has_value() && *game_ver != 0) {
+                u32 v = *game_ver;
+                std::array<u8, 4> bytes{};
+                bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
+                bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;
+                bytes[2] = static_cast<u8>(v % 0x100); v /= 0x100;
+                bytes[3] = static_cast<u8>(v % 0x100);
+                auto cnmt_ver = fmt::format("{}.{}.{}", bytes[3], bytes[2], bytes[1]);
+                if (cnmt_ver != "1.0.0") {
+                    version = cnmt_ver;
+                }
+            }
+        }
+
         if (!version.empty() && version != "1.0.0" && version != "1.0") {
             out.prepend(QStringLiteral("Update (%1)\n").arg(QString::fromStdString(version)));
         }
@@ -262,7 +296,7 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
     auto const file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
 
     QString patch_versions = GetGameListCachedObject(
-        fmt::format("{:016X}", patch.GetTitleID()), "pv_v3.txt", [&patch, &loader] {
+        fmt::format("{:016X}_{}", patch.GetTitleID(), size), "pv_v4.txt", [&patch, &loader] {
             return FormatPatchNameVersions(patch, loader, loader.IsRomFSUpdatable());
         });
 
@@ -393,7 +427,7 @@ void GameListWorker::AddTitlesToGameList(GameListDir* parent_dir) {
         LOG_INFO(Frontend, "PatchManager initiated for id {:X}", program_id);
         const auto control = cache.GetEntry(game.title_id, ContentRecordType::Control);
         if (control != nullptr) {
-            GetMetadataFromControlNCA(patch, *control, icon, name);
+            GetMetadataFromControlNCA(patch, *control, file->GetSize(), icon, name);
         }
 
         auto entry = MakeGameListEntry(file->GetFullPath(), name, file->GetSize(), icon, *loader,
@@ -504,10 +538,11 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                         continue;
                     }
 
+                    auto size = Common::FS::GetSize(physical_name);
                     std::vector<u8> icon;
                     std::string name = " ";
                     std::tie(icon, name) = GetGameListCachedObject(
-                        fmt::format("{:016X}", id), {}, [loader_ptr = sub_loader.get()] {
+                        fmt::format("{:016X}_{}", id, size), {}, [loader_ptr = sub_loader.get()] {
                             std::vector<u8> temp_icon;
                             loader_ptr->ReadIcon(temp_icon);
                             std::string temp_name = " ";
@@ -519,17 +554,18 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                                                       system.GetContentProvider()};
 
                     auto entry = MakeGameListEntry(
-                        physical_name, name, Common::FS::GetSize(physical_name), icon, *sub_loader,
+                        physical_name, name, size, icon, *sub_loader,
                         id, compatibility_list, play_time_manager, patch);
 
                     RecordEvent(
                         [=](GameList* game_list) { game_list->AddEntry(entry, parent_dir); });
                 }
             } else {
+                auto size = Common::FS::GetSize(physical_name);
                 std::vector<u8> icon;
                 std::string name = " ";
                 std::tie(icon, name) = GetGameListCachedObject(
-                    fmt::format("{:016X}", program_id), {}, [loader_ptr = loader.get()] {
+                    fmt::format("{:016X}_{}", program_id, size), {}, [loader_ptr = loader.get()] {
                         std::vector<u8> temp_icon;
                         loader_ptr->ReadIcon(temp_icon);
                         std::string temp_name = " ";
@@ -541,7 +577,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                                                   system.GetContentProvider()};
 
                 auto entry = MakeGameListEntry(
-                    physical_name, name, Common::FS::GetSize(physical_name), icon, *loader,
+                    physical_name, name, size, icon, *loader,
                     program_id, compatibility_list, play_time_manager, patch);
 
                 RecordEvent(

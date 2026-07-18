@@ -2464,14 +2464,28 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     std::string title_version;
     const auto res = QtCommon::system->GetGameName(title_name);
 
-    const auto metadata = [title_id] {
-        const FileSys::PatchManager pm(title_id, QtCommon::system->GetFileSystemController(),
-                                       QtCommon::system->GetContentProvider());
-        return pm.GetControlMetadata();
-    }();
+    const FileSys::PatchManager pm(title_id, QtCommon::system->GetFileSystemController(),
+                                   QtCommon::system->GetContentProvider());
+    const auto metadata = pm.GetControlMetadata();
     if (metadata.first != nullptr) {
         title_version = metadata.first->GetVersionString();
         title_name = metadata.first->GetApplicationName();
+    }
+
+    if (title_version == "1.0.0" || title_version.empty()) {
+        auto game_ver = pm.GetGameVersion();
+        if (game_ver.has_value() && *game_ver != 0) {
+            u32 v = *game_ver;
+            std::array<u8, 4> bytes{};
+            bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
+            bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;
+            bytes[2] = static_cast<u8>(v % 0x100); v /= 0x100;
+            bytes[3] = static_cast<u8>(v % 0x100);
+            auto cnmt_ver = fmt::format("{}.{}.{}", bytes[3], bytes[2], bytes[1]);
+            if (cnmt_ver != "1.0.0") {
+                title_version = cnmt_ver;
+            }
+        }
     }
     if (res != Loader::ResultStatus::Success || title_name.empty()) {
         title_name = Common::FS::PathToUTF8String(

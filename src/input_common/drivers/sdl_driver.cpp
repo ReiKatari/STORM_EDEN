@@ -679,13 +679,8 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_XBOX, "0");
 
     LOG_INFO(Input, "SDLDriver: start_thread query starting. SDL_WasInit={}", SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD));
-    // If the frontend is going to manage the event loop, then we don't start one here
-#ifdef _WIN32
-    start_thread = true;
-#else
     start_thread = SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) == 0;
-#endif
-    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
+    if (start_thread && !SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
         LOG_CRITICAL(Input, "SDL_InitSubSystem failed with: {}", SDL_GetError());
         return;
     }

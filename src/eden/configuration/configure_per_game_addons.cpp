@@ -156,11 +156,17 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
         if (disabled) {
             QVariant userData = item.front()->data(Qt::UserRole);
             if (userData.isValid() && userData.canConvert<quint32>() &&
-                item.front()->text() == QStringLiteral("Update")) {
+                (item.front()->text() == QStringLiteral("Update") || item.front()->text() == QStringLiteral("Версия"))) {
                 quint32 numeric_version = userData.toUInt();
                 disabled_addons.push_back(fmt::format("Update@{}", numeric_version));
             } else {
-                disabled_addons.push_back(item.front()->text().toStdString());
+                QString orig_text = item.front()->text();
+                if (orig_text == QStringLiteral("Версия")) {
+                    orig_text = QStringLiteral("Update");
+                } else if (orig_text == QStringLiteral("Дополнения")) {
+                    orig_text = QStringLiteral("DLC");
+                }
+                disabled_addons.push_back(orig_text.toStdString());
             }
         }
     }
@@ -366,12 +372,17 @@ void ConfigurePerGameAddons::AsyncAddonsLoaded() {
     const auto& disabled = Settings::values.disabled_addons[title_id];
 
     bool has_enabled_update = false;
-
     for (const auto& patch : result.patches) {
         const auto name = QString::fromStdString(patch.name);
 
         auto* const first_item = new QStandardItem;
-        first_item->setText(name);
+        QString display_name = name;
+        if (display_name == QStringLiteral("Update")) {
+            display_name = QStringLiteral("Версия");
+        } else if (display_name == QStringLiteral("DLC")) {
+            display_name = QStringLiteral("Дополнения");
+        }
+        first_item->setText(display_name);
         first_item->setCheckable(true);
 
         const bool is_external_update = patch.type == FileSys::PatchType::Update &&

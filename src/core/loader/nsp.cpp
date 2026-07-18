@@ -42,8 +42,11 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
     }
 
     if (!nsp->IsExtractedType()) {
-        const auto control_nca =
+        auto control_nca =
             nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Control);
+        if (control_nca == nullptr) {
+            control_nca = nsp->GetNCA(FileSys::GetUpdateTitleID(nsp->GetProgramTitleID()), FileSys::ContentRecordType::Control);
+        }
         if (control_nca == nullptr) {
             LOG_ERROR(Loader, "NSP/NSZ ICON DEBUG: Control NCA is nullptr for title {:016X}", nsp->GetProgramTitleID());
             if (std::FILE* dbg = nullptr) {
@@ -392,6 +395,26 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     return ResultStatus::Success;
 }
 
+ResultStatus AppLoader_NSP::ReadUpdateVersion(u32& out_version) {
+    if (nsp->IsExtractedType()) {
+        return ResultStatus::ErrorNotImplemented;
+    }
+
+    auto meta = nsp->GetNCAFile(FileSys::GetUpdateTitleID(nsp->GetProgramTitleID()),
+                                FileSys::ContentRecordType::Meta, FileSys::TitleType::Update);
+    if (meta == nullptr) {
+        meta = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Meta,
+                               FileSys::TitleType::Application);
+    }
+
+    if (meta) {
+        FileSys::CNMT cnmt(meta);
+        out_version = cnmt.GetTitleVersion();
+        return ResultStatus::Success;
+    }
+
+    return ResultStatus::ErrorNotImplemented;
+}
 
 ResultStatus AppLoader_NSP::ReadProgramId(u64& out_program_id) {
     out_program_id = nsp->GetProgramTitleID();

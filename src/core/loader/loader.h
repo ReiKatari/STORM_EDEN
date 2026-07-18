@@ -307,6 +307,17 @@ public:
         return true;
     }
 
+    /**
+     * Get the update version of the application from CNMT
+     *
+     * @param[out] out_version Reference to store the application update version into
+     *
+     * @return ResultStatus result of function
+     */
+    virtual ResultStatus ReadUpdateVersion(u32& out_version) {
+        return ResultStatus::ErrorNotImplemented;
+    }
+
     virtual const FileSys::NCA* GetNCA() const {
         return nullptr;
     }

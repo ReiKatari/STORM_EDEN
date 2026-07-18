@@ -211,9 +211,8 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
                 }
                 
                 if (ver == "1.0.0" || ver == "PACKED") {
-                    auto game_ver = patch_manager.GetGameVersion();
-                    if (game_ver.has_value() && *game_ver != 0) {
-                        u32 v = *game_ver;
+                    u32 v = 0;
+                    if (loader->ReadUpdateVersion(v) == Loader::ResultStatus::Success && v != 0) {
                         std::array<u8, 4> bytes{};
                         bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
                         bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;
@@ -257,9 +256,8 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
         }
 
         if (version == "1.0.0") {
-            auto game_ver = patch_manager.GetGameVersion();
-            if (game_ver.has_value() && *game_ver != 0) {
-                u32 v = *game_ver;
+            u32 v = 0;
+            if (loader.ReadUpdateVersion(v) == Loader::ResultStatus::Success && v != 0) {
                 std::array<u8, 4> bytes{};
                 bytes[0] = static_cast<u8>(v % 0x100); v /= 0x100;
                 bytes[1] = static_cast<u8>(v % 0x100); v /= 0x100;

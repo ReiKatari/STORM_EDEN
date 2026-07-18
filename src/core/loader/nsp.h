@@ -49,6 +49,7 @@ public:
 
     ResultStatus ReadRomFS(FileSys::VirtualFile& out_file) override;
     ResultStatus ReadUpdateRaw(FileSys::VirtualFile& out_file) override;
+    ResultStatus ReadUpdateVersion(u32& out_version) override;
     ResultStatus ReadProgramId(u64& out_program_id) override;
     ResultStatus ReadProgramIds(std::vector<u64>& out_program_ids) override;
     ResultStatus ReadIcon(std::vector<u8>& buffer) override;

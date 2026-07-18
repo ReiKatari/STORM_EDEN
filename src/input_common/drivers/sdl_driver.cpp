@@ -678,12 +678,18 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     // driver on Linux.
     SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_XBOX, "0");
 
+    LOG_INFO(Input, "SDLDriver: start_thread query starting. SDL_WasInit={}", SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD));
     // If the frontend is going to manage the event loop, then we don't start one here
+#ifdef _WIN32
+    start_thread = true;
+#else
     start_thread = SDL_WasInit(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) == 0;
-    if (start_thread && !SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
-        LOG_CRITICAL(Input, "SDL_Init failed with: {}", SDL_GetError());
+#endif
+    if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
+        LOG_CRITICAL(Input, "SDL_InitSubSystem failed with: {}", SDL_GetError());
         return;
     }
+    LOG_INFO(Input, "SDLDriver: SDL_Init succeeded. start_thread={}", start_thread);
 
     SDL_AddEventWatch(&SDLEventWatcher, this);
 
@@ -702,6 +708,7 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     // can just open all the joysticks right here
     int joystick_count = 0;
     SDL_JoystickID* joysticks = SDL_GetJoysticks(&joystick_count);
+    LOG_INFO(Input, "SDLDriver: SDL_GetJoysticks found {} joysticks (pointer={})", joystick_count, (void*)joysticks);
     if (joysticks != nullptr) {
         for (int i = 0; i < joystick_count; ++i) {
             InitJoystick(joysticks[i]);

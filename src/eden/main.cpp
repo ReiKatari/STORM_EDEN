@@ -10,6 +10,10 @@
 #include <csignal>
 #include <cstdlib>
 
+#ifdef _WIN32
+#include <SDL3/SDL.h>
+#endif
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 Q_IMPORT_PLUGIN(QGifPlugin)
 #else
@@ -442,6 +446,7 @@ int main(int argc, char* argv[]) {
 
 #ifdef _WIN32
     QApplication::setStyle(QStringLiteral("windowsvista"));
+    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 #endif
 
     QApplication app(argc, argv);

@@ -71,6 +71,9 @@ class GameAdapter(private val activity: AppCompatActivity) :
 
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
+        holder.itemView.scaleX = 1f
+        holder.itemView.scaleY = 1f
+        holder.itemView.alpha = 1f
         when (getItemViewType(position)) {
             VIEW_TYPE_LIST -> {
                 val listBinding = holder.binding as CardGameListBinding

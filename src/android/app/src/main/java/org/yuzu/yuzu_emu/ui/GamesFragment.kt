@@ -198,6 +198,9 @@ class GamesFragment : Fragment() {
             val savedViewType = if (isLandscape || currentViewType != GameAdapter.VIEW_TYPE_CAROUSEL) currentViewType else GameAdapter.VIEW_TYPE_GRID
 
             //This prevents Grid/List views from reusing scaled or otherwise modified ViewHolders left over from the carousel.
+            if (savedViewType != GameAdapter.VIEW_TYPE_CAROUSEL) {
+                (this as? CarouselRecyclerView)?.setupCarousel(false)
+            }
             adapter = null
             recycledViewPool.clear()
 
@@ -228,8 +231,6 @@ class GamesFragment : Fragment() {
                 doOnNextLayout { //Carousel: important to avoid overlap issues
                     (this as? CarouselRecyclerView)?.notifyLaidOut(fallbackBottomInset)
                 }
-            } else {
-                (this as? CarouselRecyclerView)?.setupCarousel(false)
             }
             adapter = gameAdapter
             lastViewType = savedViewType

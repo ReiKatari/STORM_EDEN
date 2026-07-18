@@ -38,3 +38,11 @@ CMakeLists.txt.user*
 /test_cs.cs
 /test_dp0.bat
 /test_folders.py
+*.zip
+*.apk
+.gradle/
+.cxx/
+build/
+app/build/
+
+

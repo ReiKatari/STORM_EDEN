@@ -89,6 +89,7 @@ android {
                         "-DYUZU_TESTS=OFF",
                         "-DDYNARMIC_TESTS=OFF",
                         "-DENABLE_LTO=OFF",
+                        "-DYUZU_BUILD_PRESET=generic",
                         *extraCMakeArgs.toTypedArray()
                     )
                 )
@@ -190,8 +191,8 @@ android {
             dimension = "version"
             isDefault = true
 
-            manifestPlaceholders += mapOf("appNameBase" to "Eden")
-            resValue("string", "app_name_suffixed", "Eden")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN")
+            resValue("string", "app_name_suffixed", "STORM EDEN")
 
             ndk {
                 abiFilters += listOf("arm64-v8a")
@@ -200,8 +201,8 @@ android {
 
         create("genshinSpoof") {
             dimension = "version"
-            manifestPlaceholders += mapOf("appNameBase" to "Eden Optimized")
-            resValue("string", "app_name_suffixed", "Eden Optimized")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN Optimized")
+            resValue("string", "app_name_suffixed", "STORM EDEN Optimized")
             applicationId = "com.miHoYo.Yuanshen"
 
             externalNativeBuild {
@@ -217,8 +218,8 @@ android {
 
         create("legacy") {
             dimension = "version"
-            manifestPlaceholders += mapOf("appNameBase" to "Eden Legacy")
-            resValue("string", "app_name_suffixed", "Eden Legacy")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN Legacy")
+            resValue("string", "app_name_suffixed", "STORM EDEN Legacy")
             applicationId = "dev.legacy.eden_emulator"
 
             externalNativeBuild {
@@ -240,8 +241,8 @@ android {
 
         create("chromeOS") {
             dimension = "version"
-            manifestPlaceholders += mapOf("appNameBase" to "Eden ChromeOS")
-            resValue("string", "app_name_suffixed", "Eden ChromeOS")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN ChromeOS")
+            resValue("string", "app_name_suffixed", "STORM EDEN ChromeOS")
 
             ndk {
                 abiFilters += listOf("x86_64")
@@ -263,12 +264,12 @@ android {
     }
 
     productFlavors.all {
-        val currentName = manifestPlaceholders["appNameBase"] as? String ?: "Eden"
+        val currentName = manifestPlaceholders["appNameBase"] as? String ?: "STORM EDEN"
         val suffix = if (isNightly) " Nightly" else ""
 
         // apply nightly suffix I/A
         resValue("string", "app_name_suffixed", "$currentName$suffix")
-        resValue("string", "app_name", "Eden$suffix")
+        resValue("string", "app_name", "STORM EDEN$suffix")
     }
 }
 
@@ -364,20 +365,7 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    val gitVersion = runGitCommand(
-        listOf(
-            "git",
-            "describe",
-            "--always",
-            "--long"
-        )
-    ).replace(Regex("(-0)?-[^-]+$"), "")
-    val versionName = if (System.getenv("GITHUB_ACTIONS") != null) {
-        System.getenv("GIT_TAG_NAME") ?: gitVersion
-    } else {
-        gitVersion
-    }
-    return versionName.ifEmpty { "0.0" }
+    return "3.1.4"
 }
 
 afterEvaluate {

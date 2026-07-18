@@ -32,12 +32,12 @@
 #include "network/network.h"
 #include "sdl_config.h"
 #include "video_core/renderer_base.h"
-#include "eden_cmd/emu_window/emu_window_sdl2.h"
+#include "eden_cmd/emu_window/emu_window_sdl3.h"
 #ifdef HAS_OPENGL
-#include "eden_cmd/emu_window/emu_window_sdl2_gl.h"
+#include "eden_cmd/emu_window/emu_window_sdl3_gl.h"
 #endif
-#include "eden_cmd/emu_window/emu_window_sdl2_null.h"
-#include "eden_cmd/emu_window/emu_window_sdl2_vk.h"
+#include "eden_cmd/emu_window/emu_window_sdl3_null.h"
+#include "eden_cmd/emu_window/emu_window_sdl3_vk.h"
 
 #ifdef _WIN32
 // windows.h needs to be included before shellapi.h
@@ -420,20 +420,20 @@ int main(int argc, char** argv) {
 
     LOG_CRITICAL(Frontend, "DEBUG: Checkpoint 2 - After ApplySettings");
 
-    std::unique_ptr<EmuWindow_SDL2> emu_window;
+    std::unique_ptr<EmuWindow_SDL3> emu_window;
     switch (Settings::values.renderer_backend.GetValue()) {
 #ifdef HAS_OPENGL
     case Settings::RendererBackend::OpenGL_GLSL:
     case Settings::RendererBackend::OpenGL_GLASM:
     case Settings::RendererBackend::OpenGL_SPIRV:
-        emu_window = std::make_unique<EmuWindow_SDL2_GL>(&input_subsystem, system, fullscreen);
+        emu_window = std::make_unique<EmuWindow_SDL3_GL>(&input_subsystem, system, fullscreen);
         break;
 #endif
     case Settings::RendererBackend::Vulkan:
-        emu_window = std::make_unique<EmuWindow_SDL2_VK>(&input_subsystem, system, fullscreen);
+        emu_window = std::make_unique<EmuWindow_SDL3_VK>(&input_subsystem, system, fullscreen);
         break;
     case Settings::RendererBackend::Null:
-        emu_window = std::make_unique<EmuWindow_SDL2_Null>(&input_subsystem, system, fullscreen);
+        emu_window = std::make_unique<EmuWindow_SDL3_Null>(&input_subsystem, system, fullscreen);
         break;
     default:
         LOG_CRITICAL(Frontend, "Invalid renderer backend");

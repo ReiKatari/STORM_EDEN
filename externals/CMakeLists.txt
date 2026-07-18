@@ -6,6 +6,7 @@
 
 # TODO(crueter): A lot of this should be moved to the root.
 # otherwise we have to do weird shenanigans with library linking and stuff
+# Or just add a CPMUtil thing to propagate packages
 
 include(CPMUtil)
 
@@ -49,8 +50,8 @@ if (NOT TARGET stb::headers)
     add_library(stb::headers ALIAS stb)
 endif()
 
-# ItaniumDemangle
-if (NOT TARGET LLVM::Demangle)
+# ItaniumDemangle (Windows only)
+if (WIN32 AND NOT TARGET LLVM::Demangle)
     add_library(demangle demangle/ItaniumDemangle.cpp)
     target_include_directories(demangle PUBLIC ./demangle)
     if (NOT MSVC)
@@ -80,6 +81,11 @@ endif()
 # biscuit
 if (ARCHITECTURE_riscv64)
     AddJsonPackage(biscuit)
+endif()
+
+# Lagoon
+if (ARCHITECTURE_loongarch64)
+    AddJsonPackage(lagoon)
 endif()
 
 # Vulkan stuff
@@ -136,8 +142,7 @@ if(ENABLE_CUBEB)
 endif()
 
 if (NOT ANDROID)
-    if (YUZU_USE_EXTERNAL_SDL2)
-        message(STATUS "Using SDL2 from externals.")
+    if (NOT YUZU_USE_BUNDLED_SDL3)
         if (NOT WIN32)
             # Yuzu itself needs: Atomic Audio Events Joystick Haptic Sensor Threads Timers
             # Since 2.0.18 Atomic+Threads required for HIDAPI/libusb (see https://github.com/libsdl-org/SDL/issues/5095)
@@ -158,21 +163,26 @@ if (NOT ANDROID)
             set(SDL_FILE ON)
         endif()
 
-        if ("${YUZU_SYSTEM_PROFILE}" STREQUAL "steamdeck")
-            set(SDL_PIPEWIRE OFF) # build errors out with this on
-            AddJsonPackage("sdl2_steamdeck")
-        else()
-            AddJsonPackage("sdl2_generic")
-        endif()
-    elseif (YUZU_USE_BUNDLED_SDL2)
-        message(STATUS "Using bundled SDL2")
+        AddJsonPackage(sdl3)
+    else()
+        message(STATUS "Using bundled SDL3")
         if (PLATFORM_FREEBSD)
             set(BUILD_SHARED_LIBS ON)
         endif()
-        AddJsonPackage(sdl2)
+        AddJsonPackage(sdl3-ci)
     endif()
 
-    find_package(SDL2 2.26.4 REQUIRED)
+    # Normalize SDL3 link target across package variants.
+    # Some SDL3 packages export only SDL3::SDL3-shared or SDL3::SDL3-static.
+    if (NOT TARGET SDL3::SDL3)
+        if (TARGET SDL3::SDL3-shared)
+            add_library(SDL3::SDL3 ALIAS SDL3::SDL3-shared)
+        elseif (TARGET SDL3::SDL3-static)
+            add_library(SDL3::SDL3 ALIAS SDL3::SDL3-static)
+        else()
+            message(FATAL_ERROR "SDL3 package found, but no usable SDL3 target was exported")
+        endif()
+    endif()
 endif()
 
 set(BUILD_SHARED_LIBS OFF)

@@ -175,14 +175,25 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
     QString out;
     FileSys::VirtualFile update_raw;
     loader.ReadUpdateRaw(update_raw);
+    bool has_update = false;
     for (const auto& patch : patch_manager.GetPatches(update_raw)) {
         const bool is_update = patch.name == "Update";
         if (!updatable && is_update) {
             continue;
         }
+        if (is_update) {
+            has_update = true;
+        }
+
+        std::string patch_name = patch.name;
+        if (patch_name == "Update") {
+            patch_name = "Версия";
+        } else if (patch_name == "DLC") {
+            patch_name = "Дополнения";
+        }
 
         const QString type =
-            QString::fromStdString(patch.enabled ? patch.name : "[D] " + patch.name);
+            QString::fromStdString(patch.enabled ? patch_name : "[D] " + patch_name);
 
         if (patch.version.empty()) {
             out.append(QStringLiteral("%1\n").arg(type));
@@ -234,7 +245,7 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
         }
     }
 
-    if (!out.contains(QStringLiteral("Update"))) {
+    if (!has_update) {
         const auto control = patch_manager.GetControlMetadata();
         std::string control_ver;
         if (control.first != nullptr) {
@@ -271,7 +282,7 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
         }
 
         if (!version.empty() && version != "1.0.0" && version != "1.0") {
-            out.prepend(QStringLiteral("Update (%1)\n").arg(QString::fromStdString(version)));
+            out.prepend(QStringLiteral("Версия (%1)\n").arg(QString::fromStdString(version)));
         }
     }
 

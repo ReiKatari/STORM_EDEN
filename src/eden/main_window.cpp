@@ -184,7 +184,7 @@ static FileSys::VirtualFile VfsDirectoryCreateFileWrapper(const FileSys::Virtual
 #include "video_core/renderer_base.h"
 #include "video_core/shader_notify.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <boost/container/flat_set.hpp>
 
@@ -5890,7 +5890,7 @@ void MainWindow::OnDLCButtonClicked() {
                 dlc_name = item.value(QStringLiteral("name")).toString();
                 dlc_total++;
             } else {
-                dlc_name = QStringLiteral("Unknown DLC [%1]").arg(idStrUpper);
+                dlc_name = QStringLiteral("Неизвестное дополнение [%1]").arg(idStrUpper);
             }
 
             if (installed) dlc_active++;

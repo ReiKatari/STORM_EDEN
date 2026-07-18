@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: 2017 Citra Emulator Project
@@ -25,12 +25,12 @@
 #ifdef ENABLE_LIBUSB
 #include "input_common/drivers/gc_adapter.h"
 #endif
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
 #include "input_common/drivers/joycon.h"
 #include "input_common/drivers/sdl_driver.h"
 #endif
 
-#ifdef ANDROID
+#ifdef __ANDROID__
 #include "input_common/drivers/android.h"
 #endif
 
@@ -85,12 +85,12 @@ struct InputSubsystem::Impl {
         RegisterEngine("cemuhookudp", udp_client);
         RegisterEngine("tas", tas_input);
         RegisterEngine("camera", camera);
-#ifdef ANDROID
+#ifdef __ANDROID__
         RegisterEngine("android", android);
 #endif
         RegisterEngine("virtual_amiibo", virtual_amiibo);
         RegisterEngine("virtual_gamepad", virtual_gamepad);
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         RegisterEngine("sdl", sdl);
         RegisterEngine("joycon", joycon);
 #endif
@@ -119,12 +119,12 @@ struct InputSubsystem::Impl {
         UnregisterEngine(udp_client);
         UnregisterEngine(tas_input);
         UnregisterEngine(camera);
-#ifdef ANDROID
+#ifdef __ANDROID__
         UnregisterEngine(android);
 #endif
         UnregisterEngine(virtual_amiibo);
         UnregisterEngine(virtual_gamepad);
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         UnregisterEngine(sdl);
         UnregisterEngine(joycon);
 #endif
@@ -138,13 +138,13 @@ struct InputSubsystem::Impl {
             Common::ParamPackage{{"display", "Any"}, {"engine", "any"}},
         };
 
-#ifndef ANDROID
+#ifndef __ANDROID__
         auto keyboard_devices = keyboard->GetInputDevices();
         devices.insert(devices.end(), keyboard_devices.begin(), keyboard_devices.end());
         auto mouse_devices = mouse->GetInputDevices();
         devices.insert(devices.end(), mouse_devices.begin(), mouse_devices.end());
 #endif
-#ifdef ANDROID
+#ifdef __ANDROID__
         auto android_devices = android->GetInputDevices();
         devices.insert(devices.end(), android_devices.begin(), android_devices.end());
 #endif
@@ -154,7 +154,7 @@ struct InputSubsystem::Impl {
 #endif
         auto udp_devices = udp_client->GetInputDevices();
         devices.insert(devices.end(), udp_devices.begin(), udp_devices.end());
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         auto joycon_devices = joycon->GetInputDevices();
         devices.insert(devices.end(), joycon_devices.begin(), joycon_devices.end());
         auto sdl_devices = sdl->GetInputDevices();
@@ -176,7 +176,7 @@ struct InputSubsystem::Impl {
         if (engine == mouse->GetEngineName()) {
             return mouse;
         }
-#ifdef ANDROID
+#ifdef __ANDROID__
         if (engine == android->GetEngineName()) {
             return android;
         }
@@ -189,7 +189,7 @@ struct InputSubsystem::Impl {
         if (engine == udp_client->GetEngineName()) {
             return udp_client;
         }
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         if (engine == sdl->GetEngineName()) {
             return sdl;
         }
@@ -261,7 +261,7 @@ struct InputSubsystem::Impl {
         if (engine == mouse->GetEngineName()) {
             return true;
         }
-#ifdef ANDROID
+#ifdef __ANDROID__
         if (engine == android->GetEngineName()) {
             return true;
         }
@@ -280,7 +280,7 @@ struct InputSubsystem::Impl {
         if (engine == virtual_gamepad->GetEngineName()) {
             return true;
         }
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         if (engine == sdl->GetEngineName()) {
             return true;
         }
@@ -294,14 +294,14 @@ struct InputSubsystem::Impl {
     void BeginConfiguration() {
         keyboard->BeginConfiguration();
         mouse->BeginConfiguration();
-#ifdef ANDROID
+#ifdef __ANDROID__
         android->BeginConfiguration();
 #endif
 #ifdef ENABLE_LIBUSB
         gcadapter->BeginConfiguration();
 #endif
         udp_client->BeginConfiguration();
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         sdl->BeginConfiguration();
         joycon->BeginConfiguration();
 #endif
@@ -310,14 +310,14 @@ struct InputSubsystem::Impl {
     void EndConfiguration() {
         keyboard->EndConfiguration();
         mouse->EndConfiguration();
-#ifdef ANDROID
+#ifdef __ANDROID__
         android->EndConfiguration();
 #endif
 #ifdef ENABLE_LIBUSB
         gcadapter->EndConfiguration();
 #endif
         udp_client->EndConfiguration();
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         sdl->EndConfiguration();
         joycon->EndConfiguration();
 #endif
@@ -325,7 +325,7 @@ struct InputSubsystem::Impl {
 
     void PumpEvents() const {
         update_engine->PumpEvents();
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
         sdl->PumpEvents();
 #endif
     }
@@ -350,12 +350,12 @@ struct InputSubsystem::Impl {
     std::shared_ptr<GCAdapter> gcadapter;
 #endif
 
-#ifdef HAVE_SDL2
+#ifdef HAVE_SDL3
     std::shared_ptr<SDLDriver> sdl;
     std::shared_ptr<Joycons> joycon;
 #endif
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     std::shared_ptr<Android> android;
 #endif
 };
@@ -412,7 +412,7 @@ const Camera* InputSubsystem::GetCamera() const {
     return impl->camera.get();
 }
 
-#ifdef ANDROID
+#ifdef __ANDROID__
 Android* InputSubsystem::GetAndroid() {
     return impl->android.get();
 }

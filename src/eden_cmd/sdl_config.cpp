@@ -6,7 +6,7 @@
 
 // SDL will break our main function in eden-cmd if we don't define this before adding SDL.h
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <fstream>
 
 #include "common/logging.h"

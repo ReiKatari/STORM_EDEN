@@ -1152,6 +1152,34 @@ bool Device::GetSuitability(bool requires_swapchain) {
             const u32 version = (raw_version << 3) >> 3;
             is_broken = version < VK_MAKE_API_VERSION(0, 580, 119, 2);
 #endif
+            // Disable VertexInputDynamicState on Pascal and older NVIDIA GPUs
+            // to avoid startup crashes in nvoglv64.dll
+            std::string device_name{properties.properties.deviceName};
+            for (size_t i = 0; i < device_name.length(); ++i) {
+                if (device_name[i] >= 'A' && device_name[i] <= 'Z') {
+                    device_name[i] = device_name[i] - 'A' + 'a';
+                }
+            }
+            if (device_name.find("gtx 10") != std::string::npos ||
+                device_name.find("gtx 9") != std::string::npos ||
+                device_name.find("gtx 8") != std::string::npos ||
+                device_name.find("gtx 7") != std::string::npos ||
+                device_name.find("gtx 6") != std::string::npos ||
+                device_name.find("gt 10") != std::string::npos ||
+                device_name.find("mx1") != std::string::npos ||
+                device_name.find("mx2") != std::string::npos ||
+                device_name.find("mx3") != std::string::npos ||
+                device_name.find("quadro p") != std::string::npos ||
+                device_name.find("quadro m") != std::string::npos ||
+                device_name.find("quadro k") != std::string::npos ||
+                device_name.find("tesla p") != std::string::npos ||
+                device_name.find("tesla m") != std::string::npos ||
+                device_name.find("tesla k") != std::string::npos ||
+                device_name.find("pascal") != std::string::npos ||
+                device_name.find("maxwell") != std::string::npos ||
+                device_name.find("kepler") != std::string::npos) {
+                is_broken = true;
+            }
         }
         if (is_broken) {
             LOG_WARNING(Render_Vulkan, "Disabling broken VK_EXT_vertex_input_dynamic_state");

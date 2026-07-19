@@ -88,7 +88,19 @@ if (PLATFORM_HAIKU)
     set(GLSLANGVALIDATOR "glslang")
 else()
     # Normal sane platform who doesn't have a CRASHING glslangValidator
-    find_program(GLSLANGVALIDATOR "glslangValidator")
+    if (CMAKE_CROSSCOMPILING)
+        set(OLD_CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM})
+        set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    endif()
+
+    find_program(GLSLANGVALIDATOR "glslangValidator" PATHS "${CMAKE_SOURCE_DIR}/tools/glslang/bin" NO_DEFAULT_PATH)
+    if ("${GLSLANGVALIDATOR}" STREQUAL "GLSLANGVALIDATOR-NOTFOUND")
+        find_program(GLSLANGVALIDATOR "glslangValidator")
+    endif()
+
+    if (CMAKE_CROSSCOMPILING)
+        set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ${OLD_CMAKE_FIND_ROOT_PATH_MODE_PROGRAM})
+    endif()
 endif()
 
 if ("${GLSLANGVALIDATOR}" STREQUAL "GLSLANGVALIDATOR-NOTFOUND")

@@ -145,6 +145,7 @@ void ConfigureInputAdvanced::ApplyConfiguration() {
     Settings::values.enable_ir_sensor = ui->enable_ir_sensor->isChecked();
     Settings::values.enable_joycon_driver = ui->enable_joycon_driver->isChecked();
     Settings::values.enable_procon_driver = ui->enable_procon_driver->isChecked();
+    Settings::values.enable_sdl_driver = ui->enable_sdl_driver->isChecked();
     Settings::values.random_amiibo_id = ui->random_amiibo_id->isChecked();
 }
 
@@ -180,6 +181,7 @@ void ConfigureInputAdvanced::LoadConfiguration() {
     ui->enable_ir_sensor->setChecked(Settings::values.enable_ir_sensor.GetValue());
     ui->enable_joycon_driver->setChecked(Settings::values.enable_joycon_driver.GetValue());
     ui->enable_procon_driver->setChecked(Settings::values.enable_procon_driver.GetValue());
+    ui->enable_sdl_driver->setChecked(Settings::values.enable_sdl_driver.GetValue());
     ui->random_amiibo_id->setChecked(Settings::values.random_amiibo_id.GetValue());
 
     UpdateUIEnabled();

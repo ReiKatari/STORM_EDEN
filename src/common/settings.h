@@ -700,6 +700,7 @@ struct Values {
     Setting<bool> controller_navigation{linkage, true, "controller_navigation", Category::Controls};
     Setting<bool> enable_joycon_driver{linkage, true, "enable_joycon_driver", Category::Controls};
     Setting<bool> enable_procon_driver{linkage, false, "enable_procon_driver", Category::Controls};
+    Setting<bool> enable_sdl_driver{linkage, true, "enable_sdl_driver", Category::Controls};
 
     SwitchableSetting<bool> vibration_enabled{linkage, true, "vibration_enabled",
                                               Category::Controls};

@@ -2727,36 +2727,52 @@
                        </property>
                      </widget>
                    </item>
-                   <item row="7" column="0">
-                     <widget class="QCheckBox" name="random_amiibo_id">
-                       <property name="toolTip">
-                         <string>Allows unlimited uses of the same Amiibo in games that would otherwise limit you to one use.</string>
-                       </property>
-                       <property name="minimumSize">
-                         <size>
-                           <width>0</width>
-                           <height>23</height>
-                         </size>
-                       </property>
-                       <property name="text">
-                         <string>Use random Amiibo ID</string>
-                       </property>
-                     </widget>
-                   </item>
-                   <item row="8" column="0">
-                     <widget class="QLabel" name="motion_touch">
-                       <property name="text">
-                         <string>Motion / Touch</string>
-                       </property>
-                     </widget>
-                   </item>
-                   <item row="8" column="2">
-                     <widget class="QPushButton" name="buttonMotionTouch">
-                       <property name="text">
-                         <string>Configure</string>
-                       </property>
-                     </widget>
-                   </item>
+                    <item row="7" column="0">
+                       <widget class="QCheckBox" name="enable_sdl_driver">
+                        <property name="toolTip">
+                          <string>Requires restarting Eden</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>0</width>
+                            <height>23</height>
+                          </size>
+                        </property>
+                        <property name="text">
+                          <string>Enable SDL3 controllers</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="8" column="0">
+                      <widget class="QCheckBox" name="random_amiibo_id">
+                        <property name="toolTip">
+                          <string>Allows unlimited uses of the same Amiibo in games that would otherwise limit you to one use.</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>0</width>
+                            <height>23</height>
+                          </size>
+                        </property>
+                        <property name="text">
+                          <string>Use random Amiibo ID</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="9" column="0">
+                      <widget class="QLabel" name="motion_touch">
+                        <property name="text">
+                          <string>Motion / Touch</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="9" column="2">
+                      <widget class="QPushButton" name="buttonMotionTouch">
+                        <property name="text">
+                          <string>Configure</string>
+                        </property>
+                      </widget>
+                    </item>
                  </layout>
                </widget>
              </item>

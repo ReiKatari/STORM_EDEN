@@ -105,10 +105,6 @@ object InstallableActions {
         result: Uri,
         extension: String = "keys"
     ) {
-        activity.contentResolver.takePersistableUriPermission(
-            result,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
 
         val resultCode = NativeLibrary.installKeys(result.toString(), extension)
         if (resultCode == 0) {

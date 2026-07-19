@@ -119,10 +119,12 @@ class GameFoldersFragment : Fragment() {
     }
 
     private fun processGamesDir(result: Uri) {
-        requireContext().contentResolver.takePersistableUriPermission(
-            result,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
+        try {
+            requireContext().contentResolver.takePersistableUriPermission(
+                result,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (_: SecurityException) {}
 
         val uriString = result.toString()
         val folder = gamesViewModel.folders.value.firstOrNull { it.uriString == uriString }
@@ -140,10 +142,12 @@ class GameFoldersFragment : Fragment() {
     }
 
     private fun processExternalContentDir(result: Uri) {
-        requireContext().contentResolver.takePersistableUriPermission(
-            result,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
+        try {
+            requireContext().contentResolver.takePersistableUriPermission(
+                result,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (_: SecurityException) {}
 
         val uriString = result.toString()
         val folder = gamesViewModel.folders.value.firstOrNull {

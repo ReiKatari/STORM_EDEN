@@ -1136,9 +1136,24 @@ bool Device::GetSuitability(bool requires_swapchain) {
     // Same for NVIDIA Proprietary < 580.119.02, unknown when VIDS was first NOT broken
     // Disable VertexInputDynamicState on old Intel Windows drivers
     if (extensions.vertex_input_dynamic_state) {
-        const u32 version = (properties.properties.driverVersion << 3) >> 3;
-        if ((driver_id == VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS && version < VK_MAKE_API_VERSION(27, 20, 100, 0))
-        || (driver_id == VK_DRIVER_ID_NVIDIA_PROPRIETARY && version < VK_MAKE_API_VERSION(580, 119, 02, 0))) {
+        bool is_broken = false;
+        if (driver_id == VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS) {
+            const u32 version = (properties.properties.driverVersion << 3) >> 3;
+            is_broken = version < VK_MAKE_API_VERSION(0, 27, 20, 100);
+        } else if (driver_id == VK_DRIVER_ID_NVIDIA_PROPRIETARY) {
+            const u32 raw_version = properties.properties.driverVersion;
+#ifdef _WIN32
+            // NVIDIA Windows driver version encoding:
+            // 10 bits major, 8 bits minor, 8 bits subminor, 6 bits patch
+            const u32 major = (raw_version >> 22) & 0x3FF;
+            const u32 minor = (raw_version >> 14) & 0xFF;
+            is_broken = (major < 580) || (major == 580 && minor < 119);
+#else
+            const u32 version = (raw_version << 3) >> 3;
+            is_broken = version < VK_MAKE_API_VERSION(0, 580, 119, 2);
+#endif
+        }
+        if (is_broken) {
             LOG_WARNING(Render_Vulkan, "Disabling broken VK_EXT_vertex_input_dynamic_state");
             RemoveExtensionFeature(extensions.vertex_input_dynamic_state, features.vertex_input_dynamic_state, VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);
         }

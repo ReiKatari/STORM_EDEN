@@ -643,9 +643,11 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     // their desktop environment.
     SDL_SetHint(SDL_HINT_APP_NAME, "Eden");
 
-    // Disable WGI and raw input thread to prevent graphics driver conflicts and Vulkan device loss on Windows
+    // Disable WGI, raw input thread, HIDAPI and correlation to prevent graphics driver conflicts and Vulkan device loss on Windows
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
     SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");
 
     // Disable raw input. When enabled this setting causes SDL to die when a web applet opens
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, Settings::values.enable_raw_input ? "1" : "0");
@@ -776,6 +778,9 @@ Common::Input::DriverResult SDLDriver::SetVibration(
     const PadIdentifier& identifier, const Common::Input::VibrationStatus& vibration) {
     const auto joystick =
         GetSDLJoystickByGUID(identifier.guid.RawString(), static_cast<int>(identifier.port));
+    if (!joystick) {
+        return Common::Input::DriverResult::InvalidParameters;
+    }
     const auto process_amplitude_exp = [](f32 amplitude, f32 factor) {
         return (amplitude + std::pow(amplitude, factor)) * 0.5f * 0xFFFF;
     };
@@ -812,6 +817,9 @@ Common::Input::DriverResult SDLDriver::SetVibration(
 bool SDLDriver::IsVibrationEnabled(const PadIdentifier& identifier) {
     const auto joystick =
         GetSDLJoystickByGUID(identifier.guid.RawString(), static_cast<int>(identifier.port));
+    if (!joystick) {
+        return false;
+    }
 
     static constexpr Common::Input::VibrationStatus test_vibration{
         .low_amplitude = 1,
@@ -869,7 +877,9 @@ void SDLDriver::SendVibrations() {
     for (const auto& vibration : filtered_vibrations) {
         const auto joystick = GetSDLJoystickByGUID(vibration.identifier.guid.RawString(),
                                                    static_cast<int>(vibration.identifier.port));
-        joystick->RumblePlay(vibration.vibration);
+        if (joystick) {
+            joystick->RumblePlay(vibration.vibration);
+        }
     }
 }
 
@@ -952,6 +962,9 @@ ButtonMapping SDLDriver::GetButtonMappingForDevice(const Common::ParamPackage& p
         return {};
     }
     const auto joystick = GetSDLJoystickByGUID(params.Get("guid", ""), params.Get("port", 0));
+    if (!joystick) {
+        return {};
+    }
 
     auto* controller = joystick->GetSDLGameController();
     if (controller == nullptr) {
@@ -974,7 +987,7 @@ ButtonMapping SDLDriver::GetButtonMappingForDevice(const Common::ParamPackage& p
     if (params.Has("guid2")) {
         const auto joystick2 = GetSDLJoystickByGUID(params.Get("guid2", ""), params.Get("port", 0));
 
-        if (joystick2->GetSDLGameController() != nullptr) {
+        if (joystick2 && joystick2->GetSDLGameController() != nullptr) {
             return GetDualControllerMapping(joystick, joystick2, switch_to_sdl_button,
                                             switch_to_sdl_axis);
         }
@@ -1111,6 +1124,9 @@ AnalogMapping SDLDriver::GetAnalogMappingForDevice(const Common::ParamPackage& p
         return {};
     }
     const auto joystick = GetSDLJoystickByGUID(params.Get("guid", ""), params.Get("port", 0));
+    if (!joystick) {
+        return {};
+    }
     const auto joystick2 = GetSDLJoystickByGUID(params.Get("guid2", ""), params.Get("port", 0));
     auto* controller = joystick->GetSDLGameController();
     if (controller == nullptr) {
@@ -1122,6 +1138,9 @@ AnalogMapping SDLDriver::GetAnalogMappingForDevice(const Common::ParamPackage& p
     const auto binding_left_x = GetBindingForAxis(bindings, SDL_GAMEPAD_AXIS_LEFTX);
     const auto binding_left_y = GetBindingForAxis(bindings, SDL_GAMEPAD_AXIS_LEFTY);
     if (params.Has("guid2")) {
+        if (!joystick2) {
+            return {};
+        }
         const auto identifier = joystick2->GetPadIdentifier();
         PreSetController(identifier);
         PreSetAxis(identifier, binding_left_x.input.axis.axis);
@@ -1164,6 +1183,9 @@ MotionMapping SDLDriver::GetMotionMappingForDevice(const Common::ParamPackage& p
         return {};
     }
     const auto joystick = GetSDLJoystickByGUID(params.Get("guid", ""), params.Get("port", 0));
+    if (!joystick) {
+        return {};
+    }
     const auto joystick2 = GetSDLJoystickByGUID(params.Get("guid2", ""), params.Get("port", 0));
     auto* controller = joystick->GetSDLGameController();
     if (controller == nullptr) {
@@ -1178,10 +1200,12 @@ MotionMapping SDLDriver::GetMotionMappingForDevice(const Common::ParamPackage& p
                                  BuildMotionParam(joystick->GetPort(), joystick->GetGUID()));
     }
     if (params.Has("guid2")) {
-        joystick2->EnableMotion();
-        if (joystick2->HasMotion()) {
-            mapping.insert_or_assign(Settings::NativeMotion::MotionLeft,
-                                     BuildMotionParam(joystick2->GetPort(), joystick2->GetGUID()));
+        if (joystick2) {
+            joystick2->EnableMotion();
+            if (joystick2->HasMotion()) {
+                mapping.insert_or_assign(Settings::NativeMotion::MotionLeft,
+                                         BuildMotionParam(joystick2->GetPort(), joystick2->GetGUID()));
+            }
         }
     } else {
         if (joystick->HasMotion()) {

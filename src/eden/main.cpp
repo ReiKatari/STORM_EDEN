@@ -449,6 +449,8 @@ int main(int argc, char* argv[]) {
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
     SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");
 #endif
 
     QApplication app(argc, argv);

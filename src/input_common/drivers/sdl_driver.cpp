@@ -643,6 +643,10 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
     // their desktop environment.
     SDL_SetHint(SDL_HINT_APP_NAME, "Eden");
 
+    // Disable WGI and raw input thread to prevent graphics driver conflicts and Vulkan device loss on Windows
+    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "0");
+
     // Disable raw input. When enabled this setting causes SDL to die when a web applet opens
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, Settings::values.enable_raw_input ? "1" : "0");
 

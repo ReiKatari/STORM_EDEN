@@ -447,6 +447,8 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
     QApplication::setStyle(QStringLiteral("windowsvista"));
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
+    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "0");
 #endif
 
     QApplication app(argc, argv);

@@ -713,16 +713,16 @@ SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_en
 }
 
 SDLDriver::~SDLDriver() {
-    CloseJoysticks();
-    SDL_RemoveEventWatch(&SDLEventWatcher, this);
-
     initialized = false;
-    if (start_thread) {
+    if (vibration_thread.joinable()) {
         vibration_thread.join();
     }
+    SDL_RemoveEventWatch(&SDLEventWatcher, this);
+    CloseJoysticks();
 }
 
 std::vector<Common::ParamPackage> SDLDriver::GetInputDevices() const {
+    std::scoped_lock lock{joystick_map_mutex};
     std::vector<Common::ParamPackage> devices;
     ankerl::unordered_dense::map<int, std::shared_ptr<SDLJoystick>> joycon_pairs;
     for (const auto& [key, value] : joystick_map) {

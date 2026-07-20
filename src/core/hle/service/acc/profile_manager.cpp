@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -52,15 +52,9 @@ constexpr Result ERROR_ARGUMENT_IS_NULL(ErrorModule::Account, 20);
 constexpr char ACC_SAVE_AVATORS_BASE_PATH[] = "system/save/8000000000000010/su/avators";
 
 ProfileManager::ProfileManager() {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "Checkpoint 3.0.1.6: Inside ProfileManager constructor\n";
-//     df.flush();
     ParseUserSaveFile();
 
     {
-//         std::ofstream df2("debug_log.txt", std::ios::app);
-//         df2 << "Checkpoint 3.0.1.6.1: After ParseUserSaveFile\n";
-//         df2.flush();
     }
 
     // Create an user if none are present
@@ -70,17 +64,11 @@ ProfileManager::ProfileManager() {
     }
     
     {
-//         std::ofstream df3("debug_log.txt", std::ios::app);
-//         df3 << "Checkpoint 3.0.1.6.2: End of ProfileManager constructor\n";
-//         df3.flush();
     }
 
     auto current = 0;
 
     {
-//         std::ofstream df4("debug_log.txt", std::ios::app);
-//         df4 << "Checkpoint 3.0.1.6.3: current=" << current << "\n";
-//         df4.flush();
     }
 
     // If user index don't exist. Load the first user and change the active user
@@ -90,17 +78,11 @@ ProfileManager::ProfileManager() {
     }
 
     {
-//         std::ofstream df5("debug_log.txt", std::ios::app);
-//         df5 << "Checkpoint 3.0.1.6.4: before OpenUser\n";
-//         df5.flush();
     }
 
     OpenUser(*GetUser(current));
 
     {
-//         std::ofstream df6("debug_log.txt", std::ios::app);
-//         df6 << "Checkpoint 3.0.1.6.5: after OpenUser\n";
-//         df6.flush();
     }
 }
 
@@ -428,25 +410,16 @@ bool ProfileManager::SetProfileBaseAndData(Common::UUID uuid, const ProfileBase&
 
 void ProfileManager::ParseUserSaveFile() {
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1.6.0.1: Start of ParseUserSaveFile\n";
-//         df.flush();
     }
     const auto save_path(FS::GetEdenPath(FS::EdenPath::NANDDir) / ACC_SAVE_AVATORS_BASE_PATH /
                          "profiles.dat");
 
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1.6.0.2: After save_path construction\n";
-//         df.flush();
     }
 
     const FS::IOFile save(save_path, FS::FileAccessMode::Read, FS::FileType::BinaryFile);
 
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1.6.0.3: After IOFile save construction\n";
-//         df.flush();
     }
 
     if (!save.IsOpen()) {
@@ -477,9 +450,6 @@ void ProfileManager::ParseUserSaveFile() {
     }
 
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1.6.0.4: End of ParseUserSaveFile\n";
-//         df.flush();
     }
 
     std::stable_partition(profiles.begin(), profiles.end(),

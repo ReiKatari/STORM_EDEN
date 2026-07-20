@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2019 yuzu Emulator Project
@@ -169,9 +169,6 @@ json GetHLERequestContextData(Service::HLERequestContext& ctx, Core::Memory::Mem
 namespace Core {
 
 Reporter::Reporter(System& system_) : system(system_) {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "Checkpoint 3.0.1.4: Inside Reporter constructor\n";
-//     df.flush();
     ClearFSAccessLog();
 }
 

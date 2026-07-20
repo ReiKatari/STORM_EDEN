@@ -409,39 +409,25 @@ GameList::GameList(FileSys::VirtualFilesystem vfs_, FileSys::ManualContentProvid
     : QWidget{parent}, vfs{std::move(vfs_)}, provider{provider_},
       play_time_manager{play_time_manager_}, system{system_} {
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList Start\\n"; df.flush(); DumpSettingsInfo("game_list.cpp");
     }
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList before watcher\n"; df.flush();
     }
     watcher = new QFileSystemWatcher(this);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList after watcher\n"; df.flush();
     }
     connect(watcher, &QFileSystemWatcher::directoryChanged, this, &GameList::RefreshGameDirectory);
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList before external_watcher\n"; df.flush();
     }
     external_watcher = new QFileSystemWatcher(this);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList after external_watcher\n"; df.flush();
     }
     ResetExternalWatcher();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList after ResetExternalWatcher\n"; df.flush();
     }
     connect(external_watcher, &QFileSystemWatcher::directoryChanged, this,
             &GameList::RefreshExternalContent);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList After External Watcher\n"; df.flush();
     }
 
     this->main_window = parent;
@@ -452,26 +438,18 @@ GameList::GameList(FileSys::VirtualFilesystem vfs_, FileSys::ManualContentProvid
 
     list_view->setItemDelegate(m_gameCard);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList After basic UI setup\n"; df.flush();
     }
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList Before ControllerNavigation\n"; df.flush();
     }
     controller_navigation = new ControllerNavigation(system.HIDCore(), this);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList After ControllerNavigation\n"; df.flush();
     }
     search_field = new GameListSearchField(this);
     item_model = new QStandardItemModel(tree_view);
     tree_view->setModel(item_model);
     list_view->setModel(item_model);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::GameList After model setup\n"; df.flush();
     }
 
     SetupScrollAnimation();
@@ -1393,23 +1371,17 @@ void GameList::RefreshExternalContent() {
 
 void GameList::ResetExternalWatcher() {
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::ResetExternalWatcher start\n"; df.flush();
     }
     auto watch_dirs = external_watcher->directories();
     if (!watch_dirs.isEmpty()) {
         external_watcher->removePaths(watch_dirs);
     }
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::ResetExternalWatcher before loops, size=" << Settings::values.external_content_dirs.size() << " Addr=" << (void*)&Settings::values << "\n"; df.flush();
     }
     for (const std::string& dir : Settings::values.external_content_dirs) {
         external_watcher->addPath(QString::fromStdString(dir));
     }
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "GameList::ResetExternalWatcher end\n"; df.flush();
     }
 }
 

@@ -110,9 +110,6 @@ FileSys::VirtualFile GetGameFileFromPath(const FileSys::VirtualFilesystem& vfs,
 
 struct DummyLogger {
     DummyLogger(const char* msg) {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << msg << "\n";
-//         df.flush();
     }
 };
 
@@ -125,17 +122,11 @@ struct System::Impl {
 
     void Initialize(System& system) {
         {
-//             std::ofstream df("debug_log.txt", std::ios::app);
-//             df << "Checkpoint 3.1: Inside System::Initialize, before device_memory.emplace()\n";
-//             df.flush();
         }
 
         device_memory.emplace();
 
         {
-//             std::ofstream df("debug_log.txt", std::ios::app);
-//             df << "Checkpoint 3.2: After device_memory.emplace()\n";
-//             df.flush();
         }
 
         is_multicore = Settings::values.use_multi_core.GetValue();
@@ -145,9 +136,6 @@ struct System::Impl {
         core_timing.Initialize([&system]() { system.RegisterHostThread(); });
 
         {
-//             std::ofstream df("debug_log.txt", std::ios::app);
-//             df << "Checkpoint 3.3: After core_timing.Initialize()\n";
-//             df.flush();
         }
 
         // Create a default fs if one doesn't already exist.
@@ -159,9 +147,6 @@ struct System::Impl {
         }
 
         {
-//             std::ofstream df("debug_log.txt", std::ios::app);
-//             df << "Checkpoint 3.4: After FS initialization\n";
-//             df.flush();
         }
 
         // Create default implementations of applets if one is not provided.
@@ -174,9 +159,6 @@ struct System::Impl {
         cpu_manager.SetAsyncGpu(is_async_gpu);
         
         {
-//             std::ofstream df("debug_log.txt", std::ios::app);
-//             df << "Checkpoint 3.5: System::Initialize End\n";
-//             df.flush();
         }
     }
 
@@ -615,27 +597,15 @@ System::System() {
     // The proper crash handler (GlobalCrashHandler) is set in main.cpp.
 
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1: Inside System::System(), before Impl allocation\n";
-//         df.flush();
     }
     try {
         impl = std::make_unique<Impl>(*this);
     } catch (const std::exception& e) {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "EXCEPTION CAUGHT IN Impl allocation: " << e.what() << "\n";
-//         df.flush();
         throw;
     } catch (...) {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "UNKNOWN EXCEPTION CAUGHT IN Impl allocation\n";
-//         df.flush();
         throw;
     }
     {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.2: Inside System::System(), after Impl allocation\n";
-//         df.flush();
     }
 }
 

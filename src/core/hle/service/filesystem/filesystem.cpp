@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -297,9 +297,6 @@ Result VfsDirectoryServiceWrapper::GetFileTimeStampRaw(
 }
 
 FileSystemController::FileSystemController(Core::System& system_) : system{system_} {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "Checkpoint 3.0.1.3: Inside FileSystemController constructor\n";
-//     df.flush();
 }
 
 FileSystemController::~FileSystemController() = default;

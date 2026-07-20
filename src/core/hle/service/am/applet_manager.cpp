@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
@@ -231,9 +231,6 @@ void PushInShowSoftwareKeyboard(Core::System& system, AppletStorageChannel& chan
 } // namespace
 
 AppletManager::AppletManager(Core::System& system) : m_system(system) {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "Checkpoint 3.0.1.5: Inside AppletManager constructor\n";
-//     df.flush();
 }
 AppletManager::~AppletManager() = default;
 

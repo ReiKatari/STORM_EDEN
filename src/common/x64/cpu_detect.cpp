@@ -204,11 +204,19 @@ static CPUCaps Detect() {
         caps.bus_frequency = cpu_id[2];
     }
 
-    // Final safety net: If for ANY reason the frequency is detected as extremely low
-    // (less than 1 GHz) or left at 0 (Zen 5 lacking leaf 0x15), we MUST estimate it, 
-    // otherwise _udiv128 will throw a fatal #DE.
-    if (caps.tsc_frequency < 1000000000ULL) {
+    // Safety net MOVED OUT of the `if (max_std_fn >= 0x15)` block.
+    // On AMD Zen processors (e.g. Ryzen 9000), max_std_fn is typically 0x10 (16) < 0x15,
+    // so the leaf-0x15 block above is skipped entirely and tsc_frequency stays 0.
+    // When that 0 reaches WallClock -> GetFixedPoint64Factor(1e9, freq) -> _udiv128,
+    // it raises #DE -> STATUS_FLOAT_DIVIDE_BY_ZERO (0xC0000095) and crashes on startup.
+    // Estimate the frequency whenever it is missing or implausibly low.
+    if (caps.tsc_frequency == 0 || caps.tsc_frequency < 1000000000ULL) {
         caps.tsc_frequency = X64::EstimateRDTSCFrequency();
+    }
+    // Final fallback: if even the estimate failed (e.g. broken QPC), use nominal 1 GHz.
+    // A wrong-but-nonzero value is always preferable to a hard crash from division by zero.
+    if (caps.tsc_frequency == 0) {
+        caps.tsc_frequency = 1000000000ULL;
     }
 
     return caps;

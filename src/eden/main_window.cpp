@@ -477,13 +477,9 @@ MainWindow::MainWindow(bool has_broken_vulkan)
 
     Common::FS::CreateEdenPaths();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Before config instantiation\n"; df.flush();
     }
     this->config = std::make_unique<QtConfig>();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After config instantiation\n"; df.flush();
     }
 
     if (user_data_migrator.migrated) {
@@ -513,46 +509,30 @@ MainWindow::MainWindow(bool has_broken_vulkan)
     UISettings::RestoreWindowState(config);
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Before system->Initialize()\n"; df.flush();
     }
     QtCommon::system->Initialize();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After system->Initialize(), before Log::Initialize()\n"; df.flush();
     }
 
     Common::Log::Initialize();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After Log::Initialize(), before Log::Start()\n"; df.flush();
     }
     Common::Log::Start();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After Log::Start()\n"; df.flush();
     }
     
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Before LoadTranslation()\n"; df.flush();
     }
     LoadTranslation();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After LoadTranslation()\n"; df.flush();
     }
     FrontendCommon::GenerateSettings();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After GenerateSettings()\n"; df.flush();
     }
 
     setAcceptDrops(true);
     ui->setupUi(this);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After setupUi()\n"; df.flush();
     }
     statusBar()->hide();
 
@@ -565,83 +545,53 @@ MainWindow::MainWindow(bool has_broken_vulkan)
     UpdateUITheme();
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Before SetDiscordEnabled()\n"; df.flush();
     }
     SetDiscordEnabled(UISettings::values.enable_discord_presence.GetValue());
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After SetDiscordEnabled(), before discord_rpc->Update()\n"; df.flush();
     }
     discord_rpc->Update();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After discord_rpc->Update(), before play_time_manager\n"; df.flush();
     }
 
     play_time_manager = std::make_unique<PlayTime::PlayTimeManager>();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After play_time_manager, before Network::Init()\n"; df.flush();
     }
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Before Network::Init()\n"; df.flush();
     }
     Network::Init();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After Network::Init()\n"; df.flush();
     }
 
     QtCommon::Meta::RegisterMetaTypes();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After RegisterMetaTypes()\n"; df.flush();
     }
 
     InitializeWidgets();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After InitializeWidgets()\n"; df.flush();
     }
     InitializeDebugWidgets();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After InitializeDebugWidgets()\n"; df.flush();
     }
     InitializeRecentFileMenuActions();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After InitializeRecentFileMenuActions()\n"; df.flush();
     }
     InitializeHotkeys();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After InitializeHotkeys()\n"; df.flush();
     }
 
     SetDefaultUIGeometry();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After SetDefaultUIGeometry()\n"; df.flush();
     }
     RestoreUIState();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After RestoreUIState()\n"; df.flush();
     }
 
     ConnectMenuEvents();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After ConnectMenuEvents()\n"; df.flush();
     }
     ConnectWidgetEvents();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: After ConnectWidgetEvents()\n"; df.flush();
     }
 
     input_subsystem->ReloadInputDevices();
@@ -1232,42 +1182,27 @@ void MainWindow::InitializeWidgets() {
 DumpSettingsInfo("main_window.cpp");
 DumpSettingsInfo("main_window.cpp");
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: Start\n"; df.flush();
     }
 #ifdef YUZU_ENABLE_COMPATIBILITY_REPORTING
     ui->action_Report_Compatibility->setVisible(true);
 #endif
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: Before GRenderWindow\n"; df.flush();
     }
     render_window = new GRenderWindow(this, emu_thread.get(), input_subsystem, *QtCommon::system);
     render_window->hide();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After GRenderWindow\n"; 
-        df << "MW::InitWidgets: checking pointers: vfs=" << QtCommon::vfs.get()
-           << ", provider=" << QtCommon::provider.get()
-           << ", play_time_manager=" << play_time_manager.get()
-           << ", system=" << QtCommon::system.get() << "\n";
-        df.flush();
     }
 
     game_list = new GameList(QtCommon::vfs, QtCommon::provider.get(), *play_time_manager,
                              *QtCommon::system, this);
     ui->horizontalLayout->addWidget(game_list);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After GameList\n"; df.flush();
     }
 
     game_list_placeholder = new GameListPlaceholder(this);
     ui->horizontalLayout->addWidget(game_list_placeholder);
     game_list_placeholder->setVisible(false);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After GameListPlaceholder\n"; df.flush();
     }
 
     loading_screen = new LoadingScreen(ui->centralwidget);
@@ -1279,23 +1214,17 @@ DumpSettingsInfo("main_window.cpp");
     connect(render_window, &GRenderWindow::FirstFrameDisplayed, loading_screen,
             &LoadingScreen::OnLoadComplete, Qt::QueuedConnection);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After LoadingScreen\n"; df.flush();
     }
 
     multiplayer_state = new MultiplayerState(this, game_list->GetModel(), ui->action_Leave_Room,
                                              ui->action_Show_Room, *QtCommon::system);
     multiplayer_state->setVisible(false);
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After MultiplayerState\n"; df.flush();
     }
 
     // Create status bar
     message_label = new QLabel();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW::InitWidgets: After message_label\n"; df.flush();
     }
     // Configured separately for left alignment
     message_label->setFrameStyle(QFrame::NoFrame);
@@ -5721,8 +5650,6 @@ void MainWindow::OnLanguageChanged(const QString& locale) {
 
 void MainWindow::SetDiscordEnabled([[maybe_unused]] bool state) {
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Inside SetDiscordEnabled(), state=" << state << "\n"; df.flush();
     }
 #ifdef USE_DISCORD_PRESENCE
     if (state) {
@@ -5734,13 +5661,9 @@ void MainWindow::SetDiscordEnabled([[maybe_unused]] bool state) {
     discord_rpc = std::make_unique<DiscordRPC::NullImpl>();
 #endif
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Inside SetDiscordEnabled(), after make_unique\n"; df.flush();
     }
     discord_rpc->Update();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "MW: Inside SetDiscordEnabled(), after Update\n"; df.flush();
     }
 }
 

@@ -182,7 +182,6 @@ extern std::ofstream debug_file;
 
 /// Application entry point
 int main(int argc, char** argv) {
-    debug_file.open("debug_log.txt", std::ios::trunc);
     debug_file << "Checkpoint 0: main() started\n";
     debug_file.flush();
 #ifdef _WIN32
@@ -397,18 +396,12 @@ int main(int argc, char** argv) {
     }
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Checkpoint 3: Before Core::System init\n";
-        df.flush();
     }
 
     Core::System system{};
     system.Initialize();
 
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Checkpoint 4: Core::System initialized successfully\n";
-        df.flush();
     }
 
     InputCommon::InputSubsystem input_subsystem{};

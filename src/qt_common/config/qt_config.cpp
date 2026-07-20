@@ -52,9 +52,6 @@ const std::array<int, 2> QtConfig::default_ringcon_analogs{{
 QtConfig::QtConfig(const std::string& config_name, const ConfigType config_type)
     : Config(config_type) {
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "QT_CONFIG_CPP: Inside constructor start!\n";
-        df.flush();
     }
 
     Initialize(config_name);
@@ -63,9 +60,6 @@ QtConfig::QtConfig(const std::string& config_name, const ConfigType config_type)
         SaveQtValues();
     }
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "QT_CONFIG_CPP: Inside constructor end!\n";
-        df.flush();
     }
 }
 
@@ -253,11 +247,6 @@ void QtConfig::ReadPathValues() {
     }
     EndArray();
     {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "QtConfig::ReadValues external_content_dirs size=" << Settings::values.external_content_dirs.size() 
-           << " sizeof(Values)=" << sizeof(Settings::Values) 
-           << " offset=" << offsetof(Settings::Values, external_content_dirs) 
-           << " addr=" << (void*)&Settings::values << "\n"; df.flush();
     }
 
     ReadCategory(Settings::Category::Paths);

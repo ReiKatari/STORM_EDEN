@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -22,9 +22,6 @@
 namespace Core {
 
 CpuManager::CpuManager(System& system_) : system{system_} {
-//     std::ofstream df("debug_log.txt", std::ios::app);
-//     df << "Checkpoint 3.0.1.2: Inside CpuManager constructor\n";
-//     df.flush();
 }
 CpuManager::~CpuManager() = default;
 

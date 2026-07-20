@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
@@ -81,9 +81,6 @@ struct KernelCore::Impl {
     static inline thread_local ThreadLocalData tls_data = {};
 
     explicit Impl(Core::System& system_, KernelCore& kernel_) : system{system_} {
-//         std::ofstream df("debug_log.txt", std::ios::app);
-//         df << "Checkpoint 3.0.1.1: Inside KernelCore::Impl constructor\n";
-//         df.flush();
         tls_data.lock = true;
     }
 

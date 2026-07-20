@@ -97,11 +97,11 @@ public:
 
         const auto enabled_update = [patch_versions]() -> QString {
             const QStringList lines = patch_versions.split(QLatin1Char('\n'));
-            const QRegularExpression regex{QStringLiteral(R"(^Update.*\((v?[0-9\.]+)\))")};
+            const QRegularExpression regex{QStringLiteral(R"(^(Update|Версия|Version).*\(([^)]+)\))")};
             for (const QString& line : std::as_const(lines)) {
                 const auto match = regex.match(line);
-                if (match.hasMatch() && match.hasCaptured(1))
-                    return QObject::tr("Version: %1").arg(match.captured(1));
+                if (match.hasMatch() && match.hasCaptured(2))
+                    return QObject::tr("Version: %1").arg(match.captured(2));
             }
             return QObject::tr("Version: 1.0.0");
         }();
@@ -130,11 +130,11 @@ public:
 
         const auto enabled_update = [patch_versions]() -> QString {
             const QStringList lines = patch_versions.split(QLatin1Char('\n'));
-            const QRegularExpression regex{QStringLiteral(R"(^Update.*\((v?[0-9\.]+)\))")};
+            const QRegularExpression regex{QStringLiteral(R"(^(Update|Версия|Version).*\(([^)]+)\))")};
             for (const QString& line : std::as_const(lines)) {
                 const auto match = regex.match(line);
-                if (match.hasMatch() && match.hasCaptured(1))
-                    return QObject::tr("Version: %1").arg(match.captured(1));
+                if (match.hasMatch() && match.hasCaptured(2))
+                    return QObject::tr("Version: %1").arg(match.captured(2));
             }
             return QObject::tr("Version: 1.0.0");
         }();

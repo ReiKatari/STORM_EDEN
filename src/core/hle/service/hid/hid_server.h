@@ -263,6 +263,9 @@ private:
     Result IsFirmwareUpdateNeededForNotification(Out<bool> out_is_firmware_update_needed,
                                                  s32 unknown, ClientAppletResourceUserId aruid);
     Result SetTouchScreenResolution(u32 width, u32 height, ClientAppletResourceUserId aruid);
+    Result SetMouseLibraryVersion(u32 version, ClientAppletResourceUserId aruid);
+    Result EnableNpadImu(ClientAppletResourceUserId aruid);
+    Result DisableNpadImu(ClientAppletResourceUserId aruid);
 
     std::shared_ptr<ResourceManager> resource_manager;
     std::shared_ptr<HidFirmwareSettings> firmware_settings;

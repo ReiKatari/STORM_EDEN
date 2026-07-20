@@ -66,6 +66,20 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
+echo Building dedicated_room...
+%MSBUILD% build\src\dedicated_room\eden-room.vcxproj %PARAMS%
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] MSBuild dedicated_room failed!
+    exit /b %ERRORLEVEL%
+)
+
+echo Building eden_room_standalone...
+%MSBUILD% build\src\eden_room_standalone\eden_room_standalone.vcxproj %PARAMS%
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] MSBuild eden_room_standalone failed!
+    exit /b %ERRORLEVEL%
+)
+
 pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"
 if %ERRORLEVEL% neq 0 (
     powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sign_binaries.ps1"

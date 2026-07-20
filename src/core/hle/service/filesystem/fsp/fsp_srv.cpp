@@ -284,9 +284,17 @@ Result FSP_SRV::OpenSaveDataFileSystem(OutInterface<IFileSystem> out_interface,
         id = FileSys::StorageId::NandSystem;
         break;
     case FileSys::SaveDataSpaceId::Temporary:
+        id = FileSys::StorageId::NandUser;
+        break;
     case FileSys::SaveDataSpaceId::ProperSystem:
     case FileSys::SaveDataSpaceId::SafeMode:
-        ASSERT(false);
+        id = FileSys::StorageId::NandSystem;
+        break;
+    default:
+        LOG_WARNING(Service_FS, "Unrecognized SaveDataSpaceId={}, defaulting to NandUser",
+                    space_id);
+        id = FileSys::StorageId::NandUser;
+        break;
     }
 
     *out_interface =
@@ -500,10 +508,16 @@ Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
 
 Result FSP_SRV::OpenPatchDataStorageByCurrentProcess(OutInterface<IStorage> out_interface,
                                                      FileSys::StorageId storage_id, u64 title_id) {
-    LOG_WARNING(Service_FS, "(STUBBED) called with storage_id={:02X}, title_id={:016X}", storage_id,
+    LOG_INFO(Service_FS, "called with storage_id={:02X}, title_id={:016X}", storage_id,
                 title_id);
 
-    R_RETURN(FileSys::ResultTargetNotFound);
+    auto patched_romfs = romfs_controller->OpenPatchedRomFS(title_id, FileSys::ContentRecordType::Data);
+    if (!patched_romfs) {
+        R_RETURN(FileSys::ResultTargetNotFound);
+    }
+
+    *out_interface = std::make_shared<IStorage>(system, std::move(patched_romfs));
+    R_SUCCEED();
 }
 
 Result FSP_SRV::OpenDataStorageWithProgramIndex(OutInterface<IStorage> out_interface,

@@ -73,9 +73,17 @@ VirtualFile RomFSFactory::OpenPatchedRomFSWithProgramIndex(u64 title_id, u8 prog
 }
 
 VirtualFile RomFSFactory::Open(u64 title_id, StorageId storage, ContentRecordType type) const {
-    const std::shared_ptr<NCA> res = GetEntry(title_id, storage, type);
+    std::shared_ptr<NCA> res = GetEntry(title_id, storage, type);
     if (res == nullptr) {
         return nullptr;
+    }
+
+    const u64 base_title_id = GetBaseTitleID(title_id);
+    if (base_title_id != title_id) {
+        auto base_nca_game = GetEntry(base_title_id, storage, type);
+        if (base_nca_game != nullptr) {
+            res = std::make_shared<NCA>(res->GetBaseFile(), base_nca_game.get());
+        }
     }
 
     return res->GetRomFS();

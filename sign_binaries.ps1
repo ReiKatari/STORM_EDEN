@@ -15,7 +15,8 @@ if (-not $cert) {
 Write-Host "Signing binaries..."
 $binaries = @(
     "E:\STORM EDEN\build\bin\Release\eden.exe",
-    "E:\STORM EDEN\build\bin\Release\eden-cli.exe"
+    "E:\STORM EDEN\build\bin\Release\eden-cli.exe",
+    "E:\STORM EDEN\build\bin\Release\eden-room.exe"
 )
 
 foreach ($bin in $binaries) {

@@ -143,8 +143,8 @@ IHidServer::IHidServer(Core::System& system_, std::shared_ptr<ResourceManager> r
         {308, nullptr, "SetSevenSixAxisSensorFusionStrength"},
         {309, nullptr, "GetSevenSixAxisSensorFusionStrength"},
         {310, C<&IHidServer::ResetSevenSixAxisSensorTimestamp>, "ResetSevenSixAxisSensorTimestamp"},
-        {320, nullptr, "EnableNpadImu"}, //21.0.0+
-        {321, nullptr, "DisableNpadImu"}, //21.0.0+
+        {320, C<&IHidServer::EnableNpadImu>, "EnableNpadImu"}, //21.0.0+
+        {321, C<&IHidServer::DisableNpadImu>, "DisableNpadImu"}, //21.0.0+
         {400, C<&IHidServer::IsUsbFullKeyControllerEnabled>, "IsUsbFullKeyControllerEnabled"},
         {401, nullptr, "EnableUsbFullKeyController"},
         {402, nullptr, "IsUsbFullKeyControllerConnected"},
@@ -237,7 +237,7 @@ IHidServer::IHidServer(Core::System& system_, std::shared_ptr<ResourceManager> r
         {3013, nullptr, "SetDebugPadGenericPadMap"}, //21.0.0+
         {3014, nullptr, "GetDebugPadKeyboardMap"}, //21.0.0+
         {3015, nullptr, "SetDebugPadKeyboardMap"}, //21.0.0+
-        {3150, nullptr, "SetMouseLibraryVersion"}, //21.0.0+
+        {3150, C<&IHidServer::SetMouseLibraryVersion>, "SetMouseLibraryVersion"}, //21.0.0+
         // What? -- {12010, nullptr, "SetButtonConfigLeft"},
     };
     // clang-format on
@@ -1497,6 +1497,21 @@ Result IHidServer::SetTouchScreenResolution(u32 width, u32 height,
              aruid.pid);
 
     GetResourceManager()->GetTouchScreen()->SetTouchScreenResolution(width, height, aruid.pid);
+    R_SUCCEED();
+}
+
+Result IHidServer::SetMouseLibraryVersion(u32 version, ClientAppletResourceUserId aruid) {
+    LOG_WARNING(Service_HID, "(STUBBED) called, version={}, applet_resource_user_id={}", version, aruid.pid);
+    R_SUCCEED();
+}
+
+Result IHidServer::EnableNpadImu(ClientAppletResourceUserId aruid) {
+    LOG_WARNING(Service_HID, "(STUBBED) called, applet_resource_user_id={}", aruid.pid);
+    R_SUCCEED();
+}
+
+Result IHidServer::DisableNpadImu(ClientAppletResourceUserId aruid) {
+    LOG_WARNING(Service_HID, "(STUBBED) called, applet_resource_user_id={}", aruid.pid);
     R_SUCCEED();
 }
 

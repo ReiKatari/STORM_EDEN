@@ -100,8 +100,6 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
             return std::make_shared<DiskVfsFile>(cache_path, file->GetName());
         }
 
-        if (!Settings::is_booting) return file;
-
         LOG_INFO(Loader, "NCA: Decompressing solid NCZ NCA ({} bytes) to disk cache...", ncz_file->GetSize());
         if (ncz_file->DecompressSolidTo(cache_path)) {
             LOG_INFO(Loader, "NCA: Solid NCZ NCA decompressed and cached to disk successfully.");
@@ -174,8 +172,7 @@ NCA::NCA(VirtualFile file_, const NCA* base_nca)
     }
 
     const auto content_type = reader->GetContentType();
-    if ((content_type == NcaHeader::ContentType::Program ||
-         content_type == NcaHeader::ContentType::Data) &&
+    if (content_type == NcaHeader::ContentType::Program &&
         !Settings::is_booting) {
         status = Loader::ResultStatus::Success;
         return;

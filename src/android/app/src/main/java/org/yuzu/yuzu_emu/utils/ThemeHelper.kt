@@ -33,14 +33,8 @@ object ThemeHelper {
     fun setTheme(activity: AppCompatActivity) {
         setThemeMode(activity)
         when (Theme.from(IntSetting.THEME.getInt())) {
-            Theme.Default -> activity.setTheme(getSelectedStaticThemeColor())
-            Theme.MaterialYou -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    activity.setTheme(R.style.Theme_Yuzu_Main_MaterialYou)
-                } else {
-                    activity.setTheme(getSelectedStaticThemeColor())
-                }
-            }
+            Theme.StormNight -> activity.setTheme(R.style.Theme_Eden_Main)
+            Theme.StormDay -> activity.setTheme(R.style.Theme_Eden_Main)
         }
 
         // Using a specific night mode check because this could apply incorrectly when using the
@@ -88,12 +82,19 @@ object ThemeHelper {
 
     fun setThemeMode(activity: AppCompatActivity) {
         val themeMode = IntSetting.THEME_MODE.getInt()
-        activity.delegate.localNightMode = themeMode
+        val theme = Theme.from(IntSetting.THEME.getInt())
+        val effectiveMode = when (theme) {
+            Theme.StormNight -> AppCompatDelegate.MODE_NIGHT_YES
+            Theme.StormDay -> AppCompatDelegate.MODE_NIGHT_NO
+            else -> themeMode
+        }
+        
+        activity.delegate.localNightMode = effectiveMode
         val windowController = WindowCompat.getInsetsController(
             activity.window,
             activity.window.decorView
         )
-        when (themeMode) {
+        when (effectiveMode) {
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> when (isNightMode(activity)) {
                 false -> setLightModeSystemBars(windowController)
                 true -> setDarkModeSystemBars(windowController)
@@ -137,10 +138,10 @@ object ThemeHelper {
 }
 
 enum class Theme(val int: Int) {
-    Default(0),
-    MaterialYou(1);
+    StormNight(0),
+    StormDay(1);
 
     companion object {
-        fun from(int: Int): Theme = entries.firstOrNull { it.int == int } ?: Default
+        fun from(int: Int): Theme = entries.firstOrNull { it.int == int } ?: StormNight
     }
 }

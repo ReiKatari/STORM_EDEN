@@ -1059,6 +1059,16 @@
     <string name="change_app_theme">Сменить тему</string>
     <string name="theme_default">По умолчанию</string>
     <string name="theme_material_you">Material You</string>
+    <string name="theme_storm_night">STORM NIGHT</string>
+    <string name="theme_storm_day">STORM DAY</string>
+    <string name="update_tinfoil">Обновить базу Tinfoil</string>
+    <string name="gamebanana_mods">Моды GameBanana</string>
+    <string name="gamebanana_mods_description">Скачать моды напрямую с GameBanana</string>
+    <string name="no_mods_found">Моды для этой игры не найдены.</string>
+    <string name="searching">Поиск...</string>
+    <string name="downloading_mod">Скачивание %1$s...</string>
+    <string name="mod_installed_successfully">Мод успешно установлен!</string>
+    <string name="failed_to_install_mod">Ошибка установки мода.</string>
     <string name="app_settings">Настройки приложения</string>
     <string name="theme_and_color">Тема и цвет</string>
     <string name="fullscreen_mode">Полноэкранный режим</string>

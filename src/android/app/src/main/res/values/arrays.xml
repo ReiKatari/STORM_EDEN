@@ -342,15 +342,17 @@
     </string-array>
 
     <string-array name="themeEntries">
-        <item>@string/theme_default</item>
+        <item>@string/theme_storm_night</item>
+        <item>@string/theme_storm_day</item>
     </string-array>
     <integer-array name="themeValues">
         <item>0</item>
+        <item>1</item>
     </integer-array>
 
     <string-array name="themeEntriesA12">
-        <item>@string/theme_default</item>
-        <item>@string/theme_material_you</item>
+        <item>@string/theme_storm_night</item>
+        <item>@string/theme_storm_day</item>
     </string-array>
     <integer-array name="themeValuesA12">
         <item>0</item>

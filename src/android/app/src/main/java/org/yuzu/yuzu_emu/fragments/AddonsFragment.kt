@@ -28,6 +28,9 @@ import org.yuzu.yuzu_emu.utils.FileUtil.copyFilesTo
 import org.yuzu.yuzu_emu.utils.InstallableActions
 import org.yuzu.yuzu_emu.utils.ViewUtils.updateMargins
 import org.yuzu.yuzu_emu.utils.collect
+import org.yuzu.yuzu_emu.utils.TitleDbManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AddonsFragment : Fragment() {
@@ -65,6 +68,19 @@ class AddonsFragment : Fragment() {
         }
 
         binding.toolbarAddons.title = getString(R.string.addons_game, args.game.title)
+        binding.toolbarAddons.inflateMenu(R.menu.menu_addons)
+        binding.toolbarAddons.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_update_tinfoil -> {
+                    lifecycleScope.launch {
+                        TitleDbManager.init(requireContext())
+                        addonViewModel.refreshAddons(force = true)
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
 
         binding.listAddons.apply {
             layoutManager = LinearLayoutManager(requireContext())

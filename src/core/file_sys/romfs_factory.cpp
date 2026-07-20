@@ -62,9 +62,12 @@ VirtualFile RomFSFactory::OpenPatchedRomFS(u64 title_id, ContentRecordType type)
 
     const u64 base_title_id = GetBaseTitleID(title_id);
     if (base_title_id != title_id) {
-        auto base_nca_game = content_provider.GetEntry(base_title_id, type);
+        auto base_nca_game = content_provider.GetEntry(base_title_id, ContentRecordType::Program);
         if (base_nca_game != nullptr) {
             nca = std::make_unique<NCA>(nca->GetBaseFile(), base_nca_game.get());
+        } else if (base_nca != nullptr &&
+                   (base_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (base_title_id & 0xFFFFFFFFFFFFF000)) {
+            nca = std::make_unique<NCA>(nca->GetBaseFile(), base_nca);
         }
     }
 
@@ -88,9 +91,12 @@ VirtualFile RomFSFactory::Open(u64 title_id, StorageId storage, ContentRecordTyp
 
     const u64 base_title_id = GetBaseTitleID(title_id);
     if (base_title_id != title_id) {
-        auto base_nca_game = GetEntry(base_title_id, storage, type);
+        auto base_nca_game = GetEntry(base_title_id, storage, ContentRecordType::Program);
         if (base_nca_game != nullptr) {
             res = std::make_shared<NCA>(res->GetBaseFile(), base_nca_game.get());
+        } else if (base_nca != nullptr &&
+                   (base_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (base_title_id & 0xFFFFFFFFFFFFF000)) {
+            res = std::make_shared<NCA>(res->GetBaseFile(), base_nca);
         }
     }
 

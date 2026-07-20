@@ -35,7 +35,7 @@ val edenDir = project(":Eden").projectDir
 android {
     namespace = "org.yuzu.yuzu_emu"
 
-    compileSdkVersion = "android-36"
+    compileSdkVersion = "android-35"
     ndkVersion = "28.2.13676358"
 
     val isNightly =
@@ -64,9 +64,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.eden.eden_emulator"
+        applicationId = "dev.eden.storm_eden"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionName = getGitVersion()
         versionCode = autoVersion
 

@@ -403,13 +403,21 @@ Result NcaFsHeaderReader::Initialize(const NcaReader& reader, s32 index) {
     // NCZ HACK: The underlying nsz stream decompresses ciphertext blocks directly to plaintext.
     // We must bypass AesCtrStorage to avoid scrambling the plaintext data.
     auto body = const_cast<NcaReader&>(reader).GetSharedBodyStorage();
-    if (body && body->IsNczFile()) {
-        auto* ncz_file = static_cast<NCZVirtualFile*>(body.get());
-        if (!ncz_file->is_raw_nca && ncz_file->HasDecryptedSections()) {
-            m_data.encryption_type = NcaFsHeader::EncryptionType::None;
+    bool is_decrypted = false;
+    if (body) {
+        if (body->IsNczFile()) {
+            auto* ncz_file = static_cast<NCZVirtualFile*>(body.get());
+            if (!ncz_file->is_raw_nca && ncz_file->HasDecryptedSections()) {
+                is_decrypted = true;
+            }
+        } else if (body->GetName().find(".v2.decompressed_cache") != std::string::npos) {
+            is_decrypted = true;
         }
-        // Do NOT set aes_ctr_ex_size = 0, otherwise BKTR patch handling breaks.
     }
+    if (is_decrypted) {
+        m_data.encryption_type = NcaFsHeader::EncryptionType::None;
+    }
+    // Do NOT set aes_ctr_ex_size = 0, otherwise BKTR patch handling breaks.
 
     R_SUCCEED();
 }

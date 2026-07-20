@@ -256,9 +256,13 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
     bool is_ncz_body = false;
     {
         auto raw_body_check = m_reader->GetSharedBodyStorage();
-        if (raw_body_check && raw_body_check->IsNczFile()) {
-            auto* ncz_file = static_cast<NCZVirtualFile*>(raw_body_check.get());
-            if (ncz_file->HasDecryptedSections()) {
+        if (raw_body_check) {
+            if (raw_body_check->IsNczFile()) {
+                auto* ncz_file = static_cast<NCZVirtualFile*>(raw_body_check.get());
+                if (ncz_file->HasDecryptedSections()) {
+                    is_ncz_body = true;
+                }
+            } else if (raw_body_check->GetName().find(".v2.decompressed_cache") != std::string::npos) {
                 is_ncz_body = true;
             }
         }
@@ -514,7 +518,15 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
     // AES decryption is already skipped for NCZ via is_ncz_body earlier.
     {
         auto raw_body_ncz = m_reader->GetSharedBodyStorage();
-        if (raw_body_ncz && raw_body_ncz->IsNczFile()) {
+        bool is_ncz_or_cache = false;
+        if (raw_body_ncz) {
+            if (raw_body_ncz->IsNczFile()) {
+                is_ncz_or_cache = true;
+            } else if (raw_body_ncz->GetName().find(".v2.decompressed_cache") != std::string::npos) {
+                is_ncz_or_cache = true;
+            }
+        }
+        if (is_ncz_or_cache) {
             switch (out_header_reader->GetHashType()) {
             case NcaFsHeader::HashType::HierarchicalSha256Hash:
             case NcaFsHeader::HashType::HierarchicalSha3256Hash: {

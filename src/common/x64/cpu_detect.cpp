@@ -78,11 +78,6 @@ CPUCaps::Manufacturer CPUCaps::ParseManufacturer(std::string_view brand_string) 
 
 // Detects the various CPU features
 static CPUCaps Detect() {
-    {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Inside Detect() start\n";
-        df.flush();
-    }
     CPUCaps caps = {};
 
     // Assumes the CPU supports the CPUID instruction. Those that don't would likely not support
@@ -107,12 +102,6 @@ static CPUCaps Detect() {
     __cpuid(cpu_id, 0x80000000);
 
     const u32 max_ex_fn = cpu_id[0];
-    
-    {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Inside Detect() before CPU features, max_std_fn: " << max_std_fn << ", max_ex_fn: " << max_ex_fn << "\n";
-        df.flush();
-    }
 
     // Detect family and other miscellaneous features
     if (max_std_fn >= 1) {
@@ -206,12 +195,6 @@ static CPUCaps Detect() {
         } else {
             caps.tsc_frequency = X64::EstimateRDTSCFrequency();
         }
-        
-        // Final safety net: If for ANY reason the frequency is detected as extremely low 
-        // (less than 1 GHz), we MUST estimate it, otherwise _udiv128 will throw a fatal #DE.
-        if (caps.tsc_frequency < 1000000000ULL) {
-            caps.tsc_frequency = X64::EstimateRDTSCFrequency();
-        }
     }
 
     if (max_std_fn >= 0x16) {
@@ -221,26 +204,18 @@ static CPUCaps Detect() {
         caps.bus_frequency = cpu_id[2];
     }
 
-    {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Inside Detect() end\n";
-        df.flush();
+    // Final safety net: If for ANY reason the frequency is detected as extremely low
+    // (less than 1 GHz) or left at 0 (Zen 5 lacking leaf 0x15), we MUST estimate it, 
+    // otherwise _udiv128 will throw a fatal #DE.
+    if (caps.tsc_frequency < 1000000000ULL) {
+        caps.tsc_frequency = X64::EstimateRDTSCFrequency();
     }
+
     return caps;
 }
 
 const CPUCaps& GetCPUCaps() {
-    {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Inside GetCPUCaps() start\n";
-        df.flush();
-    }
     static CPUCaps caps = Detect();
-    {
-        std::ofstream df("debug_log.txt", std::ios::app);
-        df << "Inside GetCPUCaps() after Detect()\n";
-        df.flush();
-    }
     return caps;
 }
 

@@ -8,13 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
 object TitleDbManager {
     private const val TITLEDB_URL = "https://tinfoil.media/repo/db/titles.json"
-    private var jsonObject: JSONObject? = null
     private var isLoaded = false
 
     fun getTitleDbFile(): File {
@@ -35,8 +33,7 @@ object TitleDbManager {
             if (needsDownload) {
                 downloadTitleDb()
             }
-
-            loadFromCache()
+            isLoaded = file.exists() && file.length() > 0L
         }
     }
 
@@ -48,10 +45,14 @@ object TitleDbManager {
         try {
             client.newCall(request).execute().use { response ->
                 if (response.isSuccessful) {
-                    val body = response.body?.string()
-                    if (!body.isNullOrEmpty()) {
+                    val body = response.body
+                    if (body != null) {
                         val file = getTitleDbFile()
-                        file.writeText(body)
+                        body.byteStream().use { input ->
+                            file.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
                     }
                 }
             }
@@ -60,38 +61,43 @@ object TitleDbManager {
         }
     }
 
-    private fun loadFromCache() {
-        val file = getTitleDbFile()
-        if (file.exists() && file.length() > 0) {
-            try {
-                val content = file.readText()
-                jsonObject = JSONObject(content)
-                isLoaded = true
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     fun getDlcName(titleIdHex: String): String? {
-        if (!isLoaded || jsonObject == null) {
-            // Lazy load if not loaded yet
-            try {
-                val file = getTitleDbFile()
-                if (file.exists() && file.length() > 0) {
-                    val content = file.readText()
-                    jsonObject = JSONObject(content)
-                    isLoaded = true
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        val file = getTitleDbFile()
+        if (!file.exists() || file.length() == 0L) {
+            return null
         }
 
-        val obj = jsonObject ?: return null
-        val upperKey = titleIdHex.uppercase()
-        val lowerKey = titleIdHex.lowercase()
-        val item = obj.optJSONObject(upperKey) ?: obj.optJSONObject(lowerKey)
-        return item?.optString("name")
+        val targetKeyUpper = titleIdHex.uppercase()
+        val targetKeyLower = titleIdHex.lowercase()
+
+        try {
+            file.inputStream().bufferedReader().use { reader ->
+                val jsonReader = android.util.JsonReader(reader)
+                jsonReader.beginObject()
+                while (jsonReader.hasNext()) {
+                    val key = jsonReader.nextName()
+                    if (key == targetKeyUpper || key == targetKeyLower) {
+                        jsonReader.beginObject()
+                        var name: String? = null
+                        while (jsonReader.hasNext()) {
+                            val propName = jsonReader.nextName()
+                            if (propName == "name") {
+                                name = jsonReader.nextString()
+                            } else {
+                                jsonReader.skipValue()
+                            }
+                        }
+                        jsonReader.endObject()
+                        return name
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                jsonReader.endObject()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 }

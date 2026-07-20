@@ -1,7 +1,13 @@
 # SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-add_executable(eden_room_standalone eden_room_standalone.cpp)
+if (WIN32)
+    set(EDEN_ROOM_RC "../dedicated_room/eden_room.rc")
+else()
+    set(EDEN_ROOM_RC "")
+endif()
+
+add_executable(eden_room_standalone eden_room_standalone.cpp ${EDEN_ROOM_RC})
 
 set_target_properties(eden_room_standalone PROPERTIES OUTPUT_NAME "eden-room")
 

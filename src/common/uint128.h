@@ -59,6 +59,17 @@ namespace Common {
     const auto base = static_cast<unsigned __int128>(numerator) << 64ULL;
     return static_cast<u64>(base / divisor);
 #elif defined(_M_X64) || defined(_M_ARM64)
+    if (numerator >= divisor) {
+        if (divisor == 0) return 0;
+        const u64 r_val = numerator % divisor;
+        std::array<u64, 2> r = {0, r_val};
+        u64 remainder;
+#if _MSC_VER < 1923
+        return udiv128(r[1], r[0], divisor, &remainder);
+#else
+        return _udiv128(r[1], r[0], divisor, &remainder);
+#endif
+    }
     std::array<u64, 2> r = {0, numerator};
     u64 remainder;
 #if _MSC_VER < 1923

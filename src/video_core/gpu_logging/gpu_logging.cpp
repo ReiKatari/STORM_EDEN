@@ -56,11 +56,6 @@ void GPULogger::Initialize(LogLevel level, DriverType driver) {
     // Open GPU log file
     const auto gpu_log_path = log_dir / "eden_gpu.log";
 
-    // Rotate old log
-    const auto old_log_path = log_dir / "eden_gpu.log.old.txt";
-    RemoveFile(old_log_path);
-    [[maybe_unused]] const bool log_renamed = RenameFile(gpu_log_path, old_log_path);
-
     // Open new log file
     gpu_log_file = std::make_unique<Common::FS::IOFile>(
         gpu_log_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::TextFile);

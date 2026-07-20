@@ -646,7 +646,15 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
         properties.properties.limits.maxVertexInputBindings = 32;
     }
 
-    const auto dyna_state = Settings::values.dyna_state.GetValue();
+    auto dyna_state = Settings::values.dyna_state.GetValue();
+
+    // Workaround for older NVIDIA GPUs (Pascal, Maxwell, Kepler):
+    // Disable all extended dynamic states because their Vulkan drivers are unstable
+    // and trigger VK_ERROR_DEVICE_LOST with dynamic states under complex pipeline workloads.
+    if (is_pascal_or_older_nvidia) {
+        LOG_WARNING(Render_Vulkan, "NVIDIA Pascal/Maxwell/Kepler detected: Disabling Extended Dynamic States for stability");
+        dyna_state = Settings::ExtendedDynamicState::Disabled;
+    }
 
     // Base dynamic states (VIEWPORT, SCISSOR, DEPTH_BIAS, etc.) are ALWAYS active in vk_graphics_pipeline.cpp
     // This slider controls EXTENDED dynamic states with accumulative levels per Vulkan specs:
@@ -1088,6 +1096,37 @@ bool Device::GetSuitability(bool requires_swapchain) {
     // Store base properties
     properties.properties = properties2.properties;
 
+    // Configure is_pascal_or_older_nvidia
+    is_pascal_or_older_nvidia = false;
+    if (properties.driver.driverID == VK_DRIVER_ID_NVIDIA_PROPRIETARY) {
+        std::string device_name{properties.properties.deviceName};
+        for (size_t i = 0; i < device_name.length(); ++i) {
+            if (device_name[i] >= 'A' && device_name[i] <= 'Z') {
+                device_name[i] = device_name[i] - 'A' + 'a';
+            }
+        }
+        if (device_name.find("gtx 10") != std::string::npos ||
+            device_name.find("gtx 9") != std::string::npos ||
+            device_name.find("gtx 8") != std::string::npos ||
+            device_name.find("gtx 7") != std::string::npos ||
+            device_name.find("gtx 6") != std::string::npos ||
+            device_name.find("gt 10") != std::string::npos ||
+            device_name.find("mx1") != std::string::npos ||
+            device_name.find("mx2") != std::string::npos ||
+            device_name.find("mx3") != std::string::npos ||
+            device_name.find("quadro p") != std::string::npos ||
+            device_name.find("quadro m") != std::string::npos ||
+            device_name.find("quadro k") != std::string::npos ||
+            device_name.find("tesla p") != std::string::npos ||
+            device_name.find("tesla m") != std::string::npos ||
+            device_name.find("tesla k") != std::string::npos ||
+            device_name.find("pascal") != std::string::npos ||
+            device_name.find("maxwell") != std::string::npos ||
+            device_name.find("kepler") != std::string::npos) {
+            is_pascal_or_older_nvidia = true;
+        }
+    }
+
     // Unload extensions if feature support is insufficient.
     RemoveUnsuitableExtensions();
 
@@ -1152,32 +1191,7 @@ bool Device::GetSuitability(bool requires_swapchain) {
             const u32 version = (raw_version << 3) >> 3;
             is_broken = version < VK_MAKE_API_VERSION(0, 580, 119, 2);
 #endif
-            // Disable VertexInputDynamicState on Pascal and older NVIDIA GPUs
-            // to avoid startup crashes in nvoglv64.dll
-            std::string device_name{properties.properties.deviceName};
-            for (size_t i = 0; i < device_name.length(); ++i) {
-                if (device_name[i] >= 'A' && device_name[i] <= 'Z') {
-                    device_name[i] = device_name[i] - 'A' + 'a';
-                }
-            }
-            if (device_name.find("gtx 10") != std::string::npos ||
-                device_name.find("gtx 9") != std::string::npos ||
-                device_name.find("gtx 8") != std::string::npos ||
-                device_name.find("gtx 7") != std::string::npos ||
-                device_name.find("gtx 6") != std::string::npos ||
-                device_name.find("gt 10") != std::string::npos ||
-                device_name.find("mx1") != std::string::npos ||
-                device_name.find("mx2") != std::string::npos ||
-                device_name.find("mx3") != std::string::npos ||
-                device_name.find("quadro p") != std::string::npos ||
-                device_name.find("quadro m") != std::string::npos ||
-                device_name.find("quadro k") != std::string::npos ||
-                device_name.find("tesla p") != std::string::npos ||
-                device_name.find("tesla m") != std::string::npos ||
-                device_name.find("tesla k") != std::string::npos ||
-                device_name.find("pascal") != std::string::npos ||
-                device_name.find("maxwell") != std::string::npos ||
-                device_name.find("kepler") != std::string::npos) {
+            if (is_pascal_or_older_nvidia) {
                 is_broken = true;
             }
         }

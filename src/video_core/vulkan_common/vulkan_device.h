@@ -422,6 +422,11 @@ public:
         return is_warp_potentially_bigger;
     }
 
+    /// Returns true if the device is a legacy NVIDIA GPU (Pascal, Maxwell, Kepler).
+    bool IsPascalOrOlderNvidia() const {
+        return is_pascal_or_older_nvidia;
+    }
+
     /// Returns true if the device can be forced to use the guest warp size.
     bool IsGuestWarpSizeSupported(VkShaderStageFlagBits stage) const {
         return properties.subgroup_size_control.requiredSubgroupSizeStages & stage;
@@ -1054,6 +1059,7 @@ private:
     bool is_blit_depth24_stencil8_supported{}; ///< Support for blitting from and to D24S8.
     bool is_blit_depth32_stencil8_supported{}; ///< Support for blitting from and to D32S8.
     bool is_warp_potentially_bigger{};         ///< Host warp size can be bigger than guest.
+    bool is_pascal_or_older_nvidia{};          ///< Legacy NVIDIA GPU (Pascal or older) detected.
     bool is_integrated{};                      ///< Is GPU an iGPU.
     bool is_virtual{};                         ///< Is GPU a virtual GPU.
     bool is_non_gpu{};                         ///< Is SoftwareRasterizer, FPGA, non-GPU device.

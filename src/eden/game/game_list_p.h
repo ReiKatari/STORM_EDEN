@@ -17,6 +17,7 @@
 #include <QRegularExpression>
 #include <QStandardItem>
 #include <QString>
+#include <QBuffer>
 #include <QWidget>
 
 #include "common/common_types.h"
@@ -72,101 +73,142 @@ public:
  * of just the filename (with no extension) will be displayed to the user.
  * If this class receives valid title metadata, it will also display game icons and titles.
  */
+static QString BuildGameTooltip(const QString& game_name, const QString& game_path,
+                                const QString& game_type, u64 program_id, u64 play_time,
+                                const QString& patch_versions, u64 size_bytes, const QPixmap& picture) {
+    QString base64_icon;
+    if (!picture.isNull()) {
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        picture.save(&buffer, "PNG");
+        base64_icon = QString::fromLatin1(ba.toBase64());
+    } else {
+        QPixmap default_pic = GetDefaultIcon(128);
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        default_pic.save(&buffer, "PNG");
+        base64_icon = QString::fromLatin1(ba.toBase64());
+    }
+
+    const auto readable_play_time =
+        play_time > 0 ? QObject::tr("Play Time: %1")
+                            .arg(QString::fromStdString(
+                                PlayTime::PlayTimeManager::GetReadablePlayTime(play_time)))
+                      : QObject::tr("Never Played");
+
+    const auto enabled_update = [patch_versions]() -> QString {
+        const QStringList lines = patch_versions.split(QLatin1Char('\n'));
+        const QRegularExpression regex{QStringLiteral(R"(^(Update|Версия|Version).*\(([^)]+)\))")};
+        for (const QString& line : std::as_const(lines)) {
+            const auto match = regex.match(line);
+            if (match.hasMatch() && match.hasCaptured(2))
+                return match.captured(2);
+        }
+        return QStringLiteral("1.0.0");
+    }();
+
+    QString readable_size = size_bytes > 0 ? ReadableByteSize(size_bytes) : QObject::tr("Unknown Size");
+
+    QStringList dlc_list;
+    const QStringList lines = patch_versions.split(QLatin1Char('\n'));
+    const QRegularExpression dlc_regex{QStringLiteral(R"(^(DLC|Дополнения).*\(([^)]+)\))")};
+    for (const QString& line : std::as_const(lines)) {
+        const auto match = dlc_regex.match(line);
+        if (match.hasMatch() && match.hasCaptured(2)) {
+            dlc_list << match.captured(2);
+        }
+    }
+    QString dlc_str = dlc_list.isEmpty() ? QObject::tr("None") : dlc_list.join(QStringLiteral(", "));
+
+    QString html = QStringLiteral(
+        "<html><body style=\"font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #E0E0E0; background-color: #121214; margin: 0; padding: 0;\">"
+        "<table style=\"border-collapse: collapse; margin: 8px;\" cellpadding=\"8\">"
+        "<tr>"
+        "  <td valign=\"top\" style=\"padding-right: 14px;\">"
+        "    <div style=\"background-color: #1e1e24; border: 2px solid #32323e; border-radius: 12px; padding: 4px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);\">"
+        "      <img src=\"data:image/png;base64,%1\" width=\"112\" height=\"112\" style=\"border-radius: 8px;\" />"
+        "    </div>"
+        "  </td>"
+        "  <td valign=\"top\" style=\"min-width: 280px;\">"
+        "    <div style=\"font-size: 13pt; font-weight: bold; color: #00FFCC; margin-bottom: 6px; line-height: 1.2;\">%2</div>"
+        "    <div style=\"font-family: 'Consolas', monospace; font-size: 9.5pt; color: #8C8C9A; margin-bottom: 8px;\">Title ID: 0x%3</div>"
+        "    <table style=\"font-size: 10pt; color: #D0D0DB;\" cellpadding=\"2\">"
+        "      <tr><td><b>%4:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%5</span></td></tr>"
+        "      <tr><td><b>%6:</b></td><td><span style=\"background-color: #1e2d2f; border: 1px solid #1f5f5b; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #00FFCC;\">%7</span></td></tr>"
+        "      <tr><td><b>%8:</b></td><td>%9</td></tr>"
+        "      <tr><td><b>%10:</b></td><td>%11</td></tr>"
+        "      <tr><td><b>%12:</b></td><td>%13</td></tr>"
+        "    </table>"
+        "  </td>"
+        "</tr>"
+        "</table>"
+        "<div style=\"font-size: 8.5pt; color: #6E6E7A; border-top: 1px solid #222228; padding: 6px 12px; background-color: #0b0b0d; word-break: break-all;\"><b>Path:</b> %14</div>"
+        "</body></html>"
+    )
+    .arg(base64_icon)
+    .arg(game_name.isEmpty() ? QObject::tr("Unknown Title") : game_name)
+    .arg(QString::fromStdString(fmt::format("{:016X}", program_id)))
+    .arg(QObject::tr("Format"))
+    .arg(game_type)
+    .arg(QObject::tr("Version"))
+    .arg(enabled_update)
+    .arg(QObject::tr("Size"))
+    .arg(readable_size)
+    .arg(QObject::tr("Play Time"))
+    .arg(readable_play_time)
+    .arg(QObject::tr("DLCs"))
+    .arg(dlc_str)
+    .arg(game_path);
+
+    return html;
+}
+
 class GameListItemPath : public GameListItem {
 public:
-    static constexpr int TitleRole = SortRole + 1;
-    static constexpr int FullPathRole = SortRole + 2;
+    static constexpr int FullPathRole = SortRole + 1;
+    static constexpr int TitleRole = SortRole + 2;
     static constexpr int ProgramIdRole = SortRole + 3;
     static constexpr int FileTypeRole = SortRole + 4;
 
     GameListItemPath() = default;
     GameListItemPath(const QString& game_path, const QPixmap& picture,
                      const QString& game_name, const QString& game_type, u64 program_id,
-                     u64 play_time, const QString& patch_versions) {
+                     u64 play_time, const QString& patch_versions, u64 size_bytes = 0) {
         setData(type(), TypeRole);
         setData(game_path, FullPathRole);
         setData(game_name, TitleRole);
         setData(qulonglong(program_id), ProgramIdRole);
         setData(game_type, FileTypeRole);
 
-        const auto readable_play_time =
-            play_time > 0 ? QObject::tr("Play Time: %1")
-                                .arg(QString::fromStdString(
-                                    PlayTime::PlayTimeManager::GetReadablePlayTime(play_time)))
-                          : QObject::tr("Never Played");
-
-        const auto enabled_update = [patch_versions]() -> QString {
-            const QStringList lines = patch_versions.split(QLatin1Char('\n'));
-            const QRegularExpression regex{QStringLiteral(R"(^(Update|Версия|Version).*\(([^)]+)\))")};
-            for (const QString& line : std::as_const(lines)) {
-                const auto match = regex.match(line);
-                if (match.hasMatch() && match.hasCaptured(2))
-                    return QObject::tr("Version: %1").arg(match.captured(2));
-            }
-            return QObject::tr("Version: 1.0.0");
-        }();
-
-        const auto title_id_str = QString::fromStdString(fmt::format("Title ID: 0x{:016X}", program_id));
-        const auto format_str = QObject::tr("Format: %1").arg(game_type);
-        const auto tooltip = QStringLiteral("%1\n%2\n%3\n%4").arg(game_name.isEmpty() ? QObject::tr("Unknown Title") : game_name, title_id_str, format_str, QStringLiteral("%1  |  %2").arg(readable_play_time, enabled_update));
-
+        const auto tooltip = BuildGameTooltip(game_name, game_path, game_type, program_id, play_time, patch_versions, size_bytes, picture);
         setData(tooltip, Qt::ToolTipRole);
-        setData(picture, Qt::DecorationRole);
+
+        const u32 icon_size = UISettings::values.game_icon_size.GetValue();
+        QPixmap list_icon = picture.scaled(icon_size, icon_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        setData(list_icon, Qt::DecorationRole);
     }
     GameListItemPath(const QString& game_path, const std::vector<u8>& picture_data,
                      const QString& game_name, const QString& game_type, u64 program_id,
-                     u64 play_time, const QString& patch_versions) {
+                     u64 play_time, const QString& patch_versions, u64 size_bytes = 0) {
         setData(type(), TypeRole);
         setData(game_path, FullPathRole);
         setData(game_name, TitleRole);
         setData(qulonglong(program_id), ProgramIdRole);
         setData(game_type, FileTypeRole);
 
-        const auto readable_play_time =
-            play_time > 0 ? QObject::tr("Play Time: %1")
-                                .arg(QString::fromStdString(
-                                    PlayTime::PlayTimeManager::GetReadablePlayTime(play_time)))
-                          : QObject::tr("Never Played");
-
-        const auto enabled_update = [patch_versions]() -> QString {
-            const QStringList lines = patch_versions.split(QLatin1Char('\n'));
-            const QRegularExpression regex{QStringLiteral(R"(^(Update|Версия|Version).*\(([^)]+)\))")};
-            for (const QString& line : std::as_const(lines)) {
-                const auto match = regex.match(line);
-                if (match.hasMatch() && match.hasCaptured(2))
-                    return QObject::tr("Version: %1").arg(match.captured(2));
-            }
-            return QObject::tr("Version: 1.0.0");
-        }();
-
-        const auto title_id_str = QString::fromStdString(fmt::format("Title ID: 0x{:016X}", program_id));
-        const auto format_str = QObject::tr("Format: %1").arg(game_type);
-        const auto tooltip = QStringLiteral("%1\n%2\n%3\n%4").arg(game_name.isEmpty() ? QObject::tr("Unknown Title") : game_name, title_id_str, format_str, QStringLiteral("%1  |  %2").arg(readable_play_time, enabled_update));
-
-        setData(tooltip, Qt::ToolTipRole);
-
-        const u32 size = UISettings::values.game_icon_size.GetValue();
-
         QPixmap picture;
         if (!picture.loadFromData(picture_data.data(), static_cast<u32>(picture_data.size()))) {
-            if (std::FILE* dbg = std::fopen("debug_log.txt", "a")) {
-                std::fprintf(dbg, "[ICON] loadFromData failed! Size: %zu\n", picture_data.size());
-                if (picture_data.size() > 4) {
-                    std::fprintf(dbg, "[ICON] Magic: %02x %02x %02x %02x\n",
-                                 picture_data[0], picture_data[1], picture_data[2], picture_data[3]);
-                }
-                std::fflush(dbg); std::fclose(dbg);
-            }
-            picture = GetDefaultIcon(size);
-        } else {
-            if (std::FILE* dbg = std::fopen("debug_log.txt", "a")) {
-                std::fprintf(dbg, "[ICON] loadFromData SUCCESS! Size: %zu\n", picture_data.size());
-                std::fflush(dbg); std::fclose(dbg);
-            }
+            picture = GetDefaultIcon(128);
         }
-        picture = picture.scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-        setData(picture, Qt::DecorationRole);
+        const auto tooltip = BuildGameTooltip(game_name, game_path, game_type, program_id, play_time, patch_versions, size_bytes, picture);
+        setData(tooltip, Qt::ToolTipRole);
+
+        const u32 icon_size = UISettings::values.game_icon_size.GetValue();
+        QPixmap list_icon = picture.scaled(icon_size, icon_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        setData(list_icon, Qt::DecorationRole);
     }
 
     int type() const override {

@@ -60,6 +60,14 @@ VirtualFile RomFSFactory::OpenPatchedRomFS(u64 title_id, ContentRecordType type)
         return nullptr;
     }
 
+    const u64 base_title_id = GetBaseTitleID(title_id);
+    if (base_title_id != title_id) {
+        auto base_nca_game = content_provider.GetEntry(base_title_id, type);
+        if (base_nca_game != nullptr) {
+            nca = std::make_unique<NCA>(nca->GetBaseFile(), base_nca_game.get());
+        }
+    }
+
     const PatchManager patch_manager{title_id, filesystem_controller, content_provider};
 
     return patch_manager.PatchRomFS(nca.get(), nca->GetRomFS(), type);

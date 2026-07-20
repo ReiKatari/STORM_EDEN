@@ -312,7 +312,7 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
     u64 play_time = play_time_manager.GetPlayTime(program_id);
     auto list = QList<QStandardItem*>{
         new GameListItemPath(FormatGameName(path), icon, QString::fromStdString(name),
-                             file_type_string, program_id, play_time, patch_versions),
+                             file_type_string, program_id, play_time, patch_versions, size),
         new GameListItem(file_type_string),
         new GameListItemSize(size),
         new GameListItemPlayTime(play_time),

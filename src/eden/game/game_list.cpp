@@ -1706,7 +1706,7 @@ void GameList::LoadCache() {
         QPixmap picture = game_data[9].value<QPixmap>();
 
         auto list = QList<QStandardItem*>{
-            new GameListItemPath(full_path, picture, name, file_type, program_id, play_time, addons),
+            new GameListItemPath(full_path, picture, name, file_type, program_id, play_time, addons, size),
             new GameListItem(file_type),
             new GameListItemSize(size),
             new GameListItemPlayTime(play_time),

@@ -2,9 +2,9 @@
 
 <h1 align="center">
   <br>
-  <img src="./dist/qt_themes/default/icons/256x256/eden.png" alt="STORM EDEN" width="200">
+  <img src="./logo.png" alt="STORM EDEN" width="200">
   <br>
-  <b>STORM EDEN</b>
+  <b>⚡ STORM EDEN</b>
   <br>
 </h1>
 

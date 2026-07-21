@@ -5588,7 +5588,7 @@ void MainWindow::UpdateUITheme() {
             );
         }
         
-        css.append(
+        css.append(QString(
             "QToolTip {\n"
             "    background: transparent;\n"
             "    border: none;\n"
@@ -5596,7 +5596,7 @@ void MainWindow::UpdateUITheme() {
             "    margin: 0px;\n"
             "    opacity: 255;\n"
             "}\n"
-        );
+        ));
 
         qApp->setStyleSheet(css);
         setStyleSheet(css);

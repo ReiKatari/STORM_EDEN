@@ -469,6 +469,7 @@ GameList::GameList(FileSys::VirtualFilesystem vfs_, FileSys::ManualContentProvid
         "QTreeView::branch { border: none; background: transparent; }\n"
         "QHeaderView { border-top: 1px solid palette(mid); border-bottom: 1px solid palette(mid); background: transparent; }\n"
         "QHeaderView::section { font-weight: bold; border: none; border-right: 1px solid palette(mid); border-left: 1px solid palette(mid); padding: 4px; }\n"
+        "QToolTip { background-color: #121214; color: #E0E0E0; border: 1px solid #32323e; border-radius: 4px; padding: 0px; margin: 0px; }\n"
     ));
     tree_view->header()->setDefaultAlignment(Qt::AlignCenter);
     

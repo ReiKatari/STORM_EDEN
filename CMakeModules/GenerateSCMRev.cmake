@@ -15,11 +15,11 @@ endfunction()
 get_timestamp(BUILD_DATE)
 
 if (DEFINED GIT_RELEASE)
-    set(BUILD_VERSION "3.1.7")
+    set(BUILD_VERSION "3.1.8")
     set(GIT_REFSPEC "${GIT_RELEASE}")
     set(IS_DEV_BUILD false)
 else()
-    set(BUILD_VERSION "3.1.7")
+    set(BUILD_VERSION "3.1.8")
     set(IS_DEV_BUILD true)
 endif()
 

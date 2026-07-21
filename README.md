@@ -8,6 +8,14 @@
   <br>
 </h1>
 
+<div align="center">
+  <a href="https://github.com/ReiKatari/STORM_EDEN"><img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20Android-blue?style=flat-spec" alt="Platform"></a>
+  <a href="https://qt.io"><img src="https://img.shields.io/badge/framework-Qt%206.9-purple?style=flat-spec" alt="Framework"></a>
+  <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/language-C%2B%2B%2020-green?style=flat-spec" alt="Language"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-GPL--3.0-orange?style=flat-spec" alt="License"></a>
+</div>
+<br>
+
 <h4 align="center"><b>STORM EDEN</b> — это оптимизированный эмулятор Nintendo Switch с открытым исходным кодом. Представляет собой модифицированную версию проекта <b>Eden</b> (форк <b>Yuzu</b> и <b>Sudachi</b>) с улучшенной производительностью, полной локализацией и встроенными инструментами фонового управления дополнениями.</h4>
 
 ---
@@ -52,6 +60,17 @@
 ### 7. Переход на SDL3 и исправление детекции геймпадов (КРИТИЧНО)
 * **Переход на SDL3**: Выполнен полный переход подсистемы ввода, звука и консольного лаунчера на **SDL3** (заменены библиотеки `sdl2` -> `sdl3` / `sdl3-ci`).
 * **Исправление детекции геймпадов**: Полностью решена проблема, при которой STORM EDEN на Windows вообще не определял геймпады (включая Nintendo Switch Pro Controller) даже при закрытом Steam. Благодаря нативной обработке устройств в SDL3 геймпады теперь определяются мгновенно и без дополнительных прослоек.
+
+---
+
+## 🆚 Чего нет в STORM EDEN (Что есть в оригинальном Eden)
+
+Некоторые недавние обновления и рефакторинг из оригинального репозитория `Eden` еще не были перенесены в **STORM EDEN** во избежание нарушения стабильности и совместимости:
+1. **Глобальный рефакторинг Vulkan**: Крупные переработки буферов и кэширования (3rd Vulkan Global Maintenance).
+2. **Форматы ASTC HDR**: Расширенная поддержка текстур ASTC HDR.
+3. **Обновленные константы прошивок**: Последние ключи для прошивок 22.5.0.
+4. **Android MediaCodec**: Новая реализация аппаратного декодирования видео на Android.
+5. **Рефакторинг кода**: Переработка `BitField` и `BitUtil` на современные концепты C++.
 
 ---
 

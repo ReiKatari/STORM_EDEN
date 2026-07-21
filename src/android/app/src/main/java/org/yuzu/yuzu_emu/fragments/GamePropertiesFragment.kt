@@ -358,18 +358,6 @@ class GamePropertiesFragment : Fragment() {
                         }
                     )
                 )
-                
-                add(
-                    SubmenuProperty(
-                        R.string.gamebanana_mods,
-                        R.string.gamebanana_mods_description,
-                        R.drawable.ic_download,
-                        action = {
-                            GameBananaDialogFragment.newInstance(args.game.title, args.game.addonDir)
-                                .show(parentFragmentManager, GameBananaDialogFragment.TAG)
-                        }
-                    )
-                )
             }
 
             if (GpuDriverHelper.supportsCustomDriverLoading()) {

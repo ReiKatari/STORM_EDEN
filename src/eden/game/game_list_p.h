@@ -123,8 +123,10 @@ static QString BuildGameTooltip(const QString& game_name, const QString& game_pa
     QString dlc_str = dlc_list.isEmpty() ? QObject::tr("None") : dlc_list.join(QStringLiteral(", "));
 
     QString html = QStringLiteral(
-        "<html><body style=\"font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #E0E0E0; background-color: #121214; margin: 0; padding: 0;\">"
-        "<table style=\"border-collapse: collapse; margin: 8px;\" cellpadding=\"8\">"
+        "<html><body style=\"margin: 0; padding: 0;\">"
+        "<table width=\"100%\" height=\"100%\" bgcolor=\"#121214\" style=\"border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #E0E0E0;\" cellpadding=\"8\">"
+        "<tr><td>"
+        "<table style=\"border-collapse: collapse; margin: 0px;\" cellpadding=\"8\">"
         "<tr>"
         "  <td valign=\"top\" style=\"padding-right: 14px;\">"
         "    <div style=\"background-color: #1e1e24; border: 2px solid #32323e; border-radius: 12px; padding: 4px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);\">"
@@ -145,6 +147,7 @@ static QString BuildGameTooltip(const QString& game_name, const QString& game_pa
         "</tr>"
         "</table>"
         "<div style=\"font-size: 8.5pt; color: #6E6E7A; border-top: 1px solid #222228; padding: 6px 12px; background-color: #0b0b0d; word-break: break-all;\"><b>Path:</b> %14</div>"
+        "</td></tr></table>"
         "</body></html>"
     )
     .arg(base64_icon)

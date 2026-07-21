@@ -5588,6 +5588,16 @@ void MainWindow::UpdateUITheme() {
             );
         }
         
+        css.append(
+            "QToolTip {\n"
+            "    background: transparent;\n"
+            "    border: none;\n"
+            "    padding: 0px;\n"
+            "    margin: 0px;\n"
+            "    opacity: 255;\n"
+            "}\n"
+        );
+
         qApp->setStyleSheet(css);
         setStyleSheet(css);
     } else {

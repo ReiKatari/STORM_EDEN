@@ -5588,7 +5588,7 @@ void MainWindow::UpdateUITheme() {
             );
         }
         
-        css.append(QString(
+        css.append(QString::fromUtf8(
             "QToolTip {\n"
             "    background: transparent;\n"
             "    border: none;\n"

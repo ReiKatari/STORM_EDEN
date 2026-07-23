@@ -307,20 +307,26 @@ struct Values {
     Setting<bool> cpuopt_ignore_memory_aborts{linkage, true, "cpuopt_ignore_memory_aborts",
                                               Category::CpuDebug};
 
-    SwitchableSetting<bool> cpuopt_unsafe_host_mmu{linkage, false, "cpuopt_unsafe_host_mmu",
+    SwitchableSetting<bool> cpuopt_unsafe_host_mmu{linkage,
+#if !defined(__APPLE__) && !defined(__linux__) && !defined(__ANDROID__) && !defined(_WIN32)
+                                        false,
+#else
+                                        true,
+#endif
+                                        "cpuopt_unsafe_host_mmu",
                                         Category::CpuUnsafe};
-    SwitchableSetting<bool> cpuopt_unsafe_unfuse_fma{linkage, false, "cpuopt_unsafe_unfuse_fma",
+    SwitchableSetting<bool> cpuopt_unsafe_unfuse_fma{linkage, true, "cpuopt_unsafe_unfuse_fma",
                                                      Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_reduce_fp_error{
-                                                          linkage, false, "cpuopt_unsafe_reduce_fp_error", Category::CpuUnsafe};
+                                                          linkage, true, "cpuopt_unsafe_reduce_fp_error", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_standard_fpcr{
-                                                                linkage, false, "cpuopt_unsafe_ignore_standard_fpcr", Category::CpuUnsafe};
+                                                               linkage, true, "cpuopt_unsafe_ignore_standard_fpcr", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_inaccurate_nan{
-                                                         linkage, false, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
+                                                         linkage, true, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_fastmem_check{
-                                                        linkage, false, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
+                                                        linkage, true, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_global_monitor{
-                                                                linkage, false, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
+                                                                linkage, true, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
 
     // Renderer
     SwitchableSetting<RendererBackend, true> renderer_backend{linkage,
@@ -330,7 +336,7 @@ struct Values {
         RendererBackend::Vulkan,
 #endif
         "backend", Category::Renderer};
-    SwitchableSetting<int> vulkan_device{linkage, 0, "vulkan_device", Category::Renderer, Specialization::RuntimeList};
+    SwitchableSetting<u32> vulkan_device{linkage, 0, "vulkan_device", Category::Renderer, Specialization::RuntimeList};
 
     // Graphics Settings
     ResolutionScalingInfo resolution_info{};
@@ -345,8 +351,6 @@ struct Values {
                                                   true,
                                                   true};
 
-    SwitchableSetting<bool, true> anti_flicker{linkage, false, "anti_flicker", Category::Renderer};
-
     SwitchableSetting<ScalingFilter> scaling_filter{linkage,
                                                     ScalingFilter::Bilinear,
                                                     "scaling_filter",
@@ -355,7 +359,7 @@ struct Values {
                                                     true,
                                                     true};
     SwitchableSetting<int, true> fsr_sharpening_slider{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                        0,
 #else
                                                        25,
@@ -413,10 +417,10 @@ struct Values {
                                          linkage, 0, "bg_blue", Category::Renderer, Specialization::Default, true, true};
 
     SwitchableSetting<GpuAccuracy, true> gpu_accuracy{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                       GpuAccuracy::Low,
 #else
-                                                      GpuAccuracy::Medium,
+                                                      GpuAccuracy::High,
 #endif
                                                       "gpu_accuracy",
                                                       Category::RendererAdvanced,
@@ -424,7 +428,7 @@ struct Values {
                                                       true,
                                                       true};
 
-    GpuAccuracy current_gpu_accuracy{GpuAccuracy::Medium};
+    GpuAccuracy current_gpu_accuracy{GpuAccuracy::High};
 
     SwitchableSetting<DmaAccuracy, true> dma_accuracy{linkage,
                                                       DmaAccuracy::Default,
@@ -433,6 +437,16 @@ struct Values {
                                                       Specialization::Default,
                                                       true,
                                                       true};
+
+    SwitchableSetting<GpuFenceBehavior, true> gpu_fence_behavior{linkage,
+                                                                 GpuFenceBehavior::Default,
+                                                                 GpuFenceBehavior::Default,
+                                                                 GpuFenceBehavior::Strict,
+                                                                 "gpu_fence_behavior",
+                                                                 Category::RendererAdvanced,
+                                                                 Specialization::Default,
+                                                                 true,
+                                                                 true};
 
     SwitchableSetting<VramUsageMode, true> vram_usage_mode{linkage,
                                                            VramUsageMode::Conservative,
@@ -443,7 +457,7 @@ struct Values {
                                                       "nvdec_emulation", Category::RendererAdvanced};
 
     SwitchableSetting<AnisotropyMode, true> max_anisotropy{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                            AnisotropyMode::Default,
 #else
                                                            AnisotropyMode::Automatic,
@@ -496,7 +510,7 @@ struct Values {
                                                 Category::RendererAdvanced};
 
     SwitchableSetting<bool> use_reactive_flushing{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                   false,
 #else
                                                   true,
@@ -515,7 +529,7 @@ struct Values {
                                                   true,
                                                   true};
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     SwitchableSetting<bool> use_optimized_vertex_buffers{linkage,
                                                  false,
                                                  "use_optimized_vertex_buffers",
@@ -542,7 +556,7 @@ struct Values {
                                                         true,
                                                         true};
     SwitchableSetting<bool> async_presentation{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                false,
 #else
                                                false,
@@ -562,6 +576,13 @@ struct Values {
         false,
 #endif
         "rescale_hack", Category::RendererHacks};
+    SwitchableSetting<bool> enable_gpu_buffer_readback{linkage,
+                                                       false,
+                                                       "enable_gpu_buffer_readback",
+                                                       Category::RendererAdvanced,
+                                                       Specialization::Default,
+                                                       true,
+                                                       true};
 
     SwitchableSetting<bool> use_asynchronous_shaders{linkage, false, "use_asynchronous_shaders",
                                                      Category::RendererHacks};
@@ -588,7 +609,7 @@ struct Values {
                                                   Category::RendererHacks};
 
     SwitchableSetting<ExtendedDynamicState> dyna_state{linkage,
-#if defined(ANDROID)
+#if defined(__ANDROID__)
                                            ExtendedDynamicState::Disabled,
 #elif defined(__APPLE__)
                                            ExtendedDynamicState::Disabled,
@@ -607,7 +628,7 @@ struct Values {
                                                 Specialization::Scalar};
 
     SwitchableSetting<bool> vertex_input_dynamic_state{linkage,
-#if defined (ANDROID)
+#ifdef __ANDROID__
                                                        false,
 #else
                                                        true,
@@ -623,7 +644,7 @@ struct Values {
                                                     linkage, false, "disable_shader_loop_safety_checks", Category::RendererDebug};
     Setting<bool> enable_renderdoc_hotkey{linkage, false, "renderdoc_hotkey",
                                           Category::RendererDebug};
-#if defined(ANDROID) && defined(ARCHITECTURE_arm64)
+#if defined(__ANDROID__) && defined(ARCHITECTURE_arm64)
     // Debug override for automatic BCn patching detection
     Setting<bool> patch_old_qcom_drivers{linkage, false, "patch_old_qcom_drivers",
                                          Category::RendererDebug};
@@ -650,8 +671,8 @@ struct Values {
                                       false,   true, &custom_rtc_enabled};
     SwitchableSetting<s64, true> custom_rtc_offset{linkage,
                                                    0,
-                                                   (std::numeric_limits<int>::min)(),
-                                                   (std::numeric_limits<int>::max)(),
+                                                   (std::numeric_limits<s64>::min)(),
+                                                   (std::numeric_limits<s64>::max)(),
                                                    "custom_rtc_offset",
                                                    Category::System,
                                                    Specialization::Countable,
@@ -668,7 +689,7 @@ struct Values {
     Setting<s32> current_user{linkage, 0, "current_user", Category::System};
 
     SwitchableSetting<ConsoleMode> use_docked_mode{linkage,
-#ifdef ANDROID
+#ifdef __ANDROID__
                                                    ConsoleMode::Handheld,
 #else
                                                    ConsoleMode::Docked,
@@ -694,7 +715,6 @@ struct Values {
     Setting<bool> controller_navigation{linkage, true, "controller_navigation", Category::Controls};
     Setting<bool> enable_joycon_driver{linkage, true, "enable_joycon_driver", Category::Controls};
     Setting<bool> enable_procon_driver{linkage, false, "enable_procon_driver", Category::Controls};
-    Setting<bool> enable_sdl_driver{linkage, true, "enable_sdl_driver", Category::Controls};
 
     SwitchableSetting<bool> vibration_enabled{linkage, true, "vibration_enabled",
                                               Category::Controls};
@@ -741,7 +761,7 @@ struct Values {
 
     Setting<std::string> touch_device{linkage, "min_x:100,min_y:50,max_x:1800,max_y:850",
                                       "touch_device", Category::Controls};
-    Setting<int> touch_from_button_map_index{linkage, 0, "touch_from_button_map",
+    Setting<u32> touch_from_button_map_index{linkage, 0, "touch_from_button_map",
                                              Category::Controls};
     std::vector<TouchFromButtonMap> touch_from_button_maps;
 
@@ -769,11 +789,17 @@ struct Values {
     bool record_frame_times;
     Setting<bool> use_gdbstub{linkage, false, "use_gdbstub", Category::Debugging};
     Setting<u16> gdbstub_port{linkage, 6543, "gdbstub_port", Category::Debugging};
-    Setting<std::string> program_args{linkage, std::string(), "program_args", Category::Debugging};
+    SwitchableSetting<std::string> program_args{linkage,
+                                                std::string(),
+                                                "program_args",
+                                                Category::System,
+                                                Specialization::Default,
+                                                true,    // save_ - persist in config file
+                                                false};  // runtime_modifiable_ - startup-only
     Setting<bool> dump_exefs{linkage, false, "dump_exefs", Category::Debugging};
     Setting<bool> dump_nso{linkage, false, "dump_nso", Category::Debugging};
-    Setting<bool> dump_shaders{
-                               linkage, false, "dump_shaders", Category::DebuggingGraphics, Specialization::Default,
+    Setting<bool> dump_guest_shaders{
+                               linkage, false, "dump_guest_shaders", Category::DebuggingGraphics, Specialization::Default,
                                false};
     Setting<bool> dump_macros{
                               linkage, false, "dump_macros", Category::DebuggingGraphics, Specialization::Default, false};
@@ -797,9 +823,8 @@ struct Values {
     Setting<bool> disable_web_applet{linkage, true, "disable_web_applet", Category::Debugging};
 
     // GPU Logging
-    Setting<bool> gpu_logging_enabled{linkage, false, "gpu_logging_enabled", Category::Debugging};
-    SwitchableSetting<GpuLogLevel> gpu_log_level{linkage, GpuLogLevel::Standard, "gpu_log_level",
-                                                   Category::Debugging};
+    Setting<GpuLogLevel> gpu_log_level{linkage, GpuLogLevel::Off, "gpu_log_level",
+                                       Category::Debugging};
     Setting<bool> gpu_log_vulkan_calls{linkage, true, "gpu_log_vulkan_calls", Category::Debugging};
     Setting<bool> gpu_log_shader_dumps{linkage, false, "gpu_log_shader_dumps", Category::Debugging};
     Setting<bool> gpu_log_memory_tracking{linkage, true, "gpu_log_memory_tracking",
@@ -849,16 +874,24 @@ extern Values values;
 bool getDebugKnobAt(u8 i);
 
 void UpdateGPUAccuracy();
-bool IsGPULevelLow();
-bool IsGPULevelMedium();
 bool IsGPULevelHigh();
 
 bool IsDMALevelDefault();
 bool IsDMALevelSafe();
 
+bool IsGPUFenceBehaviorDefault();
+bool IsGPUFenceBehaviorBalanced();
+bool IsGPUFenceBehaviorAccurate();
+bool IsGPUFenceBehaviorStrict();
+
 bool IsFastmemEnabled();
 void SetNceEnabled(bool is_64bit);
 bool IsNceEnabled();
+
+void SetCurrentProgramID(u64 program_id);
+u64 GetCurrentProgramID();
+
+bool IsOpenGL();
 
 bool IsDockedMode();
 
@@ -883,7 +916,5 @@ void RestoreGlobalState(bool is_powered_on);
 
 bool IsConfiguringGlobal();
 void SetConfiguringGlobal(bool is_global);
-
-extern bool is_booting;
 
 } // namespace Settings

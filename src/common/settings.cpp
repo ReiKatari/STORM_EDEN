@@ -17,7 +17,6 @@
 #include <string_view>
 #include <type_traits>
 #include <deque>
-#include <fstream>
 #include <fmt/core.h>
 
 #include "common/settings_enums.h"
@@ -31,11 +30,6 @@
 #if defined(__linux__ ) && defined(ARCHITECTURE_arm64)
 #include <unistd.h>
 #endif
-
-namespace Settings {
-template<> bool EnumMetadata<bool>::GetFirst() { return false; }
-template<> bool EnumMetadata<bool>::GetLast() { return true; }
-}
 
 namespace Settings {
 
@@ -60,7 +54,6 @@ SWITCHABLE(CpuBackend, true);
 SWITCHABLE(CpuAccuracy, true);
 SWITCHABLE(FullscreenMode, true);
 SWITCHABLE(GpuAccuracy, true);
-SWITCHABLE(GpuLogLevel, true);
 SWITCHABLE(Language, true);
 SWITCHABLE(MemoryLayout, true);
 SWITCHABLE(NvdecEmulation, false);
@@ -88,7 +81,6 @@ SWITCHABLE(ConfirmStop, true);
 #endif
 
 Values values;
-bool is_booting = false;
 
 std::string GetTimeZoneString(TimeZone time_zone) {
     const auto time_zone_index = static_cast<std::size_t>(time_zone);
@@ -164,14 +156,6 @@ void UpdateGPUAccuracy() {
     values.current_gpu_accuracy = values.gpu_accuracy.GetValue();
 }
 
-bool IsGPULevelLow() {
-    return values.current_gpu_accuracy == GpuAccuracy::Low;
-}
-
-bool IsGPULevelMedium() {
-    return values.current_gpu_accuracy == GpuAccuracy::Medium;
-}
-
 bool IsGPULevelHigh() {
     return values.current_gpu_accuracy == GpuAccuracy::High;
 }
@@ -182,6 +166,22 @@ bool IsDMALevelDefault() {
 
 bool IsDMALevelSafe() {
     return values.dma_accuracy.GetValue() == DmaAccuracy::Safe;
+}
+
+bool IsGPUFenceBehaviorDefault() {
+    return values.gpu_fence_behavior.GetValue() == GpuFenceBehavior::Default;
+}
+
+bool IsGPUFenceBehaviorBalanced() {
+    return values.gpu_fence_behavior.GetValue() == GpuFenceBehavior::Balanced;
+}
+
+bool IsGPUFenceBehaviorAccurate() {
+    return values.gpu_fence_behavior.GetValue() == GpuFenceBehavior::Accurate;
+}
+
+bool IsGPUFenceBehaviorStrict() {
+    return values.gpu_fence_behavior.GetValue() == GpuFenceBehavior::Strict;
 }
 
 bool IsFastmemEnabled() {
@@ -218,6 +218,16 @@ void SetNceEnabled(bool is_39bit) {
 
 bool IsNceEnabled() {
     return is_nce_enabled;
+}
+
+static u64 current_program_id = 0;
+
+void SetCurrentProgramID(u64 program_id) {
+    current_program_id = program_id;
+}
+
+u64 GetCurrentProgramID() {
+    return current_program_id;
 }
 
 bool IsDockedMode() {
@@ -442,5 +452,16 @@ void ToggleSlowMode() {
         SetSpeedMode(SpeedMode::Standard);
 }
 
-} // namespace Settings
+bool IsOpenGL() {
+    const auto backend = Settings::values.renderer_backend.GetValue();
+    switch (backend) {
+    case RendererBackend::OpenGL_GLSL:
+    case RendererBackend::OpenGL_GLASM:
+    case RendererBackend::OpenGL_SPIRV:
+        return true;
+    default:
+        return false;
+    }
+}
 
+} // namespace Settings

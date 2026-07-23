@@ -59,6 +59,12 @@ public:
     /// Requests to begin a renderpass.
     void RequestRenderpass(const Framebuffer* framebuffer);
 
+    /// Defers a full-attachment color clear so it becomes the next render pass.
+    bool DeferColorClear(const Framebuffer* framebuffer, u32 rt_slot, const VkClearValue& value);
+
+    /// Defers a full depth/stencil clear so it becomes the next render pass.
+    bool DeferDepthStencilClear(const Framebuffer* framebuffer, const VkClearValue& value);
+
     /// Requests the current execution context to be able to execute operations only allowed outside
     /// of a renderpass.
     void RequestOutsideRenderPassOperationContext();
@@ -91,17 +97,10 @@ public:
     template <typename T>
         requires std::is_invocable_v<T, vk::CommandBuffer, vk::CommandBuffer>
     void RecordWithUploadBuffer(T&& command) {
-        std::scoped_lock lock{record_mutex};
-        if (!chunk) {
-            AcquireNewChunk();
-        }
         if (chunk->Record(command)) {
             return;
         }
         DispatchWork();
-        if (!chunk) {
-            AcquireNewChunk();
-        }
         (void)chunk->Record(command);
     }
 
@@ -258,6 +257,21 @@ private:
         bool needs_state_enable_refresh = false;
     };
 
+    struct DeferredClear {
+        const Framebuffer* framebuffer = nullptr;
+        u32 color_clear_mask = 0;
+        std::array<VkClearValue, 8> color_values{};
+        bool depth_stencil = false;
+        VkClearValue depth_stencil_value{};
+    };
+
+    /// Begins a render pass for the given framebuffer, optionally with clear values.
+    void BeginRenderPassImpl(const Framebuffer* framebuffer, VkRenderPass renderpass,
+                             const VkClearValue* clear_values, u32 clear_value_count);
+
+    /// If a deferred clear is pending.
+    void RealizeDeferredClear();
+
     void WorkerThread(std::stop_token stop_token);
 
     void AllocateWorkerCommandBuffer();
@@ -283,6 +297,8 @@ private:
     vk::CommandBuffer current_cmdbuf;
     vk::CommandBuffer current_upload_cmdbuf;
 
+    DeferredClear deferred_clear;
+
     std::unique_ptr<CommandChunk> chunk;
     std::function<void()> on_submit;
 
@@ -294,10 +310,9 @@ private:
 
     std::queue<std::unique_ptr<CommandChunk>> work_queue;
     std::vector<std::unique_ptr<CommandChunk>> chunk_reserve;
-    std::recursive_mutex execution_mutex;
-    std::recursive_mutex reserve_mutex;
-    std::recursive_mutex queue_mutex;
-    std::recursive_mutex record_mutex;
+    std::mutex execution_mutex;
+    std::mutex reserve_mutex;
+    std::mutex queue_mutex;
     std::condition_variable_any event_cv;
     std::jthread worker_thread;
 
@@ -306,7 +321,6 @@ private:
     double last_target_fps{};
     u64 max_frame_count{};
     u64 frame_counter{};
-    u64 last_submitted_tick = 0;
 };
 
 } // namespace Vulkan

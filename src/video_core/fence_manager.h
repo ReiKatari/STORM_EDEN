@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2020 yuzu Emulator Project
@@ -68,20 +68,15 @@ public:
     }
 
     void SyncOperation(std::function<void()>&& func) {
-        if constexpr (can_async_check) {
-            std::scoped_lock lock{guard};
-            uncommitted_operations.emplace_back(std::move(func));
-        } else {
-            uncommitted_operations.emplace_back(std::move(func));
-        }
+        uncommitted_operations.emplace_back(std::move(func));
     }
 
     void SignalFence(std::function<void()>&& func) {
+        const bool delay_fence = Settings::IsGPUFenceBehaviorDefault() ? Settings::IsGPULevelHigh() : Settings::IsGPUFenceBehaviorBalanced() || Settings::IsGPUFenceBehaviorAccurate() || Settings::IsGPUFenceBehaviorStrict();
+        const bool should_flush = ShouldFlush();
         if constexpr (!can_async_check) {
             TryReleasePendingFences<false>();
         }
-        const bool delay_fence = Settings::IsGPULevelHigh();
-        const bool should_flush = ShouldFlush();
         CommitAsyncFlushes();
         TFence new_fence = CreateFence(!should_flush);
         if constexpr (can_async_check) {
@@ -91,18 +86,17 @@ public:
             uncommitted_operations.emplace_back(std::move(func));
         }
         pending_operations.emplace_back(std::move(uncommitted_operations));
-        uncommitted_operations.clear();
         QueueFence(new_fence);
         if (!delay_fence) {
             func();
         }
         fences.push(std::move(new_fence));
+        if (should_flush) {
+            rasterizer.FlushCommands();
+        }
         if constexpr (can_async_check) {
             guard.unlock();
             cv.notify_all();
-        }
-        if (should_flush) {
-            rasterizer.FlushCommands();
         }
         rasterizer.InvalidateGPUCache();
     }
@@ -216,7 +210,7 @@ private:
                 fences.pop();
                 pending_operations.pop_front();
             }
-            if (current_fence && !current_fence->IsStubbed()) {
+            if (!current_fence->IsStubbed()) {
                 WaitFence(current_fence);
             }
             PopAsyncFlushes();
@@ -229,8 +223,6 @@ private:
             }
         }
     }
-
-
 
     bool ShouldWait() const {
         std::scoped_lock lock{buffer_cache.mutex, texture_cache.mutex};

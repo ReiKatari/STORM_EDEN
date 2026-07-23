@@ -22,17 +22,13 @@ struct ChannelState;
 
 class Scheduler {
 public:
-    explicit Scheduler(GPU& gpu_);
-    ~Scheduler();
-
-    void Push(s32 channel, CommandList&& entries);
+    void Push(GPU& gpu, s32 channel, CommandList&& entries);
 
     void DeclareChannel(std::shared_ptr<ChannelState> new_channel);
 
 private:
     ankerl::unordered_dense::map<s32, std::shared_ptr<ChannelState>> channels;
-    std::recursive_mutex scheduling_guard;
-    GPU& gpu;
+    std::mutex scheduling_guard;
 };
 
 } // namespace Control

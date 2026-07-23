@@ -2,112 +2,33 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QApplication>
-#include <QProxyStyle>
-#include <QStyleOptionMenuItem>
-#include <QPainter>
-#include <QtPlugin>
-#include <exception>
-#include <csignal>
-#include <cstdlib>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <dbghelp.h>
-#include <psapi.h>
-#include <SDL3/SDL.h>
-#pragma comment(lib, "dbghelp.lib")
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-Q_IMPORT_PLUGIN(QGifPlugin)
-#else
-Q_IMPORT_PLUGIN(QGifPlugin)
-#endif
 #include "startup_checks.h"
 
 #if YUZU_ROOM
 #include <cstring>
-#include "dedicated_room/eden_room.h"
+#include "dedicated_room/yuzu_room.h"
 #endif
-
-#include <common/detached_tasks.h>
-
 #ifdef __unix__
 #include "qt_common/gui_settings.h"
 #endif
 
+#ifndef _WIN32
+#include <sys/resource.h>
+#endif
+
 #include "main_window.h"
-
-class MenuProxyStyle : public QProxyStyle {
-public:
-    using QProxyStyle::QProxyStyle;
-
-    void drawControl(ControlElement element, const QStyleOption* option, QPainter* painter,
-                     const QWidget* widget) const override {
-        if (element == CE_MenuItem) {
-            if (const auto* menu_item = qstyleoption_cast<const QStyleOptionMenuItem*>(option)) {
-                QStyleOptionMenuItem my_menu_item = *menu_item;
-                my_menu_item.text = QString();
-                QProxyStyle::drawControl(element, &my_menu_item, painter, widget);
-
-                QRect rect = menu_item->rect;
-                QString original_text = menu_item->text;
-                QString text = original_text;
-                QString shortcut;
-                int tab_index = original_text.indexOf(QLatin1Char('\t'));
-                if (tab_index != -1) {
-                    text = original_text.left(tab_index);
-                    shortcut = original_text.mid(tab_index + 1);
-                }
-
-                int left_padding = 10;
-                if (menu_item->maxIconWidth > 0) {
-                    left_padding += menu_item->maxIconWidth + 10;
-                } else {
-                    left_padding += 20;
-                }
-                int right_padding = 20;
-
-                QRect text_rect = rect.adjusted(left_padding, 0, -right_padding, 0);
-
-                painter->save();
-                painter->setRenderHint(QPainter::TextAntialiasing);
-
-                QColor text_color;
-                if (!(menu_item->state & QStyle::State_Enabled)) {
-                    text_color = QColor(75, 85, 99); // #4b5563
-                } else if (menu_item->state & QStyle::State_Selected) {
-                    text_color = QColor(0, 0, 0); // black
-                } else {
-                    text_color = QColor(255, 255, 255); // white
-                }
-                painter->setPen(text_color);
-
-                QFont font = painter->font();
-                painter->setFont(font);
-                painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, text);
-
-                if (!shortcut.isEmpty()) {
-                    QFont bold_font = font;
-                    bold_font.setBold(true);
-                    painter->setFont(bold_font);
-                    painter->drawText(text_rect, Qt::AlignRight | Qt::AlignVCenter, shortcut);
-                }
-
-                painter->restore();
-                return;
-            }
-        }
-        QProxyStyle::drawControl(element, option, painter, widget);
-    }
-};
 
 #ifdef _WIN32
 #include <QScreen>
 
 static void OverrideWindowsFont() {
-    QFont modern_font(QStringLiteral("Century Gothic"), 9, QFont::Normal);
-    QApplication::setFont(modern_font);
+    // Qt5 chooses these fonts on Windows and they have fairly ugly alphanumeric/cyrillic characters
+    // Asking to use "MS Shell Dlg 2" gives better other chars while leaving the Chinese Characters.
+    const QString startup_font = QApplication::font().family();
+    const QStringList ugly_fonts = {QStringLiteral("SimSun"), QStringLiteral("PMingLiU")};
+    if (ugly_fonts.contains(startup_font)) {
+        QApplication::setFont(QFont(QStringLiteral("MS Shell Dlg 2"), 9, QFont::Normal));
+    }
 }
 #endif
 
@@ -150,164 +71,7 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 #endif
 }
 
-#ifdef _WIN32
-#include <windows.h>
-#include <fstream>
-#include <psapi.h>
-#include <exception>
-#pragma comment(lib, "psapi.lib")
-
-LONG WINAPI GlobalVectoredExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
-    DWORD code = ExceptionInfo->ExceptionRecord->ExceptionCode;
-    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x4001000a || code == 0xE06D7363 || code == 0x00000000 || code == EXCEPTION_ACCESS_VIOLATION) {
-        return EXCEPTION_CONTINUE_SEARCH;
-    }
-
-    uintptr_t addr = (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress;
-    STORM_TRACE("VEH EXCEPTION: ExceptionCode=0x{:x}, Address=0x{:x}, ThreadId={}", code, addr, GetCurrentThreadId());
-
-    if (code == EXCEPTION_ACCESS_VIOLATION && ExceptionInfo->ExceptionRecord->NumberParameters >= 2) {
-        const char* av_type = ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0 ? "READ" :
-                             (ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 1 ? "WRITE" : "EXECUTE");
-        STORM_TRACE("  AV Type: {}, Target Address: 0x{:x}", av_type, ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
-    }
-
-    void* stack[32] = {};
-    USHORT frames = CaptureStackBackTrace(0, 32, stack, nullptr);
-    HANDLE process = GetCurrentProcess();
-    HMODULE modules[256] = {};
-    DWORD needed = 0;
-    EnumProcessModules(process, modules, sizeof(modules), &needed);
-    DWORD num_modules = needed / sizeof(HMODULE);
-
-    for (USHORT i = 0; i < frames; i++) {
-        uintptr_t frame_addr = (uintptr_t)stack[i];
-        const char* mod_name = "???";
-        uintptr_t mod_offset = frame_addr;
-        char mod_filename[MAX_PATH] = {};
-        for (DWORD m = 0; m < num_modules; m++) {
-            MODULEINFO mi = {};
-            GetModuleInformation(process, modules[m], &mi, sizeof(mi));
-            uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
-            if (frame_addr >= base && frame_addr < base + mi.SizeOfImage) {
-                GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
-                const char* p = strrchr(mod_filename, '\\');
-                mod_name = p ? p + 1 : mod_filename;
-                mod_offset = frame_addr - base;
-                break;
-            }
-        }
-        STORM_TRACE("  Stack [{}] {} + 0x{:x}", i, mod_name, mod_offset);
-    }
-    return EXCEPTION_CONTINUE_SEARCH;
-}
-
-LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
-    STORM_TRACE("HARD CRASH (UnhandledExceptionFilter): Code 0x{:x}, Address 0x{:x}", ExceptionInfo->ExceptionRecord->ExceptionCode, (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress);
-    return EXCEPTION_CONTINUE_SEARCH;
-}
-
-#endif
-
 int main(int argc, char* argv[]) {
-#ifdef _WIN32
-    AddVectoredExceptionHandler(1, GlobalVectoredExceptionHandler);
-    SetUnhandledExceptionFilter(GlobalCrashHandler);
-    std::set_terminate([]() {
-        STORM_TRACE("CRITICAL: std::terminate() triggered!");
-        try {
-            auto ep = std::current_exception();
-            if (ep) std::rethrow_exception(ep);
-        } catch (const std::exception& e) {
-            STORM_TRACE("  Unhandled exception: {}", e.what());
-        } catch (...) {
-            STORM_TRACE("  Unhandled unknown exception!");
-        }
-        std::abort();
-    });
-#endif
-    STORM_TRACE("=== STORM EDEN STARTUP: main() entered ===");
-    std::atexit([] {
-        STORM_TRACE("=== STORM EDEN SHUTDOWN: atexit() triggered ===");
-    });
-
-    // Force software rendering for Qt UI to prevent OpenGL driver crashes (e.g. nvoglv64.dll)
-    qputenv("QT_OPENGL", "software");
-    qputenv("QT_OPENGL_BUGLIST", ":/disable_gpu");
-
-#ifdef _WIN32
-    AddVectoredExceptionHandler(1, GlobalVectoredExceptionHandler);
-    SetUnhandledExceptionFilter(GlobalCrashHandler);
-    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
-
-    std::set_terminate([] {
-        char exe_path[MAX_PATH] = {};
-        GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
-        std::string crash_file(exe_path);
-        auto last_sep = crash_file.find_last_of("\\/");
-        if (last_sep != std::string::npos) {
-            crash_file = crash_file.substr(0, last_sep + 1);
-        }
-        crash_file += "crash_dump_global.txt";
-
-        std::ofstream os(crash_file, std::ios::app);
-        os << "=== std::terminate() CALLED ===\n";
-
-        // Try to get the current exception
-        try {
-            auto eptr = std::current_exception();
-            if (eptr) {
-                std::rethrow_exception(eptr);
-            } else {
-                os << "No active exception (terminate called directly)\n";
-            }
-        } catch (const std::exception& e) {
-            os << "Unhandled std::exception: " << e.what() << "\n";
-        } catch (...) {
-            os << "Unhandled unknown exception (not std::exception)\n";
-        }
-
-        // Capture stack trace
-        void* stack[64] = {};
-        USHORT frames = CaptureStackBackTrace(0, 64, stack, nullptr);
-        os << "Stack frames: " << std::dec << frames << "\n";
-
-        HANDLE process = GetCurrentProcess();
-        HMODULE modules[256] = {};
-        DWORD needed = 0;
-        EnumProcessModules(process, modules, sizeof(modules), &needed);
-        DWORD num_modules = needed / sizeof(HMODULE);
-
-        for (USHORT i = 0; i < frames; i++) {
-            uintptr_t addr = (uintptr_t)stack[i];
-            const char* mod_name = "???";
-            uintptr_t mod_offset = addr;
-            char mod_filename[MAX_PATH] = {};
-            for (DWORD m = 0; m < num_modules; m++) {
-                MODULEINFO mi = {};
-                GetModuleInformation(process, modules[m], &mi, sizeof(mi));
-                uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
-                if (addr >= base && addr < base + mi.SizeOfImage) {
-                    GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
-                    const char* p = strrchr(mod_filename, '\\');
-                    mod_name = p ? p + 1 : mod_filename;
-                    mod_offset = addr - base;
-                    break;
-                }
-            }
-            os << "  [" << std::dec << i << "] " << mod_name << " + 0x" << std::hex << mod_offset << "\n";
-        }
-
-        os << "=== END TERMINATE ===\n\n";
-        os.flush();
-        LOG_CRITICAL(Frontend, "=== std::terminate CALLED ===");
-        STORM_TRACE("CRASH: std::terminate() was invoked directly by C++ runtime!");
-        Common::Log::Stop();
-        std::abort();
-    });
-#endif
-
-
 #if YUZU_ROOM
     bool launch_room = false;
     for (int i = 1; i < argc; i++) {
@@ -322,34 +86,46 @@ int main(int argc, char* argv[]) {
     }
 #endif
 
-
     bool has_broken_vulkan = false;
     bool is_child = false;
     if (CheckEnvVars(&is_child)) {
         return 0;
     }
 
-
     if (StartupChecks(argv[0], &has_broken_vulkan,
                       Settings::values.perform_vulkan_check.GetValue())) {
         return 0;
     }
 
-
 #ifdef YUZU_CRASH_DUMPS
     Breakpad::InstallCrashHandler();
 #endif
-
-    Common::DetachedTasks detached_tasks;
 
     // Init settings params
     QCoreApplication::setOrganizationName(QStringLiteral("eden"));
     QCoreApplication::setApplicationName(QStringLiteral("eden"));
 
+    // Increases the maximum open file limit.
+    // TODO: This should be common to all frontends.
 #ifdef _WIN32
-    // Increases the maximum open file limit to 8192
+    // MSVCRT limits this to 2048 for some inexplicable (and likely arcane) reason,
+    // so we have to account for that as well.
+#ifdef __MSVCRT__
+    _setmaxstdio(2048);
+#else
     _setmaxstdio(8192);
-#elif defined(__APPLE__)
+#endif // __MSVCRT__
+#elif defined(__unix__) || defined(__APPLE__)
+    // Set the max open file limit to 8192, or the hard limit.
+    // Most sane systems should not hit the hard limit here.
+    struct rlimit rl;
+    if (getrlimit(RLIMIT_NOFILE, &rl) == 0) {
+        rl.rlim_cur = std::min<rlim_t>(8192, rl.rlim_max);
+        setrlimit(RLIMIT_NOFILE, &rl);
+    }
+#endif // _WIN32
+
+#if defined(__APPLE__)
     // If you start a bundle (binary) on OSX without the Terminal, the working directory is "/".
     // But since we require the working directory to be the executable path for the location of
     // the user folder in the Qt Frontend, we need to cd into that working directory
@@ -385,22 +161,12 @@ int main(int argc, char* argv[]) {
 
 #ifdef _WIN32
     QApplication::setStyle(QStringLiteral("windowsvista"));
-    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-    SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
-    SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "0");
-    SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "0");
-    SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, "0");
 #endif
 
     QApplication app(argc, argv);
-    app.setStyle(new MenuProxyStyle(app.style()));
-    app.setWindowIcon(QIcon(QStringLiteral(":/img/eden.ico")));
 
 #ifdef _WIN32
     OverrideWindowsFont();
-#endif
-
-#ifdef _WIN32
 #endif
 
     // Workaround for QTBUG-85409, for Suzhou numerals the number 1 is actually \u3021
@@ -422,10 +188,6 @@ int main(int argc, char* argv[]) {
     // After settings have been loaded by GMainWindow, apply the filter
     main_window.show();
 
-    app.connect(&app, &QGuiApplication::applicationStateChanged, &main_window,
-                &MainWindow::OnAppFocusStateChanged);
-
-    int result = app.exec();
-    detached_tasks.WaitForAllTasks();
-    return result;
+    app.connect(&app, &QGuiApplication::applicationStateChanged, &main_window, &MainWindow::OnAppFocusStateChanged);
+    return app.exec();
 }

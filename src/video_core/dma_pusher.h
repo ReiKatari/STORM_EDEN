@@ -188,8 +188,8 @@ private:
     VideoCore::RasterizerInterface* rasterizer;
     bool signal_sync;
     bool synced;
-    std::mutex sync_mutex;
-    std::condition_variable sync_cv;
+    std::recursive_mutex sync_mutex;
+    std::condition_variable_any sync_cv;
 };
 
 } // namespace Tegra

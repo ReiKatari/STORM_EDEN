@@ -53,7 +53,6 @@ void ThreadManager::StartThread(VideoCore::RendererBase& renderer, Core::Fronten
                 }
             } catch (const std::exception& ex) {
                 STORM_TRACE("GPU Thread Exception Caught: {}", ex.what());
-                LOG_CRITICAL(Render_Vulkan, "GPU Thread Exception Caught: {}", ex.what());
             } catch (...) {
                 STORM_TRACE("GPU Thread Unknown Exception Caught!");
                 LOG_CRITICAL(Render_Vulkan, "GPU Thread Unknown Exception Caught!");

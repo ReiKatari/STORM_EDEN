@@ -31,7 +31,7 @@ public:
 
 private:
     ankerl::unordered_dense::map<s32, std::shared_ptr<ChannelState>> channels;
-    std::mutex scheduling_guard;
+    std::recursive_mutex scheduling_guard;
     GPU& gpu;
 };
 

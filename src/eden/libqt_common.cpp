@@ -21,18 +21,17 @@ StandardButton ShowMessage(Icon icon, const QString& title, const QString& text,
         new QMessageBox(QMessageBox::Icon(int(icon)), title, text,
                         QMessageBox::StandardButtons(int(buttons)), (QWidget*)parent);
 
-    const bool is_russian = (QLocale().language() == QLocale::Russian);
     if (auto* btn = box->button(QMessageBox::Yes)) {
-        btn->setText(is_russian ? QObject::tr("Да") : QObject::tr("Yes"));
+        btn->setText(QObject::tr("Да"));
     }
     if (auto* btn = box->button(QMessageBox::No)) {
-        btn->setText(is_russian ? QObject::tr("Нет") : QObject::tr("No"));
+        btn->setText(QObject::tr("Нет"));
     }
     if (auto* btn = box->button(QMessageBox::Ok)) {
-        btn->setText(is_russian ? QObject::tr("ОК") : QObject::tr("OK"));
+        btn->setText(QObject::tr("ОК"));
     }
     if (auto* btn = box->button(QMessageBox::Cancel)) {
-        btn->setText(is_russian ? QObject::tr("Отмена") : QObject::tr("Cancel"));
+        btn->setText(QObject::tr("Отмена"));
     }
 
     return StandardButton(box->exec());

@@ -28,8 +28,39 @@ QFont GetMonospaceFont() {
     return font;
 }
 
+#include <QStringList>
+#include <QCoreApplication>
+#include <QLocale>
+
 QString ReadableByteSize(qulonglong size) {
-    return QString::fromStdString(FrontendCommon::DataManager::ReadableBytesSize(size));
+    if (size == 0) return QCoreApplication::translate("Util", "0 B");
+    
+    QStringList units = {
+        QCoreApplication::translate("Util", "B"),
+        QCoreApplication::translate("Util", "KB"),
+        QCoreApplication::translate("Util", "MB"),
+        QCoreApplication::translate("Util", "GB"),
+        QCoreApplication::translate("Util", "TB"),
+        QCoreApplication::translate("Util", "PB")
+    };
+
+    if (QLocale::system().language() == QLocale::Russian) {
+        units = {QStringLiteral("Б"), QStringLiteral("КБ"), QStringLiteral("МБ"), QStringLiteral("ГБ"), QStringLiteral("ТБ"), QStringLiteral("ПБ")};
+    }
+
+    const double base = 1000.0;
+    int digit_groups = std::min<int>(static_cast<int>(std::log10(size) / std::log10(base)), units.size() - 1);
+    
+    double formatted_size = size / std::pow(base, digit_groups);
+    QString number_str;
+    if (QLocale::system().language() == QLocale::Russian) {
+        QLocale ru_locale(QLocale::Russian, QLocale::Russia);
+        number_str = ru_locale.toString(formatted_size, 'f', 2);
+    } else {
+        number_str = QLocale::system().toString(formatted_size, 'f', 2);
+    }
+    
+    return QStringLiteral("%1 %2").arg(number_str, units[digit_groups]);
 }
 
 QPixmap CreateCirclePixmapFromColor(const QColor& color) {

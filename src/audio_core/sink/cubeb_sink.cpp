@@ -67,6 +67,7 @@ public:
 
         minimum_latency = (std::max)(minimum_latency, TargetSampleCount * 2);
 
+        STORM_TRACE("CubebSinkStream opening stream {} latency {}", name, minimum_latency);
         LOG_INFO(Service_Audio,
                  "Opening cubeb stream {} type {} with: rate {} channels {} (system channels {}) "
                  "latency {}",
@@ -86,7 +87,10 @@ public:
         }
 
         if (init_error != CUBEB_OK) {
+            STORM_TRACE("CubebSinkStream init ERROR: {}", init_error);
             LOG_CRITICAL(Audio_Sink, "Error initializing cubeb stream, error: {}", init_error);
+        } else {
+            STORM_TRACE("CubebSinkStream init SUCCESS: {}", name);
         }
     }
 
@@ -109,7 +113,10 @@ public:
             return;
         }
         if (cubeb_stream_start(stream_backend) != CUBEB_OK) {
+            STORM_TRACE("CubebSinkStream start ERROR: {}", name);
             LOG_CRITICAL(Audio_Sink, "Error starting cubeb stream");
+        } else {
+            STORM_TRACE("CubebSinkStream started successfully: {}", name);
         }
         paused = false;
     }
@@ -128,25 +135,37 @@ private:
     static long DataCallback([[maybe_unused]] cubeb_stream* stream, void* user_data,
                              [[maybe_unused]] const void* in_buff, void* out_buff,
                              long num_frames_) {
-        auto* impl = static_cast<CubebSinkStream*>(user_data);
-        if (!impl) {
-            return -1;
+        try {
+            auto* impl = static_cast<CubebSinkStream*>(user_data);
+            if (!impl || num_frames_ <= 0) {
+                return -1;
+            }
+
+            const std::size_t num_channels = impl->GetDeviceChannels();
+            const std::size_t frame_size = num_channels;
+            const std::size_t num_frames{static_cast<size_t>(num_frames_)};
+
+            if (impl->type == StreamType::In) {
+                if (in_buff) {
+                    std::span<const s16> input_buffer{reinterpret_cast<const s16*>(in_buff),
+                                                      num_frames * frame_size};
+                    impl->ProcessAudioIn(input_buffer, num_frames);
+                }
+            } else {
+                if (out_buff) {
+                    std::span<s16> output_buffer{reinterpret_cast<s16*>(out_buff), num_frames * frame_size};
+                    impl->ProcessAudioOutAndRender(output_buffer, num_frames);
+                }
+            }
+
+            return num_frames_;
+        } catch (const std::exception& e) {
+            STORM_TRACE("EXCEPTION IN Cubeb DataCallback: {}", e.what());
+            return num_frames_;
+        } catch (...) {
+            STORM_TRACE("UNKNOWN EXCEPTION IN Cubeb DataCallback");
+            return num_frames_;
         }
-
-        const std::size_t num_channels = impl->GetDeviceChannels();
-        const std::size_t frame_size = num_channels;
-        const std::size_t num_frames{static_cast<size_t>(num_frames_)};
-
-        if (impl->type == StreamType::In) {
-            std::span<const s16> input_buffer{reinterpret_cast<const s16*>(in_buff),
-                                              num_frames * frame_size};
-            impl->ProcessAudioIn(input_buffer, num_frames);
-        } else {
-            std::span<s16> output_buffer{reinterpret_cast<s16*>(out_buff), num_frames * frame_size};
-            impl->ProcessAudioOutAndRender(output_buffer, num_frames);
-        }
-
-        return num_frames_;
     }
 
     static void StateCallback(cubeb_stream*, void*, cubeb_state) {}

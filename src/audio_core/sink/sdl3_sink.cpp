@@ -158,44 +158,50 @@ private:
      */
     static void DataCallback(void* userdata, SDL_AudioStream* stream, int additional_amount,
                              int total_amount) {
-        auto* impl = static_cast<SDLSinkStream*>(userdata);
+        try {
+            auto* impl = static_cast<SDLSinkStream*>(userdata);
 
-        if (!impl) {
-            return;
-        }
-
-        const std::size_t num_channels = impl->GetDeviceChannels();
-        const std::size_t frame_size = num_channels;
-
-        if (impl->type == StreamType::In) {
-            const int bytes_available = SDL_GetAudioStreamAvailable(stream);
-            if (bytes_available <= 0) {
+            if (!impl) {
                 return;
             }
 
-            std::vector<s16> input(bytes_available / static_cast<int>(sizeof(s16)));
-            const int bytes_read = SDL_GetAudioStreamData(stream, input.data(), bytes_available);
-            if (bytes_read <= 0) {
-                return;
-            }
+            const std::size_t num_channels = impl->GetDeviceChannels();
+            const std::size_t frame_size = num_channels;
 
-            const std::size_t num_frames =
-                static_cast<std::size_t>(bytes_read) / sizeof(s16) / frame_size;
-            std::span<const s16> input_buffer{input.data(),
-                                              static_cast<std::size_t>(bytes_read) / sizeof(s16)};
-            impl->ProcessAudioIn(input_buffer, num_frames);
-        } else {
-            if (additional_amount <= 0 && total_amount <= 0) {
-                return;
-            }
+            if (impl->type == StreamType::In) {
+                const int bytes_available = SDL_GetAudioStreamAvailable(stream);
+                if (bytes_available <= 0) {
+                    return;
+                }
 
-            const int bytes_requested = additional_amount > 0 ? additional_amount : total_amount;
-            std::vector<s16> output(bytes_requested / static_cast<int>(sizeof(s16)));
-            const std::size_t num_frames =
-                static_cast<std::size_t>(bytes_requested) / sizeof(s16) / frame_size;
-            std::span<s16> output_buffer{output.data(), output.size()};
-            impl->ProcessAudioOutAndRender(output_buffer, num_frames);
-            static_cast<void>(SDL_PutAudioStreamData(stream, output.data(), bytes_requested));
+                std::vector<s16> input(bytes_available / static_cast<int>(sizeof(s16)));
+                const int bytes_read = SDL_GetAudioStreamData(stream, input.data(), bytes_available);
+                if (bytes_read <= 0) {
+                    return;
+                }
+
+                const std::size_t num_frames =
+                    static_cast<std::size_t>(bytes_read) / sizeof(s16) / frame_size;
+                std::span<const s16> input_buffer{input.data(),
+                                                  static_cast<std::size_t>(bytes_read) / sizeof(s16)};
+                impl->ProcessAudioIn(input_buffer, num_frames);
+            } else {
+                if (additional_amount <= 0 && total_amount <= 0) {
+                    return;
+                }
+
+                const int bytes_requested = additional_amount > 0 ? additional_amount : total_amount;
+                std::vector<s16> output(bytes_requested / static_cast<int>(sizeof(s16)));
+                const std::size_t num_frames =
+                    static_cast<std::size_t>(bytes_requested) / sizeof(s16) / frame_size;
+                std::span<s16> output_buffer{output.data(), output.size()};
+                impl->ProcessAudioOutAndRender(output_buffer, num_frames);
+                static_cast<void>(SDL_PutAudioStreamData(stream, output.data(), bytes_requested));
+            }
+        } catch (const std::exception& e) {
+            STORM_TRACE("EXCEPTION IN SDL DataCallback: {}", e.what());
+        } catch (...) {
+            STORM_TRACE("UNKNOWN EXCEPTION IN SDL DataCallback");
         }
     }
 

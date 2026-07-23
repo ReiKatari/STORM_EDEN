@@ -580,24 +580,24 @@ Can help reduce stuttering at lower framerates.</source>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="97" />
             <source>CPU Overclock</source>
-            <translation>Разгон CPU</translation>
+            <translation>Разгон ЦП</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="98" />
             <source>Overclocks the emulated CPU to remove some FPS limiters. Weaker CPUs may see reduced performance, and certain games may behave improperly.
 Use Boost (1700MHz) to run at the Switch's highest native clock, or Fast (2000MHz) to run at 2x clock.</source>
-            <translation>Разгоняет эмулируемый CPU для снятия некоторых ограничителей FPS. На более слабых процессорах это может снизить производительность, а некоторые игры могут работать некорректно.
+            <translation>Разгоняет эмулируемый ЦП для снятия некоторых ограничителей FPS. На более слабых процессорах это может снизить производительность, а некоторые игры могут работать некорректно.
 Используйте режим Boost (1700 МГц), чтобы запускать игры на максимальной штатной частоте Switch, или режим Fast (2000 МГц), чтобы работать на удвоенной частоте.</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="105" />
             <source>Custom CPU Ticks</source>
-            <translation>Пользовательские тики CPU</translation>
+            <translation>Пользовательские тики ЦП</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="106" />
             <source>Set a custom value of CPU ticks. Higher values can increase performance, but may cause deadlocks. A range of 77-21000 is recommended.</source>
-            <translation>Задает пользовательское значение тиков CPU. Более высокие значения могут повысить производительность, но могут вызвать взаимные блокировки. Рекомендуемый диапазон: 77–21000.</translation>
+            <translation>Задает пользовательское значение тиков ЦП. Более высокие значения могут повысить производительность, но могут вызвать взаимные блокировки. Рекомендуемый диапазон: 77–21000.</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="114" />

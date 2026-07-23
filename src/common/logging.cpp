@@ -401,6 +401,17 @@ struct Impl {
         }
         ForEachBackend([](Backend& backend) { backend.Flush(); });
     }
+
+    ~Impl() {
+        is_running = false;
+        if (worker_thread.joinable()) {
+            if (std::this_thread::get_id() == worker_thread.get_id()) {
+                worker_thread.detach();
+            } else {
+                worker_thread.join();
+            }
+        }
+    }
 };
 } // namespace
 
@@ -408,32 +419,37 @@ struct Impl {
 // it's ran at global static ctor() time... so BE CAREFUL MFER!
 static std::optional<Common::Log::Impl> logging_instance{};
 
-void Initialize() {
-    if (logging_instance) {
-        LOG_WARNING(Log, "Reinitializing logging backend");
-    } else {
-        logging_instance.emplace();
-        logging_instance->filter.ParseFilterString(Settings::values.log_filter.GetValue());
-#ifndef __OPENORBIS__
-        using namespace Common::FS;
-        const auto& log_dir = GetEdenPath(EdenPath::LogDir);
-        void(CreateDir(log_dir));
-        logging_instance->file_backend.emplace(log_dir / LOG_FILE);
-#endif
-        logging_instance->worker_thread = std::thread(&Impl::ConsumeLoop, &*logging_instance);
-    }
-}
-
-void Start() {
-}
-
 void Stop() {
     if (logging_instance) {
         logging_instance->is_running = false;
         if (logging_instance->worker_thread.joinable()) {
-            logging_instance->worker_thread.join();
+            if (std::this_thread::get_id() == logging_instance->worker_thread.get_id()) {
+                logging_instance->worker_thread.detach();
+            } else {
+                logging_instance->worker_thread.join();
+            }
         }
+        logging_instance.reset();
     }
+}
+
+void Initialize() {
+    if (logging_instance) {
+        LOG_WARNING(Log, "Reinitializing logging backend");
+        Stop();
+    }
+    logging_instance.emplace();
+    logging_instance->filter.ParseFilterString(Settings::values.log_filter.GetValue());
+#ifndef __OPENORBIS__
+    using namespace Common::FS;
+    const auto& log_dir = GetEdenPath(EdenPath::LogDir);
+    void(CreateDir(log_dir));
+    logging_instance->file_backend.emplace(log_dir / LOG_FILE);
+#endif
+    logging_instance->worker_thread = std::thread(&Impl::ConsumeLoop, &*logging_instance);
+}
+
+void Start() {
 }
 
 void SetGlobalFilter(const Filter& filter) {
@@ -459,4 +475,28 @@ void FmtLogMessageImpl(Class log_class, Level log_level, const char* filename, u
         });
     }
 }
+
+void StormTrace(const std::string& message) {
+    static std::mutex trace_mutex;
+    std::lock_guard<std::mutex> lock(trace_mutex);
+
+    static auto start_time = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start_time).count();
+
+    const char* paths[] = {
+        "E:\\STORM EDEN\\storm_boot_trace.txt",
+        "storm_boot_trace.txt"
+    };
+
+    for (const char* path : paths) {
+        FILE* f = fopen(path, "a");
+        if (f) {
+            fprintf(f, "[%6lld ms] [Thread %lu] %s\n", (long long)elapsed, (unsigned long)GetCurrentThreadId(), message.c_str());
+            fflush(f);
+            fclose(f);
+        }
+    }
+}
+
 } // namespace Common::Log

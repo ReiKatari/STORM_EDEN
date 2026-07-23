@@ -307,26 +307,20 @@ struct Values {
     Setting<bool> cpuopt_ignore_memory_aborts{linkage, true, "cpuopt_ignore_memory_aborts",
                                               Category::CpuDebug};
 
-    SwitchableSetting<bool> cpuopt_unsafe_host_mmu{linkage,
-#if !defined(__APPLE__) && !defined(__linux__) && !defined(__ANDROID__) && !defined(_WIN32)
-                                        false,
-#else
-                                        true,
-#endif
-                                        "cpuopt_unsafe_host_mmu",
+    SwitchableSetting<bool> cpuopt_unsafe_host_mmu{linkage, false, "cpuopt_unsafe_host_mmu",
                                         Category::CpuUnsafe};
-    SwitchableSetting<bool> cpuopt_unsafe_unfuse_fma{linkage, true, "cpuopt_unsafe_unfuse_fma",
+    SwitchableSetting<bool> cpuopt_unsafe_unfuse_fma{linkage, false, "cpuopt_unsafe_unfuse_fma",
                                                      Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_reduce_fp_error{
-                                                          linkage, true, "cpuopt_unsafe_reduce_fp_error", Category::CpuUnsafe};
+                                                          linkage, false, "cpuopt_unsafe_reduce_fp_error", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_standard_fpcr{
-                                                               linkage, true, "cpuopt_unsafe_ignore_standard_fpcr", Category::CpuUnsafe};
+                                                                linkage, false, "cpuopt_unsafe_ignore_standard_fpcr", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_inaccurate_nan{
-                                                         linkage, true, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
+                                                         linkage, false, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_fastmem_check{
-                                                        linkage, true, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
+                                                        linkage, false, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_global_monitor{
-                                                                linkage, true, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
+                                                                linkage, false, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
 
     // Renderer
     SwitchableSetting<RendererBackend, true> renderer_backend{linkage,

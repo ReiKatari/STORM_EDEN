@@ -290,11 +290,6 @@ void NCZVirtualFile::SetDecryptedHeader(const u8* data, std::size_t size) {
 }
 
 NCZVirtualFile::~NCZVirtualFile() {
-    if (prefetch_future.valid()) {
-        try {
-            prefetch_future.wait();
-        } catch (...) {}
-    }
     if (solid_dctx) {
         ZstdContextPool::Get().Release(static_cast<ZSTD_DCtx*>(solid_dctx));
     }
@@ -574,63 +569,6 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                     }
                     block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
                     
-                    // Async Read-ahead: prefetch next block if sequential access pattern
-                    if (last_accessed_block != SIZE_MAX && block_index == last_accessed_block + 1 &&
-                        block_index + 1 < blocks.size()) {
-                        
-                        std::size_t next_idx = block_index + 1;
-                        auto prefetch_it = std::find_if(block_cache.begin(), block_cache.end(),
-                            [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
-                            
-                        if (prefetch_it == block_cache.end() && prefetching_block_index != next_idx) {
-                            if (prefetch_future.valid()) {
-                                std::shared_future<void> old_fut = prefetch_future;
-                                cache_lock.unlock();
-                                old_fut.wait();
-                                cache_lock.lock();
-                            }
-
-                            // Recheck block_cache in case it was loaded while we were unlocked/waiting
-                            prefetch_it = std::find_if(block_cache.begin(), block_cache.end(),
-                                [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
-
-                            if (prefetch_it == block_cache.end() && prefetching_block_index != next_idx) {
-                                const auto& next_block = blocks[next_idx];
-                                std::size_t next_expected_size = block_size;
-                                if (next_idx == blocks.size() - 1) {
-                                    next_expected_size = packed_size % block_size;
-                                    if (next_expected_size == 0) next_expected_size = block_size;
-                                }
-                                
-                                auto f = file;
-                                auto block_offset_val = next_block.offset;
-                                auto block_comp_size = next_block.compressed_size;
-                                
-                                prefetching_block_index = next_idx;
-                                prefetch_future = std::async(std::launch::async, [this, f, next_idx, block_offset_val, block_comp_size, next_expected_size]() {
-                                    std::vector<u8> comp(block_comp_size);
-                                    if (f->Read(comp.data(), block_comp_size, block_offset_val) == block_comp_size) {
-                                        std::vector<u8> decomp = Common::Compression::DecompressDataZSTD(comp);
-                                        if (!decomp.empty()) {
-                                            if (decomp.size() != next_expected_size) {
-                                                LOG_CRITICAL(Service_FS, "ZSTD block {} size mismatch! Expected: {}, Got: {}, compressed_size: {}, file: {}",
-                                                             next_idx, next_expected_size, decomp.size(), block_comp_size, f->GetName());
-                                            }
-                                            std::lock_guard<std::mutex> lock(cache_mutex);
-                                            auto it = std::find_if(block_cache.begin(), block_cache.end(),
-                                                [next_idx](const BlockCacheEntry& entry) { return entry.index == next_idx; });
-                                            if (it == block_cache.end()) {
-                                                if (block_cache.size() >= 32) {
-                                                    block_cache.pop_back();
-                                                }
-                                                block_cache.push_back({next_idx, std::move(decomp)});
-                                            }
-                                        }
-                                    }
-                                }).share();
-                            }
-                        }
-                    }
                     last_accessed_block = block_index;
                     decompressed_ptr = &block_cache.front().data;
                 }

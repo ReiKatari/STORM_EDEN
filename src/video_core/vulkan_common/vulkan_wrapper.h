@@ -18,6 +18,7 @@
 #include <string>
 
 #include "common/common_types.h"
+#include "common/logging.h"
 #include "video_core/vulkan_common/vulkan.h"
 
 #ifdef _MSC_VER
@@ -133,6 +134,7 @@ private:
 /// Throws a Vulkan exception if result is not success.
 inline void Check(VkResult result) {
     if (result != VK_SUCCESS) {
+        STORM_TRACE("VULKAN ERROR: Check failed with VkResult={}", static_cast<int>(result));
         throw Exception(result);
     }
 }
@@ -141,6 +143,7 @@ inline void Check(VkResult result) {
 /// @return result
 inline VkResult Filter(VkResult result) {
     if (result < 0) {
+        STORM_TRACE("VULKAN ERROR: Filter failed with VkResult={}", static_cast<int>(result));
         throw Exception(result);
     }
     return result;

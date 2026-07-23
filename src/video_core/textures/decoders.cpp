@@ -75,15 +75,20 @@ void SwizzleImpl(std::span<u8> output, std::span<const u8> input, u32 width, u32
                  ++column, incrpdep<SWIZZLE_X_BITS, BYTES_PER_PIXEL>(swizzled_x)) {
                 const u32 x = (column + origin_x) * BYTES_PER_PIXEL;
                 const u32 offset_x = (x >> GOB_SIZE_X_SHIFT) << x_shift;
-
                 const u32 base_swizzled_offset = offset_z + offset_y + offset_x;
                 const u32 swizzled_offset = base_swizzled_offset + (swizzled_x | swizzled_y);
-
                 const u32 unswizzled_offset =
                     slice * pitch * height + line * pitch + column * BYTES_PER_PIXEL;
 
-                u8* const dst = &output[TO_LINEAR ? swizzled_offset : unswizzled_offset];
-                const u8* const src = &input[TO_LINEAR ? unswizzled_offset : swizzled_offset];
+                const u32 dst_offset = TO_LINEAR ? swizzled_offset : unswizzled_offset;
+                const u32 src_offset = TO_LINEAR ? unswizzled_offset : swizzled_offset;
+                if (dst_offset + BYTES_PER_PIXEL > output.size() ||
+                    src_offset + BYTES_PER_PIXEL > input.size()) {
+                    continue;
+                }
+
+                u8* const dst = &output[dst_offset];
+                const u8* const src = &input[src_offset];
 
                 std::memcpy(dst, src, BYTES_PER_PIXEL);
             }

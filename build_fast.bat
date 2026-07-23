@@ -1,6 +1,6 @@
 @echo off
 set MSBUILD="C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\amd64\MSBuild.exe"
-set PARAMS=/m /nr:false /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /p:TrackFileAccess=false
+set PARAMS=/m /nr:false /p:Configuration=Release /p:Platform=x64
 
 echo Building common...
 %MSBUILD% build\src\common\common.vcxproj %PARAMS%
@@ -51,6 +51,13 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
+echo Building dedicated_room...
+%MSBUILD% build\src\dedicated_room\eden-room.vcxproj %PARAMS%
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] MSBuild dedicated_room failed!
+    exit /b %ERRORLEVEL%
+)
+
 echo Building eden...
 %MSBUILD% build\src\eden\eden.vcxproj %PARAMS%
 if %ERRORLEVEL% neq 0 (
@@ -63,13 +70,6 @@ echo [SUCCESS] Compilation completed successfully.
 %MSBUILD% build\src\eden_cmd\eden-cmd.vcxproj %PARAMS%
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] MSBuild eden_cmd failed!
-    exit /b %ERRORLEVEL%
-)
-
-echo Building dedicated_room...
-%MSBUILD% build\src\dedicated_room\eden-room.vcxproj %PARAMS%
-if %ERRORLEVEL% neq 0 (
-    echo [ERROR] MSBuild dedicated_room failed!
     exit /b %ERRORLEVEL%
 )
 

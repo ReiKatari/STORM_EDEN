@@ -207,6 +207,12 @@ void Puller::CallPullerMethod(const MethodCall& method_call) {
 /// Calls a GPU engine method.
 void Puller::CallEngineMethod(const MethodCall& method_call) {
     const EngineID engine = bound_engines[method_call.subchannel];
+    static EngineID last_engine = EngineID::FERMI_TWOD_A;
+
+    if (engine != last_engine) {
+        STORM_TRACE("Puller engine transition -> engine={}, method=0x{:x}", static_cast<int>(engine), method_call.method);
+        last_engine = engine;
+    }
 
     switch (engine) {
     case EngineID::FERMI_TWOD_A:
@@ -228,6 +234,7 @@ void Puller::CallEngineMethod(const MethodCall& method_call) {
         channel_state.nv01_timer->CallMethod(method_call.method, method_call.argument, method_call.IsLastCall());
         break;
     default:
+        STORM_TRACE("Puller::CallEngineMethod UNIMPLEMENTED engine={}", static_cast<int>(engine));
         UNIMPLEMENTED_MSG("Unimplemented engine");
         break;
     }

@@ -158,6 +158,7 @@ std::vector<std::string> GetDeviceListForSink(Settings::AudioEngine sink_id, boo
 }
 
 std::unique_ptr<Sink> CreateSinkFromID(Settings::AudioEngine sink_id, std::string_view device_id) {
+    STORM_TRACE("AudioCore::CreateSinkFromID called with sink_id={}", static_cast<int>(sink_id));
     return GetOutputSinkDetails(sink_id).factory(device_id);
 }
 

@@ -34,7 +34,13 @@ extern bool is_booting;
 namespace Loader {
 
 static u32 CalculatePointerBufferSize(size_t heap_size) {
-    return 0x10000;
+    if (heap_size > 1073741824) { // Games with 1 GiB
+        return 0x10000;
+    } else if (heap_size > 536870912) { // Games with 512 MiB
+        return 0xC000;
+    } else {
+        return 0x8000; // Default for all other games
+    }
 }
 
 AppLoader_NCA::AppLoader_NCA(FileSys::VirtualFile file_)
@@ -257,6 +263,11 @@ ResultStatus AppLoader_NCA::VerifyIntegrity(std::function<bool(size_t, size_t)> 
 }
 
 ResultStatus AppLoader_NCA::ReadRomFS(FileSys::VirtualFile& dir) {
+    if (update_nca_ptr != nullptr && update_nca_ptr->GetRomFS() != nullptr && update_nca_ptr->GetRomFS()->GetSize() > 0) {
+        dir = update_nca_ptr->GetRomFS();
+        return ResultStatus::Success;
+    }
+
     if (nca == nullptr) {
         return ResultStatus::ErrorNotInitialized;
     }

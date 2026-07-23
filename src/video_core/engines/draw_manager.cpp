@@ -234,6 +234,9 @@ void Maxwell3D::DrawManager::UpdateTopology(Maxwell3D& maxwell3d) {
 }
 
 void Maxwell3D::DrawManager::ProcessDraw(Maxwell3D& maxwell3d, bool draw_indexed, u32 instance_count) {
+    STORM_TRACE("DrawManager::ProcessDraw called: indexed={}, instances={}, count={}, execute={}",
+                draw_indexed, instance_count, draw_indexed ? draw_state.index_buffer.count : draw_state.vertex_buffer.count,
+                maxwell3d.ShouldExecute());
     LOG_TRACE(HW_GPU, "called, topology={}, count={}", draw_state.topology, draw_indexed ? draw_state.index_buffer.count : draw_state.vertex_buffer.count);
     UpdateTopology(maxwell3d);
     if (maxwell3d.ShouldExecute()) {

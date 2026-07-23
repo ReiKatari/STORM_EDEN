@@ -3,6 +3,7 @@
 
 #include <QDialogButtonBox>
 #include <QKeySequenceEdit>
+#include <QPushButton>
 #include <QVBoxLayout>
 #include "eden/util/sequence_dialog/sequence_dialog.h"
 
@@ -12,6 +13,12 @@ SequenceDialog::SequenceDialog(QWidget* parent) : QDialog(parent) {
     key_sequence = new QKeySequenceEdit;
 
     auto* const buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    if (auto* ok_btn = buttons->button(QDialogButtonBox::Ok)) {
+        ok_btn->setText(tr("ОК"));
+    }
+    if (auto* cancel_btn = buttons->button(QDialogButtonBox::Cancel)) {
+        cancel_btn->setText(tr("Отмена"));
+    }
     buttons->setCenterButtons(true);
 
     auto* const layout = new QVBoxLayout(this);

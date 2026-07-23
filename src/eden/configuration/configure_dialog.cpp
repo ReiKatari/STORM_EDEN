@@ -68,6 +68,13 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
 
     ui->setupUi(this);
 
+    if (ui->buttonBox->button(QDialogButtonBox::Ok)) {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setText(QStringLiteral("ОК"));
+    }
+    if (ui->buttonBox->button(QDialogButtonBox::Cancel)) {
+        ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("Отмена"));
+    }
+
     ui->selectorList->setStyleSheet(QStringLiteral("font-weight: bold;"));
     ui->tabWidget->setStyleSheet(QStringLiteral("QTabBar::tab { font-weight: bold; }"));
 

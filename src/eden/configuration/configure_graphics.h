@@ -110,4 +110,5 @@ private:
     QWidget* api_widget;
     QComboBox* aspect_ratio_combobox;
     QComboBox* resolution_combobox;
+    QLabel* hardware_warning_label;
 };

@@ -37,8 +37,10 @@ void Fermi2D::BindRasterizer(VideoCore::RasterizerInterface* rasterizer_) {
 }
 
 void Fermi2D::CallMethod(u32 method, u32 method_argument, bool is_last_call) {
-    ASSERT_MSG(method < Regs::NUM_REGS,
-               "Invalid Fermi2D register, increase the size of the Regs structure");
+    if (method >= Regs::NUM_REGS) {
+        LOG_ERROR(HW_GPU, "Invalid Fermi2D register 0x{:x}", method);
+        return;
+    }
     regs.reg_array[method] = method_argument;
 
     if (method == FERMI2D_REG_INDEX(pixels_from_memory.src_y0) + 1) {
@@ -60,6 +62,7 @@ void Fermi2D::ConsumeSinkImpl() {
 }
 
 void Fermi2D::Blit() {
+    STORM_TRACE("Fermi2D::Blit called: src=0x{:x}, dst=0x{:x}", regs.src.Address(), regs.dst.Address());
     LOG_DEBUG(HW_GPU, "called. source address=0x{:x}, destination address=0x{:x}",
               regs.src.Address(), regs.dst.Address());
 
@@ -122,6 +125,9 @@ void Fermi2D::Blit() {
     }
 
     memory_manager.FlushCaching();
+    if (!src.Address() || !regs.dst.Address()) {
+        return;
+    }
     if (!rasterizer->AccelerateSurfaceCopy(src, regs.dst, config)) {
         sw_blitter->Blit(src, regs.dst, config);
     }

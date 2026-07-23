@@ -93,10 +93,9 @@ static QString BuildGameTooltip(const QString& game_name, const QString& game_pa
     }
 
     const auto readable_play_time =
-        play_time > 0 ? QObject::tr("Play Time: %1")
-                            .arg(QString::fromStdString(
-                                PlayTime::PlayTimeManager::GetReadablePlayTime(play_time)))
-                      : QObject::tr("Never Played");
+        play_time > 0 ? QString::fromStdString(
+                                PlayTime::PlayTimeManager::GetReadablePlayTime(play_time))
+                      : QStringLiteral("Нет");
 
     const auto enabled_update = [patch_versions]() -> QString {
         const QStringList lines = patch_versions.split(QLatin1Char('\n'));
@@ -120,7 +119,7 @@ static QString BuildGameTooltip(const QString& game_name, const QString& game_pa
             dlc_list << match.captured(2);
         }
     }
-    QString dlc_str = dlc_list.isEmpty() ? QObject::tr("None") : dlc_list.join(QStringLiteral(", "));
+    QString dlc_str = dlc_list.isEmpty() ? QString::fromUtf8("Нет") : dlc_list.join(QStringLiteral(", "));
 
     QString html = QStringLiteral(
         "<html><body style=\"margin: 0; padding: 0;\">"
@@ -135,34 +134,36 @@ static QString BuildGameTooltip(const QString& game_name, const QString& game_pa
         "  </td>"
         "  <td valign=\"top\" style=\"min-width: 280px;\">"
         "    <div style=\"font-size: 13pt; font-weight: bold; color: #00FFCC; margin-bottom: 6px; line-height: 1.2;\">%2</div>"
-        "    <div style=\"font-family: 'Consolas', monospace; font-size: 9.5pt; color: #8C8C9A; margin-bottom: 8px;\">Title ID: 0x%3</div>"
         "    <table style=\"font-size: 10pt; color: #D0D0DB;\" cellpadding=\"2\">"
-        "      <tr><td><b>%4:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%5</span></td></tr>"
-        "      <tr><td><b>%6:</b></td><td><span style=\"background-color: #1e2d2f; border: 1px solid #1f5f5b; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #00FFCC;\">%7</span></td></tr>"
-        "      <tr><td><b>%8:</b></td><td>%9</td></tr>"
-        "      <tr><td><b>%10:</b></td><td>%11</td></tr>"
-        "      <tr><td><b>%12:</b></td><td>%13</td></tr>"
+        "      <tr><td><b>%3:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-family: 'Consolas', monospace; font-weight: bold; color: #FFFFFF;\">0x%4</span></td></tr>"
+        "      <tr><td><b>%5:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%6</span></td></tr>"
+        "      <tr><td><b>%7:</b></td><td><span style=\"background-color: #1e2d2f; border: 1px solid #1f5f5b; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #00FFCC;\">%8</span></td></tr>"
+        "      <tr><td><b>%9:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%10</span></td></tr>"
+        "      <tr><td><b>%11:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%12</span></td></tr>"
+        "      <tr><td><b>%13:</b></td><td><span style=\"background-color: #2a2a35; border: 1px solid #444455; border-radius: 4px; padding: 1px 6px; font-weight: bold; color: #FFFFFF;\">%14</span></td></tr>"
         "    </table>"
         "  </td>"
         "</tr>"
         "</table>"
-        "<div style=\"font-size: 8.5pt; color: #6E6E7A; border-top: 1px solid #222228; padding: 6px 12px; background-color: #0b0b0d; word-break: break-all;\"><b>Path:</b> %14</div>"
+        "<div style=\"font-size: 8.5pt; color: #6E6E7A; border-top: 1px solid #222228; padding: 6px 12px; word-break: break-all;\"><b style=\"color: #FFFFFF;\">%15:</b> %16</div>"
         "</td></tr></table>"
         "</body></html>"
     )
     .arg(base64_icon)
-    .arg(game_name.isEmpty() ? QObject::tr("Unknown Title") : game_name)
+    .arg(game_name.isEmpty() ? QString::fromUtf8("Неизвестное название") : game_name)
+    .arg(QString::fromUtf8("ID Игры"))
     .arg(QString::fromStdString(fmt::format("{:016X}", program_id)))
-    .arg(QObject::tr("Format"))
+    .arg(QString::fromUtf8("Формат"))
     .arg(game_type)
-    .arg(QObject::tr("Version"))
+    .arg(QString::fromUtf8("Версия"))
     .arg(enabled_update)
-    .arg(QObject::tr("Size"))
+    .arg(QString::fromUtf8("Размер"))
     .arg(readable_size)
-    .arg(QObject::tr("Play Time"))
+    .arg(QString::fromUtf8("Время в игре"))
     .arg(readable_play_time)
-    .arg(QObject::tr("DLCs"))
+    .arg(QString::fromUtf8("DLC"))
     .arg(dlc_str)
+    .arg(QString::fromUtf8("Путь"))
     .arg(game_path);
 
     return html;

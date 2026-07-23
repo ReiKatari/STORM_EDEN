@@ -41,6 +41,7 @@
 #include "eden/game/game_list_worker.h"
 #include "eden/main_window.h"
 #include "eden/util/controller_navigation.h"
+#include "eden/configuration/configure_auto_optimizer.h"
 
 #include <QStyledItemDelegate>
 #include <QPainter>
@@ -953,6 +954,7 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
         shortcut_menu->addAction(tr("Add to Applications Menu"));
 #endif
     context_menu.addSeparator();
+    QAction* auto_optimize = context_menu.addAction(tr("Автоматически оптимизировать настройки"));
     QAction* properties = context_menu.addAction(tr("Configure Game"));
 
     favorite->setVisible(program_id != 0);
@@ -1043,6 +1045,12 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
 #endif
     connect(properties, &QAction::triggered, this,
             [this, program_id, path]() { emit OpenPerGameGeneralRequested(program_id, path); });
+            
+    connect(auto_optimize, &QAction::triggered, this,
+            [this, program_id, path]() {
+                ConfigureAutoOptimizer dialog(this, {program_id}, {path});
+                dialog.exec();
+            });
 
     connect(ryujinx, &QAction::triggered, this,
             [this, program_id]() { emit LinkToRyujinxRequested(program_id); });

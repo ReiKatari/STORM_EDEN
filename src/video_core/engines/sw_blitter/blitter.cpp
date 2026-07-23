@@ -119,8 +119,13 @@ void ProcessPitchLinear(std::span<const u8> input, std::span<u8> output, size_t 
     for (size_t y = 0; y < extent_y; y++) {
         const size_t first_offset = (y + y0) * pitch + base_offset;
         const size_t second_offset = y * extent_x * bpp;
-        u8* write_to = unpack ? &output[first_offset] : &output[second_offset];
-        const u8* read_from = unpack ? &input[second_offset] : &input[first_offset];
+        const size_t out_offset = unpack ? first_offset : second_offset;
+        const size_t in_offset = unpack ? second_offset : first_offset;
+        if (out_offset + copy_size > output.size() || in_offset + copy_size > input.size()) {
+            continue;
+        }
+        u8* write_to = &output[out_offset];
+        const u8* read_from = &input[in_offset];
         std::memcpy(write_to, read_from, copy_size);
     }
 }
@@ -146,12 +151,18 @@ SoftwareBlitEngine::~SoftwareBlitEngine() = default;
 bool SoftwareBlitEngine::Blit(Fermi2D::Surface& src, Fermi2D::Surface& dst,
                               Fermi2D::Config& config) {
     const auto get_surface_size = [](Fermi2D::Surface& surface, u32 bytes_per_pixel) {
+        const u32 depth = surface.depth == 0 ? 1 : surface.depth;
         if (surface.linear == Fermi2D::MemoryLayout::BlockLinear) {
             return CalculateSize(true, bytes_per_pixel, surface.width, surface.height,
-                                 surface.depth, surface.block_height, surface.block_depth);
+                                 depth, surface.block_height, surface.block_depth);
         }
-        return static_cast<size_t>(surface.pitch * surface.height);
+        return static_cast<size_t>(surface.pitch * surface.height * depth);
     };
+
+    if (config.src_x1 <= config.src_x0 || config.src_y1 <= config.src_y0 ||
+        config.dst_x1 <= config.dst_x0 || config.dst_y1 <= config.dst_y0) {
+        return false;
+    }
 
     const u32 src_extent_x = config.src_x1 - config.src_x0;
     const u32 src_extent_y = config.src_y1 - config.src_y0;
@@ -160,7 +171,13 @@ bool SoftwareBlitEngine::Blit(Fermi2D::Surface& src, Fermi2D::Surface& dst,
     const u32 dst_extent_y = config.dst_y1 - config.dst_y0;
     const auto src_bytes_per_pixel = BytesPerBlock(PixelFormatFromRenderTargetFormat(src.format));
     const auto dst_bytes_per_pixel = BytesPerBlock(PixelFormatFromRenderTargetFormat(dst.format));
+    if (src_bytes_per_pixel == 0 || dst_bytes_per_pixel == 0 || !src.Address() || !dst.Address()) {
+        return false;
+    }
     const size_t src_size = get_surface_size(src, src_bytes_per_pixel);
+    if (src_size == 0) {
+        return false;
+    }
 
     Tegra::Memory::GpuGuestMemory<u8, Tegra::Memory::GuestMemoryFlags::SafeRead> tmp_buffer(
         memory_manager, src.Address(), src_size, &impl->tmp_buffer);
@@ -203,7 +220,7 @@ bool SoftwareBlitEngine::Blit(Fermi2D::Surface& src, Fermi2D::Surface& dst,
     impl->dst_buffer.resize_destructive(dst_copy_size);
     if (src.linear == Fermi2D::MemoryLayout::BlockLinear) {
         UnswizzleSubrect(impl->src_buffer, tmp_buffer, src_bytes_per_pixel, src.width, src.height,
-                         src.depth, config.src_x0, config.src_y0, src_extent_x, src_extent_y,
+                         src.depth == 0 ? 1 : src.depth, config.src_x0, config.src_y0, src_extent_x, src_extent_y,
                          src.block_height, src.block_depth, src_extent_x * src_bytes_per_pixel);
     } else {
         ProcessPitchLinear<false>(tmp_buffer, impl->src_buffer, src_extent_x, src_extent_y,
@@ -227,7 +244,7 @@ bool SoftwareBlitEngine::Blit(Fermi2D::Surface& src, Fermi2D::Surface& dst,
 
     if (dst.linear == Fermi2D::MemoryLayout::BlockLinear) {
         SwizzleSubrect(tmp_buffer2, impl->dst_buffer, dst_bytes_per_pixel, dst.width, dst.height,
-                       dst.depth, config.dst_x0, config.dst_y0, dst_extent_x, dst_extent_y,
+                       dst.depth == 0 ? 1 : dst.depth, config.dst_x0, config.dst_y0, dst_extent_x, dst_extent_y,
                        dst.block_height, dst.block_depth, dst_extent_x * dst_bytes_per_pixel);
     } else {
         ProcessPitchLinear<true>(impl->dst_buffer, tmp_buffer2, dst_extent_x, dst_extent_y,

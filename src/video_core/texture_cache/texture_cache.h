@@ -792,7 +792,10 @@ bool TextureCache<P>::BlitImage(const Tegra::Engines::Fermi2D::Surface& dst,
 
     // TODO: Deduplicate
     const std::optional src_base = src_image.TryFindBase(src.Address());
-    const SubresourceRange src_range{.base = src_base.value(), .extent = {1, 1}};
+    if (!src_base.has_value()) {
+        return false;
+    }
+    const SubresourceRange src_range{.base = *src_base, .extent = {1, 1}};
     const ImageViewInfo src_view_info(ImageViewType::e2D, images.src_format, src_range);
     const auto [src_framebuffer_id, src_view_id] = RenderTargetFromImage(src_id, src_view_info);
     const auto [src_samples_x, src_samples_y] = SamplesLog2(src_image.info.num_samples);
@@ -805,7 +808,10 @@ bool TextureCache<P>::BlitImage(const Tegra::Engines::Fermi2D::Surface& dst,
     }
 
     const std::optional dst_base = dst_image.TryFindBase(dst.Address());
-    const SubresourceRange dst_range{.base = dst_base.value(), .extent = {1, 1}};
+    if (!dst_base.has_value()) {
+        return false;
+    }
+    const SubresourceRange dst_range{.base = *dst_base, .extent = {1, 1}};
     const ImageViewInfo dst_view_info(ImageViewType::e2D, images.dst_format, dst_range);
     const auto [dst_framebuffer_id, dst_view_id] = RenderTargetFromImage(dst_id, dst_view_info);
     const auto [dst_samples_x, dst_samples_y] = SamplesLog2(dst_image.info.num_samples);
@@ -1244,7 +1250,11 @@ ImageViewId TextureCache<P>::CreateImageView(const TICEntry& config) {
         return NULL_IMAGE_VIEW_ID;
     }
     ImageBase& image = slot_images[image_id];
-    const SubresourceBase base = image.TryFindBase(config.Address()).value();
+    const auto base_opt = image.TryFindBase(config.Address());
+    if (!base_opt.has_value()) {
+        return NULL_IMAGE_VIEW_ID;
+    }
+    const SubresourceBase base = *base_opt;
     ASSERT(base.level == 0);
     const ImageViewInfo view_info(config, base.layer);
     const ImageViewId image_view_id = FindOrEmplaceImageView(image_id, view_info);
@@ -1775,7 +1785,11 @@ ImageId TextureCache<P>::JoinImages(const ImageInfo& info, GPUVAddr gpu_addr, DA
         if (True(overlap.flags & ImageFlagBits::GpuModified)) {
             new_image.flags |= ImageFlagBits::GpuModified;
             const auto& resolution = Settings::values.resolution_info;
-            const SubresourceBase base = new_image.TryFindBase(overlap.gpu_addr).value();
+            const auto base_opt = new_image.TryFindBase(overlap.gpu_addr);
+            if (!base_opt.has_value()) {
+                continue;
+            }
+            const SubresourceBase base = *base_opt;
             const u32 up_scale = can_rescale ? resolution.up_scale : 1;
             const u32 down_shift = can_rescale ? resolution.down_shift : 0;
             auto copies = MakeShrinkImageCopies(new_info, overlap.info, base, up_scale, down_shift);
@@ -1805,6 +1819,9 @@ std::optional<typename TextureCache<P>::BlitImages> TextureCache<P>::GetBlitImag
     constexpr auto FIND_OPTIONS = RelaxedOptions::Samples;
     const GPUVAddr dst_addr = dst.Address();
     const GPUVAddr src_addr = src.Address();
+    if (!dst_addr || !src_addr) {
+        return std::nullopt;
+    }
     ImageInfo dst_info(dst);
     ImageInfo src_info(src);
     const bool can_be_depth_blit =
@@ -1857,6 +1874,9 @@ std::optional<typename TextureCache<P>::BlitImages> TextureCache<P>::GetBlitImag
             dst_id = InsertImage(dst_info, dst_addr, RelaxedOptions{});
         }
     } while (has_deleted_images);
+    if (!src_id || !dst_id) {
+        return std::nullopt;
+    }
     const ImageBase& src_image = slot_images[src_id];
     const ImageBase& dst_image = slot_images[dst_id];
     const bool native_bgr = runtime.HasNativeBgr();
@@ -2079,7 +2099,11 @@ ImageViewId TextureCache<P>::FindRenderTargetView(const ImageInfo& info, GPUVAdd
     if (image.info.type == ImageType::Linear) {
         base = SubresourceBase{.level = 0, .layer = 0};
     } else {
-        base = image.TryFindBase(gpu_addr).value();
+        const auto base_opt = image.TryFindBase(gpu_addr);
+        if (!base_opt.has_value()) {
+            return NULL_IMAGE_VIEW_ID;
+        }
+        base = *base_opt;
     }
     const s32 layers = image.info.type == ImageType::e3D ? info.size.depth : info.resources.layers;
     const SubresourceRange range{

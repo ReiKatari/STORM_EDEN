@@ -161,4 +161,9 @@ void PrintColoredMessage(const Entry& entry) noexcept;
 /// Formats and prints a log entry to the android logcat.
 void PrintMessageToLogcat(const Entry& entry) noexcept;
 
+void StormTrace(const std::string& message);
+
 } // namespace Common::Log
+
+#define STORM_TRACE(...) ::Common::Log::StormTrace(fmt::format(__VA_ARGS__))
+

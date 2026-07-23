@@ -648,14 +648,6 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
 
     auto dyna_state = Settings::values.dyna_state.GetValue();
 
-    // Workaround for older NVIDIA GPUs (Pascal, Maxwell, Kepler):
-    // Disable all extended dynamic states because their Vulkan drivers are unstable
-    // and trigger VK_ERROR_DEVICE_LOST with dynamic states under complex pipeline workloads.
-    if (is_pascal_or_older_nvidia) {
-        LOG_WARNING(Render_Vulkan, "NVIDIA Pascal/Maxwell/Kepler detected: Disabling Extended Dynamic States for stability");
-        dyna_state = Settings::ExtendedDynamicState::Disabled;
-    }
-
     // Base dynamic states (VIEWPORT, SCISSOR, DEPTH_BIAS, etc.) are ALWAYS active in vk_graphics_pipeline.cpp
     // This slider controls EXTENDED dynamic states with accumulative levels per Vulkan specs:
     //   Level 0 = Core Dynamic States only (Vulkan 1.0)
@@ -1191,9 +1183,6 @@ bool Device::GetSuitability(bool requires_swapchain) {
             const u32 version = (raw_version << 3) >> 3;
             is_broken = version < VK_MAKE_API_VERSION(0, 580, 119, 2);
 #endif
-            if (is_pascal_or_older_nvidia) {
-                is_broken = true;
-            }
         }
         if (is_broken) {
             LOG_WARNING(Render_Vulkan, "Disabling broken VK_EXT_vertex_input_dynamic_state");

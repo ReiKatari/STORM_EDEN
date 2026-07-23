@@ -238,12 +238,18 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
 
             // Perform the work, tracking whether the chunk was a submission
             // before executing.
-            const bool has_submit = work->HasSubmit();
-            work->ExecuteAll(current_cmdbuf, current_upload_cmdbuf);
+            try {
+                const bool has_submit = work->HasSubmit();
+                work->ExecuteAll(current_cmdbuf, current_upload_cmdbuf);
 
-            // If the chunk was a submission, reallocate the command buffer.
-            if (has_submit) {
-                AllocateWorkerCommandBuffer();
+                // If the chunk was a submission, reallocate the command buffer.
+                if (has_submit) {
+                    AllocateWorkerCommandBuffer();
+                }
+            } catch (const std::exception& e) {
+                STORM_TRACE("EXCEPTION IN Vulkan WorkerThread: {}", e.what());
+            } catch (...) {
+                STORM_TRACE("UNKNOWN EXCEPTION IN Vulkan WorkerThread");
             }
         }
 

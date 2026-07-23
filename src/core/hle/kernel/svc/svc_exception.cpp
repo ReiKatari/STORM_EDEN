@@ -46,18 +46,24 @@ void Break(Core::System& system, BreakReason reason, u64 info1, u64 info2) {
         }
         has_dumped_buffer = true;
     };
+    STORM_TRACE("Kernel::Svc::Break called: reason=0x{:x}, info1=0x{:x}, info2=0x{:x}, notification={}",
+                static_cast<u64>(reason), info1, info2, notification_only);
+
     switch (break_reason) {
     case BreakReason::Panic:
+        STORM_TRACE("USERSPACE PANIC! info1=0x{:x}, info2=0x{:x}", info1, info2);
         LOG_CRITICAL(Debug_Emulated, "Userspace PANIC! info1=0x{:016X}, info2=0x{:016X}", info1,
                      info2);
         handle_debug_buffer(info1, info2);
         break;
     case BreakReason::Assert:
+        STORM_TRACE("USERSPACE ASSERTION FAILED! info1=0x{:x}, info2=0x{:x}", info1, info2);
         LOG_CRITICAL(Debug_Emulated, "Userspace Assertion failed! info1=0x{:016X}, info2=0x{:016X}",
                      info1, info2);
         handle_debug_buffer(info1, info2);
         break;
     case BreakReason::User:
+        STORM_TRACE("USERSPACE BREAK! info1=0x{:x}, info2=0x{:x}", info1, info2);
         LOG_WARNING(Debug_Emulated, "Userspace Break! 0x{:016X} with size 0x{:016X}", info1, info2);
         handle_debug_buffer(info1, info2);
         break;
@@ -80,9 +86,11 @@ void Break(Core::System& system, BreakReason reason, u64 info1, u64 info2) {
                  info1, info2);
         break;
     case BreakReason::CppException:
+        STORM_TRACE("USERSPACE UNCAUGHT C++ EXCEPTION");
         LOG_CRITICAL(Debug_Emulated, "Signalling debugger. Uncaught C++ exception encountered.");
         break;
     default:
+        STORM_TRACE("USERSPACE UNKNOWN BREAK REASON: {:#X}", static_cast<u64>(reason));
         LOG_WARNING(
             Debug_Emulated,
             "Signalling debugger, Unknown break reason {:#X}, info1=0x{:016X}, info2=0x{:016X}",
@@ -96,6 +104,7 @@ void Break(Core::System& system, BreakReason reason, u64 info1, u64 info2) {
         has_dumped_buffer ? std::make_optional(debug_buffer) : std::nullopt);
 
     if (!notification_only) {
+        STORM_TRACE("Emulated program broke execution! reason=0x{:x}", static_cast<u64>(reason));
         LOG_CRITICAL(
             Debug_Emulated,
             "Emulated program broke execution! reason=0x{:016X}, info1=0x{:016X}, info2=0x{:016X}",

@@ -2427,6 +2427,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
                      .arg(QString::fromStdString(title_name), instruction_set_suffix)
                      .toStdString();
     LOG_INFO(Frontend, "Booting game: {:016X} | {} | {}", title_id, title_name, title_version);
+    STORM_TRACE("MainWindow::BootGame: Booting title_id=0x{:016x} ({})", title_id, title_name);
     const auto gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
     UpdateWindowTitle(title_name, title_version, gpu_vendor);
 
@@ -5590,11 +5591,13 @@ void MainWindow::UpdateUITheme() {
         
         css.append(QString::fromUtf8(
             "QToolTip {\n"
-            "    background: transparent;\n"
-            "    border: none;\n"
-            "    padding: 0px;\n"
+            "    background-color: #1e1e1e;\n"
+            "    color: #e0e0e0;\n"
+            "    border: 1px solid #333333;\n"
+            "    border-radius: 4px;\n"
+            "    padding: 4px;\n"
             "    margin: 0px;\n"
-            "    opacity: 255;\n"
+            "    opacity: 230;\n"
             "}\n"
         ));
 

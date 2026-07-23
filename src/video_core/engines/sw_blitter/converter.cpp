@@ -758,8 +758,8 @@ private:
                 out_component = SRGB_TO_RGB_LUT[value];
             } else {
                 out_component = calculate_unorm();
-                UNIMPLEMENTED_MSG("SRGB Conversion with component sizes of {} is unimplemented",
-                                  component_sizes[which_component]);
+                LOG_ERROR(HW_GPU, "SRGB Conversion with component sizes of {} is unimplemented",
+                          component_sizes[which_component]);
             }
         }
     }
@@ -823,8 +823,8 @@ private:
                     const u32 index = calculate_unorm();
                     in_component = RGB_TO_SRGB_LUT[index];
                 } else {
-                    UNIMPLEMENTED_MSG("SRGB Conversion with component sizes of {} is unimplemented",
-                                      component_sizes[which_component]);
+                    LOG_ERROR(HW_GPU, "SRGB Conversion with component sizes of {} is unimplemented",
+                              component_sizes[which_component]);
                 }
             }
             const u32 tmp_word = calculate_unorm();
@@ -1227,7 +1227,7 @@ Converter* ConverterFactory::BuildConverter(RenderTargetFormat format) {
             .first->second.get();
         break;
     default: {
-        UNIMPLEMENTED_MSG("This format {} converter is not implemented", format);
+        LOG_ERROR(HW_GPU, "This format {} converter is not implemented", format);
         return impl->converters_cache.emplace(format, std::make_unique<NullConverter>())
             .first->second.get();
     }

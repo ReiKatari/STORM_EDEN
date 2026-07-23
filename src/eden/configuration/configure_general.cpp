@@ -97,12 +97,21 @@ void ConfigureGeneral::SetResetCallback(std::function<void()> callback) {
 }
 
 void ConfigureGeneral::ResetDefaults() {
-    QMessageBox::StandardButton answer = QMessageBox::question(
-        this, tr("Eden"),
-        tr("This reset all settings and remove all per-game configurations. This will not delete "
-           "game directories, profiles, or input profiles. Proceed?"),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (answer == QMessageBox::No) {
+    QMessageBox msg_box(this);
+    msg_box.setWindowTitle(tr("Eden"));
+    msg_box.setText(tr("This reset all settings and remove all per-game configurations. This will not delete "
+                       "game directories, profiles, or input profiles. Proceed?"));
+    msg_box.setIcon(QMessageBox::Question);
+    msg_box.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msg_box.setDefaultButton(QMessageBox::No);
+    if (auto* btn = msg_box.button(QMessageBox::Yes)) {
+        btn->setText(tr("Да"));
+    }
+    if (auto* btn = msg_box.button(QMessageBox::No)) {
+        btn->setText(tr("Нет"));
+    }
+
+    if (msg_box.exec() == QMessageBox::No) {
         return;
     }
     UISettings::values.reset_to_defaults = true;

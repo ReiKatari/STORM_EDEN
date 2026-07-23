@@ -66,6 +66,7 @@ VkBool32 DebugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
     }
     const std::string_view message{data->pMessage};
     if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+        STORM_TRACE("VULKAN VALIDATION ERROR: {}", message);
         LOG_CRITICAL(Render_Vulkan, "{}", message);
     } else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         LOG_WARNING(Render_Vulkan, "{}", message);

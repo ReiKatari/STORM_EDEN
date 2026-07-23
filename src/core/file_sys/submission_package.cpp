@@ -157,14 +157,34 @@ std::shared_ptr<NCA> NSP::GetNCA(u64 title_id, ContentRecordType type, TitleType
         }
     }
 
-    if (title_id_iter == ncas.end())
-        return nullptr;
+    if (title_id_iter != ncas.end()) {
+        auto type_iter = title_id_iter->second.find({title_type, type});
+        if (type_iter == title_id_iter->second.end()) {
+            type_iter = title_id_iter->second.find({TitleType::Application, type});
+        }
+        if (type_iter == title_id_iter->second.end()) {
+            type_iter = title_id_iter->second.find({TitleType::Update, type});
+        }
+        if (type_iter != title_id_iter->second.end()) {
+            return type_iter->second;
+        }
+    }
 
-    const auto type_iter = title_id_iter->second.find({title_type, type});
-    if (type_iter == title_id_iter->second.end())
-        return nullptr;
+    // Fallback: search across all title IDs in the container
+    for (const auto& [tid, type_map] : ncas) {
+        auto type_iter = type_map.find({title_type, type});
+        if (type_iter == type_map.end()) {
+            type_iter = type_map.find({TitleType::Application, type});
+        }
+        if (type_iter == type_map.end()) {
+            type_iter = type_map.find({TitleType::Update, type});
+        }
+        if (type_iter != type_map.end()) {
+            return type_iter->second;
+        }
+    }
 
-    return type_iter->second;
+    return nullptr;
 }
 
 VirtualFile NSP::GetNCAFile(u64 title_id, ContentRecordType type, TitleType title_type) const {

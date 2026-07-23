@@ -49,6 +49,9 @@ add_executable(eden
     configuration/configure_audio.cpp
     configuration/configure_audio.h
     configuration/configure_audio.ui
+    configuration/configure_auto_optimizer.cpp
+    configuration/configure_auto_optimizer.h
+    configuration/configure_auto_optimizer.ui
     configuration/configure_camera.cpp
     configuration/configure_camera.h
     configuration/configure_camera.ui
@@ -208,6 +211,8 @@ add_executable(eden
     util/clickable_label.h
     util/controller_navigation.cpp
     util/controller_navigation.h
+    util/hardware_analyzer.cpp
+    util/hardware_analyzer.h
     util/limitable_input_dialog.cpp
     util/limitable_input_dialog.h
     util/overlay_dialog.cpp

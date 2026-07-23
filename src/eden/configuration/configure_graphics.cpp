@@ -32,6 +32,7 @@
 #include "core/core.h"
 #include "qt_common/config/uisettings.h"
 #include "eden/vk_device_info.h"
+#include "eden/util/hardware_analyzer.h"
 #include "ui_configure_graphics.h"
 #include "eden/configuration/configuration_shared.h"
 #include "eden/configuration/configure_graphics.h"
@@ -50,6 +51,7 @@ ConfigureGraphics::ConfigureGraphics(
       combobox_translations{builder.ComboboxTranslations()} {
     vulkan_device = Settings::values.vulkan_device.GetValue();
     RetrieveVulkanDevices();
+    hardware_warning_label = nullptr;
 
     ui->setupUi(this);
 
@@ -114,8 +116,22 @@ ConfigureGraphics::ConfigureGraphics(
 
     connect(aspect_ratio_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             update_screenshot_info);
+
     connect(resolution_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            update_screenshot_info);
+            [this, update_screenshot_info](int index) {
+                update_screenshot_info();
+                if (this->hardware_warning_label) {
+                    auto info = Util::HardwareAnalyzer::GetHardwareInfo();
+                    int max_res = Util::HardwareAnalyzer::GetMaxRecommendedResolution(info.tier);
+                    
+                    if (index > max_res) {
+                        this->hardware_warning_label->setText(tr("⚠️ <b>ВНИМАНИЕ:</b> Ваше устройство (уровень <b>%1</b>) может не справиться с таким высоким разрешением. Ожидаются падения FPS и нестабильность. Рекомендуемый максимум: <b>%2x</b>").arg(static_cast<int>(info.tier) + 1).arg(max_res));
+                        this->hardware_warning_label->show();
+                    } else {
+                        this->hardware_warning_label->hide();
+                    }
+                }
+            });
 
     api_combobox->setEnabled(!UISettings::values.has_broken_vulkan && api_combobox->isEnabled());
     ui->api_widget->setEnabled(
@@ -294,6 +310,13 @@ void ConfigureGraphics::Setup(const ConfigurationShared::Builder& builder) {
         } else if (setting->Id() == Settings::values.resolution_setup.Id()) {
             // Keep track of the resolution combobox to update other UI tabs that need it
             resolution_combobox = widget->combobox;
+            
+            hardware_warning_label = new QLabel(this);
+            hardware_warning_label->hide();
+            hardware_warning_label->setWordWrap(true);
+            hardware_warning_label->setStyleSheet(QStringLiteral("color: #FF00FF; font-weight: bold; background-color: #1e1e24; border: 1px solid #FF00FF; border-radius: 4px; padding: 4px;"));
+            static_cast<QVBoxLayout*>(widget->layout())->addWidget(hardware_warning_label);
+            
             hold_graphics.emplace(setting->Id(), widget);
         } else {
             hold_graphics.emplace(setting->Id(), widget);

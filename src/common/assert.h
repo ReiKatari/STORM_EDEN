@@ -27,6 +27,7 @@ void AssertFailSoftImpl();
     ([&]() YUZU_NO_INLINE {                                                                         \
         auto&& assert_condition = (_a_);                                                           \
         if (!(assert_condition)) [[unlikely]] {                                                   \
+            STORM_TRACE("ASSERTION FAILED: " __FILE__ ": assert " __VA_ARGS__);                   \
             LOG_CRITICAL(Debug, __FILE__ ": assert " __VA_ARGS__);                                \
             AssertFailSoftImpl();                                                                  \
         }                                                                                          \
@@ -35,6 +36,7 @@ void AssertFailSoftImpl();
 
 #define UNREACHABLE_MSG(...)                                                                       \
     do {                                                                                           \
+        STORM_TRACE("UNREACHABLE CODE: " __FILE__ ": unreachable " __VA_ARGS__);                 \
         LOG_CRITICAL(Debug, __FILE__ ": unreachable " __VA_ARGS__);                               \
         AssertFatalImpl();                                                                         \
     } while (0)

@@ -1,0 +1,1198 @@
+[     0 ms] [Thread 62848] === STORM EDEN STARTUP: main() entered ===
+[     0 ms] [Thread 62848] === STORM EDEN STARTUP: main() entered ===
+[     0 ms] [Thread 55624] === STORM EDEN STARTUP: main() entered ===
+[     0 ms] [Thread 55624] === STORM EDEN STARTUP: main() entered ===
+[   154 ms] [Thread 55624] === STORM EDEN SHUTDOWN: atexit() triggered ===
+[   154 ms] [Thread 55624] === STORM EDEN SHUTDOWN: atexit() triggered ===
+[  2132 ms] [Thread 62848] ASSERTION FAILED: E:\STORM EDEN\src\core\frontend\framebuffer_layout.cpp: assert width > 0 && height > 0
+[  2132 ms] [Thread 62848] ASSERTION FAILED: E:\STORM EDEN\src\core\frontend\framebuffer_layout.cpp: assert width > 0 && height > 0
+[  2295 ms] [Thread 62848] ASSERTION FAILED: E:\STORM EDEN\src\core\frontend\framebuffer_layout.cpp: assert width > 0 && height > 0
+[  2295 ms] [Thread 62848] ASSERTION FAILED: E:\STORM EDEN\src\core\frontend\framebuffer_layout.cpp: assert width > 0 && height > 0
+[  3269 ms] [Thread 62848] AudioCore::CreateSinkFromID called with sink_id=0
+[  3269 ms] [Thread 62848] AudioCore::CreateSinkFromID called with sink_id=0
+[  3345 ms] [Thread 62848] AudioCore::CreateSinkFromID called with sink_id=0
+[  3345 ms] [Thread 62848] AudioCore::CreateSinkFromID called with sink_id=0
+[  3445 ms] [Thread 62848] MainWindow::BootGame: Booting title_id=0x0100d59022590000 (Scott Pilgrim EX (64-bit))
+[  3445 ms] [Thread 62848] MainWindow::BootGame: Booting title_id=0x0100d59022590000 (Scott Pilgrim EX (64-bit))
+[  4442 ms] [Thread 31656] Kernel::Svc::Break called: reason=0x80000003, info1=0x1b49a08000, info2=0x80, notification=true
+[  4442 ms] [Thread 31656] Kernel::Svc::Break called: reason=0x80000003, info1=0x1b49a08000, info2=0x80, notification=true
+[  4584 ms] [Thread 31656] Kernel::Svc::Break called: reason=0x80000004, info1=0x2772ea6000, info2=0x80, notification=true
+[  4584 ms] [Thread 31656] Kernel::Svc::Break called: reason=0x80000004, info1=0x2772ea6000, info2=0x80, notification=true
+[  4781 ms] [Thread 53224] CubebSinkStream opening stream DeviceOut-0 latency 480
+[  4781 ms] [Thread 53224] CubebSinkStream opening stream DeviceOut-0 latency 480
+[  4871 ms] [Thread 53224] CubebSinkStream init SUCCESS: DeviceOut-0
+[  4871 ms] [Thread 53224] CubebSinkStream init SUCCESS: DeviceOut-0
+[  4971 ms] [Thread 53224] CubebSinkStream started successfully: DeviceOut-0
+[  4971 ms] [Thread 53224] CubebSinkStream started successfully: DeviceOut-0
+[ 19257 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=true, instances=1, count=6, execute=true
+[ 19257 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=true, instances=1, count=6, execute=true
+[ 19335 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=true, instances=1
+[ 19335 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=true, instances=1
+[ 19382 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=true, instances=1, count=6, execute=true
+[ 19382 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=true, instances=1, count=6, execute=true
+[ 19442 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=true, instances=1
+[ 19442 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=true, instances=1
+[ 19492 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=false, instances=1, count=4, execute=true
+[ 19492 ms] [Thread 61996] DrawManager::ProcessDraw called: indexed=false, instances=1, count=4, execute=true
+[ 19541 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=false, instances=1
+[ 19541 ms] [Thread 61996] RasterizerVulkan::Draw called: is_indexed=false, instances=1
+[ 19613 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20000, dst=0x43bb1f800
+[ 19613 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20000, dst=0x43bb1f800
+[ 19661 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 19661 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 19714 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 19714 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 19763 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 19763 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 19816 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 19816 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 19874 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20400, dst=0x43bb1fc00
+[ 19874 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20400, dst=0x43bb1fc00
+[ 19987 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 19987 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20075 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20075 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20125 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20125 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20176 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20176 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20229 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20600, dst=0x43bb1fe00
+[ 20229 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20600, dst=0x43bb1fe00
+[ 20280 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20280 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20330 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20330 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20381 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20381 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20433 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20433 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20800, dst=0x46030a000
+[ 20485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20800, dst=0x46030a000
+[ 20532 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20532 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20612 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20612 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20664 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20664 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 20731 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20731 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 20842 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20a00, dst=0x46030a200
+[ 20842 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20a00, dst=0x46030a200
+[ 20904 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20904 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 20981 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 20981 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21029 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21029 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21077 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21077 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21171 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20c00, dst=0x46030a400
+[ 21171 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20c00, dst=0x46030a400
+[ 21229 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21229 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21283 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21283 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21335 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21335 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21417 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21417 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21468 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20e00, dst=0x46030a600
+[ 21468 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f20e00, dst=0x46030a600
+[ 21520 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21520 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21573 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21573 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21621 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21621 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21695 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21695 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 21749 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21000, dst=0x46030a800
+[ 21749 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21000, dst=0x46030a800
+[ 21833 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21833 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 21886 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21886 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 21955 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 21955 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22026 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22026 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22091 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21200, dst=0x46030aa00
+[ 22091 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21200, dst=0x46030aa00
+[ 22170 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22170 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22252 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22252 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22309 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22309 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22379 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22379 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22438 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21400, dst=0x46030ac00
+[ 22438 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21400, dst=0x46030ac00
+[ 22493 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22493 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22548 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22548 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22598 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22598 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22652 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22652 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22700 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21800, dst=0x46030b000
+[ 22700 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f21800, dst=0x46030b000
+[ 22829 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22829 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 22887 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22887 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 22938 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22938 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 22989 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 22989 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23049 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f22800, dst=0x46030c000
+[ 23049 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f22800, dst=0x46030c000
+[ 23104 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23104 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23161 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23161 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23218 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23218 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23271 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23271 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23321 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f23800, dst=0x46030d000
+[ 23321 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f23800, dst=0x46030d000
+[ 23407 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23407 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23462 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23462 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23514 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23514 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23562 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23562 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23612 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f24800, dst=0x46030e000
+[ 23612 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f24800, dst=0x46030e000
+[ 23666 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23666 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23751 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23751 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 23801 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23801 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 23852 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23852 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 23909 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f25800, dst=0x46030f000
+[ 23909 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f25800, dst=0x46030f000
+[ 23960 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 23960 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24034 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24034 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24078 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24078 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24125 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24125 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24173 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f26800, dst=0x460310000
+[ 24173 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f26800, dst=0x460310000
+[ 24222 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24222 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24267 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24267 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24319 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24319 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24390 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24390 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24444 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f27800, dst=0x460311000
+[ 24444 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f27800, dst=0x460311000
+[ 24492 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24492 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24541 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24541 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24595 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24595 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24653 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24653 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24709 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f28800, dst=0x460312000
+[ 24709 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f28800, dst=0x460312000
+[ 24788 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24788 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 24845 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24845 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 24896 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24896 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 24948 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 24948 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25022 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f29800, dst=0x460313000
+[ 25022 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f29800, dst=0x460313000
+[ 25085 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25085 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25136 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25136 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25191 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25191 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25250 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25250 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25301 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2a800, dst=0x460314000
+[ 25301 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2a800, dst=0x460314000
+[ 25354 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25354 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25407 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25407 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25462 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25462 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25522 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25522 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25603 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2b800, dst=0x460315000
+[ 25603 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2b800, dst=0x460315000
+[ 25654 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25654 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25704 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25704 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25755 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25755 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 25808 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25808 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 25868 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2c800, dst=0x460316000
+[ 25868 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2c800, dst=0x460316000
+[ 25918 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25918 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 25976 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 25976 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26038 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26038 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26094 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26094 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26152 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2d800, dst=0x460317000
+[ 26152 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2d800, dst=0x460317000
+[ 26203 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26203 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26259 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26259 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26316 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26316 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26374 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26374 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26435 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2e800, dst=0x460318000
+[ 26435 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2e800, dst=0x460318000
+[ 26484 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26484 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26568 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26568 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26622 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26622 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26703 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26703 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26751 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2f800, dst=0x460319000
+[ 26751 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f2f800, dst=0x460319000
+[ 26804 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26804 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 26852 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26852 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 26905 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26905 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 26964 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 26964 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27009 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f30800, dst=0x46031a000
+[ 27009 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f30800, dst=0x46031a000
+[ 27063 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27063 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27109 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27109 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27190 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27190 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27246 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27246 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27313 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f31800, dst=0x46031b000
+[ 27313 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f31800, dst=0x46031b000
+[ 27365 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27365 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27419 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27419 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27466 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27466 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27523 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27523 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27576 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f32800, dst=0x46031c000
+[ 27576 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f32800, dst=0x46031c000
+[ 27620 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27620 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27704 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27704 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27755 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27755 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 27805 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27805 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 27860 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f33800, dst=0x46031d000
+[ 27860 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f33800, dst=0x46031d000
+[ 27910 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27910 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 27959 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 27959 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28007 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28007 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28064 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28064 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28147 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f34800, dst=0x46031e000
+[ 28147 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f34800, dst=0x46031e000
+[ 28197 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28197 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28245 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28245 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28337 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28337 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28383 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28383 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28432 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f35800, dst=0x46031f000
+[ 28432 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f35800, dst=0x46031f000
+[ 28486 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28486 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28533 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28533 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28594 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28594 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28641 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28641 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28686 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f36800, dst=0x460320000
+[ 28686 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f36800, dst=0x460320000
+[ 28735 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28735 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 28778 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28778 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 28828 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28828 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 28880 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28880 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 28932 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f37800, dst=0x460321000
+[ 28932 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f37800, dst=0x460321000
+[ 29005 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29005 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29057 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29057 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29103 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29103 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29154 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29154 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29200 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f38800, dst=0x460322000
+[ 29200 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f38800, dst=0x460322000
+[ 29252 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29252 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29304 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29304 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29351 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29351 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29403 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29403 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29462 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f39800, dst=0x460323000
+[ 29462 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f39800, dst=0x460323000
+[ 29510 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29510 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29561 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29561 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29613 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29613 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29664 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29664 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29722 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3a800, dst=0x460324000
+[ 29722 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3a800, dst=0x460324000
+[ 29775 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29775 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 29835 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29835 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 29916 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29916 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 29976 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 29976 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30029 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3b800, dst=0x460325000
+[ 30029 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3b800, dst=0x460325000
+[ 30081 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30081 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30135 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30135 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30184 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30184 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30232 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30232 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30290 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3c800, dst=0x460326000
+[ 30290 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3c800, dst=0x460326000
+[ 30341 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30341 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30390 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30390 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30461 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30461 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30510 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30510 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30559 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3d800, dst=0x460327000
+[ 30559 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3d800, dst=0x460327000
+[ 30605 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30605 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30664 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30664 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30714 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30714 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30772 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30772 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 30826 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3e800, dst=0x460328000
+[ 30826 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3e800, dst=0x460328000
+[ 30878 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30878 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 30934 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30934 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 30996 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 30996 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31047 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31047 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31108 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3f800, dst=0x460329000
+[ 31108 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f3f800, dst=0x460329000
+[ 31158 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31158 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31211 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31211 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31262 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31262 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31323 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31323 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31390 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f40800, dst=0x46032a000
+[ 31390 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f40800, dst=0x46032a000
+[ 31452 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31452 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31526 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31526 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31580 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31580 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31635 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31635 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31703 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f41800, dst=0x46032b000
+[ 31703 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f41800, dst=0x46032b000
+[ 31753 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31753 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 31814 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31814 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 31895 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31895 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 31950 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 31950 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32004 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f42800, dst=0x46032c000
+[ 32004 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f42800, dst=0x46032c000
+[ 32075 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32075 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32154 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32154 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32210 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32210 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32288 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32288 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32362 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f43800, dst=0x46032d000
+[ 32362 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f43800, dst=0x46032d000
+[ 32416 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32416 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32470 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32470 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32547 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32547 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32611 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32611 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32665 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f44800, dst=0x46032e000
+[ 32665 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f44800, dst=0x46032e000
+[ 32717 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32717 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32761 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32761 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 32826 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32826 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 32878 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32878 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 32927 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f45800, dst=0x46032f000
+[ 32927 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f45800, dst=0x46032f000
+[ 32973 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 32973 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33021 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33021 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33092 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33092 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33147 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33147 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33198 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f46800, dst=0x460330000
+[ 33198 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f46800, dst=0x460330000
+[ 33252 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33252 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33310 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33310 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33371 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33371 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33439 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33439 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f47800, dst=0x460331000
+[ 33485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f47800, dst=0x460331000
+[ 33536 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33536 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33580 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33580 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33631 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33631 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33682 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33682 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33738 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f48800, dst=0x460332000
+[ 33738 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f48800, dst=0x460332000
+[ 33789 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33789 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 33841 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33841 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 33891 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33891 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 33962 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 33962 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34012 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f49800, dst=0x460333000
+[ 34012 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f49800, dst=0x460333000
+[ 34096 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34096 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34185 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34185 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34246 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34246 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34295 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34295 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34342 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4a800, dst=0x460334000
+[ 34342 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4a800, dst=0x460334000
+[ 34388 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34388 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34441 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34441 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34488 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34488 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34544 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34544 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34595 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4b800, dst=0x460335000
+[ 34595 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4b800, dst=0x460335000
+[ 34665 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34665 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34715 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34715 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 34761 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34761 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 34823 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34823 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 34893 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4c800, dst=0x460336000
+[ 34893 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4c800, dst=0x460336000
+[ 34944 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 34944 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35013 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35013 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35076 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35076 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35131 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35131 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35182 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4d800, dst=0x460337000
+[ 35182 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4d800, dst=0x460337000
+[ 35235 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35235 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35286 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35286 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35336 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35336 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35403 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35403 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35453 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4e800, dst=0x460338000
+[ 35453 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4e800, dst=0x460338000
+[ 35503 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35503 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35555 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35555 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35602 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35602 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35652 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35652 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35741 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4f800, dst=0x460339000
+[ 35741 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f4f800, dst=0x460339000
+[ 35806 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35806 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 35864 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35864 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 35912 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35912 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 35966 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 35966 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36016 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f50800, dst=0x46033a000
+[ 36016 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f50800, dst=0x46033a000
+[ 36068 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36068 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36148 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36148 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36207 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36207 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36260 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36260 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36315 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f51800, dst=0x46033b000
+[ 36315 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f51800, dst=0x46033b000
+[ 36370 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36370 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36417 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36417 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36467 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36467 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36524 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36524 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36575 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f52800, dst=0x46033c000
+[ 36575 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f52800, dst=0x46033c000
+[ 36632 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36632 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36701 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36701 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36757 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36757 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 36813 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36813 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 36862 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f53800, dst=0x46033d000
+[ 36862 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f53800, dst=0x46033d000
+[ 36920 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36920 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 36983 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 36983 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37035 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37035 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37089 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37089 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37188 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f54800, dst=0x46033e000
+[ 37188 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f54800, dst=0x46033e000
+[ 37242 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37242 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37317 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37317 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37378 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37378 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37429 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37429 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37487 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f55800, dst=0x46033f000
+[ 37487 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f55800, dst=0x46033f000
+[ 37543 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37543 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37601 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37601 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37675 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37675 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37730 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37730 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 37805 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f56800, dst=0x460340000
+[ 37805 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f56800, dst=0x460340000
+[ 37857 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37857 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 37915 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37915 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 37970 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 37970 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38018 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38018 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38095 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f57800, dst=0x460341000
+[ 38095 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f57800, dst=0x460341000
+[ 38161 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38161 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38212 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38212 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38266 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38266 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38319 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38319 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38373 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f58800, dst=0x460342000
+[ 38373 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f58800, dst=0x460342000
+[ 38433 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38433 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38486 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38486 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38540 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38540 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38600 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38600 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38653 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f59800, dst=0x460343000
+[ 38653 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f59800, dst=0x460343000
+[ 38704 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38704 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 38776 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38776 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 38829 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38829 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 38895 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38895 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 38949 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5a800, dst=0x460344000
+[ 38949 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5a800, dst=0x460344000
+[ 39026 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39026 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39100 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39100 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39172 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39172 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39225 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39225 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39272 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5b800, dst=0x460345000
+[ 39272 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5b800, dst=0x460345000
+[ 39326 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39326 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39393 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39393 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39465 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39465 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39510 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39510 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39562 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5c800, dst=0x460346000
+[ 39562 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5c800, dst=0x460346000
+[ 39612 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39612 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39684 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39684 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39732 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39732 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 39803 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39803 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 39852 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5d800, dst=0x460347000
+[ 39852 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5d800, dst=0x460347000
+[ 39918 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39918 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 39964 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 39964 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40012 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40012 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40068 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40068 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40140 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5e800, dst=0x460348000
+[ 40140 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5e800, dst=0x460348000
+[ 40226 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40226 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40285 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40285 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40328 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40328 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40374 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40374 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40425 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5f800, dst=0x460349000
+[ 40425 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f5f800, dst=0x460349000
+[ 40471 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40471 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40529 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40529 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40625 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40625 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 40710 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40710 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 40805 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f60800, dst=0x46034a000
+[ 40805 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f60800, dst=0x46034a000
+[ 40854 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40854 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 40907 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 40907 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41007 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41007 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41093 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41093 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41149 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f61800, dst=0x46034b000
+[ 41149 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f61800, dst=0x46034b000
+[ 41195 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41195 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41243 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41243 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41294 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41294 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41345 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41345 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41418 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f62800, dst=0x46034c000
+[ 41418 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f62800, dst=0x46034c000
+[ 41468 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41468 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41528 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41528 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41575 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41575 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41629 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41629 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41722 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f63800, dst=0x46034d000
+[ 41722 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f63800, dst=0x46034d000
+[ 41774 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41774 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 41818 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41818 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 41915 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41915 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 41992 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 41992 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42043 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f64800, dst=0x46034e000
+[ 42043 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f64800, dst=0x46034e000
+[ 42117 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42117 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42166 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42166 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42217 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42217 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42270 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42270 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42320 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f65800, dst=0x46034f000
+[ 42320 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f65800, dst=0x46034f000
+[ 42400 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42400 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42473 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42473 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42529 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42529 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42580 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42580 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42631 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f66800, dst=0x460350000
+[ 42631 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f66800, dst=0x460350000
+[ 42693 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42693 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42762 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42762 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 42820 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42820 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 42863 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42863 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 42915 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f67800, dst=0x460351000
+[ 42915 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f67800, dst=0x460351000
+[ 42965 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 42965 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43014 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43014 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43086 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43086 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43135 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43135 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43186 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f67c00, dst=0x460351400
+[ 43186 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f67c00, dst=0x460351400
+[ 43237 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43237 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43285 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43285 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43333 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43333 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43391 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43391 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43437 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68000, dst=0x460351800
+[ 43437 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68000, dst=0x460351800
+[ 43485 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43485 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43543 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43543 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43590 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43590 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43643 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43643 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43717 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68400, dst=0x460351c00
+[ 43717 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68400, dst=0x460351c00
+[ 43766 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43766 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 43828 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43828 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 43880 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43880 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 43931 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43931 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 43985 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68800, dst=0x460352000
+[ 43985 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68800, dst=0x460352000
+[ 44035 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44035 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44088 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44088 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44136 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44136 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44182 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44182 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44237 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68c00, dst=0x460352400
+[ 44237 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f68c00, dst=0x460352400
+[ 44300 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44300 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44351 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44351 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44398 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44398 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44449 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44449 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44505 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69000, dst=0x460352800
+[ 44505 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69000, dst=0x460352800
+[ 44562 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44562 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44622 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44622 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44673 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44673 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44723 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44723 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44776 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69400, dst=0x460352c00
+[ 44776 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69400, dst=0x460352c00
+[ 44831 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44831 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 44885 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44885 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 44939 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44939 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 44990 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 44990 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45076 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69800, dst=0x460353000
+[ 45076 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69800, dst=0x460353000
+[ 45129 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45129 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45182 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45182 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45230 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45230 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45291 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45291 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45343 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69c00, dst=0x460353400
+[ 45343 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f69c00, dst=0x460353400
+[ 45404 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45404 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45464 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45464 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45527 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45527 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45582 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45582 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45637 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a000, dst=0x460353800
+[ 45637 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a000, dst=0x460353800
+[ 45709 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45709 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 45768 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45768 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 45830 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45830 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 45884 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45884 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 45944 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a400, dst=0x460353c00
+[ 45944 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a400, dst=0x460353c00
+[ 46026 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46026 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46085 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46085 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46143 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46143 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46202 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46202 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46277 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a800, dst=0x460354000
+[ 46277 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6a800, dst=0x460354000
+[ 46371 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46371 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46426 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46426 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46477 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46477 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46534 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46534 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46589 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6ac00, dst=0x460354400
+[ 46589 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6ac00, dst=0x460354400
+[ 46637 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46637 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46714 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46714 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 46767 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46767 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 46827 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46827 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 46881 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6b000, dst=0x460354800
+[ 46881 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6b000, dst=0x460354800
+[ 46961 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 46961 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47013 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47013 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47067 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47067 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47122 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47122 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47188 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6c000, dst=0x460355800
+[ 47188 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6c000, dst=0x460355800
+[ 47240 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47240 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47304 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47304 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47366 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47366 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47420 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47420 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d000, dst=0x460356800
+[ 47485 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d000, dst=0x460356800
+[ 47557 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47557 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47613 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47613 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47663 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47663 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47736 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47736 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 47797 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d400, dst=0x460356c00
+[ 47797 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d400, dst=0x460356c00
+[ 47853 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47853 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 47942 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47942 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 47995 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 47995 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48052 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48052 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48111 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d800, dst=0x460357000
+[ 48111 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6d800, dst=0x460357000
+[ 48173 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48173 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48266 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48266 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48321 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48321 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48375 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48375 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48430 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6dc00, dst=0x460357400
+[ 48430 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6dc00, dst=0x460357400
+[ 48489 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48489 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48548 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48548 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48607 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48607 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48670 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48670 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48734 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6e000, dst=0x460357800
+[ 48734 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6e000, dst=0x460357800
+[ 48794 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48794 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 48856 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48856 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 48921 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48921 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 48988 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 48988 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49055 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6e400, dst=0x460357c00
+[ 49055 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f6e400, dst=0x460357c00
+[ 49139 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49139 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49196 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49196 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49259 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49259 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49315 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49315 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49381 ms] [Thread 61996] Fermi2D::Blit called: src=0x422200000, dst=0x4a8968000
+[ 49381 ms] [Thread 61996] Fermi2D::Blit called: src=0x422200000, dst=0x4a8968000
+[ 49438 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49438 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49507 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49507 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49566 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49566 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49629 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49629 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49689 ms] [Thread 61996] Fermi2D::Blit called: src=0x4222c4000, dst=0x4a8a2c000
+[ 49689 ms] [Thread 61996] Fermi2D::Blit called: src=0x4222c4000, dst=0x4a8a2c000
+[ 49748 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49748 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 49811 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49811 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 49871 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49871 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 49942 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 49942 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 50014 ms] [Thread 61996] Fermi2D::Blit called: src=0x422388000, dst=0x4a8ae0000
+[ 50014 ms] [Thread 61996] Fermi2D::Blit called: src=0x422388000, dst=0x4a8ae0000
+[ 50085 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50085 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50147 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50147 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50216 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 50216 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 50310 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 50310 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 50374 ms] [Thread 61996] Fermi2D::Blit called: src=0x42244c000, dst=0x4a8ba4000
+[ 50374 ms] [Thread 61996] Fermi2D::Blit called: src=0x42244c000, dst=0x4a8ba4000
+[ 50446 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50446 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50507 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50507 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50581 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 50581 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 50659 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 50659 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 50728 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ed0000, dst=0x460628000
+[ 50728 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ed0000, dst=0x460628000
+[ 50803 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50803 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 50890 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50890 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 50986 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 50986 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 51051 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51051 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51146 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee0000, dst=0x460638000
+[ 51146 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee0000, dst=0x460638000
+[ 51213 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51213 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51282 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 51282 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 51343 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 51343 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 51405 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51405 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51469 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee1000, dst=0x460639000
+[ 51469 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee1000, dst=0x460639000
+[ 51548 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51548 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51615 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 51615 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 51714 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 51714 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 51783 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51783 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 51860 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee2800, dst=0x46063a800
+[ 51860 ms] [Thread 61996] Fermi2D::Blit called: src=0x415ee2800, dst=0x46063a800
+[ 51925 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51925 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 51989 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 51989 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 52057 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52057 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52128 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52128 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52221 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f01800, dst=0x460659800
+[ 52221 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f01800, dst=0x460659800
+[ 52289 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 52289 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 52362 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 52362 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 52426 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52426 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52492 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52492 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52566 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f10800, dst=0x460668800
+[ 52566 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f10800, dst=0x460668800
+[ 52666 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 52666 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 52743 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 52743 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 52841 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52841 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 52889 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52889 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 52942 ms] [Thread 61996] Fermi2D::Blit called: src=0x422504800, dst=0x4a8c68c00
+[ 52942 ms] [Thread 61996] Fermi2D::Blit called: src=0x422504800, dst=0x4a8c68c00
+[ 52994 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 52994 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53045 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53045 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53111 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53111 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53211 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53211 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53265 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f10c00, dst=0x46071cc00
+[ 53265 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f10c00, dst=0x46071cc00
+[ 53315 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53315 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53369 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53369 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53423 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53423 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53477 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53477 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53535 ms] [Thread 61996] Fermi2D::Blit called: src=0x416058800, dst=0x4a9d20000
+[ 53535 ms] [Thread 61996] Fermi2D::Blit called: src=0x416058800, dst=0x4a9d20000
+[ 53585 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53585 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53635 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53635 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53715 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53715 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 53784 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53784 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 53841 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f11000, dst=0x46071d000
+[ 53841 ms] [Thread 61996] Fermi2D::Blit called: src=0x415f11000, dst=0x46071d000
+[ 53899 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53899 ms] [Thread 61996] Fermi2D::Blit Step 1: Flushing cache
+[ 53973 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 53973 ms] [Thread 61996] Fermi2D::Blit Step 3: AccelerateSurfaceCopy start
+[ 54026 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 54026 ms] [Thread 61996] Fermi2D::Blit Step 4: sw_blitter->Blit start
+[ 54078 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done
+[ 54078 ms] [Thread 61996] Fermi2D::Blit Step 5: sw_blitter->Blit done

@@ -60,8 +60,10 @@ public:
     void Reset() override {
         ASSERT(references == 0);
         VideoCommon::BankBase::Reset();
-        const auto& dev = device.GetLogical();
-        dev.ResetQueryPool(*query_pool, 0, BANK_SIZE);
+        if (device.HasHostQueryReset()) {
+            const auto& dev = device.GetLogical();
+            dev.ResetQueryPool(*query_pool, 0, BANK_SIZE);
+        }
         host_results.fill(0ULL);
         next_bank = 0;
     }
@@ -73,11 +75,13 @@ public:
             &host_results[start], sizeof(u64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
         switch (query_result) {
         case VK_SUCCESS:
+        case VK_NOT_READY:
             return;
         case VK_ERROR_DEVICE_LOST:
             device.ReportLoss();
             [[fallthrough]];
         default:
+            STORM_TRACE("Vulkan GetQueryResults failed with VkResult={}", static_cast<int>(query_result));
             throw vk::Exception(query_result);
         }
     }

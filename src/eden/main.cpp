@@ -159,7 +159,7 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 
 LONG WINAPI GlobalVectoredExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     DWORD code = ExceptionInfo->ExceptionRecord->ExceptionCode;
-    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x00000000) {
+    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x4001000a || code == 0xE06D7363 || code == 0x00000000) {
         return EXCEPTION_CONTINUE_SEARCH;
     }
 

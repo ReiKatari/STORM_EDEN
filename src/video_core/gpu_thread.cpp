@@ -38,16 +38,24 @@ void ThreadManager::StartThread(VideoCore::RendererBase& renderer, Core::Fronten
             if (stop_token.stop_requested()) {
                 break;
             }
-            if (auto* submit_list = std::get_if<SubmitListCommand>(&next.data)) {
-                scheduler.Push(submit_list->channel, std::move(submit_list->entries));
-            } else if (std::holds_alternative<GPUTickCommand>(next.data)) {
-                system.GPU().TickWork();
-            } else if (const auto* flush = std::get_if<FlushRegionCommand>(&next.data)) {
-                renderer.ReadRasterizer()->FlushRegion(flush->addr, flush->size);
-            } else if (const auto* invalidate = std::get_if<InvalidateRegionCommand>(&next.data)) {
-                renderer.ReadRasterizer()->OnCacheInvalidation(invalidate->addr, invalidate->size);
-            } else {
-                ASSERT(false);
+            try {
+                if (auto* submit_list = std::get_if<SubmitListCommand>(&next.data)) {
+                    scheduler.Push(submit_list->channel, std::move(submit_list->entries));
+                } else if (std::holds_alternative<GPUTickCommand>(next.data)) {
+                    system.GPU().TickWork();
+                } else if (const auto* flush = std::get_if<FlushRegionCommand>(&next.data)) {
+                    renderer.ReadRasterizer()->FlushRegion(flush->addr, flush->size);
+                } else if (const auto* invalidate = std::get_if<InvalidateRegionCommand>(&next.data)) {
+                    renderer.ReadRasterizer()->OnCacheInvalidation(invalidate->addr, invalidate->size);
+                } else {
+                    ASSERT(false);
+                }
+            } catch (const std::exception& ex) {
+                STORM_TRACE("GPU Thread Exception Caught: {}", ex.what());
+                LOG_CRITICAL(Render_Vulkan, "GPU Thread Exception Caught: {}", ex.what());
+            } catch (...) {
+                STORM_TRACE("GPU Thread Unknown Exception Caught!");
+                LOG_CRITICAL(Render_Vulkan, "GPU Thread Unknown Exception Caught!");
             }
             state.signaled_fence.store(next.fence);
             if (next.block) {

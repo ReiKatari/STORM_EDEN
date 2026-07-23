@@ -134,7 +134,7 @@ private:
 /// Throws a Vulkan exception if result is not success.
 inline void Check(VkResult result) {
     if (result != VK_SUCCESS) {
-        STORM_TRACE("VULKAN ERROR: Check failed with VkResult={}", static_cast<int>(result));
+        LOG_CRITICAL(Render_Vulkan, "VULKAN ERROR: Check failed with VkResult={}", static_cast<int>(result));
         throw Exception(result);
     }
 }
@@ -143,7 +143,7 @@ inline void Check(VkResult result) {
 /// @return result
 inline VkResult Filter(VkResult result) {
     if (result < 0) {
-        STORM_TRACE("VULKAN ERROR: Filter failed with VkResult={}", static_cast<int>(result));
+        LOG_CRITICAL(Render_Vulkan, "VULKAN ERROR: Filter failed with VkResult={}", static_cast<int>(result));
         throw Exception(result);
     }
     return result;
@@ -1078,7 +1078,9 @@ public:
     }
 
     void ResetQueryPool(VkQueryPool query_pool, u32 first, u32 count) const noexcept {
-        dld->vkResetQueryPool(handle, query_pool, first, count);
+        if (dld->vkResetQueryPool) {
+            dld->vkResetQueryPool(handle, query_pool, first, count);
+        }
     }
 
     VkResult GetQueryResults(VkQueryPool query_pool, u32 first, u32 count, std::size_t data_size,

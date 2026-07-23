@@ -756,6 +756,11 @@ public:
 
     bool HasTimelineSemaphore() const;
 
+    /// Returns true if host query reset is supported by extension and physical device feature.
+    bool HasHostQueryReset() const {
+        return extensions.host_query_reset && features.host_query_reset.hostQueryReset;
+    }
+
     /// Returns the minimum supported version of SPIR-V.
     u32 SupportedSpirvVersion() const {
         if (instance_version >= VK_API_VERSION_1_3) {

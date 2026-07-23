@@ -80,8 +80,8 @@ public:
         if constexpr (!can_async_check) {
             TryReleasePendingFences<false>();
         }
+        const bool delay_fence = Settings::IsGPULevelHigh();
         const bool should_flush = ShouldFlush();
-        const bool delay_fence = Settings::IsGPULevelHigh() || (Settings::IsGPULevelMedium() && should_flush);
         CommitAsyncFlushes();
         TFence new_fence = CreateFence(!should_flush);
         if constexpr (can_async_check) {

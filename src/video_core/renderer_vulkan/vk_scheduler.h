@@ -294,9 +294,9 @@ private:
 
     std::queue<std::unique_ptr<CommandChunk>> work_queue;
     std::vector<std::unique_ptr<CommandChunk>> chunk_reserve;
-    std::mutex execution_mutex;
-    std::mutex reserve_mutex;
-    std::mutex queue_mutex;
+    std::recursive_mutex execution_mutex;
+    std::recursive_mutex reserve_mutex;
+    std::recursive_mutex queue_mutex;
     std::recursive_mutex record_mutex;
     std::condition_variable_any event_cv;
     std::jthread worker_thread;

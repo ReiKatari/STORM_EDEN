@@ -93,7 +93,7 @@ struct CommandDataContainer {
 /// Struct used to synchronize the GPU thread
 struct SynchState final {
     using CommandQueue = Common::SPSCQueue<CommandDataContainer>;
-    std::mutex write_lock;
+    std::recursive_mutex write_lock;
     CommandQueue queue;
     u64 last_fence{};
     std::atomic<u64> signaled_fence{};

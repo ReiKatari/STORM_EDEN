@@ -66,25 +66,19 @@ void Fermi2D::Blit() {
     LOG_DEBUG(HW_GPU, "called. source address=0x{:x}, destination address=0x{:x}",
               regs.src.Address(), regs.dst.Address());
 
-    if (regs.operation != Operation::SrcCopy) {
-        LOG_ERROR(HW_GPU, "Operation is not copy");
-    }
-    if (regs.src.layer != 0) {
-        LOG_ERROR(HW_GPU, "Source layer is not zero");
-    }
-    if (regs.dst.layer != 0) {
-        LOG_ERROR(HW_GPU, "Destination layer is not zero");
-    }
-    if (regs.src.depth != 1) {
-        LOG_ERROR(HW_GPU, "Source depth is not one");
-    }
-    if (regs.clip_enable != 0) {
-        LOG_ERROR(HW_GPU, "Clipped blit enabled");
-    }
+    Surface src = regs.src;
+    Surface dst = regs.dst;
+    if (src.depth == 0) src.depth = 1;
+    if (dst.depth == 0) dst.depth = 1;
+
+    UNIMPLEMENTED_IF_MSG(regs.operation != Operation::SrcCopy, "Operation is not copy");
+    UNIMPLEMENTED_IF_MSG(src.layer != 0, "Source layer is not zero");
+    UNIMPLEMENTED_IF_MSG(dst.layer != 0, "Destination layer is not zero");
+    UNIMPLEMENTED_IF_MSG(src.depth != 1, "Source depth is not one");
+    UNIMPLEMENTED_IF_MSG(regs.clip_enable != 0, "Clipped blit enabled");
 
     const auto& args = regs.pixels_from_memory;
     constexpr s64 null_derivative = 1ULL << 32;
-    Surface src = regs.src;
     const auto bytes_per_pixel = BytesPerBlock(PixelFormatFromRenderTargetFormat(src.format));
     const bool delegate_to_gpu = src.width > 512 && src.height > 512 && bytes_per_pixel <= 8 &&
                                  src.format != regs.dst.format;
@@ -126,16 +120,16 @@ void Fermi2D::Blit() {
 
     STORM_TRACE("Fermi2D::Blit Step 1: Flushing cache");
     memory_manager.FlushCaching();
-    if (!src.Address() || !regs.dst.Address()) {
+    if (!src.Address() || !dst.Address()) {
         STORM_TRACE("Fermi2D::Blit Step 2: Null address");
         return;
     }
     STORM_TRACE("Fermi2D::Blit Step 3: AccelerateSurfaceCopy start");
-    const bool accelerated = rasterizer->AccelerateSurfaceCopy(src, regs.dst, config);
+    const bool accelerated = rasterizer->AccelerateSurfaceCopy(src, dst, config);
     STORM_TRACE("Fermi2D::Blit Step 3.5: AccelerateSurfaceCopy res={}", accelerated);
     if (!accelerated) {
         STORM_TRACE("Fermi2D::Blit Step 4: sw_blitter->Blit start");
-        sw_blitter->Blit(src, regs.dst, config);
+        sw_blitter->Blit(src, dst, config);
         STORM_TRACE("Fermi2D::Blit Step 5: sw_blitter->Blit done");
     }
 }

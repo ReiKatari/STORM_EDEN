@@ -159,7 +159,7 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 
 LONG WINAPI GlobalVectoredExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     DWORD code = ExceptionInfo->ExceptionRecord->ExceptionCode;
-    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x4001000a || code == 0xE06D7363 || code == 0x00000000) {
+    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x4001000a || code == 0xE06D7363 || code == 0x00000000 || code == EXCEPTION_ACCESS_VIOLATION) {
         return EXCEPTION_CONTINUE_SEARCH;
     }
 
@@ -394,6 +394,7 @@ int main(int argc, char* argv[]) {
 
     QApplication app(argc, argv);
     app.setStyle(new MenuProxyStyle(app.style()));
+    app.setWindowIcon(QIcon(QStringLiteral(":/img/eden.ico")));
 
 #ifdef _WIN32
     OverrideWindowsFont();

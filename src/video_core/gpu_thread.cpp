@@ -26,6 +26,7 @@ ThreadManager::~ThreadManager() = default;
 
 void ThreadManager::StartThread(VideoCore::RendererBase& renderer, Core::Frontend::GraphicsContext& context, Tegra::Control::Scheduler& scheduler) {
     rasterizer = renderer.ReadRasterizer();
+    scheduler_ptr = &scheduler;
     thread = std::jthread([&](std::stop_token stop_token) {
         Common::SetCurrentThreadName("GPU");
         Common::SetCurrentThreadPriority(Common::ThreadPriority::Critical);
@@ -103,6 +104,21 @@ void ThreadManager::FlushAndInvalidateRegion(DAddr addr, u64 size) {
 }
 
 u64 ThreadManager::PushCommand(CommandData&& command_data, bool block) {
+    if (std::this_thread::get_id() == thread.get_id()) {
+        if (auto* submit_list = std::get_if<SubmitListCommand>(&command_data)) {
+            if (scheduler_ptr) {
+                scheduler_ptr->Push(submit_list->channel, std::move(submit_list->entries));
+            }
+        } else if (std::holds_alternative<GPUTickCommand>(command_data)) {
+            system.GPU().TickWork();
+        } else if (const auto* flush = std::get_if<FlushRegionCommand>(&command_data)) {
+            rasterizer->FlushRegion(flush->addr, flush->size);
+        } else if (const auto* invalidate = std::get_if<InvalidateRegionCommand>(&command_data)) {
+            rasterizer->OnCacheInvalidation(invalidate->addr, invalidate->size);
+        }
+        return state.signaled_fence.load(std::memory_order_relaxed);
+    }
+
     if (!is_async) {
         // In synchronous GPU mode, block the caller until the command has executed
         block = true;

@@ -131,6 +131,7 @@ private:
     Core::System& system;
     const bool is_async;
     VideoCore::RasterizerInterface* rasterizer = nullptr;
+    Tegra::Control::Scheduler* scheduler_ptr = nullptr;
 
     SynchState state;
     std::jthread thread;

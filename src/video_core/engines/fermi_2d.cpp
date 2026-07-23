@@ -124,12 +124,19 @@ void Fermi2D::Blit() {
         config.src_x0 = 0;
     }
 
+    STORM_TRACE("Fermi2D::Blit Step 1: Flushing cache");
     memory_manager.FlushCaching();
     if (!src.Address() || !regs.dst.Address()) {
+        STORM_TRACE("Fermi2D::Blit Step 2: Null address");
         return;
     }
-    if (!rasterizer->AccelerateSurfaceCopy(src, regs.dst, config)) {
+    STORM_TRACE("Fermi2D::Blit Step 3: AccelerateSurfaceCopy start");
+    const bool accelerated = rasterizer->AccelerateSurfaceCopy(src, regs.dst, config);
+    STORM_TRACE("Fermi2D::Blit Step 3.5: AccelerateSurfaceCopy res={}", accelerated);
+    if (!accelerated) {
+        STORM_TRACE("Fermi2D::Blit Step 4: sw_blitter->Blit start");
         sw_blitter->Blit(src, regs.dst, config);
+        STORM_TRACE("Fermi2D::Blit Step 5: sw_blitter->Blit done");
     }
 }
 

@@ -131,6 +131,7 @@ void DynarmicCallbacks64::ExceptionRaised(u64 pc, Dynarmic::A64::Exception excep
         LOG_TRACE(Core_ARM, "ExceptionRaised(exception = {}, pc = {:08X}, code = {:08X}, cached = {:08X})", std::size_t(exception), pc, m_memory.Read32(pc), MemoryReadCode(pc).value_or(0));
         return;
     case Dynarmic::A64::Exception::NoExecuteFault:
+        STORM_TRACE("Core_ARM CRITICAL: NoExecuteFault pc={:#016x}", pc);
         if (pc < 0x1000) {
             LOG_CRITICAL(Core_ARM, "Guest crashed at a null-like address ({:#016x})! This is usually caused by broken/incompatible mods (e.g. Zelda BotW without BCML/UKMM) or corrupted game data.", pc);
         }
@@ -138,6 +139,7 @@ void DynarmicCallbacks64::ExceptionRaised(u64 pc, Dynarmic::A64::Exception excep
         ReturnException(pc, PrefetchAbort);
         return;
     default:
+        STORM_TRACE("Core_ARM CRITICAL: ExceptionRaised exception={} pc={:#016x}", static_cast<std::size_t>(exception), pc);
         if (m_debugger_enabled) {
             ReturnException(pc, InstructionBreakpoint);
         } else {
@@ -340,7 +342,6 @@ void ArmDynarmic64::MakeJit(Common::PageTable* page_table, std::size_t address_s
     case Settings::CpuAccuracy::Auto:
         config.unsafe_optimizations = true;
         config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_UnfuseFMA;
-        config.fastmem_address_space_bits = 64;
         break;
     // Paranoia mode for debugging optimizations
     case Settings::CpuAccuracy::Paranoid:

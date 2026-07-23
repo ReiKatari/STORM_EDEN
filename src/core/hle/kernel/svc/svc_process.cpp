@@ -15,6 +15,7 @@ void ExitProcess(Core::System& system) {
     auto* current_process = GetCurrentProcessPointer(system.Kernel());
 
     LOG_INFO(Kernel_SVC, "Process {} exiting", current_process->GetProcessId());
+    STORM_TRACE("KERNEL SVC: ExitProcess called by guest process PID={}", current_process ? current_process->GetProcessId() : 0);
     ASSERT_MSG(current_process->GetState() == KProcess::State::Running,
                "Process has already exited");
 

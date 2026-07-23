@@ -2615,6 +2615,7 @@ void MainWindow::OnEmulationStopTimeExpired() {
 }
 
 void MainWindow::OnEmulationStopped() {
+    STORM_TRACE("MainWindow::OnEmulationStopped called!");
     Settings::is_booting = false;
     shutdown_timer.stop();
     if (emu_thread) {

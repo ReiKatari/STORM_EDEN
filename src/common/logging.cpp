@@ -484,19 +484,39 @@ void StormTrace(const std::string& message) {
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start_time).count();
 
+    char formatted[1024];
+    snprintf(formatted, sizeof(formatted), "[%6lld ms] [Thread %lu] %s\r\n", (long long)elapsed, (unsigned long)GetCurrentThreadId(), message.c_str());
+
+#ifdef _WIN32
     const char* paths[] = {
         "E:\\STORM EDEN\\storm_boot_trace.txt",
+        "E:\\STORM EDEN\\build\\bin\\Release\\storm_boot_trace.txt",
+        "C:\\Users\\ReiKatari\\storm_boot_trace.txt",
         "storm_boot_trace.txt"
     };
-
+    for (const char* path : paths) {
+        HANDLE hFile = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                   nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (hFile != INVALID_HANDLE_VALUE) {
+            DWORD bytesWritten = 0;
+            WriteFile(hFile, formatted, static_cast<DWORD>(strlen(formatted)), &bytesWritten, nullptr);
+            CloseHandle(hFile);
+        }
+    }
+#else
+    const char* paths[] = {
+        "E:/STORM EDEN/storm_boot_trace.txt",
+        "storm_boot_trace.txt"
+    };
     for (const char* path : paths) {
         FILE* f = fopen(path, "a");
         if (f) {
-            fprintf(f, "[%6lld ms] [Thread %lu] %s\n", (long long)elapsed, (unsigned long)GetCurrentThreadId(), message.c_str());
+            fprintf(f, "%s", formatted);
             fflush(f);
             fclose(f);
         }
     }
+#endif
 }
 
 } // namespace Common::Log

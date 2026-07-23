@@ -513,6 +513,7 @@ void KProcess::FinishTermination() {
 }
 
 void KProcess::Exit() {
+    STORM_TRACE("KERNEL: KProcess::Exit called for PID={}", m_process_id);
     // Determine whether we need to start terminating
     bool needs_terminate = false;
     {

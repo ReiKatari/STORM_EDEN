@@ -154,59 +154,26 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 #include <windows.h>
 #include <fstream>
 #include <psapi.h>
+#include <exception>
 #pragma comment(lib, "psapi.lib")
 
-LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
-    // Write to the exe directory so we can always find the file
-    char exe_path[MAX_PATH] = {};
-    GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
-    std::string crash_file(exe_path);
-    auto last_sep = crash_file.find_last_of("\\/");
-    if (last_sep != std::string::npos) {
-        crash_file = crash_file.substr(0, last_sep + 1);
-    }
-    crash_file += "crash_dump_global.txt";
-
-    std::ofstream os(crash_file, std::ios::app);
-    os << "=== HARD CRASH DETECTED ===\n";
-    os << "Thread ID: " << std::dec << GetCurrentThreadId() << "\n";
-    os << "Exception Code: 0x" << std::hex << ExceptionInfo->ExceptionRecord->ExceptionCode << "\n";
-    os << "Exception Address: 0x" << (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress << "\n";
-
-    // For Access Violations, show what address was being accessed and how
-    if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
-        ExceptionInfo->ExceptionRecord->NumberParameters >= 2) {
-        const char* av_type = "unknown";
-        switch (ExceptionInfo->ExceptionRecord->ExceptionInformation[0]) {
-            case 0: av_type = "READ"; break;
-            case 1: av_type = "WRITE"; break;
-            case 8: av_type = "DEP"; break;
-        }
-        os << "AV Type: " << av_type << "\n";
-        os << "AV Target Address: 0x" << std::hex
-           << ExceptionInfo->ExceptionRecord->ExceptionInformation[1] << "\n";
+LONG WINAPI GlobalVectoredExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
+    DWORD code = ExceptionInfo->ExceptionRecord->ExceptionCode;
+    if (code == 0x406D1388 || code == 0x40010006 || code == 0x40010005 || code == 0x00000000) {
+        return EXCEPTION_CONTINUE_SEARCH;
     }
 
-    // Dump key registers from crash context
-#ifdef _M_X64
-    if (ExceptionInfo->ContextRecord) {
-        auto* ctx = ExceptionInfo->ContextRecord;
-        os << "Registers:\n";
-        os << "  RIP=0x" << std::hex << ctx->Rip << "  RSP=0x" << ctx->Rsp << "  RBP=0x" << ctx->Rbp << "\n";
-        os << "  RAX=0x" << ctx->Rax << "  RBX=0x" << ctx->Rbx << "  RCX=0x" << ctx->Rcx << "\n";
-        os << "  RDX=0x" << ctx->Rdx << "  RSI=0x" << ctx->Rsi << "  RDI=0x" << ctx->Rdi << "\n";
-        os << "  R8=0x"  << ctx->R8  << "  R9=0x"  << ctx->R9  << "  R10=0x" << ctx->R10 << "\n";
-        os << "  R11=0x" << ctx->R11 << "  R12=0x" << ctx->R12 << "  R13=0x" << ctx->R13 << "\n";
-        os << "  R14=0x" << ctx->R14 << "  R15=0x" << ctx->R15 << "\n";
+    uintptr_t addr = (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress;
+    STORM_TRACE("VEH EXCEPTION: ExceptionCode=0x{:x}, Address=0x{:x}, ThreadId={}", code, addr, GetCurrentThreadId());
+
+    if (code == EXCEPTION_ACCESS_VIOLATION && ExceptionInfo->ExceptionRecord->NumberParameters >= 2) {
+        const char* av_type = ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0 ? "READ" :
+                             (ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 1 ? "WRITE" : "EXECUTE");
+        STORM_TRACE("  AV Type: {}, Target Address: 0x{:x}", av_type, ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
     }
-#endif
 
-    // Walk the stack using CaptureStackBackTrace
-    void* stack[64] = {};
-    USHORT frames = CaptureStackBackTrace(0, 64, stack, nullptr);
-    os << "Stack frames captured: " << std::dec << frames << "\n";
-
-    // Enumerate loaded modules to resolve addresses to module+offset
+    void* stack[32] = {};
+    USHORT frames = CaptureStackBackTrace(0, 32, stack, nullptr);
     HANDLE process = GetCurrentProcess();
     HMODULE modules[256] = {};
     DWORD needed = 0;
@@ -214,43 +181,51 @@ LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
     DWORD num_modules = needed / sizeof(HMODULE);
 
     for (USHORT i = 0; i < frames; i++) {
-        uintptr_t addr = (uintptr_t)stack[i];
-        // Find which module this address belongs to
+        uintptr_t frame_addr = (uintptr_t)stack[i];
         const char* mod_name = "???";
-        uintptr_t mod_offset = addr;
+        uintptr_t mod_offset = frame_addr;
         char mod_filename[MAX_PATH] = {};
         for (DWORD m = 0; m < num_modules; m++) {
             MODULEINFO mi = {};
             GetModuleInformation(process, modules[m], &mi, sizeof(mi));
             uintptr_t base = (uintptr_t)mi.lpBaseOfDll;
-            if (addr >= base && addr < base + mi.SizeOfImage) {
+            if (frame_addr >= base && frame_addr < base + mi.SizeOfImage) {
                 GetModuleFileNameA(modules[m], mod_filename, MAX_PATH);
-                // Extract just the filename
                 const char* p = strrchr(mod_filename, '\\');
                 mod_name = p ? p + 1 : mod_filename;
-                mod_offset = addr - base;
+                mod_offset = frame_addr - base;
                 break;
             }
         }
-        os << "  [" << std::dec << i << "] " << mod_name << " + 0x" << std::hex << mod_offset << "\n";
+        STORM_TRACE("  Stack [{}] {} + 0x{:x}", i, mod_name, mod_offset);
     }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
 
-    os << "=== END CRASH ===\n\n";
-    os.flush();
-
-    LOG_CRITICAL(Frontend, "=== HARD CRASH DETECTED ===");
-    LOG_CRITICAL(Frontend, "Exception Code: 0x{:x}, Address: 0x{:x}", ExceptionInfo->ExceptionRecord->ExceptionCode, (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress);
-    STORM_TRACE("CRASH DETECTED in GlobalCrashHandler: Exception Code 0x{:x}, Address 0x{:x}", ExceptionInfo->ExceptionRecord->ExceptionCode, (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress);
-    Common::Log::Stop();
-
+LONG WINAPI GlobalCrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
+    STORM_TRACE("HARD CRASH (UnhandledExceptionFilter): Code 0x{:x}, Address 0x{:x}", ExceptionInfo->ExceptionRecord->ExceptionCode, (uintptr_t)ExceptionInfo->ExceptionRecord->ExceptionAddress);
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
 #endif
 
-
-
 int main(int argc, char* argv[]) {
+#ifdef _WIN32
+    AddVectoredExceptionHandler(1, GlobalVectoredExceptionHandler);
+    SetUnhandledExceptionFilter(GlobalCrashHandler);
+    std::set_terminate([]() {
+        STORM_TRACE("CRITICAL: std::terminate() triggered!");
+        try {
+            auto ep = std::current_exception();
+            if (ep) std::rethrow_exception(ep);
+        } catch (const std::exception& e) {
+            STORM_TRACE("  Unhandled exception: {}", e.what());
+        } catch (...) {
+            STORM_TRACE("  Unhandled unknown exception!");
+        }
+        std::abort();
+    });
+#endif
     STORM_TRACE("=== STORM EDEN STARTUP: main() entered ===");
     std::atexit([] {
         STORM_TRACE("=== STORM EDEN SHUTDOWN: atexit() triggered ===");
@@ -261,8 +236,8 @@ int main(int argc, char* argv[]) {
     qputenv("QT_OPENGL_BUGLIST", ":/disable_gpu");
 
 #ifdef _WIN32
+    AddVectoredExceptionHandler(1, GlobalVectoredExceptionHandler);
     SetUnhandledExceptionFilter(GlobalCrashHandler);
-
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 
     std::set_terminate([] {

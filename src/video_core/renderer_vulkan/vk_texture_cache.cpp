@@ -1147,6 +1147,7 @@ void TextureCacheRuntime::BlitImage(Framebuffer* dst_framebuffer, ImageView& dst
                                     const Region2D& dst_region, const Region2D& src_region,
                                     Tegra::Engines::Fermi2D::Filter filter,
                                     Tegra::Engines::Fermi2D::Operation operation) {
+    STORM_TRACE("VkTextureCache::BlitImage: src_format={} dst_format={} op={}", static_cast<int>(src.format), static_cast<int>(dst.format), static_cast<int>(operation));
     const VkImageAspectFlags aspect_mask = ImageAspectMask(src.format);
     const bool is_dst_msaa = dst.Samples() != VK_SAMPLE_COUNT_1_BIT;
     const bool is_src_msaa = src.Samples() != VK_SAMPLE_COUNT_1_BIT;
@@ -1159,7 +1160,10 @@ void TextureCacheRuntime::BlitImage(Framebuffer* dst_framebuffer, ImageView& dst
                                     operation);
         return;
     }
-    ASSERT(src.format == dst.format);
+    if (src.format != dst.format) {
+        STORM_TRACE("VkTextureCache::BlitImage MISMATCHED FORMATS: src={} dst={}", static_cast<int>(src.format), static_cast<int>(dst.format));
+        return;
+    }
     if (aspect_mask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
         const auto format = src.format;
         const auto can_blit_depth_stencil = [this, format] {

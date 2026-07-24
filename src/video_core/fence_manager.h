@@ -114,8 +114,8 @@ public:
             if (!force) {
                 return;
             }
-            std::mutex wait_mutex;
-            std::condition_variable wait_cv;
+            std::recursive_mutex wait_mutex;
+            std::condition_variable_any wait_cv;
             std::atomic<bool> wait_finished{};
             std::function<void()> func([&] {
                 std::scoped_lock lk(wait_mutex);
@@ -258,9 +258,9 @@ private:
     std::deque<std::function<void()>> uncommitted_operations;
     std::deque<std::deque<std::function<void()>>> pending_operations;
 
-    std::mutex guard;
-    std::mutex ring_guard;
-    std::condition_variable cv;
+    std::recursive_mutex guard;
+    std::recursive_mutex ring_guard;
+    std::condition_variable_any cv;
 
     std::jthread fence_thread;
 

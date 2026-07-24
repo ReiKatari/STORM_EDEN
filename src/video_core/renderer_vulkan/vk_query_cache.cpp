@@ -73,16 +73,12 @@ public:
         const VkResult query_result = dev.GetQueryResults(
             *query_pool, static_cast<u32>(start), static_cast<u32>(size), sizeof(u64) * size,
             &host_results[start], sizeof(u64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
-        switch (query_result) {
-        case VK_SUCCESS:
-        case VK_NOT_READY:
-            return;
-        case VK_ERROR_DEVICE_LOST:
-            device.ReportLoss();
-            [[fallthrough]];
-        default:
-            STORM_TRACE("Vulkan GetQueryResults failed with VkResult={}", static_cast<int>(query_result));
-            throw vk::Exception(query_result);
+        if (query_result != VK_SUCCESS && query_result != VK_NOT_READY) {
+            LOG_ERROR(Render_Vulkan, "GetQueryResults returned result {}", static_cast<int>(query_result));
+            if (query_result == VK_ERROR_DEVICE_LOST) {
+                device.ReportLoss();
+            }
+        }
         }
     }
 
@@ -595,7 +591,7 @@ private:
     bool accumulation_since_last_sync{};
     VideoCommon::HostQueryBase* current_query;
     bool has_started{};
-    std::mutex flush_guard;
+    std::recursive_mutex flush_guard;
 
     std::unique_ptr<QueriesPrefixScanPass> queries_prefix_scan_pass;
 };
@@ -1057,7 +1053,7 @@ private:
     std::deque<StagingBufferRef> download_buffers;
     std::deque<std::vector<size_t>> pending_flush_sets;
     std::vector<StagingBufferRef> free_queue;
-    std::mutex flush_guard;
+    std::recursive_mutex flush_guard;
 
     // state machine
     bool has_started{};
@@ -1264,7 +1260,7 @@ private:
     // flush levels
     std::vector<size_t> pending_flush_queries;
     std::deque<std::vector<size_t>> pending_flush_sets;
-    std::mutex flush_guard;
+    std::recursive_mutex flush_guard;
 };
 
 } // namespace

@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    void Increment(std::atomic<u32>& syncpoint, std::condition_variable& wait_cv,
+    void Increment(std::atomic<u32>& syncpoint, std::condition_variable_any& wait_cv,
                    std::list<RegisteredAction>& action_storage);
 
     ActionHandle RegisterAction(std::atomic<u32>& syncpoint,
@@ -76,7 +76,7 @@ private:
 
     void DeregisterAction(std::list<RegisteredAction>& action_storage, const ActionHandle& handle);
 
-    void Wait(std::atomic<u32>& syncpoint, std::condition_variable& wait_cv, u32 expected_value);
+    void Wait(std::atomic<u32>& syncpoint, std::condition_variable_any& wait_cv, u32 expected_value);
 
     static constexpr size_t NUM_MAX_SYNCPOINTS = 192;
 
@@ -86,9 +86,9 @@ private:
     std::array<std::list<RegisteredAction>, NUM_MAX_SYNCPOINTS> guest_action_storage;
     std::array<std::list<RegisteredAction>, NUM_MAX_SYNCPOINTS> host_action_storage;
 
-    std::mutex guard;
-    std::condition_variable wait_guest_cv;
-    std::condition_variable wait_host_cv;
+    std::recursive_mutex guard;
+    std::condition_variable_any wait_guest_cv;
+    std::condition_variable_any wait_host_cv;
 };
 
 } // namespace Host1x

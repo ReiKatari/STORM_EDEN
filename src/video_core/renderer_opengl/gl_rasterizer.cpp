@@ -748,8 +748,8 @@ std::optional<FramebufferTextureInfo> RasterizerOpenGL::AccelerateDisplay(
     info.display_texture = image_view->Handle(Shader::TextureType::Color2D);
     info.width = image_view->size.width;
     info.height = image_view->size.height;
-    info.scaled_width = scaled ? resolution.ScaleUp(info.width) : info.width;
-    info.scaled_height = scaled ? resolution.ScaleUp(info.height) : info.height;
+    info.scaled_width = (scaled || resolution.active) ? resolution.ScaleUp(info.width) : info.width;
+    info.scaled_height = (scaled || resolution.active) ? resolution.ScaleUp(info.height) : info.height;
     return info;
 }
 
@@ -825,7 +825,7 @@ void RasterizerOpenGL::SyncViewport() {
         state_tracker.ClipControl(origin, depth);
         state_tracker.SetYNegate(lower_left);
     }
-    const bool is_rescaling{texture_cache.IsRescaling()};
+    const bool is_rescaling{texture_cache.IsRescaling() || Settings::values.resolution_info.active};
     const float scale = is_rescaling ? Settings::values.resolution_info.up_factor : 1.0f;
     const auto conv = [scale](float value) -> GLfloat {
         float new_value = value * scale;
@@ -851,10 +851,10 @@ void RasterizerOpenGL::SyncViewport() {
             flags[Dirty::Viewport0 + index] = false;
 
             if (!regs.viewport_scale_offset_enabled) {
-                const auto x = static_cast<GLfloat>(regs.surface_clip.x);
-                const auto y = static_cast<GLfloat>(regs.surface_clip.y);
-                const auto width = static_cast<GLfloat>(regs.surface_clip.width);
-                const auto height = static_cast<GLfloat>(regs.surface_clip.height);
+                const auto x = static_cast<GLfloat>(regs.surface_clip.x) * scale;
+                const auto y = static_cast<GLfloat>(regs.surface_clip.y) * scale;
+                const auto width = static_cast<GLfloat>(regs.surface_clip.width) * scale;
+                const auto height = static_cast<GLfloat>(regs.surface_clip.height) * scale;
                 glViewportIndexedf(static_cast<GLuint>(index), x, y, width != 0.0f ? width : 1.0f,
                                    height != 0.0f ? height : 1.0f);
                 continue;

@@ -1130,11 +1130,14 @@ void RasterizerVulkan::UpdateViewportsState(Tegra::Engines::Maxwell3D::Regs& reg
 
     maxwell3d->dirty.flags[Dirty::Scissors] = true;
 
+    const bool is_rescaling{texture_cache.IsRescaling()};
+    const float scale = is_rescaling ? Settings::values.resolution_info.up_factor : 1.0f;
+
     if (!regs.viewport_scale_offset_enabled) {
-        float x = static_cast<float>(regs.surface_clip.x);
-        float y = static_cast<float>(regs.surface_clip.y);
-        float width = (std::max)(1.0f, static_cast<float>(regs.surface_clip.width));
-        float height = (std::max)(1.0f, static_cast<float>(regs.surface_clip.height));
+        float x = static_cast<float>(regs.surface_clip.x) * scale;
+        float y = static_cast<float>(regs.surface_clip.y) * scale;
+        float width = (std::max)(1.0f, static_cast<float>(regs.surface_clip.width) * scale);
+        float height = (std::max)(1.0f, static_cast<float>(regs.surface_clip.height) * scale);
         if (regs.window_origin.mode != Maxwell::WindowOrigin::Mode::UpperLeft) {
             y += height;
             height = -height;
@@ -1156,8 +1159,6 @@ void RasterizerVulkan::UpdateViewportsState(Tegra::Engines::Maxwell3D::Regs& reg
         });
         return;
     }
-    const bool is_rescaling{texture_cache.IsRescaling()};
-    const float scale = is_rescaling ? Settings::values.resolution_info.up_factor : 1.0f;
     const std::array viewport_list{
         GetViewportState(device, regs, 0, scale),  GetViewportState(device, regs, 1, scale),
         GetViewportState(device, regs, 2, scale),  GetViewportState(device, regs, 3, scale),
@@ -1179,13 +1180,20 @@ void RasterizerVulkan::UpdateScissorsState(Tegra::Engines::Maxwell3D::Regs& regs
     if (!state_tracker.TouchScissors()) {
         return;
     }
+    const bool is_rescaling{texture_cache.IsRescaling()};
+    u32 up_scale = 1;
+    u32 down_shift = 0;
+    if (is_rescaling) {
+        up_scale = Settings::values.resolution_info.up_scale;
+        down_shift = Settings::values.resolution_info.down_shift;
+    }
     if (!regs.viewport_scale_offset_enabled) {
-        u32 x = regs.surface_clip.x;
-        u32 y = regs.surface_clip.y;
-        u32 width = (std::max)(1u, static_cast<u32>(regs.surface_clip.width));
-        u32 height = (std::max)(1u, static_cast<u32>(regs.surface_clip.height));
+        u32 x = (regs.surface_clip.x * up_scale) >> down_shift;
+        u32 y = (regs.surface_clip.y * up_scale) >> down_shift;
+        u32 width = (std::max)(1u, static_cast<u32>((regs.surface_clip.width * up_scale) >> down_shift));
+        u32 height = (std::max)(1u, static_cast<u32>((regs.surface_clip.height * up_scale) >> down_shift));
         if (regs.window_origin.mode != Maxwell::WindowOrigin::Mode::UpperLeft) {
-            y = regs.surface_clip.height - (y + height);
+            y = ((regs.surface_clip.height * up_scale) >> down_shift) - (y + height);
         }
         VkRect2D scissor{};
         scissor.offset.x = static_cast<int32_t>(x);
@@ -1200,12 +1208,6 @@ void RasterizerVulkan::UpdateScissorsState(Tegra::Engines::Maxwell3D::Regs& regs
             cmdbuf.SetScissor(0, scissors);
         });
         return;
-    }
-    u32 up_scale = 1;
-    u32 down_shift = 0;
-    if (texture_cache.IsRescaling()) {
-        up_scale = Settings::values.resolution_info.up_scale;
-        down_shift = Settings::values.resolution_info.down_shift;
     }
     const std::array scissor_list{
         GetScissorState(regs, 0, up_scale, down_shift),

@@ -144,7 +144,7 @@ protected:
         UNREACHABLE();
     }
 
-    std::mutex guard;
+    std::recursive_mutex guard;
     std::deque<QueryType> slot_queries;
     std::deque<size_t> old_queries;
 };

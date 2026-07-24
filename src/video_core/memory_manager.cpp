@@ -91,7 +91,7 @@ void MemoryManager::SetEntry(size_t position, MemoryManager::EntryType entry) {
 }
 
 PTEKind MemoryManager::GetPageKind(GPUVAddr gpu_addr) const {
-    std::unique_lock<std::mutex> lock(guard);
+    std::unique_lock<std::recursive_mutex> lock(guard);
     return kind_map.GetValueAt(gpu_addr);
 }
 
@@ -171,7 +171,7 @@ GPUVAddr MemoryManager::BigPageTableOp(GPUVAddr gpu_addr, [[maybe_unused]] DAddr
         remaining_size -= big_page_size;
     }
     {
-        std::unique_lock<std::mutex> lock(guard);
+        std::unique_lock<std::recursive_mutex> lock(guard);
         kind_map.Map(gpu_addr, gpu_addr + size, kind);
     }
     return gpu_addr;
@@ -252,8 +252,7 @@ T MemoryManager::Read(GPUVAddr addr) const {
         return value;
     }
 
-    ASSERT(false);
-
+    LOG_ERROR(HW_GPU, "Attempted to read from unmapped GPU address {:#X}", addr);
     return {};
 }
 
@@ -265,7 +264,7 @@ void MemoryManager::Write(GPUVAddr addr, T data) {
         return;
     }
 
-    ASSERT(false);
+    LOG_ERROR(HW_GPU, "Attempted to write to unmapped GPU address {:#X}", addr);
 }
 
 template u8 MemoryManager::Read<u8>(GPUVAddr addr) const;
@@ -565,7 +564,7 @@ size_t MemoryManager::MaxContinuousRange(GPUVAddr gpu_addr, size_t size) const {
 }
 
 size_t MemoryManager::GetMemoryLayoutSize(GPUVAddr gpu_addr, size_t max_size) const {
-    std::unique_lock<std::mutex> lock(guard);
+    std::unique_lock<std::recursive_mutex> lock(guard);
     return kind_map.GetContinuousSizeFrom(gpu_addr);
 }
 

@@ -222,11 +222,23 @@ static inline void ApplyWindowsTitleBarDarkMode(HWND hwnd, bool enabled) {
     if (!hwnd)
         return;
     BOOL val = enabled ? TRUE : FALSE;
-    // 20 = Win11/21H2+
-    if (SUCCEEDED(DwmSetWindowAttribute(hwnd, 20, &val, sizeof(val))))
-        return;
-    // 19 = pre-21H2
+    // 20 = Win11/21H2+ DWMWA_USE_IMMERSIVE_DARK_MODE
+    DwmSetWindowAttribute(hwnd, 20, &val, sizeof(val));
+    // 19 = pre-21H2 DWMWA_USE_IMMERSIVE_DARK_MODE
     DwmSetWindowAttribute(hwnd, 19, &val, sizeof(val));
+
+    if (enabled) {
+        // DWMWA_CAPTION_COLOR = 35 -> Dark background #18181b (RGB: 24, 24, 27)
+        COLORREF caption_color = RGB(24, 24, 27);
+        DwmSetWindowAttribute(hwnd, 35, &caption_color, sizeof(caption_color));
+        // DWMWA_TEXT_COLOR = 36 -> White text #FFFFFF (RGB: 255, 255, 255)
+        COLORREF text_color = RGB(255, 255, 255);
+        DwmSetWindowAttribute(hwnd, 36, &text_color, sizeof(text_color));
+    } else {
+        COLORREF default_color = 0xFFFFFFFF;
+        DwmSetWindowAttribute(hwnd, 35, &default_color, sizeof(default_color));
+        DwmSetWindowAttribute(hwnd, 36, &default_color, sizeof(default_color));
+    }
 }
 
 static inline void ApplyModernMicaEffect(QWidget* w) {

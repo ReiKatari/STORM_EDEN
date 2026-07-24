@@ -63,7 +63,7 @@ struct AsyncDecodeContext {
     ImageId image_id;
     Common::ScratchBuffer<u8> decoded_data;
     boost::container::small_vector<BufferImageCopy, 16> copies;
-    std::mutex mutex;
+    std::recursive_mutex mutex;
     std::atomic_bool complete;
 };
 

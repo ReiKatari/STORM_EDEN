@@ -175,16 +175,13 @@ public:
     std::array<Engines::EngineInterface*, max_subchannels> subchannels{};
     std::array<Engines::EngineTypes, max_subchannels> subchannel_type;
 
-    Engines::Puller puller;
-    std::mutex sync_mutex;
-    std::condition_variable sync_cv;
+    mutable Engines::Puller puller;
 
-    VideoCore::RasterizerInterface* rasterizer = nullptr;
-
-    const bool ib_enable : 1 = true; ///< IB mode enabled
-    bool dma_increment_once : 1 = false;
-    bool signal_sync : 1 = false;
-    bool synced : 1 = false;
+    VideoCore::RasterizerInterface* rasterizer;
+    bool signal_sync;
+    bool synced;
+    std::recursive_mutex sync_mutex;
+    std::condition_variable_any sync_cv;
 };
 
 } // namespace Tegra

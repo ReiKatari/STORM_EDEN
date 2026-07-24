@@ -167,7 +167,7 @@ struct QueryCacheBase<Traits>::QueryCacheBaseImpl {
     Tegra::GPU& gpu;
     std::array<StreamerInterface*, static_cast<size_t>(QueryType::MaxQueryTypes)> streamers;
     u64 streamer_mask;
-    std::mutex flush_guard;
+    std::recursive_mutex flush_guard;
     std::deque<u64> flushes_pending;
     std::vector<QueryCacheBase<Traits>::QueryLocation> pending_unregister;
 };

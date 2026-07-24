@@ -73,7 +73,7 @@ void SyncpointManager::WaitHost(u32 syncpoint_id, u32 expected_value) {
     Wait(syncpoints_host[syncpoint_id], wait_host_cv, expected_value);
 }
 
-void SyncpointManager::Increment(std::atomic<u32>& syncpoint, std::condition_variable& wait_cv,
+void SyncpointManager::Increment(std::atomic<u32>& syncpoint, std::condition_variable_any& wait_cv,
                                  std::list<RegisteredAction>& action_storage) {
     auto new_value{syncpoint.fetch_add(1, std::memory_order_acq_rel) + 1};
 
@@ -89,7 +89,7 @@ void SyncpointManager::Increment(std::atomic<u32>& syncpoint, std::condition_var
     wait_cv.notify_all();
 }
 
-void SyncpointManager::Wait(std::atomic<u32>& syncpoint, std::condition_variable& wait_cv,
+void SyncpointManager::Wait(std::atomic<u32>& syncpoint, std::condition_variable_any& wait_cv,
                             u32 expected_value) {
     const auto pred = [&]() { return syncpoint.load(std::memory_order_acquire) >= expected_value; };
     if (pred()) {

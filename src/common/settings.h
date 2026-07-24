@@ -46,6 +46,20 @@ struct ResolutionScalingInfo {
         }
         return (std::max)((value * up_scale) >> down_shift, 1U);
     }
+
+    s32 ScaleDown(s32 value) const {
+        if (value == 0) {
+            return 0;
+        }
+        return (std::max)((value << static_cast<s32>(down_shift)) / static_cast<s32>(up_scale), 1);
+    }
+
+    u32 ScaleDown(u32 value) const {
+        if (value == 0U) {
+            return 0U;
+        }
+        return (std::max)((value << down_shift) / up_scale, 1U);
+    }
 };
 
 #ifndef CANNOT_EXPLICITLY_INSTANTIATE

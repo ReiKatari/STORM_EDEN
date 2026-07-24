@@ -228,7 +228,7 @@ struct GPU::Impl {
         size_t num_fences{fences.size()};
         size_t current_request_counter{};
         {
-            std::unique_lock<std::mutex> lk(request_swap_mutex);
+            std::unique_lock<std::recursive_mutex> lk(request_swap_mutex);
             if (free_swap_counters.empty()) {
                 current_request_counter = request_swap_counters.size();
                 request_swap_counters.emplace_back(num_fences);
@@ -238,19 +238,21 @@ struct GPU::Impl {
                 free_swap_counters.pop_front();
             }
         }
-        const auto wait_fence = RequestSyncOperation([this, current_request_counter, &layers, &fences, num_fences] {
-            auto& syncpoint_manager = system.Host1x().GetSyncpointManager();
-            if (num_fences == 0) {
-                renderer->Composite(layers);
-            }
-            const auto executer = [this, current_request_counter, layers_copy = layers]() {
-                {
-                    std::unique_lock<std::mutex> lk(request_swap_mutex);
-                    if (--request_swap_counters[current_request_counter] != 0) {
-                        return;
-                    }
-                    free_swap_counters.push_back(current_request_counter);
+        const auto wait_fence =
+            RequestSyncOperation([this, current_request_counter, &layers, &fences, num_fences] {
+                auto& syncpoint_manager = host1x.GetSyncpointManager();
+                if (num_fences == 0) {
+                    renderer->Composite(layers);
                 }
+                const auto executer = [this, current_request_counter, layers_copy = layers]() {
+                    {
+                        std::unique_lock<std::recursive_mutex> lk(request_swap_mutex);
+                        if (--request_swap_counters[current_request_counter] != 0) {
+                            return;
+                        }
+                        free_swap_counters.push_back(current_request_counter);
+                    }
+                };
                 renderer->Composite(layers_copy);
             };
             for (size_t i = 0; i < num_fences; i++) {
@@ -287,16 +289,16 @@ struct GPU::Impl {
 
     std::array<std::list<u32>, Service::Nvidia::MaxSyncPoints> syncpt_interrupts;
 
-    std::mutex sync_mutex;
-    std::mutex device_mutex;
+    std::recursive_mutex sync_mutex;
+    std::recursive_mutex device_mutex;
 
-    std::condition_variable sync_cv;
+    std::condition_variable_any sync_cv;
 
     std::list<std::function<void()>> sync_requests;
     std::atomic<u64> current_sync_fence{};
     u64 last_sync_fence{};
-    std::mutex sync_request_mutex;
-    std::condition_variable sync_request_cv;
+    std::recursive_mutex sync_request_mutex;
+    std::condition_variable_any sync_request_cv;
 
     const bool is_async;
 
@@ -310,7 +312,7 @@ struct GPU::Impl {
 
     std::deque<size_t> free_swap_counters;
     std::deque<size_t> request_swap_counters;
-    std::mutex request_swap_mutex;
+    std::recursive_mutex request_swap_mutex;
 };
 
 GPU::GPU(Core::System& system, bool is_async, bool use_nvdec)

@@ -464,4 +464,6 @@ bool IsOpenGL() {
     }
 }
 
+bool is_booting = false;
+
 } // namespace Settings

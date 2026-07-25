@@ -169,7 +169,7 @@ protected:
     void UnregisterPending();
 
     ankerl::unordered_dense::map<u64, ankerl::unordered_dense::map<u32, QueryLocation>> cached_queries;
-    std::recursive_mutex cache_mutex;
+    std::mutex cache_mutex;
 
     struct QueryCacheBaseImpl;
     friend struct QueryCacheBaseImpl;

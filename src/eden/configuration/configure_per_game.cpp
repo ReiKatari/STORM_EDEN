@@ -77,11 +77,8 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
 
     ui->setupUi(this);
 
-    std::string active_lang = UISettings::values.language.GetValue();
-    bool is_ru = (active_lang.rfind("ru", 0) == 0 ||
-                  (active_lang.empty() && QLocale::system().name().startsWith(QStringLiteral("ru"))));
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(is_ru ? QString::fromUtf8("ОК") : tr("OK"));
-    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(is_ru ? QString::fromUtf8("Отмена") : tr("Cancel"));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(QStringLiteral("Ок"));
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("Отмена"));
     ui->display_name->setLineWrapMode(QTextEdit::WidgetWidth);
     ui->display_filename->setLineWrapMode(QTextEdit::WidgetWidth);
 

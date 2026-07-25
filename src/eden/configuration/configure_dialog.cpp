@@ -125,15 +125,14 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
     adjustSize();
     ui->selectorList->setCurrentRow(0);
 
-    const bool is_russian = (QLocale().language() == QLocale::Russian) || (UISettings::values.language.GetValue() == "ru");
     if (auto* ok_button = ui->buttonBox->button(QDialogButtonBox::Ok)) {
-        ok_button->setText(is_russian ? QString::fromUtf8("ОК") : tr("OK"));
+        ok_button->setText(QStringLiteral("Ок"));
     }
     if (auto* cancel_button = ui->buttonBox->button(QDialogButtonBox::Cancel)) {
-        cancel_button->setText(is_russian ? QString::fromUtf8("Отмена") : tr("Cancel"));
+        cancel_button->setText(QStringLiteral("Отмена"));
     }
     if (auto* apply_button = ui->buttonBox->button(QDialogButtonBox::Apply)) {
-        apply_button->setText(is_russian ? QString::fromUtf8("Применить") : tr("Apply"));
+        apply_button->setText(QStringLiteral("Применить"));
     }
 
     // Selects the leftmost button on the bottom bar (Cancel as of writing)
@@ -185,16 +184,14 @@ void ConfigureDialog::RetranslateUI() {
     UpdateVisibleTabs();
     ui->tabWidget->setCurrentIndex(old_index);
 
-    const auto& lang = UISettings::values.language.GetValue();
-    const bool is_russian = (QLocale().language() == QLocale::Russian) || (lang == "ru") || (lang == "ru_RU");
     if (auto* ok_button = ui->buttonBox->button(QDialogButtonBox::Ok)) {
-        ok_button->setText(is_russian ? QString::fromUtf8("ОК") : tr("OK"));
+        ok_button->setText(QStringLiteral("Ок"));
     }
     if (auto* cancel_button = ui->buttonBox->button(QDialogButtonBox::Cancel)) {
-        cancel_button->setText(is_russian ? QString::fromUtf8("Отмена") : tr("Cancel"));
+        cancel_button->setText(QStringLiteral("Отмена"));
     }
     if (auto* apply_button = ui->buttonBox->button(QDialogButtonBox::Apply)) {
-        apply_button->setText(is_russian ? QString::fromUtf8("Применить") : tr("Apply"));
+        apply_button->setText(QStringLiteral("Применить"));
     }
 }
 

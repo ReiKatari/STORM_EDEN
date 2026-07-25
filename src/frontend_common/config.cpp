@@ -301,8 +301,9 @@ void Config::ReadMotionTouchValues() {
     }
     EndArray(); // touch_from_button_maps
 
+    const u32 max_index = static_cast<u32>(std::max(0, num_touch_from_button_maps - 1));
     Settings::values.touch_from_button_map_index = std::clamp(
-        Settings::values.touch_from_button_map_index.GetValue(), 0, num_touch_from_button_maps - 1);
+        Settings::values.touch_from_button_map_index.GetValue(), 0u, max_index);
 }
 
 void Config::ReadCoreValues() {

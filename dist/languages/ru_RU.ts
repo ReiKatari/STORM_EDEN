@@ -965,6 +965,18 @@ Particles tend to only render correctly with Accurate mode.</source>
             <translation>Управляет точностью DMA. Безопасный режим исправляет ошибки в некоторых играх, но может снижать производительность.</translation>
         </message>
         <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="235" />
+            <source>GPU Fence Behavior:</source>
+            <translation>Поведение GPU Fence:</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="236" />
+            <source>Controls GPU sync point and fence waiting logic.
+Default / Balanced improves performance, while Accurate / Strict provides maximum synchronization.</source>
+            <translation>Управляет логикой ожидания фенсов и точек синхронизации GPU.
+«По умолчанию / Баланс» повышает производительность, а «Точный / Строгий» обеспечивает максимальную синхронизацию.</translation>
+        </message>
+        <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="232" />
             <source>Enable asynchronous shader compilation</source>
             <translation>Включить асинхронную компиляцию шейдеров</translation>
@@ -1504,6 +1516,33 @@ When a program attempts to open the controller applet, it is immediately closed.
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="438" />
             <source>Safe (stable)</source>
             <translation>Безопасно (стабильно)</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="450" />
+            <source>Immediate</source>
+            <translation>Мгновенное</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="453" />
+            <source>Strict</source>
+            <translation>Строгое</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="454" />
+            <source>Normal</source>
+            <translation>Нормальный</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="280" />
+            <source>Enable GPU buffer readback</source>
+            <translation>Включить обратное чтение буфера GPU</translation>
+        </message>
+        <message>
+            <location filename="../../src/qt_common/config/shared_translation.cpp" line="281" />
+            <source>Allows reading GPU buffer memory back to the CPU.
+Improves rendering accuracy for certain games and special effects.</source>
+            <translation>Позволяет считывать память буфера GPU обратно в CPU.
+Улучшает точность отображения графических эффектов в некоторых играх.</translation>
         </message>
         <message>
             <location filename="../../src/qt_common/config/shared_translation.cpp" line="445" />

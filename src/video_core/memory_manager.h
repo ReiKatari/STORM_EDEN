@@ -241,7 +241,7 @@ private:
     boost::container::small_vector<std::pair<DAddr, std::size_t>, 32> page_stash{};
     boost::container::small_vector<std::pair<DAddr, std::size_t>, 32> page_stash2{};
 
-    mutable std::recursive_mutex guard;
+    mutable std::mutex guard;
 
     static constexpr size_t continuous_bits = 64;
 

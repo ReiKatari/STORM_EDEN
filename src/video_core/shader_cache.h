@@ -145,8 +145,8 @@ private:
 
     Tegra::MaxwellDeviceMemoryManager& device_memory;
 
-    mutable std::recursive_mutex lookup_mutex;
-    std::recursive_mutex invalidation_mutex;
+    mutable std::mutex lookup_mutex;
+    std::mutex invalidation_mutex;
 
     ankerl::unordered_dense::map<u64, std::unique_ptr<Entry>> lookup_cache;
     ankerl::unordered_dense::map<u64, std::vector<Entry*>> invalidation_cache;

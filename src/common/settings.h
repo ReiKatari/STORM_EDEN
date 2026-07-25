@@ -729,6 +729,7 @@ struct Values {
     Setting<bool> controller_navigation{linkage, true, "controller_navigation", Category::Controls};
     Setting<bool> enable_joycon_driver{linkage, true, "enable_joycon_driver", Category::Controls};
     Setting<bool> enable_procon_driver{linkage, false, "enable_procon_driver", Category::Controls};
+    Setting<bool> enable_sdl_driver{linkage, true, "enable_sdl_driver", Category::Controls};
 
     SwitchableSetting<bool> vibration_enabled{linkage, true, "vibration_enabled",
                                               Category::Controls};
@@ -837,6 +838,9 @@ struct Values {
     Setting<bool> disable_web_applet{linkage, true, "disable_web_applet", Category::Debugging};
 
     // GPU Logging
+    Setting<bool> gpu_logging_enabled{linkage, false, "gpu_logging_enabled", Category::DebuggingGraphics};
+    Setting<bool> dump_shaders{linkage, false, "dump_shaders", Category::DebuggingGraphics};
+    Setting<bool> anti_flicker{linkage, false, "anti_flicker", Category::Renderer};
     Setting<GpuLogLevel> gpu_log_level{linkage, GpuLogLevel::Off, "gpu_log_level",
                                        Category::Debugging};
     Setting<bool> gpu_log_vulkan_calls{linkage, true, "gpu_log_vulkan_calls", Category::Debugging};
@@ -927,6 +931,8 @@ void UpdateRescalingInfo();
 
 // Restore the global state of all applicable settings in the Values struct
 void RestoreGlobalState(bool is_powered_on);
+
+extern bool is_booting;
 
 bool IsConfiguringGlobal();
 void SetConfiguringGlobal(bool is_global);

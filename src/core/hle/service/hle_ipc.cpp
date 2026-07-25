@@ -47,7 +47,7 @@ bool SessionRequestManager::HasSessionRequestHandler(const HLERequestContext& co
 
         if (object_id > DomainHandlerCount()) {
             LOG_CRITICAL(IPC, "object_id {} is too big!", object_id);
-            return false;
+            return true;
         }
         return !DomainHandler(object_id - 1).expired();
     } else {
@@ -102,8 +102,9 @@ Result SessionRequestManager::HandleDomainSyncRequest(Kernel::KServerSession* se
                          "object_id {} is too big! This probably means a recent service call "
                          "needed to return a new interface!",
                          object_id);
-            ASSERT(false);
-            return ResultSuccess; // Ignore error if asserts are off
+            IPC::ResponseBuilder rb{context, 2};
+            rb.Push(ResultSuccess);
+            return ResultSuccess;
         }
         if (auto strong_ptr = this->DomainHandler(object_id - 1).lock()) {
             return strong_ptr->HandleSyncRequest(*server_session, context);

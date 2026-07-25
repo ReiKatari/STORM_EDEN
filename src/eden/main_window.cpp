@@ -222,23 +222,11 @@ static inline void ApplyWindowsTitleBarDarkMode(HWND hwnd, bool enabled) {
     if (!hwnd)
         return;
     BOOL val = enabled ? TRUE : FALSE;
-    // 20 = Win11/21H2+ DWMWA_USE_IMMERSIVE_DARK_MODE
-    DwmSetWindowAttribute(hwnd, 20, &val, sizeof(val));
+    // 20 = Win11/21H2+ / Win10 2004+ DWMWA_USE_IMMERSIVE_DARK_MODE
+    if (SUCCEEDED(DwmSetWindowAttribute(hwnd, 20, &val, sizeof(val))))
+        return;
     // 19 = pre-21H2 DWMWA_USE_IMMERSIVE_DARK_MODE
     DwmSetWindowAttribute(hwnd, 19, &val, sizeof(val));
-
-    if (enabled) {
-        // DWMWA_CAPTION_COLOR = 35 -> Dark background #18181b (RGB: 24, 24, 27)
-        COLORREF caption_color = RGB(24, 24, 27);
-        DwmSetWindowAttribute(hwnd, 35, &caption_color, sizeof(caption_color));
-        // DWMWA_TEXT_COLOR = 36 -> White text #FFFFFF (RGB: 255, 255, 255)
-        COLORREF text_color = RGB(255, 255, 255);
-        DwmSetWindowAttribute(hwnd, 36, &text_color, sizeof(text_color));
-    } else {
-        COLORREF default_color = 0xFFFFFFFF;
-        DwmSetWindowAttribute(hwnd, 35, &default_color, sizeof(default_color));
-        DwmSetWindowAttribute(hwnd, 36, &default_color, sizeof(default_color));
-    }
 }
 
 static inline void ApplyModernMicaEffect(QWidget* w) {
@@ -246,24 +234,12 @@ static inline void ApplyModernMicaEffect(QWidget* w) {
     HWND hwnd = reinterpret_cast<HWND>(w->winId());
     if (!hwnd) return;
 
-    DWORD backdrop_type = 2; // DWMSBT_MAINWINDOW (Mica)
     if (w->inherits("QMenu") || w->inherits("QDialog")) {
-        backdrop_type = 3; // DWMSBT_TRANSIENTWINDOW (Acrylic)
-        
-        // Enable drop shadows
+        DWORD backdrop_type = 3; // DWMSBT_TRANSIENTWINDOW (Acrylic)
         MARGINS margins = {1, 1, 1, 1};
         DwmExtendFrameIntoClientArea(hwnd, &margins);
+        DwmSetWindowAttribute(hwnd, 38, &backdrop_type, sizeof(backdrop_type));
     }
-    
-    // Win11 22H2+ Mica/Acrylic
-    DwmSetWindowAttribute(hwnd, 38, &backdrop_type, sizeof(backdrop_type));
-    // Win11 21H2 Fallback
-    BOOL enable = TRUE;
-    DwmSetWindowAttribute(hwnd, 1029, &enable, sizeof(enable));
-
-    // Win11 Rounded Corners (DWMWA_WINDOW_CORNER_PREFERENCE)
-    DWORD corner = 2; // DWMWCP_ROUND
-    DwmSetWindowAttribute(hwnd, 33, &corner, sizeof(corner));
 }
 
 static inline void ApplyDarkToTopLevel(QWidget* w, bool on) {
@@ -4325,18 +4301,17 @@ bool MainWindow::question(QWidget* parent, const QString& title, const QString& 
     box_dialog->setStandardButtons(buttons);
     box_dialog->setDefaultButton(defaultButton);
 
-    const bool is_russian = (QLocale().language() == QLocale::Russian);
     if (QAbstractButton* yesButton = box_dialog->button(QMessageBox::Yes)) {
-        yesButton->setText(is_russian ? QStringLiteral("Да") : tr("Yes"));
+        yesButton->setText(QStringLiteral("Да"));
     }
     if (QAbstractButton* noButton = box_dialog->button(QMessageBox::No)) {
-        noButton->setText(is_russian ? QStringLiteral("Нет") : tr("No"));
+        noButton->setText(QStringLiteral("Нет"));
     }
     if (QAbstractButton* okButton = box_dialog->button(QMessageBox::Ok)) {
-        okButton->setText(is_russian ? QStringLiteral("ОК") : tr("OK"));
+        okButton->setText(QStringLiteral("ОК"));
     }
     if (QAbstractButton* cancelButton = box_dialog->button(QMessageBox::Cancel)) {
-        cancelButton->setText(is_russian ? QStringLiteral("Отмена") : tr("Cancel"));
+        cancelButton->setText(QStringLiteral("Отмена"));
     }
 
     ControllerNavigation* controller_navigation =

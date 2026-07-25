@@ -13,8 +13,10 @@
 #include <QIcon>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QSlider>
 #include <QStringLiteral>
 #include <QtCore/qobjectdefs.h>
@@ -51,7 +53,6 @@ ConfigureGraphics::ConfigureGraphics(
       combobox_translations{builder.ComboboxTranslations()} {
     vulkan_device = Settings::values.vulkan_device.GetValue();
     RetrieveVulkanDevices();
-    hardware_warning_label = nullptr;
 
     ui->setupUi(this);
 
@@ -117,19 +118,58 @@ ConfigureGraphics::ConfigureGraphics(
     connect(aspect_ratio_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             update_screenshot_info);
 
+    last_valid_resolution_index = resolution_combobox->currentIndex();
+
     connect(resolution_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this, update_screenshot_info](int index) {
                 update_screenshot_info();
-                if (this->hardware_warning_label) {
-                    auto info = Util::HardwareAnalyzer::GetHardwareInfo();
-                    int max_res = Util::HardwareAnalyzer::GetMaxRecommendedResolution(info.tier);
-                    
-                    if (index > max_res) {
-                        this->hardware_warning_label->setText(tr("⚠️ <b>ВНИМАНИЕ:</b> Ваше устройство (уровень <b>%1</b>) может не справиться с таким высоким разрешением. Ожидаются падения FPS и нестабильность. Рекомендуемый максимум: <b>%2x</b>").arg(static_cast<int>(info.tier) + 1).arg(max_res));
-                        this->hardware_warning_label->show();
+
+                double sel_factor = 1.0;
+                if (index == 0) {
+                    sel_factor = 0.5;
+                } else if (index == 1) {
+                    sel_factor = 0.75;
+                } else if (index >= 2) {
+                    sel_factor = static_cast<double>(index - 1);
+                }
+
+                auto info = Util::HardwareAnalyzer::GetHardwareInfo();
+                int max_res = Util::HardwareAnalyzer::GetMaxRecommendedResolution(info.tier);
+
+                if (sel_factor > static_cast<double>(max_res)) {
+                    QMessageBox msg_box(this);
+                    msg_box.setWindowTitle(tr("Внимание: Высокое разрешение"));
+                    msg_box.setText(tr("⚠️ <b>ВНИМАНИЕ: Высокое разрешение</b>"));
+                    msg_box.setInformativeText(
+                        tr("Ваше устройство (уровень <b>%1</b>) может не справиться с выбранным разрешением (<b>%2x</b>).<br><br>"
+                           "Ожидаются падения FPS и нестабильность. Рекомендуемый максимум для вашего оборудования: <b>%3x</b>.<br><br>"
+                           "Вы хотите продолжить на свой страх и риск?")
+                        .arg(static_cast<int>(info.tier) + 1)
+                        .arg(sel_factor)
+                        .arg(max_res));
+
+                    QPushButton* accept_button = msg_box.addButton(tr("Принять на свой страх и риск"), QMessageBox::AcceptRole);
+                    QPushButton* cancel_button = msg_box.addButton(tr("Отмена"), QMessageBox::RejectRole);
+                    msg_box.setDefaultButton(cancel_button);
+                    msg_box.setIcon(QMessageBox::Warning);
+                    msg_box.setStyleSheet(QStringLiteral(
+                        "QMessageBox { background-color: #1e1e24; color: #ffffff; font-size: 13px; }"
+                        "QLabel { color: #ffffff; font-size: 13px; }"
+                        "QPushButton { background-color: #2b2b36; color: #ffffff; border: 1px solid #444455; border-radius: 4px; padding: 6px 14px; font-weight: bold; }"
+                        "QPushButton:hover { background-color: #3b3b4a; border-color: #007acc; }"
+                    ));
+
+                    msg_box.exec();
+
+                    if (msg_box.clickedButton() != accept_button) {
+                        QSignalBlocker blocker(resolution_combobox);
+                        resolution_combobox->setCurrentIndex(last_valid_resolution_index);
+                        update_screenshot_info();
                     } else {
-                        this->hardware_warning_label->hide();
+                        last_valid_resolution_index = index;
                     }
+                } else {
+                    last_valid_resolution_index = index;
                 }
             });
 
@@ -310,13 +350,6 @@ void ConfigureGraphics::Setup(const ConfigurationShared::Builder& builder) {
         } else if (setting->Id() == Settings::values.resolution_setup.Id()) {
             // Keep track of the resolution combobox to update other UI tabs that need it
             resolution_combobox = widget->combobox;
-            
-            hardware_warning_label = new QLabel(this);
-            hardware_warning_label->hide();
-            hardware_warning_label->setWordWrap(true);
-            hardware_warning_label->setStyleSheet(QStringLiteral("color: #FF00FF; font-weight: bold; background-color: #1e1e24; border: 1px solid #FF00FF; border-radius: 4px; padding: 4px;"));
-            static_cast<QVBoxLayout*>(widget->layout())->addWidget(hardware_warning_label);
-            
             hold_graphics.emplace(setting->Id(), widget);
         } else {
             hold_graphics.emplace(setting->Id(), widget);

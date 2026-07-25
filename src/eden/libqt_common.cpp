@@ -22,16 +22,16 @@ StandardButton ShowMessage(Icon icon, const QString& title, const QString& text,
                         QMessageBox::StandardButtons(int(buttons)), (QWidget*)parent);
 
     if (auto* btn = box->button(QMessageBox::Yes)) {
-        btn->setText(QObject::tr("Да"));
+        btn->setText(QStringLiteral("Да"));
     }
     if (auto* btn = box->button(QMessageBox::No)) {
-        btn->setText(QObject::tr("Нет"));
+        btn->setText(QStringLiteral("Нет"));
     }
     if (auto* btn = box->button(QMessageBox::Ok)) {
-        btn->setText(QObject::tr("ОК"));
+        btn->setText(QStringLiteral("ОК"));
     }
     if (auto* btn = box->button(QMessageBox::Cancel)) {
-        btn->setText(QObject::tr("Отмена"));
+        btn->setText(QStringLiteral("Отмена"));
     }
 
     return StandardButton(box->exec());

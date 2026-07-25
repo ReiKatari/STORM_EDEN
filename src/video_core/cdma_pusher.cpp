@@ -43,56 +43,51 @@ CDmaPusher::CDmaPusher(Host1x::Host1x& host1x_, s32 id)
                 command_lists.pop_front();
             }
 
-            try {
-                size_t i = 0;
-                for (const auto value : command_list) {
-                    i++;
-                    if (mask != 0) {
-                        const auto lbs = static_cast<u32>(std::countr_zero(mask));
-                        mask &= ~(1U << lbs);
-                        ExecuteCommand(method_offset + lbs, value.raw);
-                        continue;
-                    } else if (count != 0) {
-                        --count;
-                        ExecuteCommand(method_offset, value.raw);
-                        if (incrementing) {
-                            ++method_offset;
-                        }
-                        continue;
+            size_t i = 0;
+            for (const auto value : command_list) {
+                i++;
+                if (mask != 0) {
+                    const auto lbs = static_cast<u32>(std::countr_zero(mask));
+                    mask &= ~(1U << lbs);
+                    ExecuteCommand(method_offset + lbs, value.raw);
+                    continue;
+                } else if (count != 0) {
+                    --count;
+                    ExecuteCommand(method_offset, value.raw);
+                    if (incrementing) {
+                        ++method_offset;
                     }
-                    const auto mode = value.submission_mode.Value();
-                    switch (mode) {
-                    case ChSubmissionMode::SetClass: {
-                        mask = value.value & 0x3f;
-                        method_offset = value.method_offset;
-                        current_class = ChClassId((value.value >> 6) & 0x3ff);
-                        break;
-                    }
-                    case ChSubmissionMode::Incrementing:
-                    case ChSubmissionMode::NonIncrementing:
-                        count = value.value;
-                        method_offset = value.method_offset;
-                        incrementing = mode == ChSubmissionMode::Incrementing;
-                        break;
-                    case ChSubmissionMode::Mask:
-                        mask = value.value;
-                        method_offset = value.method_offset;
-                        break;
-                    case ChSubmissionMode::Immediate: {
-                        const u32 data = value.value & 0xfff;
-                        method_offset = value.method_offset;
-                        ExecuteCommand(method_offset, data);
-                        break;
-                    }
-                    default:
-                        LOG_ERROR(HW_GPU, "Bad command at index {} (bytes {:#X}), buffer size {}", i - 1, (i - 1) * sizeof(u32), command_list.size());
-                        break;
-                    }
+                    continue;
                 }
-            } catch (const std::exception& e) {
-                LOG_ERROR(HW_GPU, "Exception in CDmaPusher thread: {}", e.what());
-            } catch (...) {
-                LOG_ERROR(HW_GPU, "Unknown exception in CDmaPusher thread");
+                const auto mode = value.submission_mode.Value();
+                switch (mode) {
+                case ChSubmissionMode::SetClass: {
+                    mask = value.value & 0x3f;
+                    method_offset = value.method_offset;
+                    current_class = ChClassId((value.value >> 6) & 0x3ff);
+                    break;
+                }
+                case ChSubmissionMode::Incrementing:
+                case ChSubmissionMode::NonIncrementing:
+                    count = value.value;
+                    method_offset = value.method_offset;
+                    incrementing = mode == ChSubmissionMode::Incrementing;
+                    break;
+                case ChSubmissionMode::Mask:
+                    mask = value.value;
+                    method_offset = value.method_offset;
+                    break;
+                case ChSubmissionMode::Immediate: {
+                    const u32 data = value.value & 0xfff;
+                    method_offset = value.method_offset;
+                    ExecuteCommand(method_offset, data);
+                    break;
+                }
+                default:
+                    LOG_ERROR(HW_GPU, "Bad command at index {} (bytes {:#X}), buffer size {}", i - 1, (i - 1) * sizeof(u32), command_list.size());
+                    UNIMPLEMENTED_MSG("ChSubmission mode {} is not implemented!", u32(mode));
+                    break;
+                }
             }
         }
     });

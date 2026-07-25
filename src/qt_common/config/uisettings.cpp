@@ -74,11 +74,10 @@ const Themes themes{{
 
 bool IsDarkTheme() {
     const auto& theme = UISettings::values.theme;
-    return theme.find("dark") != std::string::npos ||
-           theme.find("night") != std::string::npos ||
-           theme.find("twilight") != std::string::npos ||
-           theme.find("black") != std::string::npos ||
-           theme.find("qdarkstyle") != std::string::npos;
+    if (theme == "storm_day" || theme.find("day") != std::string::npos || theme.find("light") != std::string::npos) {
+        return false;
+    }
+    return true;
 }
 
 Values values = {};

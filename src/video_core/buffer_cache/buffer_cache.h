@@ -1748,74 +1748,60 @@ void BufferCache<P>::DownloadBufferMemory(Buffer& buffer) {
 
 template <class P>
 void BufferCache<P>::DownloadBufferMemory(Buffer& buffer, DAddr device_addr, u64 size) {
-    try {
-        boost::container::small_vector<BufferCopy, 1> copies;
-        u64 total_size_bytes = 0;
-        u64 largest_copy = 0;
-        memory_tracker.ForEachDownloadRangeAndClear(
-            device_addr, size, [&](u64 device_addr_out, u64 range_size) {
-                const DAddr buffer_addr = buffer.CpuAddr();
-                const auto add_download = [&](DAddr start, DAddr end) {
-                    const u64 new_offset = start - buffer_addr;
-                    const u64 new_size = end - start;
-                    copies.push_back(BufferCopy{
-                        .src_offset = new_offset,
-                        .dst_offset = total_size_bytes,
-                        .size = new_size,
-                    });
-                    // Align up to avoid cache conflicts
-                    constexpr u64 align = 64ULL;
-                    constexpr u64 mask = ~(align - 1ULL);
-                    total_size_bytes += (new_size + align - 1) & mask;
-                    largest_copy = (std::max)(largest_copy, new_size);
-                };
+    boost::container::small_vector<BufferCopy, 1> copies;
+    u64 total_size_bytes = 0;
+    u64 largest_copy = 0;
+    memory_tracker.ForEachDownloadRangeAndClear(
+        device_addr, size, [&](u64 device_addr_out, u64 range_size) {
+            const DAddr buffer_addr = buffer.CpuAddr();
+            const auto add_download = [&](DAddr start, DAddr end) {
+                const u64 new_offset = start - buffer_addr;
+                const u64 new_size = end - start;
+                copies.push_back(BufferCopy{
+                    .src_offset = new_offset,
+                    .dst_offset = total_size_bytes,
+                    .size = new_size,
+                });
+                // Align up to avoid cache conflicts
+                constexpr u64 align = 64ULL;
+                constexpr u64 mask = ~(align - 1ULL);
+                total_size_bytes += (new_size + align - 1) & mask;
+                largest_copy = (std::max)(largest_copy, new_size);
+            };
 
-                gpu_modified_ranges.ForEachInRange(device_addr_out, range_size, add_download);
-                ClearDownload(device_addr_out, range_size);
-                gpu_modified_ranges.Subtract(device_addr_out, range_size);
-            });
-        if (total_size_bytes == 0) {
-            return;
-        }
+            gpu_modified_ranges.ForEachInRange(device_addr_out, range_size, add_download);
+            ClearDownload(device_addr_out, range_size);
+            gpu_modified_ranges.Subtract(device_addr_out, range_size);
+        });
+    if (total_size_bytes == 0) {
+        return;
+    }
 
-        if constexpr (USE_MEMORY_MAPS) {
-            auto download_staging = runtime.DownloadStagingBuffer(total_size_bytes);
-            const u8* const mapped_memory = download_staging.mapped_span.data();
-            const std::span<BufferCopy> copies_span(copies.data(), copies.data() + copies.size());
-            for (BufferCopy& copy : copies) {
-                // Modify copies to have the staging offset in mind
-                copy.dst_offset += download_staging.offset;
-                buffer.MarkUsage(copy.src_offset, copy.size);
-            }
-            runtime.CopyBuffer(download_staging.buffer, buffer, copies_span, true);
-            runtime.Finish();
-            for (const BufferCopy& copy : copies) {
-                const DAddr copy_device_addr = buffer.CpuAddr() + copy.src_offset;
-                // Undo the modified offset
-                const u64 dst_offset = copy.dst_offset - download_staging.offset;
-                const u8* copy_mapped_memory = mapped_memory + dst_offset;
-                try {
-                    device_memory.WriteBlockUnsafe(copy_device_addr, copy_mapped_memory, copy.size);
-                } catch (const std::exception& e) {
-                    LOG_ERROR(Render_Vulkan, "Exception writing downloaded buffer block: {}", e.what());
-                } catch (...) {}
-            }
-        } else {
-            const std::span<u8> immediate_buffer = ImmediateBuffer(largest_copy);
-            for (const BufferCopy& copy : copies) {
-                buffer.ImmediateDownload(copy.src_offset, immediate_buffer.subspan(0, copy.size));
-                const DAddr copy_device_addr = buffer.CpuAddr() + copy.src_offset;
-                try {
-                    device_memory.WriteBlockUnsafe(copy_device_addr, immediate_buffer.data(), copy.size);
-                } catch (const std::exception& e) {
-                    LOG_ERROR(Render_Vulkan, "Exception writing downloaded buffer block: {}", e.what());
-                } catch (...) {}
-            }
+    if constexpr (USE_MEMORY_MAPS) {
+        auto download_staging = runtime.DownloadStagingBuffer(total_size_bytes);
+        const u8* const mapped_memory = download_staging.mapped_span.data();
+        const std::span<BufferCopy> copies_span(copies.data(), copies.data() + copies.size());
+        for (BufferCopy& copy : copies) {
+            // Modify copies to have the staging offset in mind
+            copy.dst_offset += download_staging.offset;
+            buffer.MarkUsage(copy.src_offset, copy.size);
         }
-    } catch (const std::exception& e) {
-        LOG_ERROR(Render_Vulkan, "Exception in DownloadBufferMemory: {}", e.what());
-    } catch (...) {
-        LOG_ERROR(Render_Vulkan, "Unknown exception in DownloadBufferMemory");
+        runtime.CopyBuffer(download_staging.buffer, buffer, copies_span, true);
+        runtime.Finish();
+        for (const BufferCopy& copy : copies) {
+            const DAddr copy_device_addr = buffer.CpuAddr() + copy.src_offset;
+            // Undo the modified offset
+            const u64 dst_offset = copy.dst_offset - download_staging.offset;
+            const u8* copy_mapped_memory = mapped_memory + dst_offset;
+            device_memory.WriteBlockUnsafe(copy_device_addr, copy_mapped_memory, copy.size);
+        }
+    } else {
+        const std::span<u8> immediate_buffer = ImmediateBuffer(largest_copy);
+        for (const BufferCopy& copy : copies) {
+            buffer.ImmediateDownload(copy.src_offset, immediate_buffer.subspan(0, copy.size));
+            const DAddr copy_device_addr = buffer.CpuAddr() + copy.src_offset;
+            device_memory.WriteBlockUnsafe(copy_device_addr, immediate_buffer.data(), copy.size);
+        }
     }
 }
 

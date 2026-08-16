@@ -221,7 +221,7 @@
             <item>
              <widget class="QLabel" name="gpu_log_level_label">
               <property name="text">
-               <string>GPU Logging/Level</string>
+               <string>Логирование ГПУ</string>
               </property>
              </widget>
             </item>

@@ -191,11 +191,17 @@ void GameListModel::ResetExternalWatcher() {
 }
 
 void GameListModel::RetranslateUI() {
-    setHeaderData(COLUMN_NAME, Qt::Horizontal, tr("Name"));
-    setHeaderData(COLUMN_ADD_ONS, Qt::Horizontal, tr("Add-ons"));
-    setHeaderData(COLUMN_FILE_TYPE, Qt::Horizontal, tr("File type"));
-    setHeaderData(COLUMN_SIZE, Qt::Horizontal, tr("Size"));
-    setHeaderData(COLUMN_PLAY_TIME, Qt::Horizontal, tr("Play time"));
+    setHeaderData(COLUMN_NAME, Qt::Horizontal, tr("НАЗВАНИЕ"));
+    setHeaderData(COLUMN_FILE_TYPE, Qt::Horizontal, tr("ТИП ФАЙЛА"));
+    setHeaderData(COLUMN_SIZE, Qt::Horizontal, tr("РАЗМЕР"));
+    setHeaderData(COLUMN_PLAY_TIME, Qt::Horizontal, tr("ВРЕМЯ ИГРЫ"));
+    setHeaderData(COLUMN_ADD_ONS, Qt::Horizontal, tr("ДОПОЛНЕНИЯ"));
+
+    setHeaderData(COLUMN_NAME, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
+    setHeaderData(COLUMN_FILE_TYPE, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
+    setHeaderData(COLUMN_SIZE, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
+    setHeaderData(COLUMN_PLAY_TIME, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
+    setHeaderData(COLUMN_ADD_ONS, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
 }
 
 QFileSystemWatcher* GameListModel::GetWatcher() const {

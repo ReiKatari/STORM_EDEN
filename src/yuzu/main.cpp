@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
 #endif
 
     // Init settings params
-    QCoreApplication::setOrganizationName(QStringLiteral("eden"));
-    QCoreApplication::setApplicationName(QStringLiteral("eden"));
+    QCoreApplication::setOrganizationName(QStringLiteral("STORM EDEN"));
+    QCoreApplication::setApplicationName(QStringLiteral("STORM EDEN"));
 
     // Increases the maximum open file limit.
     // TODO: This should be common to all frontends.
@@ -180,6 +180,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     QApplication app(argc, argv);
+    app.setApplicationDisplayName({});
 
 #ifdef _WIN32
     OverrideWindowsFont();

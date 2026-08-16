@@ -251,7 +251,7 @@ function(apply_patches patches dir)
         get_filename_component(patch_name ${patch} NAME)
         echo("-- Applying patch ${patch_name}")
         execute_process(
-            COMMAND ${PATCH_EXE} -p1
+            COMMAND ${PATCH_EXE} -p1 --batch --forward -N
             INPUT_FILE ${patch}
             WORKING_DIRECTORY ${dir})
     endforeach()

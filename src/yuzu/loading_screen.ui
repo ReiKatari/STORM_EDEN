@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>495</height>
+    <width>1024</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(0, 0, 0);</string>
+   <string notr="true">background-color: #030408;</string>
   </property>
-  <layout class="QVBoxLayout">
+  <layout class="QVBoxLayout" name="main_layout">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -36,123 +36,289 @@
        <number>0</number>
       </property>
       <property name="leftMargin">
-       <number>0</number>
+       <number>30</number>
       </property>
       <property name="topMargin">
-       <number>0</number>
+       <number>24</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>30</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>24</number>
       </property>
-      <item alignment="Qt::AlignLeft|Qt::AlignTop">
-       <widget class="QLabel" name="logo">
-        <property name="text">
-         <string/>
+      <item>
+       <layout class="QHBoxLayout" name="top_header_layout">
+        <item alignment="Qt::AlignLeft|Qt::AlignTop">
+         <widget class="QLabel" name="logo">
+          <property name="styleSheet">
+           <string notr="true">background: transparent;</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer_top">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="spacer_above_card">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
         </property>
-        <property name="margin">
-         <number>30</number>
+       </spacer>
+      </item>
+      <item alignment="Qt::AlignCenter">
+       <widget class="QFrame" name="center_card">
+        <property name="minimumSize">
+         <size>
+          <width>880</width>
+          <height>0</height>
+         </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>1500</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QFrame#center_card {
+  background-color: rgba(12, 14, 22, 0.96);
+  border: 1.5px solid #1c2438;
+  border-radius: 16px;
+  padding: 24px;
+}
+QLabel {
+  background-color: transparent;
+  background: transparent;
+}</string>
+        </property>
+        <layout class="QVBoxLayout" name="card_layout">
+         <property name="spacing">
+          <number>12</number>
+         </property>
+         <property name="leftMargin">
+          <number>28</number>
+         </property>
+         <property name="topMargin">
+          <number>24</number>
+         </property>
+         <property name="rightMargin">
+          <number>28</number>
+         </property>
+         <property name="bottomMargin">
+          <number>24</number>
+         </property>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="game_icon">
+           <property name="minimumSize">
+            <size>
+             <width>180</width>
+             <height>180</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>180</width>
+             <height>180</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel#game_icon {
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+}</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="game_title">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: #ffffff; font-size: 18pt; font-weight: 800; background: transparent; margin-top: 4px; margin-bottom: 4px;</string>
+           </property>
+           <property name="text">
+            <string>Game Title</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="game_meta">
+           <property name="styleSheet">
+            <string notr="true">color: #e2e8f0; font-size: 10.5pt; background: transparent; line-height: 1.5;</string>
+           </property>
+           <property name="text">
+            <string>Metadata</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="progress_layout">
+           <property name="spacing">
+            <number>8</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="stage_layout">
+             <item>
+              <widget class="QLabel" name="stage">
+               <property name="styleSheet">
+                <string notr="true">color: #f1f5f9; font-size: 11pt; font-weight: 700; letter-spacing: 1px; background: transparent;</string>
+               </property>
+               <property name="text">
+                <string>Загрузка шейдеров...</string>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignRight">
+              <widget class="QLabel" name="value">
+               <property name="styleSheet">
+                <string notr="true">color: #00f2fe; font-size: 10pt; font-weight: 600; font-family: monospace; background: transparent;</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QProgressBar" name="progress_bar">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QProgressBar {
+  background-color: #060810;
+  border: 1.5px solid #2a344d;
+  border-radius: 8px;
+  text-align: center;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 10px;
+}
+QProgressBar::chunk {
+  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #00f2fe, stop:0.6 #00b4d8, stop:1 #7928ca);
+  border-radius: 6px;
+}</string>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+             <property name="textVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,1">
-        <property name="spacing">
-         <number>15</number>
+       <spacer name="spacer_below_card">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
-        <property name="sizeConstraint">
-         <enum>QLayout::SetNoConstraint</enum>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
         </property>
-        <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-         <widget class="QLabel" name="stage">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="bottom_layout">
+        <item>
+         <widget class="QLabel" name="sys_footer">
           <property name="styleSheet">
-           <string notr="true">background-color: black; color: white;
-font: 75 20pt &quot;Arial&quot;;</string>
+           <string notr="true">color: #4b5563; font-size: 8.5pt; font-weight: 500; background: transparent;</string>
           </property>
           <property name="text">
-           <string>Loading Shaders 387 / 1628</string>
+           <string>Nintendo Switch Emulation Layer • High Performance Mode</string>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter|Qt::AlignTop">
-         <widget class="QProgressBar" name="progress_bar">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+        <item>
+         <spacer name="spacer_bottom">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="minimumSize">
+          <property name="sizeHint" stdset="0">
            <size>
-            <width>500</width>
-            <height>40</height>
+            <width>40</width>
+            <height>20</height>
            </size>
           </property>
-          <property name="styleSheet">
-           <string notr="true">QProgressBar {
-color: white;
-border: 2px solid white;
-outline-color: black;
-border-radius: 20px;
-}
-QProgressBar::chunk {
-background-color: white;
-border-radius: 15px;
-}</string>
-          </property>
-          <property name="value">
-           <number>50</number>
-          </property>
-          <property name="textVisible">
-           <bool>false</bool>
-          </property>
-          <property name="format">
-           <string>Loading Shaders %v out of %m</string>
-          </property>
-         </widget>
+         </spacer>
         </item>
-        <item alignment="Qt::AlignHCenter|Qt::AlignTop">
-         <widget class="QLabel" name="value">
-          <property name="toolTip">
-           <string notr="true"/>
-          </property>
+        <item alignment="Qt::AlignRight|Qt::AlignBottom">
+         <widget class="QLabel" name="banner">
           <property name="styleSheet">
-           <string notr="true">background-color: black; color: white;
-font: 75 15pt &quot;Arial&quot;;</string>
+           <string notr="true">background: transparent;</string>
           </property>
           <property name="text">
-           <string>Estimated Time 5m 4s</string>
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item alignment="Qt::AlignRight|Qt::AlignBottom">
-       <widget class="QLabel" name="banner">
-        <property name="styleSheet">
-         <string notr="true">background-color: black;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="margin">
-         <number>30</number>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

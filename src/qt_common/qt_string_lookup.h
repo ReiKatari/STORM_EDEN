@@ -67,71 +67,62 @@ enum StringKey {
 static const constexpr frozen::map<StringKey, frozen::string, 29> strings = {
     // 0-4
     {DataManagerSavesTooltip,
-     QT_TR_NOOP("Contains game save data. DO NOT REMOVE UNLESS YOU KNOW WHAT YOU'RE DOING!")},
+     QT_TR_NOOP("Содержит файлы сохранений игр. НЕ УДАЛЯЙТЕ, ЕСЛИ НЕ УВЕРЕНЫ В СВОИХ ДЕЙСТВИЯХ!")},
     {DataManagerShadersTooltip,
-     QT_TR_NOOP("Contains Vulkan and OpenGL pipeline caches. Generally safe to remove.")},
-    {DataManagerUserNandTooltip, QT_TR_NOOP("Contains updates and DLC for games.")},
-    {DataManagerSysNandTooltip, QT_TR_NOOP("Contains firmware and applet data.")},
-    {DataManagerModsTooltip, QT_TR_NOOP("Contains game mods, patches, and cheats.")},
+     QT_TR_NOOP("Содержит кэш шейдеров Vulkan и OpenGL. Безопасно для очистки.")},
+    {DataManagerUserNandTooltip, QT_TR_NOOP("Содержит установленные обновления и DLC для игр.")},
+    {DataManagerSysNandTooltip, QT_TR_NOOP("Содержит файлы прошивки и системных апплетов.")},
+    {DataManagerModsTooltip, QT_TR_NOOP("Содержит модификации, патчи и чит-коды для игр.")},
 
     // Key install
     // 5-9
-    {KeyInstallSuccess, QT_TR_NOOP("Decryption Keys were successfully installed")},
-    {KeyInstallInvalidDir, QT_TR_NOOP("Unable to read key directory, aborting")},
-    {KeyInstallErrorFailedCopy, QT_TR_NOOP("One or more keys failed to copy.")},
+    {KeyInstallSuccess, QT_TR_NOOP("Ключи дешифрования успешно установлены")},
+    {KeyInstallInvalidDir, QT_TR_NOOP("Не удалось прочитать папку с ключами, операция отменена")},
+    {KeyInstallErrorFailedCopy, QT_TR_NOOP("Не удалось скопировать один или несколько файлов ключей.")},
     {KeyInstallErrorWrongFilename,
-     QT_TR_NOOP("Verify your keys file has a .keys extension and try again.")},
+     QT_TR_NOOP("Убедитесь, что файл ключей имеет расширение .keys, и повторите попытку.")},
     {KeyInstallErrorFailedInit,
      QT_TR_NOOP(
-         "Decryption Keys failed to initialize. Check that your dumping tools are up to date and "
-         "re-dump keys.")},
+         "Не удалось инициализировать ключи. Проверьте актуальность дампера и повторите дамп ключей.")},
 
     // fw install
     // 10-14
-    {FwInstallSuccess, QT_TR_NOOP("Successfully installed firmware version %1")},
-    {FwInstallNoNCAs, QT_TR_NOOP("Unable to locate potential firmware NCA files")},
-    {FwInstallFailedDelete, QT_TR_NOOP("Failed to delete one or more firmware files.")},
-    {FwInstallFailedCopy, QT_TR_NOOP("One or more firmware files failed to copy into NAND.")},
+    {FwInstallSuccess, QT_TR_NOOP("Успешно установлена версия прошивки %1")},
+    {FwInstallNoNCAs, QT_TR_NOOP("Не удалось обнаружить файлы прошивки (.nca)")},
+    {FwInstallFailedDelete, QT_TR_NOOP("Не удалось удалить старые файлы прошивки.")},
+    {FwInstallFailedCopy, QT_TR_NOOP("Не удалось скопировать файлы прошивки в NAND.")},
     {FwInstallFailedCorrupted,
      QT_TR_NOOP(
-         "Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart "
-         "Eden or re-install firmware.")},
+         "Установка прошивки отменена. Перезапустите STORM EDEN или повторите установку прошивки.")},
 
     {FwCheckErrorFirmwareMissing,
      QT_TR_NOOP(
-         "Firmware missing. Firmware is required to run certain games and use the Home Menu.")},
+         "Прошивка отсутствует. Прошивка требуется для работы некоторых игр и Home Menu.")},
     {FwCheckErrorFirmwareCorrupted,
      QT_TR_NOOP(
-         "Firmware reported as present, but was unable to be read. Check for decryption keys and "
-         "redump firmware if necessary.")},
+         "Прошивка обнаружена, но не может быть прочитана. Проверьте ключи дешифрования и повторите установку.")},
 
     // migrator
     // 17-22
-    {MigrationPromptPrefix, QT_TR_NOOP("Eden has detected user data for the following emulators:")},
+    {MigrationPromptPrefix, QT_TR_NOOP("STORM EDEN обнаружил данные следующих эмуляторов:")},
     {MigrationPrompt,
-     QT_TR_NOOP("Would you like to migrate your data for use in Eden?\n"
-                "Select the corresponding button to migrate data from that emulator.\n"
-                "This may take a while.")},
-    {MigrationTooltipClearShader, QT_TR_NOOP("Clearing shader cache is recommended for all "
-                                             "users.\nDo not uncheck unless you know what "
-                                             "you're doing.")},
+     QT_TR_NOOP("Хотите перенести данные для использования в STORM EDEN?\n"
+                "Выберите эмулятор для переноса данных.\n"
+                "Этот процесс может занять некоторое время.")},
+    {MigrationTooltipClearShader, QT_TR_NOOP("Рекомендуется очистить кэш шейдеров.\nНе снимайте отметку, если не уверены.")},
     {MigrationTooltipKeepOld,
-     QT_TR_NOOP("Keeps the old data directory. This is recommended if you aren't\n"
-                "space-constrained and want to keep separate data for the old emulator.")},
-    {MigrationTooltipClearOld, QT_TR_NOOP("Deletes the old data directory.\nThis is recommended on "
-                                          "devices with space constraints.")},
+     QT_TR_NOOP("Сохранить старую папку данных. Рекомендуется при наличии свободного места на диске.")},
+    {MigrationTooltipClearOld, QT_TR_NOOP("Удалить старую папку данных для экономии места на диске.")},
     {MigrationTooltipLinkOld,
-     QT_TR_NOOP("Creates a filesystem link between the old directory and Eden directory.\n"
-                "This is recommended if you want to share data between emulators.")},
+     QT_TR_NOOP("Создать символическую ссылку между папками для общего доступа к данным.")},
 
-    // why am I writing these comments again
     // 23-28
-    {KvdbNonexistent, QT_TR_NOOP("Ryujinx title database does not exist.")},
-    {KvdbNoHeader, QT_TR_NOOP("Invalid header on Ryujinx title database.")},
-    {KvdbInvalidMagic, QT_TR_NOOP("Invalid magic header on Ryujinx title database.")},
-    {KvdbMisaligned, QT_TR_NOOP("Invalid byte alignment on Ryujinx title database.")},
-    {KvdbNoImens, QT_TR_NOOP("No items found in Ryujinx title database.")},
-    {RyujinxNoSaveId, QT_TR_NOOP("Title %1 not found in Ryujinx title database.")},
+    {KvdbNonexistent, QT_TR_NOOP("База данных игр Ryujinx не найдена.")},
+    {KvdbNoHeader, QT_TR_NOOP("Неверный заголовок базы данных Ryujinx.")},
+    {KvdbInvalidMagic, QT_TR_NOOP("Неверная сигнатура базы данных Ryujinx.")},
+    {KvdbMisaligned, QT_TR_NOOP("Ошибка выравнивания в базе данных Ryujinx.")},
+    {KvdbNoImens, QT_TR_NOOP("Элементы в базе данных Ryujinx не найдены.")},
+    {RyujinxNoSaveId, QT_TR_NOOP("Игра %1 не найдена в базе данных Ryujinx.")},
 };
 
 static inline const QString Lookup(StringKey key) {

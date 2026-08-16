@@ -58,8 +58,8 @@ static const std::map<Settings::ScalingFilter, QString> scaling_filter_texts_map
 };
 
 static const std::map<Settings::ConsoleMode, QString> use_docked_mode_texts_map = {
-    {Settings::ConsoleMode::Docked, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Docked"))},
-    {Settings::ConsoleMode::Handheld, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Handheld"))},
+    {Settings::ConsoleMode::Docked, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "В док-станции"))},
+    {Settings::ConsoleMode::Handheld, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Портативный"))},
 };
 
 static const std::map<Settings::GpuAccuracy, QString> gpu_accuracy_texts_map = {

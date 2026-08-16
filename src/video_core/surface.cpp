@@ -473,6 +473,7 @@ u64 TranscodedAstcSize(u64 base_size, PixelFormat format) {
     case Settings::AstcRecompression::Bc1:
         return uncompressed_size / 8;
     case Settings::AstcRecompression::Bc3:
+    case Settings::AstcRecompression::Bc5:
         return uncompressed_size / 4;
     default:
         return uncompressed_size;

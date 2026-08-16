@@ -40,7 +40,8 @@ add_library(qt_common STATIC
 
     discord/discord.h
     render/context.h
-    render/emu_thread.h render/emu_thread.cpp)
+    render/emu_thread.h render/emu_thread.cpp
+    titledb.h titledb.cpp)
 
 if (UNIX)
     target_sources(qt_common PRIVATE gui_settings.cpp gui_settings.h)
@@ -84,7 +85,7 @@ target_compile_definitions(qt_common PUBLIC
     QT_NO_URL_CAST_FROM_STRING
 )
 
-target_link_libraries(qt_common PRIVATE core Qt6::Core Qt6::Concurrent SimpleIni::SimpleIni QuaZip::QuaZip)
+target_link_libraries(qt_common PRIVATE core Qt6::Core Qt6::Concurrent SimpleIni::SimpleIni QuaZip::QuaZip nlohmann_json::nlohmann_json)
 target_link_libraries(qt_common PUBLIC frozen::frozen-headers Vulkan::Headers)
 target_link_libraries(qt_common PRIVATE gamemode::headers frontend_common)
 

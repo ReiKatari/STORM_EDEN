@@ -139,6 +139,9 @@ public:
     }
 
     QVariant data(int role) const override {
+        if (role == Qt::TextAlignmentRole) {
+            return Qt::AlignCenter;
+        }
         if (role != Qt::DisplayRole) {
             return LobbyItem::data(role);
         }
@@ -197,6 +200,8 @@ public:
 
     QVariant data(int role) const override {
         switch (role) {
+        case Qt::TextAlignmentRole:
+            return Qt::AlignCenter;
         case Qt::DisplayRole: {
             auto members = data(MemberListRole).toList();
             return QStringLiteral("%1 / %2 ")
@@ -219,8 +224,6 @@ public:
             } else if (members.size() > 0 && members.size() < (max_players - 1)) {
                 return QBrush(room_has_players_color);
             }
-            // FIXME: How to return a value that tells Qt not to modify the
-            // text color from the default (as if Qt::ForegroundRole wasn't overridden)?
             return QBrush(nullptr);
         }
         default:

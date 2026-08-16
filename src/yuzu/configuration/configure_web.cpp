@@ -98,28 +98,51 @@ void ConfigureWeb::ApplyConfiguration() {
     Settings::values.eden_token = ui->edit_token->text().toStdString();
 }
 
-void ConfigureWeb::VerifyLogin() {
-    const QPixmap checked = QIcon::fromTheme(QStringLiteral("checked")).pixmap(16);
-    const QPixmap failed = QIcon::fromTheme(QStringLiteral("failed")).pixmap(16);
+#include <QPainter>
 
+static QPixmap CreateStatusBadge(bool ok) {
+    QPixmap pix(20, 20);
+    pix.fill(Qt::transparent);
+    QPainter p(&pix);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    if (ok) {
+        p.setPen(QPen(QColor(16, 185, 129), 1.5));
+        p.setBrush(QColor(16, 185, 129, 220));
+        p.drawEllipse(2, 2, 16, 16);
+
+        p.setPen(QPen(Qt::white, 2.0));
+        p.drawLine(5, 10, 8, 14);
+        p.drawLine(8, 14, 15, 6);
+    } else {
+        p.setPen(QPen(QColor(239, 68, 68), 1.5));
+        p.setBrush(QColor(239, 68, 68, 220));
+        p.drawEllipse(2, 2, 16, 16);
+
+        p.setPen(QPen(Qt::white, 2.0));
+        p.drawLine(6, 6, 14, 14);
+        p.drawLine(14, 6, 6, 14);
+    }
+    return pix;
+}
+
+void ConfigureWeb::VerifyLogin() {
     const bool username_good = ui->edit_username->hasAcceptableInput();
     const bool token_good = ui->edit_token->hasAcceptableInput();
 
+    ui->label_username_verified->setPixmap(CreateStatusBadge(username_good));
     if (username_good) {
-        ui->label_username_verified->setPixmap(checked);
-        ui->label_username_verified->setToolTip(tr("All Good", "Tooltip"));
+        ui->label_username_verified->setToolTip(tr("Имя пользователя принято", "Tooltip"));
     } else {
-        ui->label_username_verified->setPixmap(failed);
-        ui->label_username_verified->setToolTip(tr("Must be between 4-20 characters", "Tooltip"));
+        ui->label_username_verified->setToolTip(tr("Имя пользователя должно быть от 4 до 20 символов", "Tooltip"));
     }
 
+    ui->label_token_verified->setPixmap(CreateStatusBadge(token_good));
     if (token_good) {
-        ui->label_token_verified->setPixmap(checked);
-        ui->label_token_verified->setToolTip(tr("All Good", "Tooltip"));
+        ui->label_token_verified->setToolTip(tr("Токен принят и действителен", "Tooltip"));
     } else {
-        ui->label_token_verified->setPixmap(failed);
         ui->label_token_verified->setToolTip(
-            tr("Must be 48 characters, and lowercase a-z", "Tooltip"));
+            tr("Токен должен содержать 48 строчных символов (a-z)", "Tooltip"));
     }
 }
 

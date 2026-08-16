@@ -16,10 +16,15 @@
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QString>
+#include <QTabBar>
 #include <QTimer>
 
+#include "common/cityhash.h"
 #include "common/fs/fs_util.h"
+#include "common/fs/path_util.h"
+#include "common/string_util.h"
 #include "common/settings_enums.h"
 #include "common/settings_input.h"
 #include "configuration/shared_widget.h"
@@ -55,8 +60,18 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
       builder{std::make_unique<ConfigurationShared::Builder>(this, !system_.IsPoweredOn())},
       tab_group{std::make_shared<std::vector<ConfigurationShared::Tab*>>()} {
     const auto file_path = std::filesystem::path(Common::FS::ToU8String(file_name));
-    const auto config_file_name = title_id == 0 ? Common::FS::PathToUTF8String(file_path.filename())
-                                                : fmt::format("{:016X}", title_id);
+    const auto file_path_hash = Common::CityHash64(file_name.data(), file_name.size());
+    const auto specific_config = fmt::format("{:016X}_{:016X}", title_id, file_path_hash);
+    const auto legacy_config = title_id == 0 ? Common::FS::PathToUTF8String(file_path.filename())
+                                             : fmt::format("{:016X}", title_id);
+
+    std::filesystem::path custom_path = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir) / "custom";
+    std::string config_file_name = specific_config;
+    if (!std::filesystem::exists(custom_path / (specific_config + ".ini")) &&
+        std::filesystem::exists(custom_path / (legacy_config + ".ini"))) {
+        std::error_code ec;
+        std::filesystem::copy_file(custom_path / (legacy_config + ".ini"), custom_path / (specific_config + ".ini"), std::filesystem::copy_options::skip_existing, ec);
+    }
     game_config = std::make_unique<QtConfig>(config_file_name, Config::ConfigType::PerGameConfig);
     addons_tab = std::make_unique<ConfigurePerGameAddons>(system_, this);
     audio_tab = std::make_unique<ConfigureAudio>(system_, tab_group, *builder, this);
@@ -77,7 +92,7 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
 
     ui->tabWidget->addTab(addons_tab.get(), tr("Add-Ons"));
     ui->tabWidget->addTab(system_tab.get(), tr("System"));
-    ui->tabWidget->addTab(cpu_tab.get(), tr("CPU"));
+    ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
     ui->tabWidget->addTab(graphics_tab.get(), tr("Graphics"));
     ui->tabWidget->addTab(graphics_advanced_tab.get(), tr("Adv. Graphics"));
     ui->tabWidget->addTab(graphics_extensions_tab.get(), tr("Ext. Graphics"));
@@ -87,7 +102,23 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     ui->tabWidget->addTab(applets_tab.get(), tr("Applets"));
 
     setFocusPolicy(Qt::ClickFocus);
-    setWindowTitle(tr("Properties"));
+    setWindowTitle(tr("Параметры игры"));
+
+    ui->display_name->setLineWrapMode(QTextEdit::WidgetWidth);
+    ui->display_filename->setLineWrapMode(QTextEdit::WidgetWidth);
+    ui->display_name->setAcceptRichText(false);
+    ui->display_filename->setAcceptRichText(false);
+
+    QFont bold_font = font();
+    bold_font.setBold(true);
+    ui->tabWidget->tabBar()->setFont(bold_font);
+    ui->label->setFont(bold_font);
+    ui->label_2->setFont(bold_font);
+    ui->label_3->setFont(bold_font);
+    ui->label_4->setFont(bold_font);
+    ui->label_5->setFont(bold_font);
+    ui->label_6->setFont(bold_font);
+    ui->label_7->setFont(bold_font);
 
     addons_tab->SetTitleId(title_id);
 
@@ -163,21 +194,61 @@ void ConfigurePerGame::LoadConfiguration() {
     const auto control = pm.GetControlMetadata();
     const auto loader = Loader::GetLoader(system, file);
 
-    if (control.first != nullptr) {
-        ui->display_version->setText(QString::fromStdString(control.first->GetVersionString()));
-        ui->display_name->setText(QString::fromStdString(control.first->GetApplicationName()));
-        ui->display_developer->setText(QString::fromStdString(control.first->GetDeveloperName()));
-    } else {
-        std::string title;
-        if (loader->ReadTitle(title) == Loader::ResultStatus::Success)
-            ui->display_name->setText(QString::fromStdString(title));
+    QString title_text;
+    QString dev_text;
+    QString ver_str;
 
-        FileSys::NACP nacp;
-        if (loader->ReadControlData(nacp) == Loader::ResultStatus::Success)
-            ui->display_developer->setText(QString::fromStdString(nacp.GetDeveloperName()));
-
-        ui->display_version->setText(QStringLiteral("1.0.0"));
+    FileSys::NACP file_nacp;
+    if (loader != nullptr && loader->ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
+        title_text = QString::fromStdString(file_nacp.GetApplicationName());
+        dev_text = QString::fromStdString(file_nacp.GetDeveloperName());
+        const auto nacp_ver = file_nacp.GetVersionString();
+        if (!nacp_ver.empty() && nacp_ver != "0") {
+            ver_str = QString::fromStdString(nacp_ver);
+        }
     }
+
+    if (title_text.trimmed().isEmpty() && loader != nullptr) {
+        std::string title;
+        if (loader->ReadTitle(title) == Loader::ResultStatus::Success) {
+            title_text = QString::fromStdString(title);
+        }
+    }
+
+    if (title_text.trimmed().isEmpty()) {
+        title_text = QString::fromStdString(file->GetName());
+    }
+
+    // Extract exact version from the file name if available, strictly excluding file sizes like (0.45 GB)
+    static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+    const auto m = fn_ver_regex.match(QString::fromStdString(file->GetName()));
+    if (m.hasMatch() && m.hasCaptured(1)) {
+        const QString parsed_ver = m.captured(1);
+        if (!parsed_ver.isEmpty() && (ver_str.isEmpty() || ver_str == QStringLiteral("1.0.0"))) {
+            ver_str = parsed_ver;
+        }
+    }
+
+    if (ver_str.isEmpty()) {
+        static const QRegularExpression fn_vnum_regex{QStringLiteral(R"(\[v([0-9]+)\])")};
+        const auto vm = fn_vnum_regex.match(QString::fromStdString(file->GetName()));
+        if (vm.hasMatch()) {
+            const u32 vnum = vm.captured(1).toUInt();
+            if (vnum == 0) {
+                ver_str = QStringLiteral("1.0.0");
+            } else {
+                ver_str = QStringLiteral("v%1").arg(vnum);
+            }
+        }
+    }
+
+    if (ver_str.isEmpty()) {
+        ver_str = QStringLiteral("1.0.0");
+    }
+
+    ui->display_name->setPlainText(title_text);
+    ui->display_developer->setText(dev_text);
+    ui->display_version->setText(ver_str);
 
     if (control.second != nullptr) {
         scene->clear();
@@ -186,8 +257,9 @@ void ConfigurePerGame::LoadConfiguration() {
         const auto bytes = control.second->ReadAllBytes();
         map.loadFromData(bytes.data(), static_cast<u32>(bytes.size()));
 
-        scene->addPixmap(map.scaled(ui->icon_view->width(), ui->icon_view->height(),
-                                    Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        const int icon_dim = (std::max)({ui->icon_view->width(), ui->icon_view->height(), 240});
+        scene->addPixmap(map.scaled(icon_dim, icon_dim,
+                                    Qt::KeepAspectRatio, Qt::SmoothTransformation));
     } else {
         std::vector<u8> bytes;
         if (loader->ReadIcon(bytes) == Loader::ResultStatus::Success) {
@@ -196,15 +268,22 @@ void ConfigurePerGame::LoadConfiguration() {
             QPixmap map;
             map.loadFromData(bytes.data(), static_cast<u32>(bytes.size()));
 
-            scene->addPixmap(map.scaled(ui->icon_view->width(), ui->icon_view->height(),
-                                        Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            const int icon_dim = (std::max)({ui->icon_view->width(), ui->icon_view->height(), 240});
+            scene->addPixmap(map.scaled(icon_dim, icon_dim,
+                                        Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
     }
 
-    ui->display_filename->setText(QString::fromStdString(file->GetName()));
+    ui->display_filename->setPlainText(QString::fromStdString(file->GetName()));
 
-    ui->display_format->setText(
-        QString::fromStdString(Loader::GetFileTypeString(loader->GetFileType())));
+    QString format_str = QString::fromStdString(Loader::GetFileTypeString(loader ? loader->GetFileType() : Loader::FileType::Unknown));
+    const auto ext = Common::ToLower(std::string(Common::FS::GetExtensionFromFilename(file->GetName())));
+    if (ext == "nsz") {
+        format_str = QStringLiteral("NSZ");
+    } else if (ext == "xcz") {
+        format_str = QStringLiteral("XCZ");
+    }
+    ui->display_format->setText(format_str);
 
     const auto valueText = QtCommon::ReadableByteSize(file->GetSize());
     ui->display_size->setText(valueText);

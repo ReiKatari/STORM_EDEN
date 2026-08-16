@@ -14,19 +14,19 @@
    <string>Form</string>
   </property>
   <property name="accessibleName">
-   <string>Extras</string>
+   <string>Дополнительно</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QGroupBox" name="hacks">
      <property name="title">
-      <string>Hacks</string>
+      <string>Хаки</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Changing these options from their default may cause issues. Novitii cavete!</string>
+         <string>Изменение этих параметров может вызвать проблемы. Только для опытных пользователей!</string>
         </property>
        </widget>
       </item>
@@ -59,7 +59,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox_1">
        <property name="title">
-        <string>Vulkan Extensions</string>
+        <string>Расширения Vulkan</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>

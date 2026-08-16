@@ -27,6 +27,8 @@
 
 namespace FileSys {
 
+class NCZVirtualFile;
+
 // An enumeration representing what can be at the end of a path in a VfsFilesystem
 enum class VfsEntryType {
     None,
@@ -111,6 +113,10 @@ public:
     virtual bool IsWritable() const = 0;
     // Returns whether or not the file can be read from.
     virtual bool IsReadable() const = 0;
+
+    virtual bool IsNczFile() const { return false; }
+    virtual std::shared_ptr<VfsFile> GetUnderlyingFile() const { return nullptr; }
+    virtual NCZVirtualFile* GetNczFilePointer() { return nullptr; }
 
     // The primary method of reading from the file. Reads length bytes into data starting at offset
     // into file. Returns number of bytes successfully read.

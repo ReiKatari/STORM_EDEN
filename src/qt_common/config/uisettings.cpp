@@ -68,18 +68,16 @@ const std::array<Shortcut, 33> default_hotkeys{{
 // clang-format on
 
 const Themes themes{{
-    {"Default", "default"},
-    {"Default Colorful", "colorful"},
-    {"Dark", "qdarkstyle"},
-    {"Dark Colorful", "colorful_dark"},
-    {"Midnight Blue", "qdarkstyle_midnight_blue"},
-    {"Midnight Blue Colorful", "colorful_midnight_blue"},
+    {"STORM NIGHT", "storm_night"},
+    {"STORM MIDNIGHT", "storm_midnight"},
+    {"STORM DAY", "storm_day"},
+    {"STORM CYBERPUNK", "storm_cyberpunk"},
+    {"STORM GOTHIC", "storm_gothic"},
 }};
 
 bool IsDarkTheme() {
     const auto& theme = UISettings::values.theme;
-    return theme == std::string("qdarkstyle") || theme == std::string("qdarkstyle_midnight_blue") ||
-           theme == std::string("colorful_dark") || theme == std::string("colorful_midnight_blue");
+    return theme != std::string("storm_day");
 }
 
 Values values = {};

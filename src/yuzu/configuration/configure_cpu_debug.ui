@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="accessibleName">
-   <string>CPU</string>
+   <string>ЦП</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
@@ -22,7 +22,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>Toggle CPU Optimizations</string>
+        <string>Оптимизации ЦП</string>
        </property>
        <layout class="QVBoxLayout">
         <item>
@@ -209,7 +209,7 @@
    <item>
     <widget class="QLabel" name="label_disable_info">
      <property name="text">
-      <string>CPU settings are available only when game is not running.</string>
+      <string>Настройки ЦП доступны только когда игра не запущена.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

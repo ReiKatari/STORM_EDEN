@@ -321,6 +321,19 @@ ConfigureInputPlayer::ConfigureInputPlayer(QWidget* parent, std::size_t player_i
     }
     ui->setupUi(this);
 
+    ui->groupConnectedController->setMinimumWidth(210);
+    ui->top->setStretch(0, 1);
+    ui->top->setStretch(1, 1);
+    ui->top->setStretch(2, 2);
+
+    ui->mousePanningGroup->setMinimumWidth(185);
+    if (ui->mousePanningHorizontalSpacerLeft) {
+        ui->mousePanningHorizontalSpacerLeft->changeSize(4, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
+    if (ui->mousePanningHorizontalSpacerRight) {
+        ui->mousePanningHorizontalSpacerRight->changeSize(4, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
+
     setFocusPolicy(Qt::ClickFocus);
 
     button_map = {
@@ -1172,7 +1185,20 @@ void ConfigureInputPlayer::UpdateInputDevices() {
     input_devices = input_subsystem->GetInputDevices();
     ui->comboDevices->clear();
     for (const auto& device : input_devices) {
-        ui->comboDevices->addItem(QString::fromStdString(device.Get("display", "Unknown")), {});
+        const auto raw_display = device.Get("display", "Unknown");
+        QString display_str;
+        if (raw_display == "Any") {
+            display_str = tr("Любое");
+        } else if (raw_display == "Keyboard Only") {
+            display_str = tr("Только клавиатура");
+        } else if (raw_display == "Keyboard/Mouse") {
+            display_str = tr("Клавиатура/Мышь");
+        } else if (raw_display == "Unknown") {
+            display_str = tr("Неизвестно");
+        } else {
+            display_str = QString::fromStdString(raw_display);
+        }
+        ui->comboDevices->addItem(display_str, {});
     }
 }
 

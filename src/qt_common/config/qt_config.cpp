@@ -204,7 +204,7 @@ void QtConfig::ReadPathValues() {
         UISettings::GameDir game_dir;
         game_dir.path = ReadStringSetting(std::string("path"));
         game_dir.deep_scan =
-            ReadBooleanSetting(std::string("deep_scan"), std::make_optional(false));
+            ReadBooleanSetting(std::string("deep_scan"), std::make_optional(true));
         game_dir.expanded = ReadBooleanSetting(std::string("expanded"), std::make_optional(true));
         UISettings::values.game_dirs.append(game_dir);
     }
@@ -216,14 +216,20 @@ void QtConfig::ReadPathValues() {
         UISettings::GameDir game_dir;
         game_dir.path = std::string("SDMC");
         game_dir.expanded = true;
+        game_dir.deep_scan = true;
         UISettings::values.game_dirs.append(game_dir);
         game_dir.path = std::string("UserNAND");
+        game_dir.expanded = true;
+        game_dir.deep_scan = true;
         UISettings::values.game_dirs.append(game_dir);
         game_dir.path = std::string("SysNAND");
+        game_dir.expanded = true;
+        game_dir.deep_scan = true;
         UISettings::values.game_dirs.append(game_dir);
         if (UISettings::values.game_dir_deprecated != std::string(".")) {
             game_dir.path = UISettings::values.game_dir_deprecated;
             game_dir.deep_scan = UISettings::values.game_dir_deprecated_deepscan;
+            game_dir.expanded = true;
             UISettings::values.game_dirs.append(game_dir);
         }
     }
@@ -448,7 +454,7 @@ void QtConfig::SavePathValues() {
         const auto& game_dir = UISettings::values.game_dirs[i];
         WriteStringSetting(std::string("path"), game_dir.path);
         WriteBooleanSetting(std::string("deep_scan"), game_dir.deep_scan,
-                            std::make_optional(false));
+                            std::make_optional(true));
         WriteBooleanSetting(std::string("expanded"), game_dir.expanded, std::make_optional(true));
     }
     EndArray();

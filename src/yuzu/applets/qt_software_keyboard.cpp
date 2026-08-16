@@ -825,11 +825,10 @@ void QtSoftwareKeyboardDialog::SetControllerImage() {
         handheld->IsConnected() ? handheld->GetNpadStyleIndex() : player_1->GetNpadStyleIndex();
 
     const QString theme = [] {
-        if (QIcon::themeName().contains(QStringLiteral("dark")) ||
-            QIcon::themeName().contains(QStringLiteral("midnight"))) {
-            return QStringLiteral("_dark");
-        } else {
+        if (QIcon::themeName().contains(QStringLiteral("day"))) {
             return QString{};
+        } else {
+            return QStringLiteral("_dark");
         }
     }();
 

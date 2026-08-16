@@ -49,7 +49,7 @@ Lobby::Lobby(QWidget* parent, QStandardItemModel* list,
     proxy->setSortLocaleAware(true);
     ui->room_list->setModel(proxy);
     ui->room_list->header()->setSectionResizeMode(QHeaderView::Interactive);
-    ui->room_list->header()->stretchLastSection();
+    ui->room_list->header()->setDefaultAlignment(Qt::AlignCenter);
     ui->room_list->setAlternatingRowColors(true);
     ui->room_list->setSelectionMode(QHeaderView::SingleSelection);
     ui->room_list->setSelectionBehavior(QHeaderView::SelectRows);
@@ -60,19 +60,25 @@ Lobby::Lobby(QWidget* parent, QStandardItemModel* list,
     ui->room_list->setExpandsOnDoubleClick(false);
     ui->room_list->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    ResetModel();
+    ui->room_list->header()->resizeSection(Column::GAME_NAME, 500);
+    ui->room_list->header()->resizeSection(Column::ROOM_NAME, 300);
+    ui->room_list->header()->resizeSection(Column::MEMBER, 150);
+    ui->room_list->header()->resizeSection(Column::HOST, 200);
+
     ui->nickname->setValidator(validation.GetNickname());
     ui->nickname->setText(
         QString::fromStdString(UISettings::values.multiplayer_nickname.GetValue()));
 
     // Try find the best nickname by default
-    if (ui->nickname->text().isEmpty() || ui->nickname->text() == QStringLiteral("Eden")) {
+    if (ui->nickname->text().isEmpty() || ui->nickname->text() == QStringLiteral("STORM EDEN") || ui->nickname->text() == QStringLiteral("Eden")) {
         if (!Settings::values.eden_username.GetValue().empty()) {
             ui->nickname->setText(
                 QString::fromStdString(Settings::values.eden_username.GetValue()));
         } else if (!GetProfileUsername().empty()) {
             ui->nickname->setText(QString::fromStdString(GetProfileUsername()));
         } else {
-            ui->nickname->setText(QStringLiteral("Eden"));
+            ui->nickname->setText(QStringLiteral("STORM EDEN"));
         }
     }
 
@@ -226,17 +232,27 @@ void Lobby::OnJoinRoom(const QModelIndex& source) {
 void Lobby::ResetModel() {
     model->clear();
     model->insertColumns(0, Column::TOTAL);
-    model->setHeaderData(Column::MEMBER, Qt::Horizontal, tr("Players"), Qt::DisplayRole);
-    model->setHeaderData(Column::ROOM_NAME, Qt::Horizontal, tr("Room Name"), Qt::DisplayRole);
-    model->setHeaderData(Column::GAME_NAME, Qt::Horizontal, tr("Preferred Game"), Qt::DisplayRole);
-    model->setHeaderData(Column::HOST, Qt::Horizontal, tr("Host"), Qt::DisplayRole);
+    model->setHeaderData(Column::GAME_NAME, Qt::Horizontal, tr("ПРЕДПОЧТИТЕЛЬНАЯ ИГРА"), Qt::DisplayRole);
+    model->setHeaderData(Column::ROOM_NAME, Qt::Horizontal, tr("НАЗВАНИЕ КОМНАТЫ"), Qt::DisplayRole);
+    model->setHeaderData(Column::MEMBER, Qt::Horizontal, tr("ИГРОКИ"), Qt::DisplayRole);
+    model->setHeaderData(Column::HOST, Qt::Horizontal, tr("ХОСТ"), Qt::DisplayRole);
+
+    QFont header_font;
+    header_font.setBold(true);
+    header_font.setPointSize(9);
+    header_font.setCapitalization(QFont::AllUppercase);
+
+    for (int col = 0; col < Column::TOTAL; ++col) {
+        model->setHeaderData(col, Qt::Horizontal, Qt::AlignCenter, Qt::TextAlignmentRole);
+        model->setHeaderData(col, Qt::Horizontal, header_font, Qt::FontRole);
+    }
 }
 
 void Lobby::RefreshLobby() {
     if (auto session = announce_multiplayer_session.lock()) {
         ResetModel();
         ui->refresh_list->setEnabled(false);
-        ui->refresh_list->setText(tr("Refreshing"));
+        ui->refresh_list->setText(tr("Обновление..."));
         room_list_watcher.setFuture(
             QtConcurrent::run([session]() { return session->GetRoomList(); }));
     } else {
@@ -291,13 +307,14 @@ void Lobby::OnRefreshLobby() {
         }
     }
 
-    // Re-enable the refresh button and resize the columns
+    // Re-enable the refresh button and keep the user requested column widths
     ui->refresh_list->setEnabled(true);
-    ui->refresh_list->setText(tr("Refresh List"));
-    ui->room_list->header()->stretchLastSection();
-    for (int i = 0; i < Column::TOTAL - 1; ++i) {
-        ui->room_list->resizeColumnToContents(i);
-    }
+    ui->refresh_list->setText(tr("Обновить список"));
+    ui->room_list->header()->setDefaultAlignment(Qt::AlignCenter);
+    ui->room_list->header()->resizeSection(Column::GAME_NAME, 500);
+    ui->room_list->header()->resizeSection(Column::ROOM_NAME, 300);
+    ui->room_list->header()->resizeSection(Column::MEMBER, 150);
+    ui->room_list->header()->resizeSection(Column::HOST, 200);
 
     // Set the member list child items to span all columns
     for (int i = 0; i < proxy->rowCount(); i++) {

@@ -42,7 +42,8 @@ bool CheckGameFirmware(u64 program_id) {
 void InstallFirmware(const QString& location, bool recursive) {
     // Initialize a progress dialog.
     auto progress =
-        QtCommon::Frontend::newProgressDialog(tr("Installing Firmware..."), tr("Cancel"), 0, 100);
+        QtCommon::Frontend::newProgressDialog(tr("Установка прошивки..."), tr("Отмена"), 0, 100);
+    progress->setTitle(QStringLiteral("STORM EDEN"));
     progress->show();
 
     QGuiApplication::processEvents();
@@ -54,13 +55,13 @@ void InstallFirmware(const QString& location, bool recursive) {
         return progress->wasCanceled();
     };
 
-    QString failedTitle = tr("Firmware Install Failed");
-    QString successTitle = tr("Firmware Install Succeeded");
+    QString failedTitle = tr("Ошибка установки прошивки");
+    QString successTitle = tr("Установка прошивки завершена");
     QtCommon::Frontend::Icon icon;
     FirmwareInstallResult result;
 
     const auto ShowMessage = [&]() {
-        QtCommon::Frontend::ShowMessage(icon, failedTitle, GetFirmwareInstallResultString(result));
+        QtCommon::Frontend::ShowMessage(icon, successTitle, GetFirmwareInstallResultString(result));
     };
 
     LOG_INFO(Frontend, "Installing firmware from {}", location.toStdString());
@@ -182,7 +183,7 @@ void InstallFirmware(const QString& location, bool recursive) {
 
 QString UnzipFirmwareToTmp(const QString& location) {
     namespace fs = std::filesystem;
-    fs::path tmp{fs::temp_directory_path() / "eden" / "firmware"};
+    fs::path tmp{fs::temp_directory_path() / "storm_eden" / "firmware"};
     std::error_code ec;
     fs::remove_all(tmp, ec);
     if (!fs::create_directories(tmp, ec)) {
@@ -534,7 +535,7 @@ void InstallFirmwareZip() {
     if (!qCacheDir.isEmpty()) {
         QtCommon::Content::InstallFirmware(qCacheDir, true);
         std::error_code ec;
-        std::filesystem::remove_all(std::filesystem::temp_directory_path() / "eden" / "firmware",
+        std::filesystem::remove_all(std::filesystem::temp_directory_path() / "storm_eden" / "firmware",
                                     ec);
 
         if (ec) {
@@ -572,14 +573,17 @@ void configureFilesystemProvider(const std::string& filepath) {
                                      FileSys::GetCRTypeFromNCAType(FileSys::NCA{file}.GetType()),
                                      program_id, file);
     } else if (res2 == Loader::ResultStatus::Success &&
-               (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP)) {
-        const auto nsp = file_type == Loader::FileType::NSP
+               (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
+        const auto nsp = (file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)
                              ? std::make_shared<FileSys::NSP>(file)
                              : FileSys::XCI{file}.GetSecurePartitionNSP();
-        for (const auto& title : nsp->GetNCAs()) {
-            for (const auto& entry : title.second) {
-                QtCommon::provider->AddEntry(entry.first.first, entry.first.second, title.first,
-                                             entry.second->GetBaseFile());
+        if (nsp) {
+            for (const auto& title : nsp->GetNCAs()) {
+                for (const auto& entry : title.second) {
+                    QtCommon::provider->AddEntry(entry.first.first, entry.first.second, title.first,
+                                                 entry.second->GetBaseFile());
+                }
             }
         }
     }

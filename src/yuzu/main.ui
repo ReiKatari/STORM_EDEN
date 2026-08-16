@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>yuzu</string>
+   <string>STORM EDEN</string>
   </property>
   <property name="windowIcon">
    <iconset resource="yuzu.qrc">
@@ -59,7 +59,7 @@
     </widget>
     <widget class="QMenu" name="menuOpen_Eden_Folders">
      <property name="title">
-      <string>Open &amp;Eden Folders</string>
+      <string>Open &amp;STORM EDEN Folders</string>
      </property>
      <addaction name="action_Root_Data_Folder"/>
      <addaction name="action_NAND_Folder"/>
@@ -235,7 +235,7 @@
     <addaction name="action_Open_Mods_Page"/>
     <addaction name="action_Open_Quickstart_Guide"/>
     <addaction name="action_Open_FAQ"/>
-    <addaction name="separator"/>
+    <addaction name="action_Check_Updates"/>
     <addaction name="action_About"/>
     <addaction name="action_Eden_Dependencies"/>
    </widget>
@@ -290,9 +290,14 @@
     <string>&amp;Verify Installed Contents</string>
    </property>
   </action>
+  <action name="action_Check_Updates">
+   <property name="text">
+    <string>Проверить &amp;обновления...</string>
+   </property>
+  </action>
   <action name="action_About">
    <property name="text">
-    <string>&amp;About Eden</string>
+    <string>&amp;О STORM EDEN</string>
    </property>
   </action>
   <action name="action_Single_Window_Mode">
@@ -550,22 +555,22 @@
   </action>
   <action name="action_Firmware_From_Folder">
    <property name="text">
-    <string>From Folder</string>
+    <string>Из папки</string>
    </property>
   </action>
   <action name="action_Firmware_From_ZIP">
    <property name="text">
-    <string>From ZIP</string>
+    <string>Из архива (ZIP)</string>
    </property>
   </action>
   <action name="action_Eden_Dependencies">
    <property name="text">
-    <string>&amp;Eden Dependencies</string>
+    <string>&amp;Зависимости STORM EDEN</string>
    </property>
   </action>
   <action name="action_Data_Manager">
    <property name="text">
-    <string>&amp;Data Manager</string>
+    <string>&amp;Менеджер данных</string>
    </property>
   </action>
   <action name="action_Tree_View">
@@ -573,7 +578,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Tree View</string>
+    <string>&amp;Дерево</string>
    </property>
   </action>
   <action name="action_Grid_View">
@@ -581,17 +586,17 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Grid View</string>
+    <string>&amp;Сетка</string>
    </property>
   </action>
   <action name="actionGame_Icon_Size">
    <property name="text">
-    <string>Game Icon Size</string>
+    <string>Размер иконок игр</string>
    </property>
   </action>
   <action name="actionNone">
    <property name="text">
-    <string>None</string>
+    <string>Без иконок</string>
    </property>
   </action>
   <action name="action_Show_Game_Name">
@@ -599,7 +604,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Game &amp;Name</string>
+    <string>Отображать название &amp;игры</string>
    </property>
   </action>
   <action name="action_Show_Performance_Overlay">
@@ -607,7 +612,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show &amp;Performance Overlay</string>
+    <string>Отображать &amp;оверлей производительности</string>
    </property>
   </action>
   <action name="action_Carousel_View">
@@ -615,7 +620,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Carousel View</string>
+    <string>&amp;Карусель</string>
    </property>
   </action>
  </widget>

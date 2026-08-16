@@ -42,7 +42,27 @@ ServiceManager::~ServiceManager() {
 }
 
 void ServiceManager::InvokeControlRequest(HLERequestContext& context) {
-    controller_interface->InvokeRequest(context);
+    const u32 cmd = static_cast<u32>(context.GetCommand());
+    switch (cmd) {
+    case 0:
+        controller_interface->ConvertCurrentObjectToDomain(context);
+        break;
+    case 2:
+        controller_interface->CloneCurrentObject(context);
+        break;
+    case 3:
+        controller_interface->QueryPointerBufferSize(context);
+        break;
+    case 4:
+        controller_interface->CloneCurrentObjectEx(context);
+        break;
+    case 5:
+        controller_interface->SetPointerBufferSize(context);
+        break;
+    default:
+        controller_interface->InvokeRequest(context);
+        break;
+    }
 }
 
 static Result ValidateServiceName(const std::string& name) {

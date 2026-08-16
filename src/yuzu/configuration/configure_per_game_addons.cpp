@@ -114,6 +114,8 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
                 item.front()->text() == QStringLiteral("Update")) {
                 quint32 numeric_version = userData.toUInt();
                 disabled_addons.push_back(fmt::format("Update@{}", numeric_version));
+            } else if (item.front()->text() == tr("Дополнения") || item.front()->text() == QStringLiteral("DLC")) {
+                disabled_addons.push_back("DLC");
             } else {
                 disabled_addons.push_back(item.front()->text().toStdString());
             }
@@ -315,7 +317,10 @@ void ConfigurePerGameAddons::LoadConfiguration() {
     bool has_enabled_update = false;
 
     for (const auto& patch : patches) {
-        const auto name = QString::fromStdString(patch.name);
+        QString name = QString::fromStdString(patch.name);
+        if (patch.type == FileSys::PatchType::DLC || patch.name == "DLC") {
+            name = tr("Дополнения");
+        }
 
         auto* const first_item = new QStandardItem;
         first_item->setText(name);
@@ -339,8 +344,9 @@ void ConfigurePerGameAddons::LoadConfiguration() {
             patch_disabled =
                 std::find(disabled.begin(), disabled.end(), disabled_key) != disabled.end();
         } else {
+            const std::string key = (patch.type == FileSys::PatchType::DLC) ? "DLC" : patch.name;
             patch_disabled =
-                std::find(disabled.begin(), disabled.end(), name.toStdString()) != disabled.end();
+                std::find(disabled.begin(), disabled.end(), key) != disabled.end();
         }
 
         bool should_enable = !patch_disabled;

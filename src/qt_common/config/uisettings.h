@@ -55,29 +55,24 @@ struct Shortcut {
 };
 
 enum class Theme {
-    Default,
-    DefaultColorful,
-    Dark,
-    DarkColorful,
-    MidnightBlue,
-    MidnightBlueColorful,
+    StormNight,
+    StormMidnight,
+    StormDay,
+    StormCyberpunk,
+    StormGothic,
 };
 
 static constexpr Theme default_theme{
-#ifdef _WIN32
-    Theme::DarkColorful
-#else
-    Theme::DefaultColorful
-#endif
+    Theme::StormNight
 };
 
-using Themes = std::array<std::pair<const char*, const char*>, 6>;
+using Themes = std::array<std::pair<const char*, const char*>, 5>;
 extern const Themes themes;
 
 struct GameDir {
     std::string path;
-    bool deep_scan = false;
-    bool expanded = false;
+    bool deep_scan = true;
+    bool expanded = true;
     bool operator==(const GameDir& rhs) const {
         return path == rhs.path;
     }
@@ -180,6 +175,7 @@ struct Values {
     std::vector<Shortcut> shortcuts;
 
     Setting<u32> callout_flags{linkage, 0, "calloutFlags", Category::Ui};
+    Setting<std::string> hidden_footer_items{linkage, {}, "hidden_footer_items", Category::Ui};
 
     // multiplayer settings
     Setting<std::string> multiplayer_nickname{linkage, {}, "nickname", Category::Multiplayer};

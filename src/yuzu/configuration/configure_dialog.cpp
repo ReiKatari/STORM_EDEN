@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <memory>
+#include <QTabBar>
 #include "common/logging.h"
 #include "common/settings.h"
 #include "common/settings_enums.h"
@@ -68,7 +69,7 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
 
     ui->tabWidget->addTab(applets_tab.get(), tr("Applets"));
     ui->tabWidget->addTab(audio_tab.get(), tr("Audio"));
-    ui->tabWidget->addTab(cpu_tab.get(), tr("CPU"));
+    ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
     ui->tabWidget->addTab(debug_tab_tab.get(), tr("Debug"));
     ui->tabWidget->addTab(filesystem_tab.get(), tr("Filesystem"));
     ui->tabWidget->addTab(general_tab.get(), tr("General"));
@@ -123,21 +124,20 @@ void ConfigureDialog::SetConfiguration() {}
 
 void ConfigureDialog::ApplyConfiguration() {
     general_tab->ApplyConfiguration();
-    ui_tab->ApplyConfiguration();
     system_tab->ApplyConfiguration();
     profile_tab->ApplyConfiguration();
     filesystem_tab->ApplyConfiguration();
-    input_tab->ApplyConfiguration();
-    hotkeys_tab->ApplyConfiguration(registry);
+    applets_tab->ApplyConfiguration();
+    ui_tab->ApplyConfiguration();
     cpu_tab->ApplyConfiguration();
     graphics_tab->ApplyConfiguration();
     graphics_advanced_tab->ApplyConfiguration();
     graphics_extensions_tab->ApplyConfiguration();
     audio_tab->ApplyConfiguration();
+    input_tab->ApplyConfiguration();
+    network_tab->ApplyConfiguration();
     debug_tab_tab->ApplyConfiguration();
     web_tab->ApplyConfiguration();
-    network_tab->ApplyConfiguration();
-    applets_tab->ApplyConfiguration();
     system.ApplySettings();
     Settings::LogSettings();
 }
@@ -177,18 +177,25 @@ void ConfigureDialog::PopulateSelectionList() {
          {tr("System"),
           {system_tab.get(), profile_tab.get(), network_tab.get(), filesystem_tab.get(),
            applets_tab.get()}},
-         {tr("CPU"), {cpu_tab.get()}},
+         {tr("ЦП"), {cpu_tab.get()}},
          {tr("Graphics"),
           {graphics_tab.get(), graphics_advanced_tab.get(), graphics_extensions_tab.get()}},
          {tr("Audio"), {audio_tab.get()}},
          {tr("Controls"), input_tab->GetSubTabs()}},
     };
 
-    [[maybe_unused]] const QSignalBlocker blocker(ui->selectorList);
+    QFont tab_font = ui->tabWidget->tabBar()->font();
+    tab_font.setBold(true);
+    ui->tabWidget->tabBar()->setFont(tab_font);
+
+    QFont list_font = ui->selectorList->font();
+    list_font.setBold(true);
+    ui->selectorList->setFont(list_font);
 
     ui->selectorList->clear();
     for (const auto& entry : items) {
         auto* const item = new QListWidgetItem(entry.first);
+        item->setFont(list_font);
         item->setData(Qt::UserRole, QVariant::fromValue(entry.second));
 
         ui->selectorList->addItem(item);
@@ -219,6 +226,6 @@ void ConfigureDialog::UpdateVisibleTabs() {
 
     for (auto* const tab : tabs) {
         LOG_DEBUG(Frontend, "{}", tab->accessibleName().toStdString());
-        ui->tabWidget->addTab(tab, tab->accessibleName());
+        ui->tabWidget->addTab(tab, tr(tab->accessibleName().toUtf8().constData()));
     }
 }

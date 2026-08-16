@@ -261,6 +261,9 @@ FormatInfo SurfaceFormat(const Device& device, FormatType format_type, bool with
         case Settings::AstcRecompression::Bc3:
             tuple.format = is_srgb ? VK_FORMAT_BC3_SRGB_BLOCK : VK_FORMAT_BC3_UNORM_BLOCK;
             break;
+        case Settings::AstcRecompression::Bc5:
+            tuple.format = VK_FORMAT_BC5_UNORM_BLOCK;
+            break;
         }
     }
     if (!device.IsOptimalBcnSupported() && VideoCore::Surface::IsPixelFormatBCn(pixel_format)) {

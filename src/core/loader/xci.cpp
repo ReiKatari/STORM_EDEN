@@ -32,14 +32,12 @@ AppLoader_XCI::AppLoader_XCI(FileSys::VirtualFile file_,
     }
 
     const auto control_nca = xci->GetNCAByType(FileSys::NCAContentType::Control);
-    if (control_nca == nullptr || control_nca->GetStatus() != ResultStatus::Success) {
-        return;
+    if (control_nca != nullptr && control_nca->GetStatus() == ResultStatus::Success) {
+        std::tie(nacp_file, icon_file) = [this, &content_provider, &control_nca, &fsc] {
+            const FileSys::PatchManager pm{xci->GetProgramTitleID(), fsc, content_provider};
+            return pm.ParseControlNCA(*control_nca);
+        }();
     }
-
-    std::tie(nacp_file, icon_file) = [this, &content_provider, &control_nca, &fsc] {
-        const FileSys::PatchManager pm{xci->GetProgramTitleID(), fsc, content_provider};
-        return pm.ParseControlNCA(*control_nca);
-    }();
 }
 
 AppLoader_XCI::~AppLoader_XCI() = default;
@@ -51,10 +49,13 @@ FileType AppLoader_XCI::IdentifyType(const FileSys::VirtualFile& xci_file) {
         return FileType::Error;
     }
 
+    const bool is_xcz = xci_file && (xci_file->GetName().ends_with(".xcz") || xci_file->GetName().ends_with(".XCZ"));
+    const FileType return_type = is_xcz ? FileType::XCZ : FileType::XCI;
+
     // Identify XCI as a valid container even when it does not include a bootable Program NCA.
     // Bootability is handled by AppLoader_XCI::Load().
     if (xci.GetSecurePartitionNSP() != nullptr) {
-        return FileType::XCI;
+        return return_type;
     }
 
     return FileType::Error;

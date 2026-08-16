@@ -117,10 +117,9 @@ struct NullRenderWidget : public RenderWidget {
 GRenderWindow::GRenderWindow(MainWindow* parent,
                              std::shared_ptr<InputCommon::InputSubsystem> input_subsystem_)
     : QWidget(parent), input_subsystem{std::move(input_subsystem_)} {
-    setWindowTitle(QStringLiteral("Eden %1 | %2-%3")
+    setWindowTitle(QStringLiteral("%1 %2")
                        .arg(QString::fromUtf8(Common::g_build_name),
-                            QString::fromUtf8(Common::g_scm_branch),
-                            QString::fromUtf8(Common::g_scm_desc)));
+                            QString::fromUtf8(Common::g_build_version)));
     setAttribute(Qt::WA_AcceptTouchEvents);
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -890,7 +889,7 @@ bool GRenderWindow::LoadOpenGL() {
     if (!gladLoadGL()) {
         QtCommon::Frontend::Warning(
             tr("Error while initializing OpenGL!"),
-            tr("Your GPU may not support OpenGL, or you do not have the latest graphics driver."));
+            tr("Ваш ГПУ не поддерживает OpenGL, или у вас не установлены актуальные видеодрайверы."));
         return false;
     }
     // Display various warnings (but not fatal errors) for missing OpenGL extensions or lack of
@@ -900,17 +899,17 @@ bool GRenderWindow::LoadOpenGL() {
     if (!GLAD_GL_VERSION_4_6) {
         QtCommon::Frontend::Warning(
             tr("Error while initializing OpenGL 4.6!"),
-            tr("Your GPU may not support OpenGL 4.6, or you do not have the "
-            "latest graphics driver.<br><br>GL Renderer:<br>%1")
+            tr("Ваш ГПУ не поддерживает OpenGL 4.6, или у вас не установлены "
+            "актуальные видеодрайверы.<br><br>Рендерер GL:<br>%1")
                 .arg(renderer));
         return false;
     }
     if (QStringList missing_ext = GetUnsupportedGLExtensions(); !missing_ext.empty()) {
         QtCommon::Frontend::Warning(
             tr("Error while initializing OpenGL!"),
-            tr("Your GPU may not support one or more required OpenGL extensions. Please ensure you "
-               "have the latest graphics driver.<br><br>GL Renderer:<br>%1<br><br>Unsupported "
-               "extensions:<br>%2")
+            tr("Ваш ГПУ не поддерживает одно или несколько расширений OpenGL. Убедитесь, что "
+               "у вас установлены актуальные видеодрайверы.<br><br>Рендерер GL:<br>%1<br><br>Неподдерживаемые "
+               "расширения:<br>%2")
                 .arg(renderer, missing_ext.join(QStringLiteral("<br>"))));
         // Non fatal
     }

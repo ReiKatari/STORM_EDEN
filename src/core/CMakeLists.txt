@@ -120,6 +120,8 @@ add_library(core STATIC
     file_sys/kernel_executable.h
     file_sys/nca_metadata.cpp
     file_sys/nca_metadata.h
+    file_sys/ncz_virtual_file.cpp
+    file_sys/ncz_virtual_file.h
     file_sys/partition_filesystem.cpp
     file_sys/partition_filesystem.h
     file_sys/patch_manager.cpp

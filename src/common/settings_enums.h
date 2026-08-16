@@ -130,13 +130,13 @@ ENUM(TimeZone, Auto, Default, Cet, Cst6Cdt, Cuba, Eet, Egypt, Eire, Est, Est5Edt
     Roc, Rok, Singapore, Turkey, Uct, Universal, Utc, WSu, Wet, Zulu);
 ENUM(AnisotropyMode, Automatic, Default, X2, X4, X8, X16, X32, X64, None);
 ENUM(AstcDecodeMode, Cpu, Gpu, CpuAsynchronous);
-ENUM(AstcRecompression, Uncompressed, Bc1, Bc3);
+ENUM(AstcRecompression, Uncompressed, Bc1, Bc3, Bc5);
 ENUM(FramePacingMode, Target_Auto, Target_30, Target_60, Target_90, Target_120);
 ENUM(VSyncMode, Immediate, Mailbox, Fifo, FifoRelaxed);
-ENUM(VramUsageMode, Conservative, Aggressive);
+ENUM(VramUsageMode, Conservative, Normal, Aggressive);
 ENUM(RendererBackend, OpenGL_GLSL, Vulkan, Null, OpenGL_GLASM, OpenGL_SPIRV);
 ENUM(GpuAccuracy, Low, High);
-ENUM(DmaAccuracy, Default, Unsafe, Safe);
+ENUM(DmaAccuracy, Default, Normal, Unsafe, Safe);
 ENUM(GpuFenceBehavior, Default, Immediate, Balanced, Accurate, Strict);
 ENUM(CpuBackend, Dynarmic, Nce);
 ENUM(CpuAccuracy, Auto, Accurate, Unsafe, Paranoid, Debugging);

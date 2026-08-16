@@ -33,11 +33,10 @@ void AndroidConfig::SaveAllValues() {
 }
 
 void AndroidConfig::ReadAndroidValues() {
+    ReadAndroidUIValues();
     // Enforce Vulkan graphics backend on Android
     Settings::values.renderer_backend.SetValue(Settings::RendererBackend::Vulkan);
-
     if (global) {
-        ReadAndroidUIValues();
         ReadUIValues();
         BeginGroup(Settings::TranslateCategory(Settings::Category::DataStorage));
         Settings::values.ext_content_from_game_dirs = ReadBooleanSetting(
@@ -239,8 +238,8 @@ void AndroidConfig::ReadAndroidControlValues() {
 }
 
 void AndroidConfig::SaveAndroidValues() {
+    SaveAndroidUIValues();
     if (global) {
-        SaveAndroidUIValues();
         SaveUIValues();
         SaveOverlayValues();
     }

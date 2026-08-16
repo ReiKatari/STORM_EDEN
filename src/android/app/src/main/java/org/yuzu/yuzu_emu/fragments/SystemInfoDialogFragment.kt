@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
@@ -87,7 +87,10 @@ class SystemInfoDialogFragment : DialogFragment() {
                 append("• Vulkan API: ").append(if (vulkanApi.isNotEmpty()) vulkanApi else "1.3.x").append("\n")
 
                 val vulkanDriver = NativeLibrary.getVulkanDriverVersion()
-                append("• Версия драйвера: ").append(if (vulkanDriver.isNotEmpty()) vulkanDriver else "Vulkan Hardware Driver")
+                append("• Версия драйвера: ").append(if (vulkanDriver.isNotEmpty()) vulkanDriver else "Vulkan Hardware Driver").append("\n")
+
+                val frameGen = NativeLibrary.supportsFrameGeneration()
+                append("• Генерация кадров (LSFG): ").append(if (frameGen) "Поддерживается" else "Не поддерживается")
             } catch (e: Exception) {
                 append("• Статус: ").append(e.message)
             }

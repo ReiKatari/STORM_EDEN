@@ -408,6 +408,8 @@ class SettingsDialogFragment : DialogFragment(), DialogInterface.OnClickListener
                         IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
                     }
                     settingsViewModel.setShouldReloadSettingsList(true)
+                } else if (scSetting.setting.key == IntSetting.RENDERER_FRAME_GEN_TARGET_RATE.key) {
+                    settingsViewModel.setShouldReloadSettingsList(true)
                 }
 
                 if (scSetting.setting.key == "app_language") {

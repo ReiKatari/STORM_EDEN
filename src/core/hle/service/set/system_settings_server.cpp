@@ -45,9 +45,7 @@ void SyncGlobalLanguageFromCode(LanguageCode language_code) {
     }
 
     const std::size_t index = static_cast<std::size_t>(std::distance(available_language_codes.begin(), it));
-    if (index >= static_cast<std::size_t>(Settings::values.language_index.GetValue())) {
-        Settings::values.language_index.SetValue(static_cast<Settings::Language>(index));
-    }
+    Settings::values.language_index.SetValue(static_cast<Settings::Language>(index));
 }
 
 void SyncGlobalRegionFromCode(SystemRegionCode region_code) {
@@ -349,6 +347,11 @@ ISystemSettingsServer::ISystemSettingsServer(Core::System& system_)
     RegisterHandlers(functions);
 
     SetupSettings();
+
+    const auto lang_idx = static_cast<std::size_t>(::Settings::values.language_index.GetValue());
+    if (lang_idx < available_language_codes.size()) {
+        m_system_settings.language_code = available_language_codes[lang_idx];
+    }
 
     m_system_settings.region_code =
         static_cast<SystemRegionCode>(::Settings::values.region_index.GetValue());

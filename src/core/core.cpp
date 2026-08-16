@@ -403,16 +403,20 @@ struct System::Impl {
         kernel.SuspendEmulation(true);
         kernel.CloseServices();
         kernel.ShutdownCores();
+
+        // Reset GPU and Audio before services so BufferQueue/nvnflinger are safe during GPU teardown
+        gpu_core.reset();
+        host1x_core.reset();
+        audio_core.reset();
+
         services.reset();
         service_manager.reset();
         fs_controller.Reset();
         cheat_engine.reset();
         core_timing.ClearPendingEvents();
         app_loader.reset();
-        audio_core.reset();
-        gpu_core.reset();
-        host1x_core.reset();
         perf_stats.reset();
+
         cpu_manager.Shutdown();
         debugger.reset();
         kernel.Shutdown();

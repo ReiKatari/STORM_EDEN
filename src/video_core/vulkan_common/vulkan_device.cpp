@@ -1535,13 +1535,27 @@ void Device::CollectPhysicalMemoryInfo() {
     }
     if (is_integrated) {
         const s64 available_memory = static_cast<s64>(device_access_memory - device_initial_usage);
-        const u64 memory_size = Settings::values.vram_usage_mode.GetValue() == Settings::VramUsageMode::Aggressive ? 6_GiB : 4_GiB;
+        u64 memory_size = 4_GiB;
+        switch (Settings::values.vram_usage_mode.GetValue()) {
+        case Settings::VramUsageMode::Conservative:
+            memory_size = 3_GiB;
+            break;
+        case Settings::VramUsageMode::Normal:
+            memory_size = 5_GiB;
+            break;
+        case Settings::VramUsageMode::Aggressive:
+            memory_size = 7_GiB;
+            break;
+        }
         device_access_memory = static_cast<u64>(std::max<s64>(std::min<s64>(available_memory - 8_GiB, memory_size), std::min<s64>(local_memory, memory_size)));
     } else {
         const u64 reserve_memory = std::min<u64>(device_access_memory / 8, 1_GiB);
         device_access_memory -= reserve_memory;
-        if (Settings::values.vram_usage_mode.GetValue() != Settings::VramUsageMode::Aggressive) {
-            // Account for resolution scaling in memory limits
+        if (Settings::values.vram_usage_mode.GetValue() == Settings::VramUsageMode::Conservative) {
+            const size_t conservative_memory = 4_GiB;
+            const size_t scaler_memory = 512_MiB * Settings::values.resolution_info.ScaleUp(1);
+            device_access_memory = std::min<u64>(device_access_memory, conservative_memory + scaler_memory);
+        } else if (Settings::values.vram_usage_mode.GetValue() == Settings::VramUsageMode::Normal) {
             const size_t normal_memory = 6_GiB;
             const size_t scaler_memory = 1_GiB * Settings::values.resolution_info.ScaleUp(1);
             device_access_memory = std::min<u64>(device_access_memory, normal_memory + scaler_memory);

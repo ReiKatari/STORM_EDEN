@@ -14,18 +14,16 @@ AboutDialog::AboutDialog(QWidget* parent)
     : QDialog(parent), ui{std::make_unique<Ui::AboutDialog>()} {
     static const std::string build_id = std::string{Common::g_build_id};
     static const std::string yuzu_build =
-        fmt::format("{} | {} | {}", std::string{Common::g_build_name},
-                    std::string{Common::g_build_version}, std::string{Common::g_compiler_id});
+        fmt::format("{} {}", std::string{Common::g_build_name}, std::string{Common::g_build_version});
 
     const auto override_build =
         fmt::format(fmt::runtime(std::string(Common::g_title_bar_format_idle)), build_id);
     const auto yuzu_build_version = override_build.empty() ? yuzu_build : override_build;
 
     ui->setupUi(this);
-    // Try and request the icon from Qt theme (Linux?)
-    const QIcon yuzu_logo = QIcon::fromTheme(QStringLiteral("org.yuzu_emu.yuzu"));
-    if (!yuzu_logo.isNull()) {
-        ui->labelLogo->setPixmap(yuzu_logo.pixmap(200));
+    const QIcon app_logo = QApplication::windowIcon();
+    if (!app_logo.isNull()) {
+        ui->labelLogo->setPixmap(app_logo.pixmap(180, 180));
     }
     ui->labelBuildInfo->setText(
         ui->labelBuildInfo->text().arg(QString::fromStdString(yuzu_build_version),

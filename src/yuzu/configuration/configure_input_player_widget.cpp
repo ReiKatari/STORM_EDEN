@@ -64,32 +64,40 @@ void PlayerControlPreview::EndMapping() {
 }
 
 void PlayerControlPreview::UpdateColors() {
-    if (QIcon::themeName().contains(QStringLiteral("dark")) ||
-        QIcon::themeName().contains(QStringLiteral("midnight"))) {
-        colors.primary = QColor(204, 204, 204);
-        colors.button = QColor(35, 38, 41);
-        colors.button2 = QColor(26, 27, 30);
-        colors.slider_arrow = QColor(14, 15, 18);
-        colors.font2 = QColor(255, 255, 255);
-        colors.indicator = QColor(170, 238, 255);
-        colors.deadzone = QColor(204, 136, 136);
-        colors.slider_button = colors.button;
-    }
-
-    if (QIcon::themeName().contains(QStringLiteral("dark"))) {
-        colors.outline = QColor(160, 160, 160);
-    } else if (QIcon::themeName().contains(QStringLiteral("midnight"))) {
-        colors.outline = QColor(145, 145, 145);
-    } else {
+    const auto theme = QIcon::themeName();
+    if (theme.contains(QStringLiteral("day"))) {
         colors.outline = QColor(0, 0, 0);
         colors.primary = QColor(225, 225, 225);
         colors.button = QColor(109, 111, 114);
         colors.button2 = QColor(77, 80, 84);
         colors.slider_arrow = QColor(65, 68, 73);
         colors.font2 = QColor(0, 0, 0);
-        colors.indicator = QColor(0, 0, 200);
+        colors.indicator = QColor(37, 99, 235);
         colors.deadzone = QColor(170, 0, 0);
         colors.slider_button = QColor(153, 149, 149);
+    } else {
+        colors.primary = QColor(204, 204, 204);
+        colors.button = QColor(35, 38, 41);
+        colors.button2 = QColor(26, 27, 30);
+        colors.slider_arrow = QColor(14, 15, 18);
+        colors.font2 = QColor(255, 255, 255);
+        colors.deadzone = QColor(204, 136, 136);
+        colors.slider_button = colors.button;
+
+        if (theme.contains(QStringLiteral("midnight"))) {
+            colors.outline = QColor(145, 145, 175);
+            colors.indicator = QColor(192, 132, 252);
+        } else if (theme.contains(QStringLiteral("cyberpunk"))) {
+            colors.outline = QColor(252, 238, 10);
+            colors.indicator = QColor(252, 238, 10);
+        } else if (theme.contains(QStringLiteral("gothic"))) {
+            colors.outline = QColor(225, 29, 72);
+            colors.indicator = QColor(255, 30, 86);
+        } else {
+            // storm_night (default)
+            colors.outline = QColor(160, 160, 160);
+            colors.indicator = QColor(0, 242, 254);
+        }
     }
 
     // Constant colors

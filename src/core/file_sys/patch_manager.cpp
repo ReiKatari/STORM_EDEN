@@ -1086,7 +1086,11 @@ std::optional<u32> PatchManager::GetGameVersion() const {
 }
 
 PatchManager::Metadata PatchManager::GetControlMetadata() const {
-    const auto base_control_nca = content_provider.GetEntry(title_id, ContentRecordType::Control);
+    auto base_control_nca = content_provider.GetEntry(title_id, ContentRecordType::Control);
+    if (base_control_nca == nullptr) {
+        const u64 update_id = GetUpdateTitleID(title_id);
+        base_control_nca = content_provider.GetEntry(update_id, ContentRecordType::Control);
+    }
     if (base_control_nca == nullptr) {
         return {};
     }
@@ -1151,6 +1155,20 @@ PatchManager::Metadata PatchManager::ParseControlNCA(const NCA& nca) const {
         icon_file = extracted->GetFile(std::string("icon_").append(language).append(".dat"));
         if (icon_file != nullptr) {
             break;
+        }
+    }
+
+    // Fallback: search for any icon file in extracted Control RomFS
+    if (icon_file == nullptr) {
+        for (const auto& file_item : extracted->GetFiles()) {
+            if (file_item) {
+                const auto& fname = file_item->GetName();
+                if (fname.rfind("icon_", 0) == 0 || fname.find(".dat") != std::string::npos ||
+                    fname.find("icon") != std::string::npos || fname.find("Icon") != std::string::npos) {
+                    icon_file = file_item;
+                    break;
+                }
+            }
         }
     }
 

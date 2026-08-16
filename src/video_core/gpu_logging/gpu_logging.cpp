@@ -173,39 +173,43 @@ void GPULogger::LogVulkanCall(const std::string& call_name, const std::string& p
         return;
     }
 
-    // Only log all calls in Verbose or All mode
-    if (current_level != LogLevel::Verbose && current_level != LogLevel::All) {
-        // In Standard mode, only log important calls
-        if (call_name.find("vkCmd") == std::string::npos &&
-            call_name.find("vkCreate") == std::string::npos &&
-            call_name.find("vkDestroy") == std::string::npos) {
-            return;
+    try {
+        // Only log all calls in Verbose or All mode
+        if (current_level != LogLevel::Verbose && current_level != LogLevel::All) {
+            // In Standard mode, only log important calls
+            if (call_name.find("vkCmd") == std::string::npos &&
+                call_name.find("vkCreate") == std::string::npos &&
+                call_name.find("vkDestroy") == std::string::npos) {
+                return;
+            }
         }
+
+        const auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now().time_since_epoch());
+        const auto thread_id = static_cast<u32>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+
+        // Add to ring buffer
+        {
+            std::lock_guard lock(ring_buffer_mutex);
+            call_ring_buffer[ring_buffer_index] = {
+                .timestamp = timestamp,
+                .call_name = call_name,
+                .parameters = params,
+                .result = result,
+                .thread_id = thread_id,
+            };
+            ring_buffer_index = (ring_buffer_index + 1) % ring_buffer_size;
+            total_vulkan_calls++;
+        }
+
+        // Log to file
+        const auto log_entry =
+            fmt::format("[{}] [Vulkan] [Thread:{}] {}({}) -> {}\n", FormatTimestamp(timestamp),
+                        thread_id, call_name, params, result);
+        WriteToLog(log_entry);
+    } catch (...) {
+        // Suppress any exception to prevent GPU thread crashes
     }
-
-    const auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
-        std::chrono::steady_clock::now().time_since_epoch());
-    const auto thread_id = static_cast<u32>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
-
-    // Add to ring buffer
-    {
-        std::lock_guard lock(ring_buffer_mutex);
-        call_ring_buffer[ring_buffer_index] = {
-            .timestamp = timestamp,
-            .call_name = call_name,
-            .parameters = params,
-            .result = result,
-            .thread_id = thread_id,
-        };
-        ring_buffer_index = (ring_buffer_index + 1) % ring_buffer_size;
-        total_vulkan_calls++;
-    }
-
-    // Log to file
-    const auto log_entry =
-        fmt::format("[{}] [Vulkan] [Thread:{}] {}({}) -> {}\n", FormatTimestamp(timestamp),
-                    thread_id, call_name, params, result);
-    WriteToLog(log_entry);
 }
 
 void GPULogger::LogMemoryAllocation(uintptr_t memory, u64 size, u32 memory_flags) {

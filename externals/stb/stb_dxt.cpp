@@ -763,3 +763,8 @@ void stb_compress_bc3_block(unsigned char* dest, const unsigned char* src, int m
 
     stb__CompressColorBlock(dest, (unsigned char*)src, 0, mode);
 }
+
+void stb_compress_bc5_block(unsigned char* dest, const unsigned char* src) {
+    stb__CompressAlphaBlock(dest, (unsigned char*)src + 0, 4);
+    stb__CompressAlphaBlock(dest + 8, (unsigned char*)src + 1, 4);
+}

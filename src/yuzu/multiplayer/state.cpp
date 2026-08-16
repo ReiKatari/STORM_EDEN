@@ -116,26 +116,30 @@ void MultiplayerState::UpdateNotificationStatus() {
     switch (notification_status) {
     case NotificationStatus::Uninitialized:
         status_icon->setPixmap(QIcon::fromTheme(QStringLiteral("disconnected")).pixmap(16));
-        status_text->setText(tr("Not Connected. Click here to find a room!"));
+        status_text->setText(tr("СЕТЬ:\nОФФЛАЙН"));
+        status_text->setToolTip(tr("Не подключено. Нажмите для поиска комнаты!"));
         leave_room->setEnabled(false);
         show_room->setEnabled(false);
         break;
     case NotificationStatus::Disconnected:
         status_icon->setPixmap(QIcon::fromTheme(QStringLiteral("disconnected")).pixmap(16));
-        status_text->setText(tr("Not Connected"));
+        status_text->setText(tr("СЕТЬ:\nОФФЛАЙН"));
+        status_text->setToolTip(tr("Не подключено"));
         leave_room->setEnabled(false);
         show_room->setEnabled(false);
         break;
     case NotificationStatus::Connected:
         status_icon->setPixmap(QIcon::fromTheme(QStringLiteral("connected")).pixmap(16));
-        status_text->setText(tr("Connected"));
+        status_text->setText(tr("СЕТЬ:\nОНЛАЙН"));
+        status_text->setToolTip(tr("Подключено к комнате"));
         leave_room->setEnabled(true);
         show_room->setEnabled(true);
         break;
     case NotificationStatus::Notification:
         status_icon->setPixmap(
             QIcon::fromTheme(QStringLiteral("connected_notification")).pixmap(16));
-        status_text->setText(tr("New Messages Received"));
+        status_text->setText(tr("СЕТЬ:\nСООБЩЕНИЕ"));
+        status_text->setToolTip(tr("Получены новые сообщения"));
         leave_room->setEnabled(true);
         show_room->setEnabled(true);
         break;

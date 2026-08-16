@@ -267,13 +267,18 @@ void GameList::OnPopulatingCompleted(const QStringList& watch_list) {
         const auto* root = item_model->invisibleRootItem();
         for (int i = 1; i < root->rowCount() - 1; ++i) {
             const auto* dir_item = root->child(i);
+            if (!dir_item) continue;
             const auto type = dir_item->data(GameListItem::TypeRole).value<GameListItemType>();
             if (type == GameListItemType::CustomDir || type == GameListItemType::SdmcDir ||
                 type == GameListItemType::UserNandDir || type == GameListItemType::SysNandDir) {
                 const int dir_index = dir_item->data(GameListDir::GameDirRole).toInt();
+                bool expand_dir = true;
                 if (dir_index >= 0 && dir_index < UISettings::values.game_dirs.size()) {
-                    tree_view->setExpanded(dir_item->index(),
-                                           UISettings::values.game_dirs[dir_index].expanded);
+                    expand_dir = UISettings::values.game_dirs[dir_index].expanded;
+                }
+                tree_view->setExpanded(dir_item->index(), expand_dir);
+                if (expand_dir) {
+                    tree_view->expand(dir_item->index());
                 }
             }
         }

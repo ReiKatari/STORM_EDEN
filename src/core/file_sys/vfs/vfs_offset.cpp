@@ -90,6 +90,14 @@ std::size_t OffsetVfsFile::GetOffset() const {
     return offset;
 }
 
+VirtualFile OffsetVfsFile::GetUnderlyingFile() const {
+    return file;
+}
+
+NCZVirtualFile* OffsetVfsFile::GetNczFilePointer() {
+    return file ? file->GetNczFilePointer() : nullptr;
+}
+
 std::size_t OffsetVfsFile::TrimToFit(std::size_t r_size, std::size_t r_offset) const {
     return std::clamp(r_size, std::size_t{0}, size - r_offset);
 }

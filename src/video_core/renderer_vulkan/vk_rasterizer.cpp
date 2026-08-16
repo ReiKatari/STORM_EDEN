@@ -1176,10 +1176,12 @@ void RasterizerVulkan::UpdateViewportsState(Tegra::Engines::Maxwell3D::Regs& reg
     maxwell3d->dirty.flags[Dirty::Scissors] = true;
 
     if (!regs.viewport_scale_offset_enabled) {
-        float x = static_cast<float>(regs.surface_clip.x);
-        float y = static_cast<float>(regs.surface_clip.y);
-        float width = (std::max)(1.0f, static_cast<float>(regs.surface_clip.width));
-        float height = (std::max)(1.0f, static_cast<float>(regs.surface_clip.height));
+        const bool is_rescaling{texture_cache.IsRescaling()};
+        const float scale = is_rescaling ? Settings::values.resolution_info.up_factor : 1.0f;
+        float x = static_cast<float>(regs.surface_clip.x) * scale;
+        float y = static_cast<float>(regs.surface_clip.y) * scale;
+        float width = (std::max)(1.0f, static_cast<float>(regs.surface_clip.width) * scale);
+        float height = (std::max)(1.0f, static_cast<float>(regs.surface_clip.height) * scale);
         if (regs.window_origin.mode != Maxwell::WindowOrigin::Mode::UpperLeft) {
             y += height;
             height = -height;
@@ -1225,12 +1227,28 @@ void RasterizerVulkan::UpdateScissorsState(Tegra::Engines::Maxwell3D::Regs& regs
         return;
     }
     if (!regs.viewport_scale_offset_enabled) {
-        u32 x = regs.surface_clip.x;
-        u32 y = regs.surface_clip.y;
-        u32 width = (std::max)(1u, static_cast<u32>(regs.surface_clip.width));
-        u32 height = (std::max)(1u, static_cast<u32>(regs.surface_clip.height));
+        const bool is_rescaling{texture_cache.IsRescaling()};
+        const auto& resolution = Settings::values.resolution_info;
+        const u32 up_scale = is_rescaling ? resolution.up_scale : 1U;
+        const u32 down_shift = is_rescaling ? resolution.down_shift : 0U;
+        const auto scale_up = [up_scale, down_shift](u32 value) -> u32 {
+            if (value == 0) {
+                return 0U;
+            }
+            const u32 upset = value * up_scale;
+            u32 acumm{};
+            if ((up_scale >> down_shift) == 0) {
+                acumm = upset % 2;
+            }
+            const u32 converted_value = upset >> down_shift;
+            return std::max<u32>(converted_value + acumm, 1U);
+        };
+        u32 x = scale_up(regs.surface_clip.x);
+        u32 y = scale_up(regs.surface_clip.y);
+        u32 width = (std::max)(1u, scale_up(static_cast<u32>(regs.surface_clip.width)));
+        u32 height = (std::max)(1u, scale_up(static_cast<u32>(regs.surface_clip.height)));
         if (regs.window_origin.mode != Maxwell::WindowOrigin::Mode::UpperLeft) {
-            y = regs.surface_clip.height - (y + height);
+            y = scale_up(regs.surface_clip.height) - (y + height);
         }
         VkRect2D scissor{};
         scissor.offset.x = static_cast<int32_t>(x);

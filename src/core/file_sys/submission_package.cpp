@@ -17,6 +17,7 @@
 #include "core/file_sys/partition_filesystem.h"
 #include "core/file_sys/program_metadata.h"
 #include "core/file_sys/submission_package.h"
+#include "core/file_sys/ncz_virtual_file.h"
 #include "core/loader/loader.h"
 
 namespace FileSys {
@@ -66,7 +67,21 @@ u64 NSP::GetProgramTitleID() const {
 
     auto program_id = expected_program_id;
     if (program_id == 0) {
-        if (!program_status.empty()) {
+        for (const auto& [tid, st] : program_status) {
+            if ((tid & 0xFFF) == 0 && (tid & 0x800) == 0) {
+                program_id = tid;
+                break;
+            }
+        }
+        if (program_id == 0) {
+            for (const auto& [tid, st] : program_status) {
+                if ((tid & 0x800) == 0) {
+                    program_id = tid;
+                    break;
+                }
+            }
+        }
+        if (program_id == 0 && !program_status.empty()) {
             program_id = program_status.begin()->first;
         }
     }
@@ -215,16 +230,49 @@ void NSP::InitializeExeFSAndRomFS(const std::vector<VirtualFile>& files) {
     romfs = *iter;
 }
 
+static bool IsNczFile(const VirtualFile& file) {
+    if (!file || file->GetSize() < 8) return false;
+    u64 magic = 0;
+    if (file->ReadObject(&magic, 0) != sizeof(magic)) return false;
+    constexpr u64 MAGIC_NCZBLOCK = 0x4B434F4C425A434E;
+    constexpr u64 MAGIC_NCZSECTN = 0x4E544345535A434E;
+    if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) return true;
+    if (file->GetSize() >= 0x4008) {
+        if (file->ReadObject(&magic, 0x4000) != sizeof(magic)) return false;
+        if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) return true;
+    }
+    return false;
+}
+
 void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
+    bool is_nsz_container = file->GetName().ends_with(".nsz") || file->GetName().ends_with(".xcz") || 
+                            file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ");
+
     for (const auto& outer_file : files) {
-        if (outer_file->GetName().size() < 9 ||
-            outer_file->GetName().substr(outer_file->GetName().size() - 9) != ".cnmt.nca") {
+        if (outer_file == nullptr) {
             continue;
         }
 
-        const auto nca = std::make_shared<NCA>(outer_file);
+        bool is_cnmt_ncz = outer_file->GetName().ends_with(".cnmt.ncz");
+        bool is_cnmt_nca = is_cnmt_ncz || (outer_file->GetName().size() >= 9 &&
+                           outer_file->GetName().substr(outer_file->GetName().size() - 9) == ".cnmt.nca");
+
+        VirtualFile file_to_use = outer_file;
+
+        if (is_nsz_container || is_cnmt_ncz || IsNczFile(outer_file)) {
+            file_to_use = std::make_shared<NCZVirtualFile>(outer_file);
+        }
+
+        const auto nca = std::make_shared<NCA>(file_to_use);
         if (nca->GetStatus() != Loader::ResultStatus::Success || nca->GetSubdirectories().empty()) {
+            if (!is_cnmt_nca && nca->GetStatus() != Loader::ResultStatus::Success) {
+                continue;
+            }
             program_status[nca->GetTitleId()] = nca->GetStatus();
+            continue;
+        }
+
+        if (!is_cnmt_nca && nca->GetType() != NCAContentType::Meta) {
             continue;
         }
 
@@ -242,6 +290,68 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
             for (const auto& rec : cnmt.GetContentRecords()) {
                 const auto id_string = Common::HexToString(rec.nca_id, false);
                 auto next_file = pfs->GetFile(fmt::format("{}.nca", id_string));
+
+                if (next_file == nullptr) {
+                    next_file = pfs->GetFile(fmt::format("{}.ncz", id_string));
+                    if (next_file != nullptr) {
+                        next_file = std::make_shared<NCZVirtualFile>(next_file);
+                    }
+                } else if (is_nsz_container || IsNczFile(next_file)) {
+                    next_file = std::make_shared<NCZVirtualFile>(next_file);
+                }
+
+                if (next_file == nullptr) {
+                    LOG_INFO(Service_FS, "NCA with ID {}.nca not found by name. Performing content-based fallback matching...", id_string);
+                    for (const auto& potential_file : files) {
+                        if (potential_file == nullptr) continue;
+                        
+                        std::string name = potential_file->GetName();
+                        
+                        if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos) {
+                            continue;
+                        }
+                        
+                        VirtualFile temp_file = potential_file;
+                        if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
+                            temp_file = std::make_shared<NCZVirtualFile>(temp_file);
+                        }
+                        
+                        auto temp_nca = std::make_shared<NCA>(temp_file);
+                        if (temp_nca->GetStatus() == Loader::ResultStatus::Success) {
+                            NCAContentType expected_nca_type;
+                            switch (rec.type) {
+                                case ContentRecordType::Program:
+                                    expected_nca_type = NCAContentType::Program;
+                                    break;
+                                case ContentRecordType::Meta:
+                                    expected_nca_type = NCAContentType::Meta;
+                                    break;
+                                case ContentRecordType::Control:
+                                    expected_nca_type = NCAContentType::Control;
+                                    break;
+                                case ContentRecordType::HtmlDocument:
+                                case ContentRecordType::LegalInformation:
+                                    expected_nca_type = NCAContentType::Manual;
+                                    break;
+                                case ContentRecordType::Data:
+                                    expected_nca_type = NCAContentType::Data;
+                                    break;
+                                default:
+                                    expected_nca_type = NCAContentType::PublicData;
+                                    break;
+                            }
+                            
+                            bool type_matches = (temp_nca->GetType() == expected_nca_type);
+                            bool title_id_matches = ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000));
+                            
+                            if (type_matches && title_id_matches) {
+                                LOG_INFO(Service_FS, "Successfully matched unmatched record type {} to file {}", static_cast<int>(rec.type), name);
+                                next_file = temp_file;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (next_file == nullptr) {
                     if (rec.type != ContentRecordType::DeltaFragment) {

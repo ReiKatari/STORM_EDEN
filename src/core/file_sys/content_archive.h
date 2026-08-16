@@ -48,8 +48,21 @@ enum class NCAContentType : u8 {
 using RightsId = std::array<u8, 0x10>;
 
 inline bool IsDirectoryExeFS(const VirtualDir& pfs) {
-    // According to switchbrew, an exefs must only contain these two files:
-    return pfs->GetFile("main") != nullptr && pfs->GetFile("main.npdm") != nullptr;
+    if (!pfs) return false;
+    if (pfs->GetFile("main.npdm") != nullptr) {
+        return true;
+    }
+    if (pfs->GetFile("main") != nullptr && (pfs->GetFile("rtld") != nullptr || pfs->GetFile("sdk") != nullptr)) {
+        return true;
+    }
+    for (const auto& file : pfs->GetFiles()) {
+        if (!file) continue;
+        const auto& name = file->GetName();
+        if (name == "main" || name == "main.npdm" || name.ends_with(".npdm") || name.ends_with(".nso")) {
+            return true;
+        }
+    }
+    return false;
 }
 
 inline bool IsDirectoryLogoPartition(const VirtualDir& pfs) {

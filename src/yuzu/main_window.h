@@ -327,6 +327,9 @@ private:
     Service::AM::FrontendAppletParameters LibraryAppletParameters(u64 program_id,
                                                                   Service::AM::AppletId applet_id);
 
+    void SaveFooterSettings();
+    void LoadFooterSettings();
+
 private slots:
     void OnStartGame();
     void OnRestartGame();
@@ -386,6 +389,7 @@ private slots:
     void OnInstallFirmware();
     void OnInstallFirmwareFromZIP();
     void OnInstallDecryptionKeys();
+    void OnCheckUpdates(bool manual_check = true);
     void OnAbout();
     void OnEdenDependencies();
     void OnDataDialog();
@@ -442,6 +446,27 @@ private:
     void UpdateAPIText();
     void UpdateFilterText();
     void UpdateAAText();
+    void UpdateAspectText();
+    void UpdateDmaText();
+    void UpdateGpuFenceText();
+    void UpdateVramText();
+    void UpdateAnisotropyText();
+    void UpdateAstcDecodeText();
+    void UpdateAstcRecompressText();
+    void UpdateAddonsStatusButton(u64 title_id = 0, const QString& game_name = {});
+    void UpdateResScaleText();
+    void UpdateAirplaneModeButton();
+    void UpdateVSyncText();
+    void UpdateSpeedLimitText();
+    void UpdateNvdecText();
+    void UpdateCpuAccuracyText();
+    void UpdateDiskCacheText();
+    void UpdateFullscreenButton();
+    void UpdateMuteButton();
+    void ShowFooterCustomizeMenu();
+    void ShowMenuAtWidget(QMenu& menu, QWidget* widget);
+    void ShowGroupMenu(const QString& title, QWidget* group_widget);
+    static QString CleanDisplayString(const QString& str);
     void UpdateVolumeUI();
     void UpdateStatusBar();
     void UpdateGPUAccuracyButton();
@@ -518,6 +543,30 @@ private:
     VolumeButton* volume_button = nullptr;
     QWidget* volume_popup = nullptr;
     QSlider* volume_slider = nullptr;
+    QLabel* volume_val_label = nullptr;
+    QPushButton* aspect_ratio_button = nullptr;
+    QPushButton* dma_accuracy_button = nullptr;
+    QPushButton* gpu_fence_button = nullptr;
+    QPushButton* vram_mode_button = nullptr;
+    QPushButton* anisotropy_button = nullptr;
+    QPushButton* astc_decode_button = nullptr;
+    QPushButton* astc_recompress_button = nullptr;
+    QPushButton* addons_status_button = nullptr;
+    QPushButton* res_scale_button = nullptr;
+    QPushButton* airplane_mode_button = nullptr;
+    QPushButton* vsync_mode_button = nullptr;
+    QPushButton* speed_limit_button = nullptr;
+    QPushButton* nvdec_status_button = nullptr;
+    QPushButton* cpu_accuracy_button = nullptr;
+    QPushButton* disk_cache_button = nullptr;
+    QPushButton* fullscreen_button = nullptr;
+    QPushButton* mute_button = nullptr;
+    QPushButton* footer_customize_button = nullptr;
+    std::vector<QWidget*> m_status_groups;
+    u64 m_current_addons_title_id = 0;
+    QString m_current_addons_game_name;
+    std::string m_current_addons_game_path;
+    void ShowDLCDialog(u64 title_id, const QString& game_name);
     QTimer status_bar_update_timer;
 
     // Stores what suffix to add to the FPS counter, e.g. Unlocked.

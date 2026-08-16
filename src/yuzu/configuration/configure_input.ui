@@ -153,23 +153,23 @@
          <property name="bottomMargin">
           <number>6</number>
          </property>
-         <item>
-          <widget class="QRadioButton" name="radioDocked">
-           <property name="text">
-            <string>Docked</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radioUndocked">
-           <property name="text">
-            <string>Handheld</string>
-           </property>
-          </widget>
-         </item>
+          <item>
+           <widget class="QRadioButton" name="radioDocked">
+            <property name="text">
+             <string>В док-станции</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioUndocked">
+            <property name="text">
+             <string>Портативный</string>
+            </property>
+           </widget>
+          </item>
         </layout>
        </widget>
       </item>

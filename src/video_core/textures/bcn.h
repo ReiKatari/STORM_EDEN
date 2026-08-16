@@ -13,4 +13,6 @@ void CompressBC1(std::span<const u8> data, u32 width, u32 height, u32 depth, std
 
 void CompressBC3(std::span<const u8> data, u32 width, u32 height, u32 depth, std::span<u8> output);
 
+void CompressBC5(std::span<const u8> data, u32 width, u32 height, u32 depth, std::span<u8> output);
+
 } // namespace Tegra::Texture::BCN

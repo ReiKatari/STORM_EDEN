@@ -61,11 +61,21 @@ void Fermi2D::ConsumeSinkImpl(Core::System& system) {
 void Fermi2D::Blit() {
     LOG_DEBUG(HW_GPU, "called. source address={:#x}, destination address={:#x}", regs.src.Address(), regs.dst.Address());
 
-    UNIMPLEMENTED_IF_MSG(regs.operation != Operation::SrcCopy, "Operation is not copy");
-    UNIMPLEMENTED_IF_MSG(regs.src.layer != 0, "Source layer is not zero");
-    UNIMPLEMENTED_IF_MSG(regs.dst.layer != 0, "Destination layer is not zero");
-    UNIMPLEMENTED_IF_MSG(regs.src.depth != 1, "Source depth is not one");
-    UNIMPLEMENTED_IF_MSG(regs.clip_enable != 0, "Clipped blit enabled");
+    if (regs.operation != Operation::SrcCopy) {
+        LOG_WARNING(HW_GPU, "Fermi2D Blit: Operation is not copy ({})", static_cast<u32>(regs.operation));
+    }
+    if (regs.src.layer != 0) {
+        LOG_WARNING(HW_GPU, "Fermi2D Blit: Source layer is not zero ({})", regs.src.layer);
+    }
+    if (regs.dst.layer != 0) {
+        LOG_WARNING(HW_GPU, "Fermi2D Blit: Destination layer is not zero ({})", regs.dst.layer);
+    }
+    if (regs.src.depth != 1 && regs.src.depth != 0) {
+        LOG_WARNING(HW_GPU, "Fermi2D Blit: Source depth is not one (depth={})", regs.src.depth);
+    }
+    if (regs.clip_enable != 0) {
+        LOG_WARNING(HW_GPU, "Fermi2D Blit: Clipped blit enabled");
+    }
 
     const auto& args = regs.pixels_from_memory;
     constexpr s64 null_derivative = 1ULL << 32;

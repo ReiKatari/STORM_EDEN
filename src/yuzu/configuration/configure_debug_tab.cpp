@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <memory>
+#include <QTabBar>
 #include "ui_configure_debug_tab.h"
 #include "yuzu/configuration/configure_cpu_debug.h"
 #include "yuzu/configuration/configure_debug.h"
@@ -13,8 +14,12 @@ ConfigureDebugTab::ConfigureDebugTab(const Core::System& system_, QWidget* paren
       cpu_debug_tab{std::make_unique<ConfigureCpuDebug>(system_, this)} {
     ui->setupUi(this);
 
+    QFont tab_font = font();
+    tab_font.setBold(true);
+    ui->tabWidget->tabBar()->setFont(tab_font);
+
     ui->tabWidget->addTab(debug_tab.get(), tr("Debug"));
-    ui->tabWidget->addTab(cpu_debug_tab.get(), tr("CPU"));
+    ui->tabWidget->addTab(cpu_debug_tab.get(), tr("ЦП"));
 
     SetConfiguration();
 }

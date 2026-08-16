@@ -28,6 +28,8 @@ STBDDEF void stb_compress_bc1_block(unsigned char* dest,
 
 STBDDEF void stb_compress_bc3_block(unsigned char* dest, const unsigned char* src, int mode);
 
+STBDDEF void stb_compress_bc5_block(unsigned char* dest, const unsigned char* src);
+
 #define STB_COMPRESS_DXT_BLOCK
 
 #ifdef __cplusplus

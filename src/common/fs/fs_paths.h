@@ -8,7 +8,7 @@
 
 // yuzu data directories
 
-#define EDEN_DIR "eden"
+#define EDEN_DIR "storm_eden"
 #define PORTABLE_DIR "user"
 
 // Sub-directories contained within a yuzu data directory
@@ -36,4 +36,4 @@
 #define RYUJINX_DIR "Ryujinx"
 
 // yuzu-specific files
-#define LOG_FILE "eden_log.txt"
+#define LOG_FILE "storm_eden_log.txt"

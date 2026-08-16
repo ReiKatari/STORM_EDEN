@@ -149,11 +149,11 @@ private:
     std::vector<VulkanCallEntry> call_ring_buffer;
     size_t ring_buffer_index = 0;
     size_t ring_buffer_size = 512;
-    mutable std::mutex ring_buffer_mutex;
+    mutable std::recursive_mutex ring_buffer_mutex;
 
     // Memory tracking
     ankerl::unordered_dense::map<uintptr_t, MemoryAllocationEntry> memory_allocations;
-    mutable std::mutex memory_mutex;
+    mutable std::recursive_mutex memory_mutex;
 
     // Statistics
     u64 total_vulkan_calls = 0;
@@ -164,7 +164,7 @@ private:
 
     // File backend for GPU logs
     std::unique_ptr<Common::FS::IOFile> gpu_log_file;
-    mutable std::mutex file_mutex;
+    mutable std::recursive_mutex file_mutex;
     u64 bytes_written = 0;
 
     // Feature flags
@@ -174,12 +174,12 @@ private:
 
     // Extension usage tracking
     std::set<std::string> used_extensions;
-    mutable std::mutex extension_mutex;
+    mutable std::recursive_mutex extension_mutex;
 
     // Stored state for crash dumps
     std::string stored_driver_debug_info;
     std::string stored_pipeline_state;
-    mutable std::mutex state_mutex;
+    mutable std::recursive_mutex state_mutex;
 };
 
 [[nodiscard]] bool IsActive() noexcept;

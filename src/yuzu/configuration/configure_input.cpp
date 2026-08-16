@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <thread>
+#include <QTabBar>
 
 #include "common/settings.h"
 #include "common/settings_enums.h"
@@ -58,6 +59,9 @@ ConfigureInput::ConfigureInput(Core::System& system_, QWidget* parent)
     : QWidget(parent), ui(std::make_unique<Ui::ConfigureInput>()),
       profiles(std::make_unique<InputProfiles>()), system{system_} {
     ui->setupUi(this);
+    QFont tab_font = font();
+    tab_font.setBold(true);
+    ui->tabWidget->tabBar()->setFont(tab_font);
 }
 
 ConfigureInput::~ConfigureInput() = default;

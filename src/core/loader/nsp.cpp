@@ -36,19 +36,39 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
     if (nsp->IsExtractedType()) {
         secondary_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(nsp->GetExeFS(), false);
     } else {
-        const auto control_nca =
+        auto control_nca =
             nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Control);
         if (control_nca == nullptr || control_nca->GetStatus() != ResultStatus::Success) {
-            return;
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Control &&
+                    nca_item->GetStatus() == ResultStatus::Success) {
+                    control_nca = nca_item;
+                    break;
+                }
+            }
         }
 
-        std::tie(nacp_file, icon_file) = [this, &content_provider, &control_nca, &fsc] {
-            const FileSys::PatchManager pm{nsp->GetProgramTitleID(), fsc, content_provider};
-            return pm.ParseControlNCA(*control_nca);
-        }();
+        if (control_nca != nullptr && control_nca->GetStatus() == ResultStatus::Success) {
+            std::tie(nacp_file, icon_file) = [this, &content_provider, &control_nca, &fsc] {
+                const FileSys::PatchManager pm{nsp->GetProgramTitleID(), fsc, content_provider};
+                return pm.ParseControlNCA(*control_nca);
+            }();
+        }
 
-        secondary_loader = std::make_unique<AppLoader_NCA>(
-            nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program));
+        auto program_file = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
+        if (program_file == nullptr) {
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                    nca_item->GetStatus() == ResultStatus::Success) {
+                    program_file = nca_item->GetBaseFile();
+                    break;
+                }
+            }
+        }
+
+        if (program_file != nullptr) {
+            secondary_loader = std::make_unique<AppLoader_NCA>(program_file);
+        }
     }
 }
 
@@ -61,16 +81,19 @@ FileType AppLoader_NSP::IdentifyType(const FileSys::VirtualFile& nsp_file) {
         return FileType::Error;
     }
 
+    const bool is_nsz = nsp_file && (nsp_file->GetName().ends_with(".nsz") || nsp_file->GetName().ends_with(".NSZ"));
+    const FileType return_type = is_nsz ? FileType::NSZ : FileType::NSP;
+
     // Extracted Type case
     if (nsp.IsExtractedType() && nsp.GetExeFS() != nullptr &&
         FileSys::IsDirectoryExeFS(nsp.GetExeFS())) {
-        return FileType::NSP;
+        return return_type;
     }
 
     // Non-extracted NSPs can legitimately contain only update/DLC content.
     // Identify the container format itself; bootability is validated by Load().
     if (!nsp.GetNCAs().empty()) {
-        return FileType::NSP;
+        return return_type;
     }
 
     // Fallback when NCAs couldn't be parsed (e.g. missing keys) but the PFS still contains NCAs.
@@ -80,8 +103,8 @@ FileType AppLoader_NSP::IdentifyType(const FileSys::VirtualFile& nsp_file) {
         }
 
         const auto& name = entry->GetName();
-        if (name.size() >= 4 && name.substr(name.size() - 4) == ".nca") {
-            return FileType::NSP;
+        if (name.size() >= 4 && (name.substr(name.size() - 4) == ".nca" || name.substr(name.size() - 4) == ".ncz")) {
+            return return_type;
         }
     }
 
@@ -118,7 +141,22 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         return {ResultStatus::ErrorNSPMissingProgramNCA, {}};
     }
 
-    const auto result = secondary_loader->Load(process, system);
+    auto result = secondary_loader ? secondary_loader->Load(process, system)
+                                   : LoadResult{ResultStatus::ErrorNSPMissingProgramNCA, {}};
+    if (result.first != ResultStatus::Success) {
+        for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetExeFS() != nullptr) {
+                AppLoader_NCA fallback_loader(nca_item->GetBaseFile());
+                const auto fallback_res = fallback_loader.Load(process, system);
+                if (fallback_res.first == ResultStatus::Success) {
+                    secondary_loader = std::make_unique<AppLoader_NCA>(nca_item->GetBaseFile());
+                    result = fallback_res;
+                    break;
+                }
+            }
+        }
+    }
+
     if (result.first != ResultStatus::Success) {
         return result;
     }

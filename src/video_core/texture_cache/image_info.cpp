@@ -25,7 +25,7 @@ using Tegra::Texture::TICEntry;
 using VideoCore::Surface::PixelFormat;
 using VideoCore::Surface::SurfaceType;
 
-constexpr u32 RescaleHeightThreshold = 288;
+constexpr u32 RescaleHeightThreshold = 16;
 constexpr u32 DownscaleHeightThreshold = 512;
 
 ImageInfo::ImageInfo(const TICEntry& config) noexcept {

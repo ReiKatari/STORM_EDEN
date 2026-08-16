@@ -22,7 +22,11 @@ GameTree::GameTree(QWidget* parent) : QTreeView{parent} {
     setEditTriggers(QHeaderView::NoEditTriggers);
     setContextMenuPolicy(Qt::CustomContextMenu);
     setAttribute(Qt::WA_AcceptTouchEvents, true);
-    setStyleSheet(QStringLiteral("QTreeView{ border: none; }"));
+    setAlternatingRowColors(true);
+    setAllColumnsShowFocus(true);
+    setIndentation(16);
+    header()->setDefaultAlignment(Qt::AlignCenter);
+    header()->setSectionResizeMode(QHeaderView::Interactive);
 
     connect(this, &QTreeView::expanded, this, &GameTree::OnItemExpanded);
     connect(this, &QTreeView::collapsed, this, &GameTree::OnItemExpanded);
@@ -31,7 +35,13 @@ GameTree::GameTree(QWidget* parent) : QTreeView{parent} {
 void GameTree::SetModel(GameListModel* model) {
     QTreeView::setModel(model);
     LoadInterfaceLayout();
+    header()->resizeSection(GameListModel::COLUMN_NAME, 1200);
+    header()->resizeSection(GameListModel::COLUMN_FILE_TYPE, 200);
+    header()->resizeSection(GameListModel::COLUMN_SIZE, 200);
+    header()->resizeSection(GameListModel::COLUMN_PLAY_TIME, 200);
+    header()->resizeSection(GameListModel::COLUMN_ADD_ONS, 300);
     UpdateColumnVisibility(model);
+    sortByColumn(GameListModel::COLUMN_NAME, Qt::AscendingOrder);
 }
 
 void GameTree::OnItemExpanded(const QModelIndex& item) {
@@ -58,11 +68,34 @@ void GameTree::SaveInterfaceLayout() {
 
 void GameTree::LoadInterfaceLayout() {
     auto* hdr = header();
+    hdr->setDefaultAlignment(Qt::AlignCenter);
+    hdr->setStretchLastSection(false);
 
-    if (hdr->restoreState(UISettings::values.gamelist_header_state))
-        return;
-
-    hdr->resizeSection(GameListModel::COLUMN_NAME, 840);
+    if (UISettings::values.gamelist_header_state.isEmpty() ||
+        !hdr->restoreState(UISettings::values.gamelist_header_state)) {
+        hdr->resizeSection(GameListModel::COLUMN_NAME, 1200);
+        hdr->resizeSection(GameListModel::COLUMN_FILE_TYPE, 200);
+        hdr->resizeSection(GameListModel::COLUMN_SIZE, 200);
+        hdr->resizeSection(GameListModel::COLUMN_PLAY_TIME, 200);
+        hdr->resizeSection(GameListModel::COLUMN_ADD_ONS, 300);
+    } else {
+        if (hdr->sectionSize(GameListModel::COLUMN_NAME) < 1200) {
+            hdr->resizeSection(GameListModel::COLUMN_NAME, 1200);
+        }
+        if (hdr->sectionSize(GameListModel::COLUMN_FILE_TYPE) < 200) {
+            hdr->resizeSection(GameListModel::COLUMN_FILE_TYPE, 200);
+        }
+        if (hdr->sectionSize(GameListModel::COLUMN_SIZE) < 200) {
+            hdr->resizeSection(GameListModel::COLUMN_SIZE, 200);
+        }
+        if (hdr->sectionSize(GameListModel::COLUMN_PLAY_TIME) < 200) {
+            hdr->resizeSection(GameListModel::COLUMN_PLAY_TIME, 200);
+        }
+        if (hdr->sectionSize(GameListModel::COLUMN_ADD_ONS) < 300) {
+            hdr->resizeSection(GameListModel::COLUMN_ADD_ONS, 300);
+        }
+    }
+    hdr->setDefaultAlignment(Qt::AlignCenter);
 }
 
 void GameTree::UpdateColumnVisibility(GameListModel* model) {

@@ -389,12 +389,12 @@ bool QtControllerSelectorDialog::CheckIfParametersMet() {
 
 void QtControllerSelectorDialog::SetSupportedControllers() {
     const QString theme = [] {
-        if (QIcon::themeName().contains(QStringLiteral("dark"))) {
-            return QStringLiteral("_dark");
-        } else if (QIcon::themeName().contains(QStringLiteral("midnight"))) {
+        if (QIcon::themeName().contains(QStringLiteral("midnight"))) {
             return QStringLiteral("_midnight");
-        } else {
+        } else if (QIcon::themeName().contains(QStringLiteral("day"))) {
             return QString{};
+        } else {
+            return QStringLiteral("_dark");
         }
     }();
 
@@ -577,12 +577,12 @@ void QtControllerSelectorDialog::UpdateControllerIcon(std::size_t player_index) 
     }
 
     const QString theme = [] {
-        if (QIcon::themeName().contains(QStringLiteral("dark"))) {
-            return QStringLiteral("_dark");
-        } else if (QIcon::themeName().contains(QStringLiteral("midnight"))) {
+        if (QIcon::themeName().contains(QStringLiteral("midnight"))) {
             return QStringLiteral("_midnight");
-        } else {
+        } else if (QIcon::themeName().contains(QStringLiteral("day"))) {
             return QString{};
+        } else {
+            return QStringLiteral("_dark");
         }
     }();
 

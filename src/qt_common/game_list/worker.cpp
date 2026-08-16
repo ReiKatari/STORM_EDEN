@@ -15,6 +15,7 @@
 #include <QFileInfo>
 #include <QSettings>
 
+#include "common/cityhash.h"
 #include "common/fs/fs.h"
 #include "common/fs/path_util.h"
 #include "common/settings.h"
@@ -199,27 +200,110 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
     return out;
 }
 
+QString FormatAddonsColumnText(const QString& patch_versions, const QString& base_version = QStringLiteral("1.0.0")) {
+    QString version_num = base_version.trimmed().isEmpty() ? QStringLiteral("1.0.0") : base_version.trimmed();
+    int dlc_count = 0;
+
+    const QStringList lines = patch_versions.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString& line : lines) {
+        if (!line.contains(QStringLiteral("Update"), Qt::CaseInsensitive)) {
+            QString clean = line.trimmed();
+            clean.replace(QStringLiteral("DLC "), QStringLiteral(""), Qt::CaseInsensitive);
+            clean.replace(QStringLiteral("DLC"), QStringLiteral(""), Qt::CaseInsensitive);
+            clean.remove(QLatin1Char('('));
+            clean.remove(QLatin1Char(')'));
+            clean = clean.trimmed();
+            if (!clean.isEmpty()) {
+                const auto parts = clean.split(QLatin1Char(','), Qt::SkipEmptyParts);
+                dlc_count += parts.isEmpty() ? 1 : parts.size();
+            }
+        }
+    }
+
+    QString result = QObject::tr("Версия: %1").arg(version_num);
+    if (dlc_count > 0) {
+        const QString addons_word = dlc_count == 1 ? QObject::tr("Дополнение") : QObject::tr("Дополнения");
+        result.append(QStringLiteral("\n%1: %2").arg(addons_word, QString::number(dlc_count)));
+    }
+    return result;
+}
+
 QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::string& name,
                                         const std::size_t size, const std::vector<u8>& icon,
                                         Loader::AppLoader& loader, u64 program_id,
                                         const PlayTime::PlayTimeManager& play_time_manager,
                                         const FileSys::PatchManager& patch) {
     auto const file_type = loader.GetFileType();
-    auto const file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
+    QString file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
+    const auto ext = Common::ToLower(std::string(Common::FS::GetExtensionFromFilename(path)));
+    if (ext == "nsz") {
+        file_type_string = QStringLiteral("NSZ");
+    } else if (ext == "xcz") {
+        file_type_string = QStringLiteral("XCZ");
+    }
 
+    const u64 file_path_hash = Common::CityHash64(path.data(), path.size());
     QString patch_versions = GetGameListCachedObject(
-        fmt::format("{:016X}", patch.GetTitleID()), "pv.txt", [&patch, &loader] {
+        fmt::format("{:016X}_{:016X}", program_id, file_path_hash), "pv.txt", [&patch, &loader] {
             return FormatPatchNameVersions(patch, loader, loader.IsRomFSUpdatable());
         });
 
     u64 play_time = play_time_manager.GetPlayTime(program_id);
+
+    // Determine the exact version for this specific file
+    QString file_version;
+    FileSys::NACP file_nacp;
+    if (loader.ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
+        auto ver = file_nacp.GetVersionString();
+        if (!ver.empty() && ver != "0") {
+            file_version = QString::fromStdString(ver);
+        }
+    }
+
+    static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+    const auto m = fn_ver_regex.match(QString::fromStdString(path));
+    if (m.hasMatch() && m.hasCaptured(1)) {
+        const QString parsed_fn_ver = m.captured(1);
+        if (!parsed_fn_ver.isEmpty() && (file_version.isEmpty() || file_version == QStringLiteral("1.0.0"))) {
+            file_version = parsed_fn_ver;
+        }
+    }
+
+    if (file_version.isEmpty()) {
+        static const QRegularExpression fn_vnum_regex{QStringLiteral(R"(\[v([0-9]+)\])")};
+        const auto vm = fn_vnum_regex.match(QString::fromStdString(path));
+        if (vm.hasMatch()) {
+            const u32 vnum = vm.captured(1).toUInt();
+            if (vnum == 0) {
+                file_version = QStringLiteral("1.0.0");
+            } else {
+                file_version = QStringLiteral("v%1").arg(vnum);
+            }
+        }
+    }
+
+    if (file_version.isEmpty()) {
+        auto nacp = patch.GetControlMetadata().first;
+        if (nacp) {
+            auto ver = nacp->GetVersionString();
+            if (!ver.empty()) {
+                file_version = QString::fromStdString(ver);
+            }
+        }
+    }
+    if (file_version.isEmpty()) {
+        file_version = QStringLiteral("1.0.0");
+    }
+
+    QString addons_text = FormatAddonsColumnText(patch_versions, file_version);
+
     return QList<QStandardItem*>{
         new GameListItemPath(FormatGameName(path), icon, QString::fromStdString(name),
-                             file_type_string, program_id, play_time, patch_versions),
-        new GameListItem(file_type_string),
+                             file_type_string, program_id, play_time, patch_versions, size, file_version),
+        new GameListItemCentered(file_type_string),
         new GameListItemSize(size),
         new GameListItemPlayTime(play_time),
-        new GameListItem(patch_versions),
+        new GameListItem(addons_text),
     };
 }
 } // Anonymous namespace
@@ -344,81 +428,112 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
 
         if (!is_dir &&
             (HasSupportedFileExtension(physical_name) || IsExtractedNCAMain(physical_name))) {
-            const auto file = vfs->OpenFile(physical_name, FileSys::OpenMode::Read);
-            if (!file) {
-                return true;
-            }
-
-            auto loader = Loader::GetLoader(system, file);
-            if (!loader) {
-                return true;
-            }
-
-            const auto file_type = loader->GetFileType();
-            if (file_type == Loader::FileType::Unknown || file_type == Loader::FileType::Error) {
-                return true;
-            }
-
-            if (target == ScanTarget::PopulateGameList &&
-                (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP) &&
-                !Loader::IsBootableGameContainer(file, file_type)) {
-                return true;
-            }
-
-            u64 program_id = 0;
-            const auto res2 = loader->ReadProgramId(program_id);
-
-            if (target == ScanTarget::FillManualContentProvider) {
-                if (res2 == Loader::ResultStatus::Success && file_type == Loader::FileType::NCA) {
-                    provider->AddEntry(FileSys::TitleType::Application,
-                                       FileSys::GetCRTypeFromNCAType(FileSys::NCA{file}.GetType()),
-                                       program_id, file);
-                } else if (Settings::values.ext_content_from_game_dirs.GetValue() &&
-                           (file_type == Loader::FileType::XCI ||
-                            file_type == Loader::FileType::NSP)) {
-                    void(provider->AddEntriesFromContainer(file));
+            try {
+                const auto file = vfs->OpenFile(physical_name, FileSys::OpenMode::Read);
+                if (!file) {
+                    return true;
                 }
-            } else {
-                std::vector<u64> program_ids;
-                loader->ReadProgramIds(program_ids);
 
-                const auto addEntry = [this, physical_name,
-                                       parent_dir](std::unique_ptr<Loader::AppLoader>& app_loader,
-                                                   const u64 id) {
-                    std::vector<u8> icon;
-                    [[maybe_unused]] const auto res1 = app_loader->ReadIcon(icon);
+                auto loader = Loader::GetLoader(system, file);
+                if (!loader) {
+                    return true;
+                }
 
-                    std::string name = " ";
-                    [[maybe_unused]] const auto res3 = app_loader->ReadTitle(name);
+                const auto file_type = loader->GetFileType();
+                if (file_type == Loader::FileType::Unknown || file_type == Loader::FileType::Error) {
+                    return true;
+                }
 
-                    const FileSys::PatchManager patch{id, system.GetFileSystemController(),
-                                                      system.GetContentProvider()};
-
-                    auto entry = MakeGameListEntry(
-                        physical_name, name, Common::FS::GetSize(physical_name), icon, *app_loader,
-                        id, play_time_manager, patch);
-
-                    RecordEvent([=](GameListModel* model) { model->AddEntry(entry, parent_dir); });
-                };
-
-                if (res2 == Loader::ResultStatus::Success && program_ids.size() > 1 &&
-                    (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP)) {
-                    for (const auto id : program_ids) {
-                        // dravee suggested this, only viable way to
-                        // not show sub-games in qlaunch for now.
-                        if ((id & 0xFFF) != 0) {
-                            continue;
+                if (target == ScanTarget::PopulateGameList &&
+                    (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                     file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
+                    if (!Loader::IsBootableGameContainer(file, file_type)) {
+                        if (file->GetSize() < 0x100000) {
+                            return true;
                         }
-                        loader = Loader::GetLoader(system, file, id);
-                        if (!loader) {
-                            continue;
-                        }
+                    }
+                }
 
-                        addEntry(loader, id);
+                u64 program_id = 0;
+                const auto res2 = loader->ReadProgramId(program_id);
+
+                if (target == ScanTarget::FillManualContentProvider) {
+                    if (res2 == Loader::ResultStatus::Success && file_type == Loader::FileType::NCA) {
+                        provider->AddEntry(FileSys::TitleType::Application,
+                                           FileSys::GetCRTypeFromNCAType(FileSys::NCA{file}.GetType()),
+                                           program_id, file);
+                    } else if (Settings::values.ext_content_from_game_dirs.GetValue() &&
+                               (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                                file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
+                        void(provider->AddEntriesFromContainer(file));
                     }
                 } else {
-                    addEntry(loader, program_id);
+                    std::vector<u64> program_ids;
+                    loader->ReadProgramIds(program_ids);
+
+                    const auto addEntry = [this, physical_name,
+                                           parent_dir](std::unique_ptr<Loader::AppLoader>& app_loader,
+                                                       const u64 id) {
+                        const FileSys::PatchManager patch{id, system.GetFileSystemController(),
+                                                          system.GetContentProvider()};
+
+                        std::vector<u8> icon;
+                        [[maybe_unused]] const auto res1 = app_loader->ReadIcon(icon);
+                        if (icon.empty()) {
+                            const auto control = patch.GetControlMetadata();
+                            if (control.second != nullptr) {
+                                icon = control.second->ReadAllBytes();
+                            }
+                        }
+
+                        std::string name = " ";
+                        [[maybe_unused]] const auto res3 = app_loader->ReadTitle(name);
+                        if (name.empty() || name == " ") {
+                            const auto control = patch.GetControlMetadata();
+                            if (control.first != nullptr) {
+                                name = control.first->GetApplicationName();
+                            }
+                        }
+                        if (name.empty() || name == " ") {
+                            const std::string filename_str = std::filesystem::path(physical_name).stem().string();
+                            if (!filename_str.empty()) {
+                                name = filename_str;
+                            }
+                        }
+
+                        auto entry = MakeGameListEntry(
+                            physical_name, name, Common::FS::GetSize(physical_name), icon, *app_loader,
+                            id, play_time_manager, patch);
+
+                        RecordEvent([=](GameListModel* model) { model->AddEntry(entry, parent_dir); });
+                    };
+
+                    if (res2 == Loader::ResultStatus::Success && program_ids.size() > 1 &&
+                        (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                         file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
+                        for (const auto id : program_ids) {
+                            // dravee suggested this, only viable way to
+                            // not show sub-games in qlaunch for now.
+                            if ((id & 0xFFF) != 0) {
+                                continue;
+                            }
+                            loader = Loader::GetLoader(system, file, id);
+                            if (!loader) {
+                                continue;
+                            }
+
+                            addEntry(loader, id);
+                        }
+                    } else {
+                        addEntry(loader, program_id);
+                    }
                 }
+            } catch (const std::exception& e) {
+                LOG_WARNING(Frontend, "Exception while scanning file {}: {}", physical_name, e.what());
+                return true;
+            } catch (...) {
+                LOG_WARNING(Frontend, "Unknown exception while scanning file {}", physical_name);
+                return true;
             }
         } else if (is_dir) {
             watch_list.append(QString::fromStdString(physical_name));

@@ -23,7 +23,9 @@ namespace ConfigurationShared {
 
 std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     std::unique_ptr<TranslationMap> translations = std::make_unique<TranslationMap>();
-    const auto& tr = [parent](const char* text) -> QString { return parent->tr(text); };
+    const auto& tr = [](const char* text, const char* disambiguation = nullptr) -> QString {
+        return QCoreApplication::translate("ConfigurationShared", text, disambiguation);
+    };
 
 #define INSERT(SETTINGS, ID, NAME, TOOLTIP)                                                        \
     translations->insert(std::pair{SETTINGS::values.ID.Id(), std::pair{(NAME), (TOOLTIP)}})
@@ -60,142 +62,116 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(UISettings, mute_when_in_background, tr("Mute audio when in background"), QString());
 
     // Core
-    INSERT(Settings, use_multi_core, tr("Multicore CPU Emulation"),
-           tr("This option increases CPU emulation thread use from 1 to the maximum of 4.\n"
-              "This is mainly a debug option and shouldn't be disabled."));
-    INSERT(Settings, memory_layout_mode, tr("Memory Layout"),
-           tr("Increases the amount of emulated RAM.\nDoesn't affect performance/stability but may "
-              "allow HD texture "
-              "mods to load."));
+    INSERT(Settings, use_multi_core, tr("Многопоточная эмуляция ЦП"),
+           tr("Увеличивает количество потоков эмуляции центрального процессора с 1 до 4.\n"
+              "Значительно повышает производительность на многоядерных процессорах.\n"
+              "Рекомендуется всегда держать включенным."));
+    INSERT(Settings, memory_layout_mode, tr("Конфигурация памяти DRAM"),
+           tr("Увеличивает объем виртуальной оперативной памяти, доступной гостевой системе.\n"
+              "Позволяет загружать ресурсоемкие моды высокого разрешения (HD-текстуры) и предотвращает вылеты из-за нехватки памяти."));
     INSERT(Settings, use_speed_limit, QString(), QString());
     INSERT(Settings, current_speed_mode, QString(), QString());
-    INSERT(Settings, speed_limit, tr("Limit Speed Percent"),
-           tr("Controls the game's maximum rendering speed, but it's up to each game if it runs "
-              "faster or not.\n200% for a 30 FPS game is 60 FPS, and for a "
-              "60 FPS game it will be 120 FPS.\nDisabling it means unlocking the framerate to the "
-              "maximum your PC can reach."));
+    INSERT(Settings, speed_limit, tr("Ограничение скорости (%)"),
+           tr("Задает максимальную скорость рендеринга игры (100% = стандартная скорость).\n"
+              "200% для 30 FPS игры даст 60 FPS, для 60 FPS — 120 FPS.\n"
+              "Отключение опции (0%) полностью разблокирует частоту кадров."));
 
-    INSERT(Settings, turbo_speed_limit, tr("Turbo Speed"),
-           tr("When the Turbo Speed hotkey is pressed, the speed will be limited to this "
-              "percentage."));
-    INSERT(Settings, slow_speed_limit, tr("Slow Speed"),
-           tr("When the Slow Speed hotkey is pressed, the speed will be limited to this "
-              "percentage."));
+    INSERT(Settings, turbo_speed_limit, tr("Турбо-скорость (%)"),
+           tr("Скорость эмуляции при зажатии горячей клавиши Турбо-режима."));
+    INSERT(Settings, slow_speed_limit, tr("Замедленная скорость (%)"),
+           tr("Скорость эмуляции при зажатии горячей клавиши Замедления."));
 
-    INSERT(Settings, sync_core_speed, tr("Synchronize Core Speed"),
-           tr("Synchronizes CPU core speed with the game's maximum rendering speed to boost FPS "
-              "without affecting game speed (animations, physics, etc.).\n"
-              "Can help reduce stuttering at lower framerates."));
+    INSERT(Settings, sync_core_speed, tr("Синхронизация частоты ядер ЦП"),
+           tr("Синхронизирует тактовую частоту ядер ЦП со скоростью рендеринга для повышения FPS без ускорения внутриигровой физики.\n"
+              "Помогает устранить рывки и микрофризы при низком фреймрейте."));
 
     // Cpu
-    INSERT(Settings, cpu_accuracy, tr("Accuracy:"),
-           tr("Change the accuracy of the emulated CPU (for debugging only)."));
-    INSERT(Settings, cpu_backend, tr("Backend:"), QString());
-
-    INSERT(Settings, cpu_clock, tr("CPU Clocks"),
-           tr("Raises the clock the emulated CPU reports, which removes some FPS limiters.\n"
-              "Weaker CPUs may see reduced performance, and certain games may behave improperly."));
+    INSERT(Settings, cpu_accuracy, tr("Точность ЦП:"),
+           tr("Определяет уровень точности эмуляции центрального процессора (ЦП).\n"
+              "Авто (Auto) обеспечивает оптимальный баланс производительности и стабильности."));
+    INSERT(Settings, cpu_clock, tr("Частота ЦП"),
+           tr("Повышает тактовую частоту, о которой эмулятор сообщает гостевой системе, снимая встроенные лимиты FPS.\n"
+              "На слабых процессорах может снижать общую производительность."));
 
     INSERT(Settings, use_custom_cpu_ticks, QString(), QString());
-    INSERT(Settings, cpu_ticks, tr("Custom CPU Ticks"),
-           tr("Set a custom value of CPU ticks. Higher values can increase performance, but may "
-              "cause deadlocks. A range of 77-21000 is recommended."));
-    INSERT(Settings, cpu_backend, tr("Backend:"), QString());
+    INSERT(Settings, cpu_ticks, tr("Пользовательские тики ЦП"),
+           tr("Устанавливает пользовательское значение тиков ЦП. Высокие значения могут повысить производительность, но способны вызвать зависания. Рекомендуется 77-21000."));
+    INSERT(Settings, cpu_backend, tr("Бэкенд ЦП:"), QString());
 
     // Cpu Debug
 
     // Cpu Unsafe
     INSERT(
-        Settings, cpuopt_unsafe_host_mmu, tr("Enable Host MMU Emulation (fastmem)"),
-        tr("This optimization speeds up memory accesses by the guest program.\nEnabling it causes "
-           "guest memory reads/writes to be done directly into memory and make use of Host's "
-           "MMU.\nDisabling this forces all memory accesses to use Software MMU Emulation."));
+        Settings, cpuopt_unsafe_host_mmu, tr("Эмуляция Host MMU (fastmem)"),
+        tr("Оптимизирует доступ к памяти гостевой программы путем прямого использования MMU хоста.\n"
+           "Существенно увеличивает скорость работы. Отключение переводит эмуляцию на медленный программный MMU."));
     INSERT(
         Settings, cpuopt_unsafe_unfuse_fma,
-        tr("Unfuse FMA (improve performance on CPUs without FMA)"),
-        tr("This option improves speed by reducing accuracy of fused-multiply-add instructions on "
-           "CPUs without native FMA support."));
+        tr("Разделять FMA (повышает производительность на ЦП без FMA)"),
+        tr("Повышает скорость за счет снижения точности инструкций совмещенного умножения-сложения (FMA) на старых процессорах."));
     INSERT(
-        Settings, cpuopt_unsafe_reduce_fp_error, tr("Faster FRSQRTE and FRECPE"),
-        tr("This option improves the speed of some approximate floating-point functions by using "
-           "less accurate native approximations."));
+        Settings, cpuopt_unsafe_reduce_fp_error, tr("Ускоренные FRSQRTE и FRECPE"),
+        tr("Увеличивает скорость математических вычислений с плавающей запятой, используя аппаратные аппроксимации."));
     INSERT(Settings, cpuopt_unsafe_ignore_standard_fpcr,
-           tr("Faster ASIMD instructions (32 bits only)"),
-           tr("This option improves the speed of 32 bits ASIMD floating-point functions by running "
-              "with incorrect rounding modes."));
-    INSERT(Settings, cpuopt_unsafe_inaccurate_nan, tr("Inaccurate NaN handling"),
-           tr("This option improves speed by removing NaN checking.\nPlease note this also reduces "
-              "accuracy of certain floating-point instructions."));
-    INSERT(Settings, cpuopt_unsafe_fastmem_check, tr("Disable address space checks"),
-           tr("This option improves speed by eliminating a safety check before every memory "
-              "operation.\nDisabling it may allow arbitrary code execution."));
+           tr("Ускоренные инструкции ASIMD (только 32 бита)"),
+           tr("Ускоряет 32-битные инструкции ASIMD с плавающей запятой."));
+    INSERT(Settings, cpuopt_unsafe_inaccurate_nan, tr("Неточная обработка значений NaN"),
+           tr("Ускоряет вычисления за счет отключения проверки нечисловых значений (NaN)."));
+    INSERT(Settings, cpuopt_unsafe_fastmem_check, tr("Отключить проверку адресного пространства"),
+           tr("Убирает проверку безопасности перед каждой операцией с памятью, немного ускоряя работу."));
     INSERT(
-        Settings, cpuopt_unsafe_ignore_global_monitor, tr("Ignore global monitor"),
-        tr("This option improves speed by relying only on the semantics of cmpxchg to ensure "
-           "safety of exclusive access instructions.\nPlease note this may result in deadlocks and "
-           "other race conditions."));
+        Settings, cpuopt_unsafe_ignore_global_monitor, tr("Игнорировать глобальный монитор"),
+        tr("Повышает скорость выполнения инструкций синхронизации потоков, полагаясь на семантику cmpxchg."));
 
     // Renderer
     INSERT(Settings, renderer_backend, tr("API:"),
-           tr("Changes the output graphics API.\nVulkan is recommended."));
-    INSERT(Settings, vulkan_device, tr("Device:"),
-           tr("This setting selects the GPU to use (Vulkan only)."));
-    INSERT(Settings, resolution_setup, tr("Resolution:"),
-           tr("Forces to render at a different resolution.\n"
-              "Higher resolutions require more VRAM and bandwidth.\n"
-              "Options lower than 1X can cause artifacts."));
-    INSERT(Settings, scaling_filter, tr("Window Adapting Filter:"), QString());
-    INSERT(Settings, fsr_sharpening_slider, tr("FSR Sharpness:"),
-           tr("Determines how sharpened the image will look using FSR's or SGSR's dynamic contrast."));
-    INSERT(Settings, anti_aliasing, tr("Anti-Aliasing Method:"),
-           tr("The anti-aliasing method to use.\nSMAA offers the best quality.\nFXAA "
-              "can produce a more stable picture in lower resolutions."));
-    INSERT(Settings, fullscreen_mode, tr("Fullscreen Mode:"),
-           tr("The method used to render the window in fullscreen.\nBorderless offers the best "
-              "compatibility with the on-screen keyboard that some games request for "
-              "input.\nExclusive "
-              "fullscreen may offer better performance and better Freesync/Gsync support."));
-    INSERT(Settings, aspect_ratio, tr("Aspect Ratio:"),
-           tr("Stretches the renderer to fit the specified aspect ratio.\nMost games only support "
-              "16:9, so modifications are required to get other ratios.\nAlso controls the "
-              "aspect ratio of captured screenshots."));
-    INSERT(Settings, use_disk_shader_cache, tr("Use persistent pipeline cache"),
-           tr("Allows saving shaders to storage for faster loading on following game "
-              "boots.\nDisabling it is only intended for debugging."));
+           tr("Выбор графического API для рендеринга. Рекомендуется Vulkan для наилучшей производительности и стабильности."));
+    INSERT(Settings, vulkan_device, tr("Устройство:"),
+           tr("Выбор видеокарты (ГПУ) для рендеринга графики (только Vulkan)."));
+    INSERT(Settings, resolution_setup, tr("Разрешение:"),
+           tr("Задает внутреннее разрешение рендеринга игры.\n"
+              "Повышенное разрешение (2X, 3X, 4X) улучшает четкость и детализацию, но требует мощного ГПУ и больше видеопамяти."));
+    INSERT(Settings, scaling_filter, tr("Фильтр масштабирования:"), tr("Алгоритм постобработки и масштабирования изображения до размера окна."));
+    INSERT(Settings, fsr_sharpening_slider, tr("Резкость FSR:"),
+           tr("Определяет уровень четкости и резкости при использовании технологии AMD FidelityFX Super Resolution (FSR)."));
+    INSERT(Settings, anti_aliasing, tr("Метод сглаживания:"),
+           tr("Алгоритм сглаживания зубчатых краев объектов.\n"
+              "SMAA обеспечивает максимальное качество картинки, FXAA — минимальную нагрузку на ГПУ."));
+    INSERT(Settings, fullscreen_mode, tr("Полноэкранный режим:"),
+           tr("Режим отображения окна во весь экран.\n"
+              "Окно без рамки обеспечивает идеальную совместимость с оверлеями и экранной клавиатурой.\n"
+              "Эксклюзивный полный экран обеспечивает минимальную задержку ввода и поддержку G-Sync/FreeSync."));
+    INSERT(Settings, aspect_ratio, tr("Соотношение сторон:"),
+           tr("Пропорции кадра отображения (16:9, 16:10, 21:9, 4:3, Растянуть)."));
+    INSERT(Settings, use_disk_shader_cache, tr("Использовать дисковый кэш шейдеров"),
+           tr("Сохраняет скомпилированные шейдеры на диск.\n"
+              "Устраняет микрофризы и рывки при повторном запуске игр. Рекомендуется всегда держать включенным."));
     INSERT(
-        Settings, use_asynchronous_gpu_emulation, tr("Use asynchronous GPU emulation"),
-        tr("Uses an extra CPU thread for rendering.\nThis option should always remain enabled."));
-    INSERT(Settings, nvdec_emulation, tr("NVDEC emulation:"),
-           tr("Specifies how videos should be decoded.\nIt can either use the CPU or the GPU for "
-              "decoding, or perform no decoding at all (black screen on videos).\n"
-              "In most cases, GPU decoding provides the best performance."));
-    INSERT(Settings, accelerate_astc, tr("ASTC Decoding Method:"),
-           tr("This option controls how ASTC textures should be decoded.\n"
-              "CPU: Use the CPU for decoding.\n"
-              "GPU: Use the GPU's compute shaders to decode ASTC textures (recommended).\n"
-              "CPU Asynchronously: Use the CPU to decode ASTC textures on demand. Eliminates"
-              "ASTC decoding\nstuttering but may present artifacts."));
-    INSERT(Settings, astc_recompression, tr("ASTC Recompression Method:"),
-           tr("Most GPUs lack support for ASTC textures and must decompress to an"
-              "intermediate format: RGBA8.\n"
-              "BC1/BC3: The intermediate format will be recompressed to BC1 or BC3 format,\n"
-              " saving VRAM but degrading image quality."));
-    INSERT(Settings, frame_pacing_mode, tr("Frame Pacing Mode (Vulkan only)"),
-           tr("Controls how the emulator manages frame pacing to reduce stuttering and make the "
-              "frame rate smoother and more consistent."));
-    INSERT(Settings, vram_usage_mode, tr("VRAM Usage Mode:"),
-           tr("Selects whether the emulator should prefer to conserve memory or make maximum usage "
-              "of available video memory for performance.\nAggressive mode may impact performance "
-              "of other applications such as recording software."));
-    INSERT(Settings, skip_cpu_inner_invalidation, tr("Skip CPU Inner Invalidation"),
-           tr("Skips certain cache invalidations during memory updates, reducing CPU usage and "
-              "improving latency. This may cause soft-crashes."));
-    INSERT(Settings, vsync_mode, tr("VSync Mode:"),
-           tr("FIFO (VSync) does not drop frames or exhibit tearing but is limited by the screen "
-              "refresh rate.\nFIFO Relaxed allows tearing as it recovers from a slow down.\n"
-              "Mailbox can have lower latency than FIFO and does not tear but may drop "
-              "frames.\nImmediate (no synchronization) presents whatever is available and can "
-              "exhibit tearing."));
+        Settings, use_asynchronous_gpu_emulation, tr("Асинхронная эмуляция ГПУ"),
+        tr("Выделяет отдельный поток центрального процессора под команды графического процессора.\n"
+           "Рекомендуется всегда держать включенным."));
+    INSERT(Settings, nvdec_emulation, tr("Эмуляция NVDEC:"),
+           tr("Определяет способ воспроизведения внутриигровых видеороликов.\n"
+              "Декодирование на ГПУ обеспечивает максимальную плавность видео и минимальную нагрузку на ЦП."));
+    INSERT(Settings, accelerate_astc, tr("Метод декодирования ASTC:"),
+           tr("Выбор способа распаковки текстур формата ASTC:\n"
+              "• ГПУ: Декодирование на вычислительных шейдерах видеокарты (рекомендуется).\n"
+              "• ЦП: Распаковка силами центрального процессора.\n"
+              "• ЦП Асинхронно: Фоновая распаковка на ЦП без просадок FPS."));
+    INSERT(Settings, astc_recompression, tr("Метод пережатия ASTC:"),
+           tr("Пережимает распакованные текстуры ASTC в форматы BC1/BC3.\n"
+              "Существенно экономит объем видеопамяти (VRAM) на видеокартах с 4 ГБ и менее."));
+    INSERT(Settings, frame_pacing_mode, tr("Режим распределения кадров (Frame Pacing):"),
+           tr("Оптимизирует интервалы между выводимыми кадрами, устраняя микроподергивания и делая фреймрейт плавным."));
+    INSERT(Settings, vram_usage_mode, tr("Режим использования VRAM:"),
+           tr("Управляет выделением видеопамяти.\n"
+              "Экономный режим бережет память, Агрессивный использует максимум доступной видеопамяти для предельного быстродействия."));
+    INSERT(Settings, skip_cpu_inner_invalidation, tr("Пропуск внутренней инвалидации ЦП"),
+           tr("Снижает нагрузку на центральный процессор за счет пропуска некоторых сбросов кэша памяти."));
+    INSERT(Settings, vsync_mode, tr("Режим вертикальной синхронизации (VSync):"),
+           tr("FIFO (VSync) исключает разрывы кадров.\n"
+              "Mailbox обеспечивает минимальную задержку управления без разрывов.\n"
+              "Немедленно (Immediate) отключает синхронизацию."));
     INSERT(Settings, bg_red, QString(), QString());
     INSERT(Settings, bg_green, QString(), QString());
     INSERT(Settings, bg_blue, QString(), QString());
@@ -203,161 +179,123 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     // Renderer (Advanced Graphics)
     INSERT(Settings, use_asynchronous_gpu_emulation, QString(), QString());
 
-    INSERT(Settings, sync_memory_operations, tr("Sync Memory Operations"),
-           tr("Ensures data consistency between compute and memory operations.\nThis option fixes "
-              "issues in games, but may degrade performance.\nUnreal Engine 4 games often see the "
-              "most significant changes thereof."));
-    INSERT(Settings, async_presentation, tr("Enable asynchronous presentation (Vulkan only)"),
-           tr("Slightly improves performance by moving presentation to a separate CPU thread."));
+    INSERT(Settings, sync_memory_operations, tr("Синхронизация операций с памятью"),
+           tr("Обеспечивает целостность данных между вычислениями и памятью.\n"
+              "Устраняет визуальные артефакты в играх на движке Unreal Engine 4."));
+    INSERT(Settings, async_presentation, tr("Включить асинхронный вывод (только Vulkan)"),
+           tr("Повышает плавность вывода кадров за счет выноса презентации в отдельный поток ЦП."));
     INSERT(
-        Settings, renderer_force_max_clock, tr("Force maximum clocks (Vulkan only)"),
-        tr("Runs work in the background while waiting for graphics commands to keep the GPU from "
-           "lowering its clock speed."));
-    INSERT(Settings, max_anisotropy, tr("Anisotropic Filtering:"),
-           tr("Controls the quality of texture rendering at oblique angles.\nSafe to set at 16x on "
-              "most GPUs."));
-    INSERT(Settings, gpu_accuracy, tr("GPU Mode:"),
-           tr("Controls the GPU emulation mode.\nMost games render fine with Fast, but Accurate is still "
-              "required for some.\nParticles tend to only render correctly with Accurate mode."));
-    INSERT(Settings, dma_accuracy, tr("DMA Accuracy:"),
-           tr("Controls the DMA read mode.\nUnsafe is faster, while Safe is more stable and can fix issues in some games.\nDefault follows the GPU Accuracy setting."));
-    INSERT(Settings, gpu_fence_behavior, tr("GPU Fence Behavior:"),
-           tr("Controls the GPU fence synchronization behavior.\nImmediate is the fastest option, but can introduce some issues.\nBalanced offers better compatibility and may fix issues in some games.\nAccurate further improves compatibility at the cost of some performance.\nStrict is the slowest option, but can fix issues that require stricter synchronization.\nDefault follows the GPU Accuracy setting."));
-    INSERT(Settings, enable_gpu_buffer_readback, tr("Enable GPU buffer readback"),
-           tr("Preserves GPU-modified data by reading it back before uploading.\nSome games require this to render certain effects properly."));
-    INSERT(Settings, use_asynchronous_shaders, tr("Enable asynchronous shader compilation"),
-           tr("May reduce shader stutter."));
-    INSERT(Settings, gpu_clock, tr("GPU Clocks"),
-           tr("Makes the game believe GPU work finishes faster than it does, so it stops lowering "
-              "resolution and render distance to fit the Switch's clocks."));
-    INSERT(Settings, gpu_unswizzle_enabled, tr("GPU Unswizzle"),
-           tr("Accelerates BCn 3D texture decoding using GPU compute.\n"
-              "Disable if experiencing crashes or graphical glitches."));
-    INSERT(Settings, gpu_unswizzle_texture_size, tr("GPU Unswizzle Max Texture Size"),
-           tr("Sets the maximum size (MiB) for GPU-based texture unswizzling.\n"
-              "While the GPU is faster for medium and large textures, the CPU may be more "
-              "efficient for very small ones.\n"
-              "Adjust this to find the balance between GPU acceleration and CPU overhead."));
-    INSERT(Settings, gpu_unswizzle_stream_size, tr("GPU Unswizzle Stream Size"),
-           tr("Sets the maximum amount of texture data (in MiB) processed per frame.\n"
-              "Higher values can reduce stutter during texture loading but may impact frame "
-              "consistency."));
-    INSERT(Settings, gpu_unswizzle_chunk_size, tr("GPU Unswizzle Chunk Size"),
-           tr("Determines the number of depth slices processed in a single dispatch.\n"
-              "Increasing this can improve throughput on high-end GPUs but may cause TDR or driver "
-              "timeouts on weaker hardware."));
+        Settings, renderer_force_max_clock, tr("Форсировать максимальные частоты (только Vulkan)"),
+        tr("Удерживает тактовую частоту ГПУ на максимуме, предотвращая просадки производительности при резких скачках нагрузки."));
+    INSERT(Settings, max_anisotropy, tr("Анизотропная фильтрация:"),
+           tr("Повышает четкость и детализацию текстур, находящихся под углом к камере. Безопасно выставлять 16x."));
+    INSERT(Settings, gpu_accuracy, tr("Режим точности ГПУ:"),
+           tr("Управляет точностью эмуляции графического процессора.\n"
+              "Быстрый (Fast) обеспечивает высокий FPS в большинстве игр. Высокая точность (Accurate) необходима для правильного отображения частиц и сложных спецэффектов."));
+    INSERT(Settings, dma_accuracy, tr("Точность DMA:"),
+           tr("Режим прямого доступа к памяти DMA.\n"
+              "Небезопасно (Быстро) дает прирост скорости, Безопасно (Стабильно) исправляет ошибки в некоторых играх."));
+    INSERT(Settings, gpu_fence_behavior, tr("Поведение Fence ГПУ:"),
+           tr("Настройка синхронизации барьеров ГПУ.\n"
+              "Немедленно (Immediate) — максимально быстро.\n"
+              "Сбалансировано (Balanced) — оптимальная совместимость.\n"
+              "Точно (Accurate) и Строго (Strict) — устраняют специфические графические баги."));
+    INSERT(Settings, enable_gpu_buffer_readback, tr("Обратное чтение буфера ГПУ"),
+           tr("Сохраняет модифицированные графическим процессором данные путем их считывания перед отправкой. Требуется некоторым играм для корректного рендеринга эффектов."));
+    INSERT(Settings, use_asynchronous_shaders, tr("Включить асинхронную компиляцию шейдеров"),
+           tr("Компилирует новые шейдеры в фоновом режиме, снижая статтеры и фризы во время игрового процесса."));
+    INSERT(Settings, gpu_clock, tr("Частота ГПУ"),
+           tr("Регулирует частоту, которую видит гостевая игра, позволяя удерживать максимальное разрешение без срабатывания встроенных в игру ограничителей."));
+    INSERT(Settings, gpu_unswizzle_enabled, tr("Unswizzle ГПУ"),
+           tr("Ускоряет декодирование 3D-текстур BCn с использованием вычислительных мощностей ГПУ.\n"
+              "Отключите при возникновении графических сбоев."));
+    INSERT(Settings, gpu_unswizzle_texture_size, tr("Макс. размер текстуры Unswizzle ГПУ"),
+           tr("Задает максимальный размер текстур (МБ), обрабатываемых на ГПУ.\n"
+              "ГПУ быстрее справляется со средними и большими текстурами, в то время как мелкие эффективнее обрабатывать на ЦП."));
+    INSERT(Settings, gpu_unswizzle_stream_size, tr("Размер потока Unswizzle ГПУ"),
+           tr("Максимальный объем данных текстур (в МБ), обрабатываемый за один кадр. Помогает сбалансировать скорость загрузки сцены."));
+    INSERT(Settings, gpu_unswizzle_chunk_size, tr("Размер чанка Unswizzle ГПУ"),
+           tr("Количество срезов глубины, обрабатываемых за один проход. Увеличение повышает пропускную способность на мощных видеокартах."));
 
-    INSERT(Settings, use_vulkan_driver_pipeline_cache, tr("Use Vulkan pipeline cache"),
-           tr("Enables GPU vendor-specific pipeline cache.\nThis option can improve shader loading "
-              "time significantly in cases where the Vulkan driver does not store pipeline cache "
-              "files internally."));
-    INSERT(Settings, enable_compute_pipelines, tr("Enable Compute Pipelines (Intel Vulkan Only)"),
-           tr("Required by some games.\nThis setting only exists for Intel "
-              "proprietary drivers and may crash if enabled.\nCompute pipelines are always enabled "
-              "on all other drivers."));
+    INSERT(Settings, use_vulkan_driver_pipeline_cache, tr("Использовать кэш пайплайнов драйвера Vulkan"),
+           tr("Задействует внутренний кэш драйвера видеокарты для ускорения повторного запуска игр."));
+    INSERT(Settings, enable_compute_pipelines, tr("Включить вычислительные пайплайны (только Intel Vulkan)"),
+           tr("Специальная настройка совместимости для встроенной графики Intel."));
     INSERT(
-        Settings, use_reactive_flushing, tr("Enable Reactive Flushing"),
-        tr("Uses reactive flushing instead of predictive flushing, allowing more accurate memory "
-           "syncing."));
-    INSERT(Settings, use_video_framerate, tr("Sync to framerate of video playback"),
-           tr("Run the game at normal speed during video playback, even when the framerate is "
-              "unlocked."));
-    INSERT(Settings, barrier_feedback_loops, tr("Barrier feedback loops"),
-           tr("Improves rendering of transparency effects in specific games."));
-    INSERT(Settings, enable_buffer_history, tr("Enable buffer history"),
-           tr("Enables access to previous buffer states.\nThis option may improve rendering "
-              "quality and performance consistency in some games."));
-    INSERT(Settings, fix_bloom_effects, tr("Fix bloom effects"), tr("Removes bloom in Burnout."));
+        Settings, use_reactive_flushing, tr("Включить реактивный сброс памяти"),
+        tr("Использует реактивную синхронизацию памяти вместо предиктивной для более точного соответствия оригиналу."));
+    INSERT(Settings, use_video_framerate, tr("Синхронизация с частотой кадров видео"),
+           tr("Воспроизводит внутриигровые ролики с оригинальной скоростью даже при разблокированном фреймрейте (FPS)."));
+    INSERT(Settings, barrier_feedback_loops, tr("Барьеры обратной связи (Feedback Loops)"),
+           tr("Улучшает отрисовку эффектов прозрачности, зеркал и отражений в ряде игр."));
+    INSERT(Settings, enable_buffer_history, tr("Включить историю буферов"),
+           tr("Сохраняет предыдущие состояния буферов, повышая стабильность отрисовки пост-эффектов."));
+    INSERT(Settings, fix_bloom_effects, tr("Исправить эффекты bloom"),
+           tr("Устраняет избыточное размытие, пересветы и графические искажения свечения."));
 
-    INSERT(Settings, rescale_hack, tr("Enable Legacy Rescale Pass"),
-           tr("May fix rescale issues in some games by relying on behavior from the previous "
-              "implementation.\n"
-              "Legacy behavior workaround that fixes line artifacts on AMD and Intel GPUs, and "
-              "grey texture flicker on Nvidia GPUs in Luigis Mansion 3."));
+    INSERT(Settings, emulate_bgr565, tr("Эмуляция формата BGR565"),
+           tr("Эмулирует цветовой формат BGR565 путем программной перестановки каналов синего и красного цветов.\n"
+              "Помогает исправить некорректные цвета и искажения цветопередачи."));
+
+    INSERT(Settings, rescale_hack, tr("Включить устаревший режим масштабирования"),
+           tr("Использует алгоритм масштабирования предыдущих версий эмулятора.\n"
+              "Устраняет полосы на видеокартах AMD/Intel и мерцание серых текстур в Luigi's Mansion 3."));
 
     // Renderer (Extensions)
-    INSERT(Settings, dyna_state, tr("Extended Dynamic State"),
-           tr("Controls the number of features that can be used in Extended Dynamic State.\n"
-              "Higher states allow for more features and can increase performance, but may cause "
-              "additional graphical issues."));
+    INSERT(Settings, dyna_state, tr("Расширенное динамическое состояние (EDS)"),
+           tr("Управляет набором расширений Extended Dynamic State в Vulkan.\n"
+              "Более высокие уровни расширяют возможности оптимизации и повышают FPS на современных драйверах."));
 
-    INSERT(Settings, vertex_input_dynamic_state, tr("Vertex Input Dynamic State"),
-           tr("Enables vertex input dynamic state feature for better quality and performance."));
+    INSERT(Settings, vertex_input_dynamic_state, tr("Динамический ввод вершин (Vertex Input)"),
+           tr("Включает динамическое состояние ввода вершин для повышения производительности геометрического конвейера."));
 
     INSERT(
-        Settings, sample_shading, tr("Sample Shading"),
-        tr("Allows the fragment shader to execute per sample in a multi-sampled fragment "
-           "instead of once per fragment. Improves graphics quality at the cost of performance.\n"
-           "Higher values improve quality but degrade performance."));
-
-    // Renderer (Debug)
+        Settings, sample_shading, tr("Выборка затенения (Sample Shading)"),
+        tr("Выполняет фрагментный шейдер для каждого сэмпла при мультисэмплинге.\n"
+           "Существенно повышает качество субпиксельной детализации и текстур за счет повышенной нагрузки на ГПУ."));
 
     // System
-    INSERT(Settings, rng_seed, tr("RNG Seed"),
-           tr("Controls the seed of the random number generator.\nMainly used for speedrunning."));
+    INSERT(Settings, rng_seed, tr("Сид генератора случайных чисел (RNG)"),
+           tr("Фиксирует начальное значение генератора случайных чисел (RNG). Используется для спидранов."));
     INSERT(Settings, rng_seed_enabled, QString(), QString());
-    INSERT(Settings, device_name, tr("Device Name"), tr("The name of the console."));
-    INSERT(Settings, program_args, tr("Homebrew Args"),
-           tr("Command-line arguments passed to homebrew at launch (e.g. -noglsl)."));
-    INSERT(Settings, custom_rtc, tr("Custom RTC Date:"),
-           tr("This option allows to change the clock of the console.\n"
-              "Can be used to manipulate time in games."));
+    INSERT(Settings, device_name, tr("Имя консоли"), tr("Отображаемое имя виртуальной консоли."));
+    INSERT(Settings, program_args, tr("Аргументы Homebrew"),
+           tr("Аргументы командной строки, передаваемые homebrew-приложениям при запуске."));
+    INSERT(Settings, custom_rtc, tr("Пользовательское время RTC:"),
+           tr("Позволяет изменить системное время виртуальной консоли для манипуляции игровыми событиями."));
     INSERT(Settings, custom_rtc_enabled, QString(), QString());
     INSERT(Settings, custom_rtc_offset, QStringLiteral(" "),
-           tr("The number of seconds from the current unix time"));
-    INSERT(Settings, language_index, tr("Language:"),
-           tr("This option can be overridden when region setting is auto-select"));
-    INSERT(Settings, region_index, tr("Region:"), tr("The region of the console."));
-    INSERT(Settings, time_zone_index, tr("Time Zone:"), tr("The time zone of the console."));
-    INSERT(Settings, sound_index, tr("Sound Output Mode:"), QString());
-    INSERT(Settings, use_docked_mode, tr("Console Mode:"),
-           tr("Selects if the console is in Docked or Handheld mode.\nGames will change "
-              "their resolution, details and supported controllers and depending on this setting.\n"
-              "Setting to Handheld can help improve performance for low end systems."));
+           tr("Смещение в секундах от текущего системного времени"));
+    INSERT(Settings, language_index, tr("Язык системы:"),
+           tr("Язык интерфейса консоли и игр по умолчанию."));
+    INSERT(Settings, region_index, tr("Регион:"), tr("Регион виртуальной консоли."));
+    INSERT(Settings, time_zone_index, tr("Часовой пояс:"), tr("Часовой пояс виртуальной консоли."));
+    INSERT(Settings, sound_index, tr("Режим вывода звука:"), QString());
+    INSERT(Settings, use_docked_mode, tr("Режим консоли:"),
+           tr("Переключает консоль между режимами \"В док-станции\" и \"Портативный\".\n"
+              "В режиме док-станции игры работают в повышенном разрешении и графическом профиле."));
     INSERT(Settings, current_user, QString(), QString());
 
-    // Controls
-
-    // Data Storage
-
-    // Debugging
-
-    // Debugging Graphics
-
-    // Network
-
-    // Web Service
-
-    // Ui
-
     // Ui General
-    INSERT(UISettings, select_user_on_boot, tr("Prompt for user profile on boot"),
-           tr("Useful if multiple people use the same PC."));
-    INSERT(UISettings, pause_when_in_background, tr("Pause when not in focus"),
-           tr("Pauses emulation when focusing on other windows."));
-    INSERT(UISettings, confirm_before_stopping, tr("Confirm before stopping emulation"),
-           tr("Overrides prompts asking to confirm stopping the emulation.\nEnabling "
-              "it bypasses such prompts and directly exits the emulation."));
-    INSERT(UISettings, hide_mouse, tr("Hide mouse on inactivity"),
-           tr("Hides the mouse after 2.5s of inactivity."));
-    INSERT(UISettings, controller_applet_disabled, tr("Disable controller applet"),
-           tr("Forcibly disables the use of the controller applet in emulated programs.\n"
-              "When a program attempts to open the controller applet, it is immediately closed."));
-    INSERT(UISettings, check_for_updates, tr("Check for updates"),
-           tr("Whether or not to check for updates upon startup."));
+    INSERT(UISettings, select_user_on_boot, tr("Запрашивать профиль при запуске игры"),
+           tr("Отображает окно выбора пользователя при старте каждой игры."));
+    INSERT(UISettings, pause_when_in_background, tr("Приостанавливать при потере фокуса"),
+           tr("Ставит игру на паузу при переключении на другое окно."));
+    INSERT(UISettings, confirm_before_stopping, tr("Подтверждать остановку эмуляции"),
+           tr("Запрашивает подтверждение перед закрытием игры или эмулятора."));
+    INSERT(UISettings, hide_mouse, tr("Скрывать курсор мыши при бездействии"),
+           tr("Скрывает курсор мыши после 2.5 секунд неактивности."));
+    INSERT(UISettings, controller_applet_disabled, tr("Отключить апплет контроллеров"),
+           tr("Принудительно отключает вызов всплывающего системного апплета настройки контроллеров."));
+    INSERT(UISettings, check_for_updates, tr("Проверять наличие обновлений"),
+           tr("Проверять наличие свежих версий программы при запуске."));
 
     // Linux
-    INSERT(UISettings, enable_gamemode, tr("Enable Gamemode"), QString());
+    INSERT(UISettings, enable_gamemode, tr("Включить Gamemode"), QString());
 #ifdef __unix__
-    INSERT(UISettings, gui_force_x11, tr("Force X11 as Graphics Backend"), QString());
+    INSERT(UISettings, gui_force_x11, tr("Принудительно использовать X11"), QString());
     INSERT(UISettings, gui_hide_backend_warning, QString(), QString());
 #endif
-
-    // Ui Debugging
-
-    // Ui Multiplayer
-
-    // Ui Games list
 
 #undef INSERT
 
@@ -367,8 +305,8 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
 std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
     std::unique_ptr<ComboboxTranslationMap> translations =
         std::make_unique<ComboboxTranslationMap>();
-    const auto& tr = [&](const char* text, const char* context = "") {
-        return parent->tr(text, context);
+    const auto& tr = [](const char* text, const char* disambiguation = nullptr) -> QString {
+        return QCoreApplication::translate("ConfigurationShared", text, disambiguation);
     };
 
 #define PAIR(ENUM, VALUE, TRANSLATION) {static_cast<u32>(Settings::ENUM::VALUE), (TRANSLATION)}
@@ -376,32 +314,33 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
     // Intentionally skipping VSyncMode to let the UI fill that one out
     translations->insert({Settings::EnumMetadata<Settings::AppletMode>::Index(),
                           {
-                              PAIR(AppletMode, HLE, tr("Custom frontend")),
-                              PAIR(AppletMode, LLE, tr("Real applet")),
+                              PAIR(AppletMode, HLE, tr("Пользовательский интерфейс")),
+                              PAIR(AppletMode, LLE, tr("Системный апплет")),
                           }});
 
     translations->insert({Settings::EnumMetadata<Settings::SpirvOptimizeMode>::Index(),
                           {
-                              PAIR(SpirvOptimizeMode, Never, tr("Never")),
-                              PAIR(SpirvOptimizeMode, OnLoad, tr("On Load")),
-                              PAIR(SpirvOptimizeMode, Always, tr("Always")),
+                              PAIR(SpirvOptimizeMode, Never, tr("Никогда")),
+                              PAIR(SpirvOptimizeMode, OnLoad, tr("При загрузке")),
+                              PAIR(SpirvOptimizeMode, Always, tr("Всегда")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AstcDecodeMode>::Index(),
                           {
-                              PAIR(AstcDecodeMode, Cpu, tr("CPU")),
-                              PAIR(AstcDecodeMode, Gpu, tr("GPU")),
-                              PAIR(AstcDecodeMode, CpuAsynchronous, tr("CPU Asynchronous")),
+                              PAIR(AstcDecodeMode, Cpu, tr("ЦП")),
+                              PAIR(AstcDecodeMode, Gpu, tr("ГПУ")),
+                              PAIR(AstcDecodeMode, CpuAsynchronous, tr("ЦП Асинхронно")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::AstcRecompression>::Index(),
          {
-             PAIR(AstcRecompression, Uncompressed, tr("Uncompressed (Best quality)")),
-             PAIR(AstcRecompression, Bc1, tr("BC1 (Low quality)")),
-             PAIR(AstcRecompression, Bc3, tr("BC3 (Medium quality)")),
+             PAIR(AstcRecompression, Uncompressed, tr("Без сжатия (Лучшее качество)")),
+             PAIR(AstcRecompression, Bc1, tr("BC1 (Низкое качество)")),
+             PAIR(AstcRecompression, Bc3, tr("BC3 (Среднее качество)")),
+             PAIR(AstcRecompression, Bc5, tr("BC5 (Высокое качество)")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::FramePacingMode>::Index(),
                           {
-                              PAIR(FramePacingMode, Target_Auto, tr("Auto")),
+                              PAIR(FramePacingMode, Target_Auto, tr("Авто")),
                               PAIR(FramePacingMode, Target_30, tr("30 FPS")),
                               PAIR(FramePacingMode, Target_60, tr("60 FPS")),
                               PAIR(FramePacingMode, Target_90, tr("90 FPS")),
@@ -409,45 +348,47 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                           }});
     translations->insert({Settings::EnumMetadata<Settings::VramUsageMode>::Index(),
                           {
-                              PAIR(VramUsageMode, Conservative, tr("Conservative")),
-                              PAIR(VramUsageMode, Aggressive, tr("Aggressive")),
+                              PAIR(VramUsageMode, Conservative, tr("Экономный")),
+                              PAIR(VramUsageMode, Normal, tr("Нормальный")),
+                              PAIR(VramUsageMode, Aggressive, tr("Агрессивный")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::RendererBackend>::Index(),
          {PAIR(RendererBackend, Vulkan, tr("Vulkan")),
 #ifdef HAS_OPENGL
           PAIR(RendererBackend, OpenGL_GLSL, tr("OpenGL GLSL")),
-          PAIR(RendererBackend, OpenGL_GLASM, tr("OpenGL GLASM (Assembly Shaders, NVIDIA Only)")),
-          PAIR(RendererBackend, OpenGL_SPIRV, tr("OpenGL SPIR-V (Experimental, AMD/Mesa Only)")),
+          PAIR(RendererBackend, OpenGL_GLASM, tr("OpenGL GLASM")),
+          PAIR(RendererBackend, OpenGL_SPIRV, tr("OpenGL SPIR-V")),
 #endif
-          PAIR(RendererBackend, Null, tr("Null"))}});
+          PAIR(RendererBackend, Null, tr("Отключено"))}});
     translations->insert({Settings::EnumMetadata<Settings::GpuAccuracy>::Index(),
                           {
-                              PAIR(GpuAccuracy, Low, tr("Fast")),
-                              PAIR(GpuAccuracy, High, tr("Accurate")),
+                              PAIR(GpuAccuracy, Low, tr("Быстрый")),
+                              PAIR(GpuAccuracy, High, tr("Высокая точность")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::DmaAccuracy>::Index(),
                           {
-                              PAIR(DmaAccuracy, Default, tr("Default")),
-                              PAIR(DmaAccuracy, Unsafe, tr("Unsafe (fast)")),
-                              PAIR(DmaAccuracy, Safe, tr("Safe (stable)")),
+                              PAIR(DmaAccuracy, Default, tr("По умолчанию")),
+                              PAIR(DmaAccuracy, Normal, tr("Нормально")),
+                              PAIR(DmaAccuracy, Unsafe, tr("Небезопасно")),
+                              PAIR(DmaAccuracy, Safe, tr("Безопасно")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::GpuFenceBehavior>::Index(),
                           {
-                              PAIR(GpuFenceBehavior, Default, tr("Default")),
-                              PAIR(GpuFenceBehavior, Immediate, tr("Immediate")),
-                              PAIR(GpuFenceBehavior, Balanced, tr("Balanced")),
-                              PAIR(GpuFenceBehavior, Accurate, tr("Accurate")),
-                              PAIR(GpuFenceBehavior, Strict, tr("Strict")),
+                              PAIR(GpuFenceBehavior, Default, tr("По умолчанию")),
+                              PAIR(GpuFenceBehavior, Immediate, tr("Немедленно")),
+                              PAIR(GpuFenceBehavior, Balanced, tr("Сбалансировано")),
+                              PAIR(GpuFenceBehavior, Accurate, tr("Точно")),
+                              PAIR(GpuFenceBehavior, Strict, tr("Строго")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::CpuAccuracy>::Index(),
          {
-             PAIR(CpuAccuracy, Auto, tr("Auto")),
-             PAIR(CpuAccuracy, Accurate, tr("Accurate")),
-             PAIR(CpuAccuracy, Unsafe, tr("Unsafe")),
-             PAIR(CpuAccuracy, Paranoid, tr("Paranoid (disables most optimizations)")),
-             PAIR(CpuAccuracy, Debugging, tr("Debugging")),
+             PAIR(CpuAccuracy, Auto, tr("Авто")),
+             PAIR(CpuAccuracy, Accurate, tr("Точный")),
+             PAIR(CpuAccuracy, Unsafe, tr("Небезопасный")),
+             PAIR(CpuAccuracy, Paranoid, tr("Параноидальный")),
+             PAIR(CpuAccuracy, Debugging, tr("Отладка")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::CpuBackend>::Index(),
                           {
@@ -456,24 +397,24 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                           }});
     translations->insert({Settings::EnumMetadata<Settings::FullscreenMode>::Index(),
                           {
-                              PAIR(FullscreenMode, Borderless, tr("Borderless Windowed")),
-                              PAIR(FullscreenMode, Exclusive, tr("Exclusive Fullscreen")),
+                              PAIR(FullscreenMode, Borderless, tr("Окно без рамки")),
+                              PAIR(FullscreenMode, Exclusive, tr("Эксклюзивный полный экран")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::NvdecEmulation>::Index(),
                           {
-                              PAIR(NvdecEmulation, Off, tr("No Video Output")),
-                              PAIR(NvdecEmulation, Cpu, tr("CPU Video Decoding")),
-                              PAIR(NvdecEmulation, Gpu, tr("GPU Video Decoding (Default)")),
+                              PAIR(NvdecEmulation, Off, tr("Без видео")),
+                              PAIR(NvdecEmulation, Cpu, tr("Декодирование видео на ЦП")),
+                              PAIR(NvdecEmulation, Gpu, tr("Декодирование видео на ГПУ")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::ResolutionSetup>::Index(),
          {
-             PAIR(ResolutionSetup, Res1_4X, tr("0.25X (180p/270p) [EXPERIMENTAL]")),
-             PAIR(ResolutionSetup, Res1_2X, tr("0.5X (360p/540p) [EXPERIMENTAL]")),
-             PAIR(ResolutionSetup, Res3_4X, tr("0.75X (540p/810p) [EXPERIMENTAL]")),
+             PAIR(ResolutionSetup, Res1_4X, tr("0.25X (180p/270p)")),
+             PAIR(ResolutionSetup, Res1_2X, tr("0.5X (360p/540p)")),
+             PAIR(ResolutionSetup, Res3_4X, tr("0.75X (540p/810p)")),
              PAIR(ResolutionSetup, Res1X, tr("1X (720p/1080p)")),
-             PAIR(ResolutionSetup, Res5_4X, tr("1.25X (900p/1350p) [EXPERIMENTAL]")),
-             PAIR(ResolutionSetup, Res3_2X, tr("1.5X (1080p/1620p) [EXPERIMENTAL]")),
+             PAIR(ResolutionSetup, Res5_4X, tr("1.25X (900p/1350p)")),
+             PAIR(ResolutionSetup, Res3_2X, tr("1.5X (1080p/1620p)")),
              PAIR(ResolutionSetup, Res2X, tr("2X (1440p/2160p)")),
              PAIR(ResolutionSetup, Res3X, tr("3X (2160p/3240p)")),
              PAIR(ResolutionSetup, Res4X, tr("4X (2880p/4320p)")),
@@ -484,11 +425,11 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
          }});
     translations->insert({Settings::EnumMetadata<Settings::ScalingFilter>::Index(),
                           {
-                              PAIR(ScalingFilter, NearestNeighbor, tr("Nearest Neighbor")),
-                              PAIR(ScalingFilter, Bilinear, tr("Bilinear")),
-                              PAIR(ScalingFilter, Bicubic, tr("Bicubic")),
-                              PAIR(ScalingFilter, Gaussian, tr("Gaussian")),
-                              PAIR(ScalingFilter, Lanczos, tr("Lanczos")),
+                              PAIR(ScalingFilter, NearestNeighbor, tr("Ближайший сосед")),
+                              PAIR(ScalingFilter, Bilinear, tr("Билинейный")),
+                              PAIR(ScalingFilter, Bicubic, tr("Бикубический")),
+                              PAIR(ScalingFilter, Gaussian, tr("Гаусс")),
+                              PAIR(ScalingFilter, Lanczos, tr("Ланцош")),
                               PAIR(ScalingFilter, ScaleForce, tr("ScaleForce")),
                               PAIR(ScalingFilter, Fsr, tr("AMD FidelityFX Super Resolution")),
                               PAIR(ScalingFilter, Area, tr("Area")),
@@ -502,112 +443,112 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AntiAliasing>::Index(),
                           {
-                              PAIR(AntiAliasing, None, tr("None")),
+                              PAIR(AntiAliasing, None, tr("Отключено")),
                               PAIR(AntiAliasing, Fxaa, tr("FXAA")),
                               PAIR(AntiAliasing, Smaa, tr("SMAA")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AspectRatio>::Index(),
                           {
-                              PAIR(AspectRatio, R16_9, tr("Default (16:9)")),
-                              PAIR(AspectRatio, R4_3, tr("Force 4:3")),
-                              PAIR(AspectRatio, R21_9, tr("Force 21:9")),
-                              PAIR(AspectRatio, R16_10, tr("Force 16:10")),
-                              PAIR(AspectRatio, Stretch, tr("Stretch to Window")),
+                              PAIR(AspectRatio, R16_9, tr("16:9")),
+                              PAIR(AspectRatio, R4_3, tr("4:3")),
+                              PAIR(AspectRatio, R21_9, tr("21:9")),
+                              PAIR(AspectRatio, R16_10, tr("16:10")),
+                              PAIR(AspectRatio, Stretch, tr("Растянуть на весь экран")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AnisotropyMode>::Index(),
                           {
-                              PAIR(AnisotropyMode, Automatic, tr("Automatic")),
-                              PAIR(AnisotropyMode, Default, tr("Default")),
+                              PAIR(AnisotropyMode, Automatic, tr("Автоматически")),
+                              PAIR(AnisotropyMode, Default, tr("По умолчанию")),
                               PAIR(AnisotropyMode, X2, tr("2x")),
                               PAIR(AnisotropyMode, X4, tr("4x")),
                               PAIR(AnisotropyMode, X8, tr("8x")),
                               PAIR(AnisotropyMode, X16, tr("16x")),
                               PAIR(AnisotropyMode, X32, tr("32x")),
                               PAIR(AnisotropyMode, X64, tr("64x")),
-                              PAIR(AnisotropyMode, None, tr("None")),
+                              PAIR(AnisotropyMode, None, tr("Отключено")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::Language>::Index(),
          {
-             PAIR(Language, Japanese, tr("Japanese (日本語)")),
-             PAIR(Language, EnglishAmerican, tr("American English")),
-             PAIR(Language, French, tr("French (français)")),
-             PAIR(Language, German, tr("German (Deutsch)")),
-             PAIR(Language, Italian, tr("Italian (italiano)")),
-             PAIR(Language, Spanish, tr("Spanish (español)")),
-             PAIR(Language, Chinese, tr("Chinese")),
-             PAIR(Language, Korean, tr("Korean (한국어)")),
-             PAIR(Language, Dutch, tr("Dutch (Nederlands)")),
-             PAIR(Language, Portuguese, tr("Portuguese (português)")),
-             PAIR(Language, Russian, tr("Russian (Русский)")),
-             PAIR(Language, Taiwanese, tr("Taiwanese")),
-             PAIR(Language, EnglishBritish, tr("British English")),
-             PAIR(Language, FrenchCanadian, tr("Canadian French")),
-             PAIR(Language, SpanishLatin, tr("Latin American Spanish")),
-             PAIR(Language, ChineseSimplified, tr("Simplified Chinese")),
-             PAIR(Language, ChineseTraditional, tr("Traditional Chinese (正體中文)")),
-             PAIR(Language, PortugueseBrazilian, tr("Brazilian Portuguese (português do Brasil)")),
-             PAIR(Language, Polish, tr("Polish (polska)")),
-             PAIR(Language, Thai, tr("Thai (แบบไทย)")),
+             PAIR(Language, Japanese, tr("Японский (日本語)")),
+             PAIR(Language, EnglishAmerican, tr("Американский английский")),
+             PAIR(Language, French, tr("Французский (français)")),
+             PAIR(Language, German, tr("Немецкий (Deutsch)")),
+             PAIR(Language, Italian, tr("Итальянский (italiano)")),
+             PAIR(Language, Spanish, tr("Испанский (español)")),
+             PAIR(Language, Chinese, tr("Китайский")),
+             PAIR(Language, Korean, tr("Корейский (한국어)")),
+             PAIR(Language, Dutch, tr("Нидерландский (Nederlands)")),
+             PAIR(Language, Portuguese, tr("Португальский (português)")),
+             PAIR(Language, Russian, tr("Русский")),
+             PAIR(Language, Taiwanese, tr("Тайваньский")),
+             PAIR(Language, EnglishBritish, tr("Британский английский")),
+             PAIR(Language, FrenchCanadian, tr("Канадский французский")),
+             PAIR(Language, SpanishLatin, tr("Латиноамериканский испанский")),
+             PAIR(Language, ChineseSimplified, tr("Упрощенный китайский")),
+             PAIR(Language, ChineseTraditional, tr("Традиционный китайский (正體中文)")),
+             PAIR(Language, PortugueseBrazilian, tr("Бразильский португальский")),
+             PAIR(Language, Polish, tr("Польский (polski)")),
+             PAIR(Language, Thai, tr("Тайский (แบบไทย)")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::Region>::Index(),
                           {
-                              PAIR(Region, Japan, tr("Japan")),
-                              PAIR(Region, Usa, tr("USA")),
-                              PAIR(Region, Europe, tr("Europe")),
-                              PAIR(Region, Australia, tr("Australia")),
-                              PAIR(Region, China, tr("China")),
-                              PAIR(Region, Korea, tr("Korea")),
-                              PAIR(Region, Taiwan, tr("Taiwan")),
+                              PAIR(Region, Japan, tr("Япония")),
+                              PAIR(Region, Usa, tr("США")),
+                              PAIR(Region, Europe, tr("Европа")),
+                              PAIR(Region, Australia, tr("Австралия")),
+                              PAIR(Region, China, tr("Китай")),
+                              PAIR(Region, Korea, tr("Корея")),
+                              PAIR(Region, Taiwan, tr("Тайвань")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::TimeZone>::Index(),
          {
              {static_cast<u32>(Settings::TimeZone::Auto),
-              tr("Auto (%1)", "Auto select time zone")
+              tr("Авто (%1)", "Auto select time zone")
                   .arg(QString::fromStdString(
                       Settings::GetTimeZoneString(Settings::TimeZone::Auto)))},
              {static_cast<u32>(Settings::TimeZone::Default),
-              tr("Default (%1)", "Default time zone")
+              tr("По умолчанию (%1)", "Default time zone")
                   .arg(QString::fromStdString(Common::TimeZone::GetDefaultTimeZone()))},
              PAIR(TimeZone, Cet, tr("CET")),
              PAIR(TimeZone, Cst6Cdt, tr("CST6CDT")),
-             PAIR(TimeZone, Cuba, tr("Cuba")),
+             PAIR(TimeZone, Cuba, tr("Куба")),
              PAIR(TimeZone, Eet, tr("EET")),
-             PAIR(TimeZone, Egypt, tr("Egypt")),
-             PAIR(TimeZone, Eire, tr("Eire")),
+             PAIR(TimeZone, Egypt, tr("Египет")),
+             PAIR(TimeZone, Eire, tr("Ирландия")),
              PAIR(TimeZone, Est, tr("EST")),
              PAIR(TimeZone, Est5Edt, tr("EST5EDT")),
-             PAIR(TimeZone, Gb, tr("GB")),
-             PAIR(TimeZone, GbEire, tr("GB-Eire")),
+             PAIR(TimeZone, Gb, tr("Великобритания")),
+             PAIR(TimeZone, GbEire, tr("Великобритания-Ирландия")),
              PAIR(TimeZone, Gmt, tr("GMT")),
              PAIR(TimeZone, GmtPlusZero, tr("GMT+0")),
              PAIR(TimeZone, GmtMinusZero, tr("GMT-0")),
              PAIR(TimeZone, GmtZero, tr("GMT0")),
-             PAIR(TimeZone, Greenwich, tr("Greenwich")),
-             PAIR(TimeZone, Hongkong, tr("Hongkong")),
+             PAIR(TimeZone, Greenwich, tr("Гринвич")),
+             PAIR(TimeZone, Hongkong, tr("Гонконг")),
              PAIR(TimeZone, Hst, tr("HST")),
-             PAIR(TimeZone, Iceland, tr("Iceland")),
-             PAIR(TimeZone, Iran, tr("Iran")),
-             PAIR(TimeZone, Israel, tr("Israel")),
-             PAIR(TimeZone, Jamaica, tr("Jamaica")),
-             PAIR(TimeZone, Japan, tr("Japan")),
-             PAIR(TimeZone, Kwajalein, tr("Kwajalein")),
-             PAIR(TimeZone, Libya, tr("Libya")),
+             PAIR(TimeZone, Iceland, tr("Исландия")),
+             PAIR(TimeZone, Iran, tr("Иран")),
+             PAIR(TimeZone, Israel, tr("Израиль")),
+             PAIR(TimeZone, Jamaica, tr("Ямайка")),
+             PAIR(TimeZone, Japan, tr("Япония")),
+             PAIR(TimeZone, Kwajalein, tr("Кваджалейн")),
+             PAIR(TimeZone, Libya, tr("Ливия")),
              PAIR(TimeZone, Met, tr("MET")),
              PAIR(TimeZone, Mst, tr("MST")),
              PAIR(TimeZone, Mst7Mdt, tr("MST7MDT")),
-             PAIR(TimeZone, Navajo, tr("Navajo")),
-             PAIR(TimeZone, Nz, tr("NZ")),
-             PAIR(TimeZone, NzChat, tr("NZ-CHAT")),
-             PAIR(TimeZone, Poland, tr("Poland")),
-             PAIR(TimeZone, Portugal, tr("Portugal")),
-             PAIR(TimeZone, Prc, tr("PRC")),
+             PAIR(TimeZone, Navajo, tr("Навахо")),
+             PAIR(TimeZone, Nz, tr("Новая Зеландия")),
+             PAIR(TimeZone, NzChat, tr("Новая Зеландия (Чатэм)")),
+             PAIR(TimeZone, Poland, tr("Польша")),
+             PAIR(TimeZone, Portugal, tr("Португалия")),
+             PAIR(TimeZone, Prc, tr("КНР")),
              PAIR(TimeZone, Pst8Pdt, tr("PST8PDT")),
-             PAIR(TimeZone, Roc, tr("ROC")),
-             PAIR(TimeZone, Rok, tr("ROK")),
-             PAIR(TimeZone, Singapore, tr("Singapore")),
-             PAIR(TimeZone, Turkey, tr("Turkey")),
+             PAIR(TimeZone, Roc, tr("Тайвань (ROC)")),
+             PAIR(TimeZone, Rok, tr("Южная Корея (ROK)")),
+             PAIR(TimeZone, Singapore, tr("Сингапур")),
+             PAIR(TimeZone, Turkey, tr("Турция")),
              PAIR(TimeZone, Uct, tr("UCT")),
              PAIR(TimeZone, Universal, tr("Universal")),
              PAIR(TimeZone, Utc, tr("UTC")),
@@ -617,79 +558,79 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
          }});
     translations->insert({Settings::EnumMetadata<Settings::AudioMode>::Index(),
                           {
-                              PAIR(AudioMode, Mono, tr("Mono")),
-                              PAIR(AudioMode, Stereo, tr("Stereo")),
-                              PAIR(AudioMode, Surround, tr("Surround")),
+                              PAIR(AudioMode, Mono, tr("Моно")),
+                              PAIR(AudioMode, Stereo, tr("Стерео")),
+                              PAIR(AudioMode, Surround, tr("Объемный звук")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::MemoryLayout>::Index(),
                           {
-                              PAIR(MemoryLayout, Memory_4Gb, tr("4GB DRAM (Default)")),
-                              PAIR(MemoryLayout, Memory_6Gb, tr("6GB DRAM (Unsafe)")),
-                              PAIR(MemoryLayout, Memory_8Gb, tr("8GB DRAM")),
-                              PAIR(MemoryLayout, Memory_10Gb, tr("10GB DRAM (Unsafe)")),
-                              PAIR(MemoryLayout, Memory_12Gb, tr("12GB DRAM (Unsafe)")),
+                              PAIR(MemoryLayout, Memory_4Gb, tr("4 ГБ DRAM")),
+                              PAIR(MemoryLayout, Memory_6Gb, tr("6 ГБ DRAM")),
+                              PAIR(MemoryLayout, Memory_8Gb, tr("8 ГБ DRAM")),
+                              PAIR(MemoryLayout, Memory_10Gb, tr("10 ГБ DRAM")),
+                              PAIR(MemoryLayout, Memory_12Gb, tr("12 ГБ DRAM")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::ConsoleMode>::Index(),
                           {
-                              PAIR(ConsoleMode, Docked, tr("Docked")),
-                              PAIR(ConsoleMode, Handheld, tr("Handheld")),
+                              PAIR(ConsoleMode, Docked, tr("В док-станции")),
+                              PAIR(ConsoleMode, Handheld, tr("Портативный")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::CpuClock>::Index(),
                           {
-                              PAIR(CpuClock, Normal, tr("Normal")),
-                              PAIR(CpuClock, Boost, tr("Boost")),
-                              PAIR(CpuClock, Overclock, tr("Overclock")),
+                              PAIR(CpuClock, Normal, tr("Стандартный")),
+                              PAIR(CpuClock, Boost, tr("Ускоренный")),
+                              PAIR(CpuClock, Overclock, tr("Разгон")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::ConfirmStop>::Index(),
          {
-             PAIR(ConfirmStop, Ask_Always, tr("Always ask (Default)")),
-             PAIR(ConfirmStop, Ask_Based_On_Game, tr("Only if game specifies not to stop")),
-             PAIR(ConfirmStop, Ask_Never, tr("Never ask")),
+             PAIR(ConfirmStop, Ask_Always, tr("Всегда спрашивать")),
+             PAIR(ConfirmStop, Ask_Based_On_Game, tr("Только если игра требует подтверждения")),
+             PAIR(ConfirmStop, Ask_Never, tr("Никогда не спрашивать")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::GpuClock>::Index(),
                           {
-                              PAIR(GpuClock, Normal, tr("Normal")),
-                              PAIR(GpuClock, Boost, tr("Boost")),
-                              PAIR(GpuClock, Overclock, tr("Overclock")),
+                              PAIR(GpuClock, Normal, tr("Стандартный")),
+                              PAIR(GpuClock, Boost, tr("Ускоренный")),
+                              PAIR(GpuClock, Overclock, tr("Разгон")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::GpuUnswizzleSize>::Index(),
                           {
-                              PAIR(GpuUnswizzleSize, VerySmall, tr("Very Small (16 MB)")),
-                              PAIR(GpuUnswizzleSize, Small, tr("Small (32 MB)")),
-                              PAIR(GpuUnswizzleSize, Normal, tr("Normal (128 MB)")),
-                              PAIR(GpuUnswizzleSize, Large, tr("Large (256 MB)")),
-                              PAIR(GpuUnswizzleSize, VeryLarge, tr("Very Large (512 MB)")),
+                              PAIR(GpuUnswizzleSize, VerySmall, tr("Очень маленький (16 МБ)")),
+                              PAIR(GpuUnswizzleSize, Small, tr("Маленький (32 МБ)")),
+                              PAIR(GpuUnswizzleSize, Normal, tr("Стандартный (128 МБ)")),
+                              PAIR(GpuUnswizzleSize, Large, tr("Большой (256 МБ)")),
+                              PAIR(GpuUnswizzleSize, VeryLarge, tr("Очень большой (512 МБ)")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::GpuUnswizzle>::Index(),
                           {
-                              PAIR(GpuUnswizzle, VeryLow, tr("Very Low (4 MB)")),
-                              PAIR(GpuUnswizzle, Low, tr("Low (8 MB)")),
-                              PAIR(GpuUnswizzle, Normal, tr("Normal (16 MB)")),
-                              PAIR(GpuUnswizzle, Medium, tr("Medium (32 MB)")),
-                              PAIR(GpuUnswizzle, High, tr("High (64 MB)")),
+                              PAIR(GpuUnswizzle, VeryLow, tr("Очень низкий (4 МБ)")),
+                              PAIR(GpuUnswizzle, Low, tr("Низкий (8 МБ)")),
+                              PAIR(GpuUnswizzle, Normal, tr("Стандартный (16 МБ)")),
+                              PAIR(GpuUnswizzle, Medium, tr("Средний (32 МБ)")),
+                              PAIR(GpuUnswizzle, High, tr("Высокий (64 МБ)")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::GpuUnswizzleChunk>::Index(),
                           {
-                              PAIR(GpuUnswizzleChunk, VeryLow, tr("Very Low (32)")),
-                              PAIR(GpuUnswizzleChunk, Low, tr("Low (64)")),
-                              PAIR(GpuUnswizzleChunk, Normal, tr("Normal (128)")),
-                              PAIR(GpuUnswizzleChunk, Medium, tr("Medium (256)")),
-                              PAIR(GpuUnswizzleChunk, High, tr("High (512)")),
+                              PAIR(GpuUnswizzleChunk, VeryLow, tr("Очень низкий (32)")),
+                              PAIR(GpuUnswizzleChunk, Low, tr("Низкий (64)")),
+                              PAIR(GpuUnswizzleChunk, Normal, tr("Стандартный (128)")),
+                              PAIR(GpuUnswizzleChunk, Medium, tr("Средний (256)")),
+                              PAIR(GpuUnswizzleChunk, High, tr("Высокий (512)")),
                           }});
 
     translations->insert({Settings::EnumMetadata<Settings::ExtendedDynamicState>::Index(),
                           {
-                              PAIR(ExtendedDynamicState, Disabled, tr("Disabled")),
-                              PAIR(ExtendedDynamicState, EDS1, tr("ExtendedDynamicState 1")),
-                              PAIR(ExtendedDynamicState, EDS2, tr("ExtendedDynamicState 2")),
-                              PAIR(ExtendedDynamicState, EDS3, tr("ExtendedDynamicState 3")),
+                              PAIR(ExtendedDynamicState, Disabled, tr("Отключено")),
+                              PAIR(ExtendedDynamicState, EDS1, tr("EDS 1")),
+                              PAIR(ExtendedDynamicState, EDS2, tr("EDS 2")),
+                              PAIR(ExtendedDynamicState, EDS3, tr("EDS 3")),
                           }});
 
     translations->insert({Settings::EnumMetadata<Settings::GameListMode>::Index(),
                           {
-                              PAIR(GameListMode, TreeView, tr("Tree View")),
-                              PAIR(GameListMode, GridView, tr("Grid View")),
+                              PAIR(GameListMode, TreeView, tr("Дерево")),
+                              PAIR(GameListMode, GridView, tr("Сетка")),
                           }});
 
 #undef PAIR

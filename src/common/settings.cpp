@@ -136,7 +136,7 @@ void LogSettings() {
     std::string settings_str{};
     for (auto const& e : settings_list)
         settings_str += e;
-    LOG_INFO(Config, "Eden Configuration:\n{}", settings_str);
+    LOG_INFO(Config, "STORM EDEN Configuration:\n{}", settings_str);
 #define LOG_PATH(NAME) \
     LOG_INFO(Config, #NAME ": {}", Common::FS::PathToUTF8String(Common::FS::GetEdenPath(Common::FS::EdenPath::NAME)))
     LOG_PATH(CacheDir);
@@ -162,6 +162,10 @@ bool IsGPULevelHigh() {
 
 bool IsDMALevelDefault() {
     return values.dma_accuracy.GetValue() == DmaAccuracy::Default;
+}
+
+bool IsDMALevelNormal() {
+    return values.dma_accuracy.GetValue() == DmaAccuracy::Normal;
 }
 
 bool IsDMALevelSafe() {

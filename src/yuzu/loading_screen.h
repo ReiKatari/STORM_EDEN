@@ -42,6 +42,10 @@ public:
 
     ~LoadingScreen();
 
+    /// Sets detailed game metadata and cover art to display on the loading card
+    void SetGameInfo(const QString& name, const QString& version, const QString& dev,
+                     u64 title_id, const QPixmap& icon, const QString& format = QString{});
+
     /// Call before showing the loading screen to load the widgets with the logo and banner for the
     /// currently loaded application.
     void Prepare(Loader::AppLoader& loader);
@@ -55,6 +59,9 @@ public:
 
     /// Hides the LoadingScreen with a fade out effect
     void OnLoadComplete();
+
+    /// Displays the stylized shutdown screen while emulation is terminating
+    void ShowShutdownState();
 
     // In order to use a custom widget with a stylesheet, you need to override the paintEvent
     // See https://wiki.qt.io/How_to_Change_the_Background_Color_of_QWidget

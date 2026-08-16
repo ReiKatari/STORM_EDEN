@@ -66,6 +66,7 @@ SystemSettings DefaultSystemSettings() {
         std::find_if(language_to_layout.cbegin(), language_to_layout.cend(),
                      [=](const auto& element) { return element.first == language_code; });
 
+    settings.language_code = language_code;
     settings.keyboard_layout = KeyboardLayout::EnglishUs;
     if (key_code != language_to_layout.end()) {
         settings.keyboard_layout = key_code->second;

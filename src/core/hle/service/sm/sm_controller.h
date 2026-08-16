@@ -16,7 +16,6 @@ public:
     explicit Controller(Core::System& system_);
     ~Controller() override;
 
-private:
     void ConvertCurrentObjectToDomain(HLERequestContext& ctx);
     void CloneCurrentObject(HLERequestContext& ctx);
     void CloneCurrentObjectEx(HLERequestContext& ctx);

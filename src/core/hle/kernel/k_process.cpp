@@ -929,6 +929,10 @@ Result KProcess::Run(KernelCore& kernel, s32 priority, size_t stack_size) {
     ASSERT(m_main_thread_stack_size == 0);
 
     // Ensure that we're allocating a valid stack.
+    if (stack_size == 0) {
+        stack_size = Core::Memory::DEFAULT_STACK_SIZE;
+    }
+    stack_size = std::max<size_t>(stack_size, Core::Memory::DEFAULT_STACK_SIZE);
     stack_size = Common::AlignUp(stack_size, PageSize);
     R_UNLESS(stack_size + m_code_size <= m_max_process_memory, ResultOutOfMemory);
     R_UNLESS(stack_size + m_code_size >= m_code_size, ResultOutOfMemory);

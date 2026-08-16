@@ -954,10 +954,13 @@ void ConvertImage(std::span<const u8> input, const ImageInfo& info, std::span<u8
                              BytesPerBlock(PixelFormat::A8B8G8R8_UNORM);
         } else if (astc) {
             // BC1 uses 0.5 bytes per texel
-            // BC3 uses 1 byte per texel
-            const auto compress = recompression_setting == Settings::AstcRecompression::Bc1
-                                      ? Tegra::Texture::BCN::CompressBC1
-                                      : Tegra::Texture::BCN::CompressBC3;
+            // BC3 and BC5 use 1 byte per texel
+            auto compress = Tegra::Texture::BCN::CompressBC3;
+            if (recompression_setting == Settings::AstcRecompression::Bc1) {
+                compress = Tegra::Texture::BCN::CompressBC1;
+            } else if (recompression_setting == Settings::AstcRecompression::Bc5) {
+                compress = Tegra::Texture::BCN::CompressBC5;
+            }
             const auto bpp_div = recompression_setting == Settings::AstcRecompression::Bc1 ? 2 : 1;
 
             const u32 plane_dim = copy.image_extent.width * copy.image_extent.height;

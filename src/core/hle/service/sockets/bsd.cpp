@@ -498,13 +498,15 @@ void BSD::ExecuteWork(HLERequestContext& ctx, Work work) {
 std::pair<s32, Errno> BSD::SocketImpl(Domain domain, Type type, Protocol protocol) {
 
     if (type == Type::SEQPACKET) {
-        UNIMPLEMENTED_MSG("SOCK_SEQPACKET errno management");
+        LOG_WARNING(Service, "SOCK_SEQPACKET errno management");
     } else if (type == Type::RAW && (domain != Domain::INET || protocol != Protocol::ICMP)) {
-        UNIMPLEMENTED_MSG("SOCK_RAW errno management");
+        LOG_WARNING(Service, "SOCK_RAW errno management");
     }
 
     [[maybe_unused]] const bool unk_flag = (static_cast<u32>(type) & 0x20000000) != 0;
-    UNIMPLEMENTED_IF_MSG(unk_flag, "Unknown flag in type");
+    if (unk_flag) {
+        LOG_WARNING(Service, "Unknown flag in type");
+    }
     type = static_cast<Type>(static_cast<u32>(type) & ~0x20000000);
 
     const s32 fd = FindFreeFileDescriptorHandle();

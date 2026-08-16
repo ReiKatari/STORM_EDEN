@@ -351,6 +351,12 @@ ISystemSettingsServer::ISystemSettingsServer(Core::System& system_)
     const auto lang_idx = static_cast<std::size_t>(::Settings::values.language_index.GetValue());
     if (lang_idx < available_language_codes.size()) {
         m_system_settings.language_code = available_language_codes[lang_idx];
+        const auto key_code =
+            std::find_if(language_to_layout.cbegin(), language_to_layout.cend(),
+                         [=](const auto& element) { return element.first == m_system_settings.language_code; });
+        if (key_code != language_to_layout.cend()) {
+            m_system_settings.keyboard_layout = key_code->second;
+        }
     }
 
     m_system_settings.region_code =

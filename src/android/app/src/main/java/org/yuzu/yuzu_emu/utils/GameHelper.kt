@@ -107,7 +107,7 @@ object GameHelper {
 
     // File extensions considered as external content, buuut should
     // be done better imo.
-    private val externalContentExtensions = setOf("nsp", "xci")
+    private val externalContentExtensions = setOf("nsp", "xci", "nsz", "xcz")
 
     private fun scanContentContainersRecursive(
         files: Array<MinimalDocumentFile>,
@@ -144,6 +144,22 @@ object GameHelper {
             return
         }
 
+        // Pass 1: Mount all containers first so PatchManager can find all updates/DLCs immediately
+        files.forEach {
+            if (it.isDirectory) {
+                // Directories will be processed recursively below
+            } else {
+                val extension = FileUtil.getExtension(it.uri).lowercase()
+                val filePath = it.uri.toString()
+
+                if (externalContentExtensions.contains(extension) &&
+                    mountedContainerUris.add(filePath)) {
+                    NativeLibrary.addGameFolderFileToFilesystemProvider(filePath)
+                }
+            }
+        }
+
+        // Pass 2: Load games with all patches/updates already mounted
         files.forEach {
             if (it.isDirectory) {
                 addGamesRecursive(
@@ -154,13 +170,6 @@ object GameHelper {
                 )
             } else {
                 val extension = FileUtil.getExtension(it.uri).lowercase()
-                val filePath = it.uri.toString()
-
-                if (externalContentExtensions.contains(extension) &&
-                    mountedContainerUris.add(filePath)) {
-                    NativeLibrary.addGameFolderFileToFilesystemProvider(filePath)
-                }
-
                 if (Game.extensions.contains(extension)) {
                     val game = getGame(it.uri, true, false)
                     if (game != null) {
@@ -251,26 +260,31 @@ object GameHelper {
             NativeLibrary.addFileToFilesystemProvider(filePath)
         }
 
-        var name = GameMetadata.getTitle(filePath)
+        val filename = FileUtil.getFilename(uri)
+        var name = if (filename.isNotEmpty()) filename else GameMetadata.getTitle(filePath)
 
-        // If the game's title field is empty, use the filename.
-        if (name.isEmpty()) {
-            name = FileUtil.getFilename(uri)
-        }
         var programId = GameMetadata.getProgramId(filePath)
 
         // If the game's ID field is empty, use the filename without extension.
         if (programId.isEmpty()) {
-            programId = name.substring(0, name.lastIndexOf("."))
+            programId = if (name.contains(".")) name.substring(0, name.lastIndexOf(".")) else name
         }
+
+        val rawVersion = GameMetadata.getVersion(filePath, false)
+        val cleanVersion = rawVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "1.0.0" }
+        val rawInternalVersion = GameMetadata.getInternalVersion(filePath)
+        val cleanInternalVersion = rawInternalVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "0" }
+        val addonCount = GameMetadata.getAddonCount(filePath)
 
         val newGame = Game(
             name,
             filePath,
             programId,
             GameMetadata.getDeveloper(filePath),
-            GameMetadata.getVersion(filePath, false),
-            GameMetadata.getIsHomebrew(filePath)
+            cleanVersion,
+            cleanInternalVersion,
+            GameMetadata.getIsHomebrew(filePath),
+            addonCount
         )
 
         if (addedToLibrary) {

@@ -80,12 +80,22 @@ public:
     PathManagerImpl(PathManagerImpl&&) = delete;
     PathManagerImpl& operator=(PathManagerImpl&&) = delete;
 
-    [[nodiscard]] const fs::path& GetEdenPathImpl(EdenPath eden_path) {
-        return eden_paths.at(eden_path);
+    [[nodiscard]] const fs::path& GetEdenPathImpl(EdenPath eden_path) const {
+        auto it = eden_paths.find(eden_path);
+        if (it != eden_paths.end()) {
+            return it->second;
+        }
+        static const fs::path s_empty_path{};
+        return s_empty_path;
     }
 
-    [[nodiscard]] const fs::path& GetLegacyPathImpl(EmuPath legacy_path) {
-        return legacy_paths.at(legacy_path);
+    [[nodiscard]] const fs::path& GetLegacyPathImpl(EmuPath legacy_path) const {
+        auto it = legacy_paths.find(legacy_path);
+        if (it != legacy_paths.end()) {
+            return it->second;
+        }
+        static const fs::path s_empty_path{};
+        return s_empty_path;
     }
 
     void CreateEdenPaths() {
@@ -127,9 +137,20 @@ public:
         LEGACY_PATH(Suyu, SUYU)
 #undef LEGACY_PATH
 #elif __ANDROID__
-        ASSERT(!eden_path.empty());
+        if (eden_path.empty()) {
+            eden_path = "/data/user/0/dev.eden.eden_emulator/files";
+        }
         eden_path_cache = eden_path / CACHE_DIR;
         eden_path_config = eden_path / CONFIG_DIR;
+        const auto parent = eden_path.parent_path();
+#define LEGACY_PATH(titleName, upperName) GenerateLegacyPath(EmuPath::titleName##Dir, parent / upperName##_DIR); \
+        GenerateLegacyPath(EmuPath::titleName##ConfigDir, parent / upperName##_DIR / CONFIG_DIR); \
+        GenerateLegacyPath(EmuPath::titleName##CacheDir, parent / upperName##_DIR / CACHE_DIR);
+        LEGACY_PATH(Citron, CITRON)
+        LEGACY_PATH(Sudachi, SUDACHI)
+        LEGACY_PATH(Yuzu, YUZU)
+        LEGACY_PATH(Suyu, SUYU)
+#undef LEGACY_PATH
 #else
         eden_path = GetCurrentDir() / PORTABLE_DIR;
         if (!Exists(eden_path) || !IsDir(eden_path)) {
@@ -171,6 +192,8 @@ public:
         GenerateEdenPath(EdenPath::ShaderDir, eden_path_cache / SHADER_DIR);
 #ifdef _WIN32
         GenerateLegacyPath(EmuPath::RyujinxDir, GetAppDataRoamingDirectory() / RYUJINX_DIR);
+#elif __ANDROID__
+        GenerateLegacyPath(EmuPath::RyujinxDir, eden_path.parent_path() / RYUJINX_DIR);
 #else
         // In Ryujinx's infinite wisdom, it places EVERYTHING in the config directory on UNIX
         // This is incredibly stupid and violates a million XDG standards, but whatever

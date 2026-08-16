@@ -12,9 +12,7 @@
 #include "common/hex_util.h"
 #include "common/logging.h"
 #include "common/settings.h"
-#ifndef _WIN32
 #include "common/string_util.h"
-#endif
 
 #include "core/core.h"
 #include "core/file_sys/common_funcs.h"
@@ -939,6 +937,14 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
                 if (layeredfs)
                     AppendCommaIfNotEmpty(types, "LayeredExeFS");
             }
+            if (Common::ToLower(mod->GetName()) == "romfs" || Common::ToLower(mod->GetName()) == "romfslite") {
+                AppendCommaIfNotEmpty(types, "LayeredFS");
+            } else if (Common::ToLower(mod->GetName()) == "exefs") {
+                AppendCommaIfNotEmpty(types, "LayeredExeFS");
+            } else if (Common::ToLower(mod->GetName()) == "cheats") {
+                AppendCommaIfNotEmpty(types, "Cheats");
+            }
+
             if (IsDirValidAndNonEmpty(FindSubdirectoryCaseless(mod, "romfs")) ||
                 IsDirValidAndNonEmpty(FindSubdirectoryCaseless(mod, "romfslite")))
                 AppendCommaIfNotEmpty(types, "LayeredFS");

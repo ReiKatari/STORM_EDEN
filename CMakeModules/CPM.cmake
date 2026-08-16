@@ -29,7 +29,7 @@
   SOFTWARE.
 ]]
 
-cmake_minimum_required(VERSION 3.31 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 # Initialize logging prefix
 if(NOT CPM_INDENT)
@@ -44,28 +44,30 @@ endif()
 set_property(GLOBAL PROPERTY CPM_INITIALIZED TRUE)
 
 macro(cpm_set_policies)
-  # the policy allows us to change options without caching
-  cmake_policy(SET CMP0077 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
-  # the policy allows us to change set(CACHE) without caching
-  cmake_policy(SET CMP0126 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
-
-  # The policy uses the download time for timestamp,
-  # instead of the timestamp in the archive. This
-  # allows for proper rebuilds when a projects url changes
-  cmake_policy(SET CMP0135 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
-
-  # treat relative git repository paths as
-  # being relative to the parent project's remote
-  cmake_policy(SET CMP0150 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0150 NEW)
-
-  # Disable sub-build nonsense
-  cmake_policy(SET CMP0168 NEW)
-  set(CMAKE_POLICY_DEFAULT_CMP0168 NEW)
+  if (POLICY CMP0077)
+    cmake_policy(SET CMP0077 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+  endif()
+  if (POLICY CMP0126)
+    cmake_policy(SET CMP0126 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0126 NEW)
+  endif()
+  if (POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+  endif()
+  if (POLICY CMP0140)
+    cmake_policy(SET CMP0140 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0140 NEW)
+  endif()
+  if (POLICY CMP0150)
+    cmake_policy(SET CMP0150 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0150 NEW)
+  endif()
+  if (POLICY CMP0168)
+    cmake_policy(SET CMP0168 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0168 NEW)
+  endif()
 endmacro()
 
 cpm_set_policies()

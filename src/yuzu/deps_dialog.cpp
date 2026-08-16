@@ -15,18 +15,49 @@
 DepsDialog::DepsDialog(QWidget* parent) : QDialog(parent), ui{std::make_unique<Ui::DepsDialog>()} {
     ui->setupUi(this);
 
-    constexpr int rows = (int)Common::dep_hashes.size();
-    ui->tableDeps->setRowCount(rows);
+    struct ProjectEntry {
+        QString name;
+        QString url;
+        QString desc;
+    };
+
+    const std::vector<ProjectEntry> acknowledgements = {
+        {QStringLiteral("Eden Emulator Project & Camille LaVey"), QStringLiteral("https://git.eden-emu.dev/eden-emu/eden"), QStringLiteral("Базовый форк эмулятора Switch")},
+        {QStringLiteral("Yuzu Emulator Team"), QStringLiteral("https://yuzu-emu.org"), QStringLiteral("Архитектура ядра эмуляции Switch")},
+        {QStringLiteral("Ryujinx Team"), QStringLiteral("https://ryujinx.org"), QStringLiteral("Исследования FS и Horizon OS")},
+        {QStringLiteral("Sudachi & Citron Projects"), QStringLiteral("https://github.com/sudachi-emu"), QStringLiteral("Оптимизации производительности")},
+        {QStringLiteral("Tinfoil & Blawar"), QStringLiteral("https://tinfoil.io"), QStringLiteral("Формат NSZ/NCZ и база TitleDB")},
+        {QStringLiteral("Zstandard (zstd) / Yann Collet"), QStringLiteral("https://github.com/facebook/zstd"), QStringLiteral("Библиотека сжатия ZSTD (Meta)")},
+        {QStringLiteral("FFmpeg Project"), QStringLiteral("https://ffmpeg.org"), QStringLiteral("Декодер NVDEC видео/аудио")},
+        {QStringLiteral("Dynarmic (MerryMage)"), QStringLiteral("https://github.com/merryhime/dynarmic"), QStringLiteral("JIT-рекомпилятор ARMv8")},
+        {QStringLiteral("Mozilla Cubeb"), QStringLiteral("https://github.com/mozilla/cubeb"), QStringLiteral("Кросс-платформенный звук")},
+        {QStringLiteral("Qt Project & The Qt Company"), QStringLiteral("https://www.qt.io"), QStringLiteral("Графический интерфейс Qt6")},
+        {QStringLiteral("Vulkan SDK & LunarG"), QStringLiteral("https://vulkan.lunarg.com"), QStringLiteral("Графический API Vulkan")},
+    };
+
+    const int total_rows = static_cast<int>(acknowledgements.size() + Common::dep_hashes.size());
+    ui->tableDeps->setRowCount(total_rows);
 
     QStringList labels;
-    labels << tr("Dependency") << tr("Version");
+    labels << tr("Проект / Зависимость") << tr("Назначение / Версия");
 
     ui->tableDeps->setHorizontalHeaderLabels(labels);
     ui->tableDeps->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-    ui->tableDeps->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Fixed);
-    ui->tableDeps->horizontalHeader()->setMinimumSectionSize(200);
+    ui->tableDeps->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Interactive);
+    ui->tableDeps->horizontalHeader()->setMinimumSectionSize(220);
 
-    for (int i = 0; i < rows; ++i) {
+    int row = 0;
+    for (const auto& ack : acknowledgements) {
+        std::string link = fmt::format("<a href=\"{}\"><b>{}</b></a>", ack.url.toStdString(), ack.name.toStdString());
+        QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(link));
+        QTableWidgetItem* descItem = new QTableWidgetItem(ack.desc);
+
+        ui->tableDeps->setItem(row, 0, nameItem);
+        ui->tableDeps->setItem(row, 1, descItem);
+        row++;
+    }
+
+    for (std::size_t i = 0; i < Common::dep_hashes.size(); ++i) {
         const std::string name = Common::dep_names.at(i);
         const std::string sha = Common::dep_hashes.at(i);
         const std::string url = Common::dep_urls.at(i);
@@ -36,8 +67,9 @@ DepsDialog::DepsDialog(QWidget* parent) : QDialog(parent), ui{std::make_unique<U
         QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(dependency));
         QTableWidgetItem* shaItem = new QTableWidgetItem(QString::fromStdString(sha));
 
-        ui->tableDeps->setItem(i, 0, nameItem);
-        ui->tableDeps->setItem(i, 1, shaItem);
+        ui->tableDeps->setItem(row, 0, nameItem);
+        ui->tableDeps->setItem(row, 1, shaItem);
+        row++;
     }
 
     ui->tableDeps->setItemDelegateForColumn(0, new LinkItemDelegate(this));

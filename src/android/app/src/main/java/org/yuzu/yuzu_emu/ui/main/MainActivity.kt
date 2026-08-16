@@ -73,16 +73,31 @@ class MainActivity : AppCompatActivity(), ThemeProvider {
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(YuzuApplication.applyLanguage(base))
+        CrashHandler.install(base)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { !DirectoryInitialization.areDirectoriesReady }
+        try {
+            val splashScreen = installSplashScreen()
+            splashScreen.setKeepOnScreenCondition { !DirectoryInitialization.areDirectoriesReady }
+        } catch (t: Throwable) {
+            CrashHandler.logError(this, "MainActivity.installSplashScreen", t)
+        }
 
-        ThemeHelper.ThemeChangeListener(this)
-        ThemeHelper.setTheme(this)
+        try {
+            ThemeHelper.ThemeChangeListener(this)
+            ThemeHelper.setTheme(this)
+        } catch (t: Throwable) {
+            CrashHandler.logError(this, "MainActivity.ThemeHelper", t)
+        }
+
         super.onCreate(savedInstanceState)
-        NativeLibrary.initMultiplayer()
+
+        try {
+            NativeLibrary.initMultiplayer()
+        } catch (t: Throwable) {
+            CrashHandler.logError(this, "MainActivity.initMultiplayer", t)
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 

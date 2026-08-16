@@ -171,16 +171,17 @@ void ConfigureDialog::HandleApplyButtonClicked() {
 Q_DECLARE_METATYPE(QList<QWidget*>);
 
 void ConfigureDialog::PopulateSelectionList() {
-    const std::array<std::pair<QString, QList<QWidget*>>, 6> items{
+    const std::array<std::pair<QString, QList<QWidget*>>, 7> items{
         {{tr("General"),
           {general_tab.get(), hotkeys_tab.get(), ui_tab.get(), web_tab.get(), debug_tab_tab.get()}},
          {tr("System"),
-          {system_tab.get(), profile_tab.get(), network_tab.get(), filesystem_tab.get(),
+          {system_tab.get(), profile_tab.get(), filesystem_tab.get(),
            applets_tab.get()}},
          {tr("ЦП"), {cpu_tab.get()}},
          {tr("Graphics"),
           {graphics_tab.get(), graphics_advanced_tab.get(), graphics_extensions_tab.get()}},
          {tr("Audio"), {audio_tab.get()}},
+         {tr("Network"), {network_tab.get()}},
          {tr("Controls"), input_tab->GetSubTabs()}},
     };
 

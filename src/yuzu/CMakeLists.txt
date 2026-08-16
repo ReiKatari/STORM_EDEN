@@ -19,6 +19,8 @@ add_executable(yuzu
     about_dialog.cpp
     about_dialog.h
     aboutdialog.ui
+    amiibo_browser_dialog.cpp
+    amiibo_browser_dialog.h
     applets/qt_amiibo_settings.cpp
     applets/qt_amiibo_settings.h
     applets/qt_amiibo_settings.ui
@@ -107,6 +109,8 @@ add_executable(yuzu
     configuration/configure_motion_touch.cpp
     configuration/configure_motion_touch.h
     configuration/configure_motion_touch.ui
+    configuration/configure_gamebanana_mods.cpp
+    configuration/configure_gamebanana_mods.h
     configuration/configure_per_game.cpp
     configuration/configure_per_game.h
     configuration/configure_per_game.ui

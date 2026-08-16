@@ -156,16 +156,38 @@ class GameAdapter(private val activity: AppCompatActivity) :
             }
         }
 
+        private fun formatVersion(model: Game): String {
+            val v = model.version.trim().removePrefix("v").removePrefix("V")
+            return if (v.isNotEmpty()) v else "1.0.0"
+        }
+
+        private fun formatInternalVersion(model: Game): String {
+            val iv = model.internalVersion.trim().removePrefix("v").removePrefix("V")
+            return if (iv.isNotEmpty()) iv else "0"
+        }
+
+        private fun formatAddons(model: Game): String {
+            return "Дополнений: ${model.addonCount}"
+        }
+
         private fun bindListView(model: Game) {
             val listBinding = binding as CardGameListBinding
 
             listBinding.imageGameScreen.scaleType = ImageView.ScaleType.CENTER_CROP
             GameIconUtils.loadGameIcon(model, listBinding.imageGameScreen)
 
+            listBinding.badgeGameExtension.text = model.extension
             listBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
-            listBinding.textGameDeveloper.text = model.developer
+            val devText = if (model.developer.isNotEmpty()) {
+                "${model.developer} • ${model.programIdHex}"
+            } else {
+                model.programIdHex
+            }
+            listBinding.textGameDeveloper.text = devText
+            listBinding.badgeGameVersion.text = formatVersion(model)
+            listBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
+            listBinding.textGameAddons.text = formatAddons(model)
 
-            listBinding.textGameTitle.marquee()
             listBinding.cardGameList.setOnClickListener { onClick(model) }
             listBinding.cardGameList.setOnLongClickListener { onLongClick(model) }
 
@@ -180,7 +202,11 @@ class GameAdapter(private val activity: AppCompatActivity) :
             gridBinding.imageGameScreen.scaleType = ImageView.ScaleType.CENTER_CROP
             GameIconUtils.loadGameIcon(model, gridBinding.imageGameScreen)
 
+            gridBinding.badgeGameExtension.text = model.extension
             gridBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
+            gridBinding.badgeGameVersion.text = formatVersion(model)
+            gridBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
+            gridBinding.textGameAddons.text = formatAddons(model)
 
             gridBinding.textGameTitle.marquee()
             gridBinding.cardGameGrid.setOnClickListener { onClick(model) }
@@ -197,7 +223,11 @@ class GameAdapter(private val activity: AppCompatActivity) :
             gridCompactBinding.imageGameScreenCompact.scaleType = ImageView.ScaleType.CENTER_CROP
             GameIconUtils.loadGameIcon(model, gridCompactBinding.imageGameScreenCompact)
 
+            gridCompactBinding.badgeGameExtension.text = model.extension
             gridCompactBinding.textGameTitleCompact.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
+            gridCompactBinding.badgeGameVersion.text = formatVersion(model)
+            gridCompactBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
+            gridCompactBinding.textGameAddonsCompact.text = formatAddons(model)
 
             gridCompactBinding.textGameTitleCompact.marquee()
             gridCompactBinding.cardGameGridCompact.setOnClickListener { onClick(model) }

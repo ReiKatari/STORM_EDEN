@@ -28,54 +28,45 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent);
 std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent);
 
 static const std::map<Settings::AntiAliasing, QString> anti_aliasing_texts_map = {
-    {Settings::AntiAliasing::None, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "None"))},
-    {Settings::AntiAliasing::Fxaa, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "FXAA"))},
-    {Settings::AntiAliasing::Smaa, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "SMAA"))},
+    {Settings::AntiAliasing::None, QStringLiteral("Отключено")},
+    {Settings::AntiAliasing::Fxaa, QStringLiteral("FXAA")},
+    {Settings::AntiAliasing::Smaa, QStringLiteral("SMAA")},
 };
 
 static const std::map<Settings::ScalingFilter, QString> scaling_filter_texts_map = {
-    {Settings::ScalingFilter::NearestNeighbor,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Nearest"))},
-    {Settings::ScalingFilter::Bilinear,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Bilinear"))},
-    {Settings::ScalingFilter::Bicubic, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Bicubic"))},
-    {Settings::ScalingFilter::ZeroTangent,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Zero-Tangent"))},
-    {Settings::ScalingFilter::BSpline, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "B-Spline"))},
-    {Settings::ScalingFilter::Mitchell,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Mitchell"))},
-    {Settings::ScalingFilter::Spline1, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Spline-1"))},
-    {Settings::ScalingFilter::Gaussian,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Gaussian"))},
-    {Settings::ScalingFilter::Lanczos, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Lanczos"))},
-    {Settings::ScalingFilter::ScaleForce,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "ScaleForce"))},
-    {Settings::ScalingFilter::Fsr, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "FSR"))},
-    {Settings::ScalingFilter::Area, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Area"))},
-    {Settings::ScalingFilter::Mmpx, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "MMPX"))},
-    {Settings::ScalingFilter::Sgsr, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "SGSR"))},
-    {Settings::ScalingFilter::SgsrEdge, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "SGSR EdgeDir"))},
+    {Settings::ScalingFilter::NearestNeighbor, QStringLiteral("Ближайший сосед")},
+    {Settings::ScalingFilter::Bilinear, QStringLiteral("Билинейный")},
+    {Settings::ScalingFilter::Bicubic, QStringLiteral("Бикубический")},
+    {Settings::ScalingFilter::Gaussian, QStringLiteral("Гаусс")},
+    {Settings::ScalingFilter::Lanczos, QStringLiteral("Ланцош")},
+    {Settings::ScalingFilter::ScaleForce, QStringLiteral("ScaleForce")},
+    {Settings::ScalingFilter::Fsr, QStringLiteral("FSR")},
+    {Settings::ScalingFilter::Area, QStringLiteral("Area")},
+    {Settings::ScalingFilter::Mmpx, QStringLiteral("MMPX")},
+    {Settings::ScalingFilter::ZeroTangent, QStringLiteral("Zero-Tangent")},
+    {Settings::ScalingFilter::BSpline, QStringLiteral("B-Spline")},
+    {Settings::ScalingFilter::Mitchell, QStringLiteral("Mitchell")},
+    {Settings::ScalingFilter::Spline1, QStringLiteral("Spline-1")},
+    {Settings::ScalingFilter::Sgsr, QStringLiteral("SGSR")},
+    {Settings::ScalingFilter::SgsrEdge, QStringLiteral("SGSR EdgeDir")},
 };
 
 static const std::map<Settings::ConsoleMode, QString> use_docked_mode_texts_map = {
-    {Settings::ConsoleMode::Docked, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "В док-станции"))},
-    {Settings::ConsoleMode::Handheld, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Портативный"))},
+    {Settings::ConsoleMode::Docked, QStringLiteral("В док-станции")},
+    {Settings::ConsoleMode::Handheld, QStringLiteral("Портативный")},
 };
 
 static const std::map<Settings::GpuAccuracy, QString> gpu_accuracy_texts_map = {
-    {Settings::GpuAccuracy::Low, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Fast"))},
-    {Settings::GpuAccuracy::High, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Accurate"))},
+    {Settings::GpuAccuracy::Low, QStringLiteral("Быстрый")},
+    {Settings::GpuAccuracy::High, QStringLiteral("Высокая точность")},
 };
 
 static const std::map<Settings::RendererBackend, QString> renderer_backend_texts_map = {
-    {Settings::RendererBackend::Vulkan, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Vulkan"))},
-    {Settings::RendererBackend::OpenGL_GLSL,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "OpenGL GLSL"))},
-    {Settings::RendererBackend::OpenGL_SPIRV,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "OpenGL SPIRV"))},
-    {Settings::RendererBackend::OpenGL_GLASM,
-     QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "OpenGL GLASM"))},
-    {Settings::RendererBackend::Null, QStringLiteral(QT_TRANSLATE_NOOP("MainWindow", "Null"))},
+    {Settings::RendererBackend::Vulkan, QStringLiteral("Vulkan")},
+    {Settings::RendererBackend::OpenGL_GLSL, QStringLiteral("OpenGL GLSL")},
+    {Settings::RendererBackend::OpenGL_SPIRV, QStringLiteral("OpenGL SPIRV")},
+    {Settings::RendererBackend::OpenGL_GLASM, QStringLiteral("OpenGL GLASM")},
+    {Settings::RendererBackend::Null, QStringLiteral("Отключено")},
 };
 
 } // namespace ConfigurationShared

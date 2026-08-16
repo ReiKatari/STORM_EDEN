@@ -5,8 +5,8 @@
     <string name="notice_notification_channel_name">Уведомления и ошибки</string>
     <string name="notice_notification_channel_description">Показывает уведомления, когда что-то пошло не так</string>
     <string name="notification_permission_not_granted">Вы не предоставили разрешение на уведомления!</string>
-    <string name="app_notification_channel_description">Уведомления эмулятора switch Eden</string>
-    <string name="app_notification_running">Eden работает</string>
+    <string name="app_notification_channel_description">Уведомления эмулятора switch STORM EDEN</string>
+    <string name="app_notification_running">STORM EDEN работает</string>
     <string name="seconds">Секунды</string>
 
     <!-- Spinbox strings -->
@@ -239,7 +239,7 @@
     <string name="home_settings">Настройки</string>
     <string name="empty_gamelist">Не найдены файлы или еще не выбрана папка с играми.</string>
     <string name="manage_game_folders">Управление папками</string>
-    <string name="select_games_folder_description">Позволяет Eden заполнить список игр</string>
+    <string name="select_games_folder_description">Позволяет STORM EDEN заполнить список игр</string>
     <string name="add_games_warning">Пропустить выбор папки с играми?</string>
     <string name="add_games_warning_description">Игры не будут отображаться в списке Игры, если папка не выбрана.</string>
     <string name="add_games_warning_help">https://yuzu-mirror.github.io/help/quickstart/#dumping-games</string>
@@ -261,7 +261,7 @@
     <string name="notifications_description">Предоставьте разрешение уведомлений с помощью кнопки ниже.</string>
     <string name="permission_denied">Разрешение отказано</string>
     <string name="permission_denied_description">Вы слишком часто отклоняли это разрешение, и теперь вам нужно будет вручную предоставить его в настройках системы.</string>
-    <string name="about">О нас</string>
+    <string name="about">О программе</string>
     <string name="about_description">Версия сборки, титры и другое</string>
     <string name="system_information">Системная информация</string>
     <string name="system_information_description">Просмотреть подробную информацию об устройстве</string>
@@ -295,8 +295,8 @@
     <string name="settings_description">Настройка параметров эмулятора</string>
     <string name="search_recently_played">Недавно сыгранные</string>
     <string name="search_recently_added">Недавно добавлено</string>
-    <string name="open_user_folder">Открыть папку Eden</string>
-    <string name="open_user_folder_description">Управление внутренними файлами Eden</string>
+    <string name="open_user_folder">Открыть папку STORM EDEN</string>
+    <string name="open_user_folder_description">Управление внутренними файлами STORM EDEN</string>
     <string name="app_settings_description">Изменяет поведение и внешний вид приложения</string>
     <string name="no_file_manager">Не найден файловый менеджер</string>
     <string name="notification_no_directory_link">Не удалось открыть папку Eden</string>
@@ -397,20 +397,29 @@
     <!-- About screen strings -->
     <string name="gaia_is_not_real">Gaia не существует</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
-    <string name="about_app_description">Эмулятор Switch с открытым исходным кодом</string>
+    <string name="about_app_description">STORM EDEN — передовой высокопроизводительный форк эмулятора Eden (Nintendo Switch)</string>
+    <string name="about_fork_title">Форк проекта Eden</string>
+    <string name="about_fork_description">STORM EDEN — это оптимизированный форк эмулятора Eden. Он включает оптимизации ARM64 NCE под Android, продвинутое управление кастомными GPU-драйверами (Turnip/Mesa), встроенный каталог модов GameBanana, поддержку TitleDB и 10 фирменных тем оформления STORM.</string>
+    <string name="special_thanks_title">Особая благодарность и признательность</string>
+    <string name="special_thanks_description">• Eden Project &amp; Team — оригинальный проект и основа эмулятора\n• Yuzu &amp; Citra Teams — фундаментальная кодовая база эмуляции\n• Ryujinx Team — исследования и документация Switch HLE\n• Skyline / Strato Team — передовые наработки ARM64 NCE на Android\n• Mesa, Freedreno и Turnip (Bylaws, Danylo) — драйверы Vulkan под Adreno\n• Всему мировому сообществу открытой эмуляции</string>
     <string name="contributors">Контрибьюторы</string>
-    <string name="contributors_description">Люди, благодаря которым появился Eden для Android</string>
-    <string name="licenses_description">Проекты, которые сделали Eden для Android возможным</string>
+    <string name="contributors_description">Разработчики и участники сообщества STORM EDEN и Eden</string>
+    <string name="licenses_description">Лицензии открытого исходного кода и библиотеки (GPLv3.0+)</string>
     <string name="build">Сборка</string>
     <string name="user_data">Данные пользователя</string>
     <string name="user_data_description">Импорт/экспорт всех данных\n\nПри импорте все текущие данные будут удалены!\n\nИмпорт из Citron может вызвать ошибки. Рекомендуется ручной перенос.</string>
     <string name="exporting_user_data">Экспорт пользовательских данных…</string>
     <string name="importing_user_data">Импорт пользовательских данных…</string>
-    <string name="invalid_yuzu_backup">Неверная резервная копия Eden</string>
+    <string name="invalid_yuzu_backup">Неверная резервная копия STORM EDEN</string>
     <string name="user_data_export_success">Пользовательские данные успешно экспортированы</string>
     <string name="user_data_import_success">Пользовательские данные успешно импортированы</string>
     <string name="user_data_export_cancelled">Экспорт отменен</string>
     <string name="user_data_import_failed_description">Убедитесь что папки пользовательских данных находятся в корне zip-папки и содержат файл конфигурации config/config.ini и повторите попытку.</string>
+    <string name="discord_link" translatable="false">https://discord.gg/HstXbPch7X</string>
+    <string name="stoat_link" translatable="false">https://git.eden-emu.dev/eden-emu/eden</string>
+    <string name="x_link" translatable="false">https://nitter.poast.org/edenemuofficial</string>
+    <string name="website_link" translatable="false">https://eden-emulator.github.io/</string>
+    <string name="github_link" translatable="false">https://github.com/ReiKatari/STORM_EDEN</string>
     <!-- General settings strings -->
     <string name="frame_limit_enable">Ограничить скорость</string>
     <string name="frame_limit_enable_description">Ограничивает скорость эмуляции указанным процентом от нормальной скорости.</string>
@@ -1101,17 +1110,45 @@
     <string name="app_language_description">Поменять язык интерфейса приложения</string>
     <string name="app_language_system">Следовать системе</string>
     <!-- Static Themes -->
-    <string name="static_theme_color">Цвет темы</string>
-    <string name="eden_theme">Eden</string>
-    <string name="violet">Фиолетовый </string>
-    <string name="blue">Синий</string>
-    <string name="cyan">Циановый</string>
-    <string name="red">Красный</string>
-    <string name="green">Зелёный</string>
-    <string name="yellow">Жёлтый</string>
-    <string name="orange">Оранжевый</string>
-    <string name="pink">Розовый</string>
-    <string name="gray">Серый</string>
+    <string name="static_theme_color">Тема оформления STORM EDEN</string>
+    <string name="theme_storm_night">STORM NIGHT (По умолчанию)</string>
+    <string name="theme_storm_day">STORM DAY (Светлая)</string>
+    <string name="theme_storm_midnight">STORM MIDNIGHT (Полночь)</string>
+    <string name="theme_storm_cyberpunk">STORM CYBERPUNK (Киберпанк)</string>
+    <string name="theme_storm_gothic">STORM GOTHIC (Готика)</string>
+    <string name="theme_storm_neon">STORM NEON (Неон)</string>
+    <string name="theme_storm_crimson">STORM CRIMSON (Алый закат)</string>
+    <string name="theme_storm_emerald">STORM EMERALD (Изумруд)</string>
+    <string name="theme_storm_glacier">STORM GLACIER (Ледник)</string>
+    <string name="theme_storm_amethyst">STORM AMETHYST (Аметист)</string>
+
+    <!-- Legacy alias for theme list -->
+    <string name="eden_theme">STORM NIGHT (По умолчанию)</string>
+    <string name="violet">STORM DAY (Светлая)</string>
+    <string name="blue">STORM MIDNIGHT (Полночь)</string>
+    <string name="cyan">STORM CYBERPUNK (Киберпанк)</string>
+    <string name="red">STORM GOTHIC (Готика)</string>
+    <string name="green">STORM NEON (Неон)</string>
+    <string name="yellow">STORM CRIMSON (Алый закат)</string>
+    <string name="orange">STORM EMERALD (Изумруд)</string>
+    <string name="pink">STORM GLACIER (Ледник)</string>
+    <string name="gray">STORM AMETHYST (Аметист)</string>
+
+    <!-- GameBanana & Add-ons -->
+    <string name="search">Поиск</string>
+    <string name="gamebanana_mods">Моды GameBanana</string>
+    <string name="gamebanana_mods_description">Поиск, просмотр и загрузка модов с GameBanana</string>
+    <string name="gamebanana_search_hint">Поиск модов на GameBanana…</string>
+    <string name="gamebanana_no_mods">Моды для этой игры не найдены</string>
+    <string name="gamebanana_downloading">Загрузка и установка мода…</string>
+    <string name="gamebanana_install_success">Мод успешно установлен!</string>
+    <string name="gamebanana_install_error">Ошибка установки мода</string>
+    <string name="gamebanana_author">Автор: %1$s</string>
+    <string name="gamebanana_downloads">%1$d скачиваний</string>
+    <string name="gamebanana_download_button">Скачать и установить</string>
+    <string name="addons_overview">Дополнения и Моды</string>
+    <string name="addons_overview_description">Управление обновлениями, DLC и пользовательскими модами</string>
+    <string name="game_version_label">Версия %1$s</string>
 
     <!-- Picture-In-Picture -->
     <string name="pause">Пауза</string>

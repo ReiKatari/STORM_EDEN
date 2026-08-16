@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Set Play Time Data</string>
+   <string>Управление временем игры</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -22,7 +22,7 @@
      <item>
       <widget class="QLabel" name="labelHours">
        <property name="text">
-        <string>Hours:</string>
+        <string>Часы:</string>
        </property>
       </widget>
      </item>
@@ -36,7 +36,7 @@
      <item>
       <widget class="QLabel" name="labelMinutes">
        <property name="text">
-        <string>Minutes:</string>
+        <string>Минуты:</string>
        </property>
       </widget>
      </item>
@@ -50,7 +50,7 @@
      <item>
       <widget class="QLabel" name="labelSeconds">
        <property name="text">
-        <string>Seconds:</string>
+        <string>Секунды:</string>
        </property>
       </widget>
      </item>

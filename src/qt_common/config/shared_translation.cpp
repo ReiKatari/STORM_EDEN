@@ -195,11 +195,11 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(Settings, dma_accuracy, tr("Точность DMA:"),
            tr("Режим прямого доступа к памяти DMA.\n"
               "Небезопасно (Быстро) дает прирост скорости, Безопасно (Стабильно) исправляет ошибки в некоторых играх."));
-    INSERT(Settings, gpu_fence_behavior, tr("Поведение Fence ГПУ:"),
-           tr("Настройка синхронизации барьеров ГПУ.\n"
-              "Немедленно (Immediate) — максимально быстро.\n"
-              "Сбалансировано (Balanced) — оптимальная совместимость.\n"
-              "Точно (Accurate) и Строго (Strict) — устраняют специфические графические баги."));
+    INSERT(Settings, gpu_fence_behavior, tr("Поведение барьеров ГПУ:"),
+           tr("Настройка синхронизации барьеров графического процессора.\n"
+              "Немедленно — максимальная скорость работы.\n"
+              "Сбалансированно — оптимальная совместимость.\n"
+              "Высокая точность и Строго — устраняют специфические графические артефакты."));
     INSERT(Settings, enable_gpu_buffer_readback, tr("Обратное чтение буфера ГПУ"),
            tr("Сохраняет модифицированные графическим процессором данные путем их считывания перед отправкой. Требуется некоторым играм для корректного рендеринга эффектов."));
     INSERT(Settings, use_asynchronous_shaders, tr("Включить асинхронную компиляцию шейдеров"),
@@ -377,7 +377,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                           {
                               PAIR(GpuFenceBehavior, Default, tr("По умолчанию")),
                               PAIR(GpuFenceBehavior, Immediate, tr("Немедленно")),
-                              PAIR(GpuFenceBehavior, Balanced, tr("Сбалансировано")),
+                              PAIR(GpuFenceBehavior, Balanced, tr("Сбалансированно")),
                               PAIR(GpuFenceBehavior, Accurate, tr("Точно")),
                               PAIR(GpuFenceBehavior, Strict, tr("Строго")),
                           }});

@@ -87,6 +87,7 @@ public:
     bool is_valid = false;
     bool is_raw_nca = false;
     bool is_header_uncompressed = false;
+    std::size_t uncompressed_header_size = 0x4000;
     
     std::vector<NCZSection> sections;
     std::vector<s64> section_solid_offsets;

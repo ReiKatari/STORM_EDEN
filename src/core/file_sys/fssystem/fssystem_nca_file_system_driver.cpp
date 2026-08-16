@@ -158,75 +158,90 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
             out_header_reader->GetPatchMetaDataHashDataInfo()));
     }
 
+    const bool is_pre_decrypted = m_reader->GetStorage() && m_reader->GetStorage()->HasDecryptedSections();
+
     if (patch_info.HasAesCtrExTable()) {
-        // Check the encryption type.
-        ASSERT(out_header_reader->GetEncryptionType() == NcaFsHeader::EncryptionType::None ||
-               out_header_reader->GetEncryptionType() == NcaFsHeader::EncryptionType::AesCtrEx ||
-               out_header_reader->GetEncryptionType() ==
-                   NcaFsHeader::EncryptionType::AesCtrExSkipLayerHash);
+        if (is_pre_decrypted) {
+            if (ctx != nullptr) {
+                ctx->fs_data_storage = storage;
+            }
+        } else {
+            // Check the encryption type.
+            ASSERT(out_header_reader->GetEncryptionType() == NcaFsHeader::EncryptionType::None ||
+                   out_header_reader->GetEncryptionType() == NcaFsHeader::EncryptionType::AesCtrEx ||
+                   out_header_reader->GetEncryptionType() ==
+                       NcaFsHeader::EncryptionType::AesCtrExSkipLayerHash);
 
-        // Create the ex meta storage.
-        VirtualFile aes_ctr_ex_storage_meta_storage = patch_meta_aes_ctr_ex_meta_storage;
-        if (aes_ctr_ex_storage_meta_storage == nullptr) {
-            // If we don't have a meta storage, we must not have a patch meta hash layer.
-            ASSERT(!out_header_reader->ExistsPatchMetaHashLayer());
+            // Create the ex meta storage.
+            VirtualFile aes_ctr_ex_storage_meta_storage = patch_meta_aes_ctr_ex_meta_storage;
+            if (aes_ctr_ex_storage_meta_storage == nullptr) {
+                // If we don't have a meta storage, we must not have a patch meta hash layer.
+                ASSERT(!out_header_reader->ExistsPatchMetaHashLayer());
 
-            R_TRY(this->CreateAesCtrExStorageMetaStorage(
-                std::addressof(aes_ctr_ex_storage_meta_storage), storage, fs_data_offset,
-                out_header_reader->GetEncryptionType(), out_header_reader->GetAesCtrUpperIv(),
+                R_TRY(this->CreateAesCtrExStorageMetaStorage(
+                    std::addressof(aes_ctr_ex_storage_meta_storage), storage, fs_data_offset,
+                    out_header_reader->GetEncryptionType(), out_header_reader->GetAesCtrUpperIv(),
+                    patch_info));
+            }
+
+            // Create the ex storage.
+            VirtualFile aes_ctr_ex_storage;
+            R_TRY(this->CreateAesCtrExStorage(
+                std::addressof(aes_ctr_ex_storage),
+                ctx != nullptr ? std::addressof(ctx->aes_ctr_ex_storage) : nullptr, std::move(storage),
+                aes_ctr_ex_storage_meta_storage, fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
                 patch_info));
-        }
 
-        // Create the ex storage.
-        VirtualFile aes_ctr_ex_storage;
-        R_TRY(this->CreateAesCtrExStorage(
-            std::addressof(aes_ctr_ex_storage),
-            ctx != nullptr ? std::addressof(ctx->aes_ctr_ex_storage) : nullptr, std::move(storage),
-            aes_ctr_ex_storage_meta_storage, fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
-            patch_info));
+            // Set the base storage as the ex storage.
+            storage = std::move(aes_ctr_ex_storage);
 
-        // Set the base storage as the ex storage.
-        storage = std::move(aes_ctr_ex_storage);
-
-        // Potentially save storages to our context.
-        if (ctx != nullptr) {
-            ctx->aes_ctr_ex_storage_meta_storage = aes_ctr_ex_storage_meta_storage;
-            ctx->aes_ctr_ex_storage_data_storage = storage;
-            ctx->fs_data_storage = storage;
+            // Potentially save storages to our context.
+            if (ctx != nullptr) {
+                ctx->aes_ctr_ex_storage_meta_storage = aes_ctr_ex_storage_meta_storage;
+                ctx->aes_ctr_ex_storage_data_storage = storage;
+                ctx->fs_data_storage = storage;
+            }
         }
     } else {
-        // Create the appropriate storage for the encryption type.
-        switch (out_header_reader->GetEncryptionType()) {
-        case NcaFsHeader::EncryptionType::None:
-            // If there's no encryption, use the base storage we made previously.
-            break;
-        case NcaFsHeader::EncryptionType::AesXts:
-            R_TRY(this->CreateAesXtsStorage(std::addressof(storage), std::move(storage),
-                                            fs_data_offset));
-            break;
-        case NcaFsHeader::EncryptionType::AesCtr:
-            R_TRY(this->CreateAesCtrStorage(std::addressof(storage), std::move(storage),
-                                            fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
-                                            AlignmentStorageRequirement::None));
-            break;
-        case NcaFsHeader::EncryptionType::AesCtrSkipLayerHash: {
-            // Create the aes ctr storage.
-            VirtualFile aes_ctr_storage;
-            R_TRY(this->CreateAesCtrStorage(std::addressof(aes_ctr_storage), storage,
-                                            fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
-                                            AlignmentStorageRequirement::None));
+        if (is_pre_decrypted) {
+            // Data in NCZ sections is already decrypted plaintext, bypass secondary AES decryption
+            if (ctx != nullptr) {
+                ctx->fs_data_storage = storage;
+            }
+        } else {
+            // Create the appropriate storage for the encryption type.
+            switch (out_header_reader->GetEncryptionType()) {
+            case NcaFsHeader::EncryptionType::None:
+                // If there's no encryption, use the base storage we made previously.
+                break;
+            case NcaFsHeader::EncryptionType::AesXts:
+                R_TRY(this->CreateAesXtsStorage(std::addressof(storage), std::move(storage),
+                                                fs_data_offset));
+                break;
+            case NcaFsHeader::EncryptionType::AesCtr:
+                R_TRY(this->CreateAesCtrStorage(std::addressof(storage), std::move(storage),
+                                                fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
+                                                AlignmentStorageRequirement::None));
+                break;
+            case NcaFsHeader::EncryptionType::AesCtrSkipLayerHash: {
+                // Create the aes ctr storage.
+                VirtualFile aes_ctr_storage;
+                R_TRY(this->CreateAesCtrStorage(std::addressof(aes_ctr_storage), storage,
+                                                fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
+                                                AlignmentStorageRequirement::None));
 
-            // Create region switch storage.
-            R_TRY(this->CreateRegionSwitchStorage(std::addressof(storage), out_header_reader,
-                                                  std::move(storage), std::move(aes_ctr_storage)));
-        } break;
-        default:
-            R_THROW(ResultInvalidNcaFsHeaderEncryptionType);
-        }
+                // Create region switch storage.
+                R_TRY(this->CreateRegionSwitchStorage(std::addressof(storage), out_header_reader,
+                                                      std::move(storage), std::move(aes_ctr_storage)));
+            } break;
+            default:
+                R_THROW(ResultInvalidNcaFsHeaderEncryptionType);
+            }
 
-        // Potentially save storages to our context.
-        if (ctx != nullptr) {
-            ctx->fs_data_storage = storage;
+            // Potentially save storages to our context.
+            if (ctx != nullptr) {
+                ctx->fs_data_storage = storage;
+            }
         }
     }
 

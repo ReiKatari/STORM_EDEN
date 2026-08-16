@@ -26,8 +26,11 @@ class ContentTypeSelectionDialogFragment : DialogFragment() {
     private var selectedItem = 0
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val launchOptions =
-            arrayOf(getString(R.string.updates_and_dlc), getString(R.string.mods_and_cheats))
+        val launchOptions = arrayOf(
+            getString(R.string.updates_and_dlc),
+            getString(R.string.mods_and_cheats),
+            getString(R.string.gamebanana_mods)
+        )
 
         if (savedInstanceState != null) {
             selectedItem = savedInstanceState.getInt(SELECTED_ITEM)
@@ -41,13 +44,21 @@ class ContentTypeSelectionDialogFragment : DialogFragment() {
                         REQUEST_INSTALL_GAME_UPDATE,
                         Bundle()
                     )
-                    else -> {
+                    1 -> {
                         if (!preferences.getBoolean(MOD_NOTICE_SEEN, false)) {
                             preferences.edit().putBoolean(MOD_NOTICE_SEEN, true).apply()
                             addonViewModel.showModNoticeDialog(true)
                             return@setPositiveButton
                         }
                         addonViewModel.showModInstallPicker(true)
+                    }
+                    2 -> {
+                        val game = addonViewModel.game
+                        if (game != null) {
+                            GameBananaDialogFragment.newInstance(game) {
+                                addonViewModel.refreshAddons(force = true)
+                            }.show(parentFragmentManager, GameBananaDialogFragment.TAG)
+                        }
                     }
                 }
             }

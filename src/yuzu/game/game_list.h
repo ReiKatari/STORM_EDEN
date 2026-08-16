@@ -86,6 +86,7 @@ public:
     void UnloadController();
 
     void ResetViewMode();
+    std::pair<u64, QString> GetSelectedGameInfo() const;
 
 public slots:
     void RefreshGameDirectory();
@@ -96,6 +97,7 @@ public slots:
 signals:
     void BootGame(const QString& game_path, StartGameType type);
     void GameChosen(const QString& game_path, const u64 title_id = 0);
+    void GameSelected(u64 program_id, const QString& game_path);
     void OpenFolderRequested(u64 program_id, GameListOpenTarget target,
                              const std::string& game_path);
     void OpenTransferableShaderCacheRequested(u64 program_id);

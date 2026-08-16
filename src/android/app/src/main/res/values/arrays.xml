@@ -440,16 +440,16 @@
     </integer-array>
 
     <string-array name="staticThemeNames">
-        <item>@string/eden_theme</item>
-        <item>@string/violet</item>
-        <item>@string/blue</item>
-        <item>@string/cyan</item>
-        <item>@string/red</item>
-        <item>@string/green</item>
-        <item>@string/yellow</item>
-        <item>@string/orange</item>
-        <item>@string/pink</item>
-        <item>@string/gray</item>
+        <item>@string/theme_storm_night</item>
+        <item>@string/theme_storm_day</item>
+        <item>@string/theme_storm_midnight</item>
+        <item>@string/theme_storm_cyberpunk</item>
+        <item>@string/theme_storm_gothic</item>
+        <item>@string/theme_storm_neon</item>
+        <item>@string/theme_storm_crimson</item>
+        <item>@string/theme_storm_emerald</item>
+        <item>@string/theme_storm_glacier</item>
+        <item>@string/theme_storm_amethyst</item>
     </string-array>
     <integer-array name="staticThemeValues">
         <item>0</item>

@@ -44,6 +44,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         android:isGame="true"
         android:appCategory="game"
         android:banner="@drawable/tv_banner"
+        android:requestLegacyExternalStorage="true"
         android:fullBackupContent="@xml/data_extraction_rules"
         android:dataExtractionRules="@xml/data_extraction_rules_api_31"
         tools:targetApi="33"

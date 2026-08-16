@@ -35,6 +35,7 @@
 #include "debugger/controller.h"
 
 #include "about_dialog.h"
+#include "amiibo_browser_dialog.h"
 #include "data_dialog.h"
 #include "deps_dialog.h"
 #include "install_dialog.h"
@@ -511,6 +512,9 @@ MainWindow::MainWindow(bool has_broken_vulkan)
 #endif
 
     SetupPrepareForSleep();
+
+    // Pre-load TitleDB database in background
+    TitleDB::TitleDatabase::Instance().EnsureLoaded();
 
     // Some moron added a race condition to the status bar
     // so now we have to make this completely unnecessary call
@@ -1304,20 +1308,20 @@ void MainWindow::InitializeWidgets() {
     UpdateDmaText();
     auto show_dma_menu = [this]() {
         QMenu context_menu(this);
-        const auto cur_dma = static_cast<u32>(Settings::values.dma_accuracy.GetValue());
-        const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-        const auto it = combo_map->find(Settings::EnumMetadata<Settings::DmaAccuracy>::Index());
-        if (it != combo_map->end()) {
-            for (const auto& item : it->second) {
-                const u32 val = item.first;
-                const QString name = item.second;
-                auto* act = context_menu.addAction(name, [this, val] {
-                    Settings::values.dma_accuracy.SetValue(static_cast<Settings::DmaAccuracy>(val));
-                    UpdateDmaText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_dma);
-            }
+        const auto cur_dma = Settings::values.dma_accuracy.GetValue();
+        const std::vector<std::pair<Settings::DmaAccuracy, QString>> items = {
+            {Settings::DmaAccuracy::Default, tr("По умолчанию")},
+            {Settings::DmaAccuracy::Normal, tr("Нормально")},
+            {Settings::DmaAccuracy::Unsafe, tr("Небезопасно")},
+            {Settings::DmaAccuracy::Safe, tr("Безопасно")},
+        };
+        for (const auto& item : items) {
+            auto* act = context_menu.addAction(item.second, [this, item] {
+                Settings::values.dma_accuracy.SetValue(item.first);
+                UpdateDmaText();
+            });
+            act->setCheckable(true);
+            act->setChecked(item.first == cur_dma);
         }
         ShowMenuAtWidget(context_menu, dma_accuracy_button);
     };
@@ -1332,20 +1336,21 @@ void MainWindow::InitializeWidgets() {
     UpdateGpuFenceText();
     auto show_gpu_fence_menu = [this]() {
         QMenu context_menu(this);
-        const auto cur_fence = static_cast<u32>(Settings::values.gpu_fence_behavior.GetValue());
-        const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-        const auto it = combo_map->find(Settings::EnumMetadata<Settings::GpuFenceBehavior>::Index());
-        if (it != combo_map->end()) {
-            for (const auto& item : it->second) {
-                const u32 val = item.first;
-                const QString name = item.second;
-                auto* act = context_menu.addAction(name, [this, val] {
-                    Settings::values.gpu_fence_behavior.SetValue(static_cast<Settings::GpuFenceBehavior>(val));
-                    UpdateGpuFenceText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_fence);
-            }
+        const auto cur_fence = Settings::values.gpu_fence_behavior.GetValue();
+        const std::vector<std::pair<Settings::GpuFenceBehavior, QString>> items = {
+            {Settings::GpuFenceBehavior::Default, tr("По умолчанию")},
+            {Settings::GpuFenceBehavior::Immediate, tr("Немедленно")},
+            {Settings::GpuFenceBehavior::Balanced, tr("Сбалансированно")},
+            {Settings::GpuFenceBehavior::Accurate, tr("Точно")},
+            {Settings::GpuFenceBehavior::Strict, tr("Строго")},
+        };
+        for (const auto& item : items) {
+            auto* act = context_menu.addAction(item.second, [this, item] {
+                Settings::values.gpu_fence_behavior.SetValue(item.first);
+                UpdateGpuFenceText();
+            });
+            act->setCheckable(true);
+            act->setChecked(item.first == cur_fence);
         }
         ShowMenuAtWidget(context_menu, gpu_fence_button);
     };
@@ -1360,20 +1365,19 @@ void MainWindow::InitializeWidgets() {
     UpdateVramText();
     auto show_vram_menu = [this]() {
         QMenu context_menu(this);
-        const auto cur_vram = static_cast<u32>(Settings::values.vram_usage_mode.GetValue());
-        const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-        const auto it = combo_map->find(Settings::EnumMetadata<Settings::VramUsageMode>::Index());
-        if (it != combo_map->end()) {
-            for (const auto& item : it->second) {
-                const u32 val = item.first;
-                const QString name = item.second;
-                auto* act = context_menu.addAction(name, [this, val] {
-                    Settings::values.vram_usage_mode.SetValue(static_cast<Settings::VramUsageMode>(val));
-                    UpdateVramText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_vram);
-            }
+        const auto cur_vram = Settings::values.vram_usage_mode.GetValue();
+        const std::vector<std::pair<Settings::VramUsageMode, QString>> options = {
+            {Settings::VramUsageMode::Conservative, tr("Экономный")},
+            {Settings::VramUsageMode::Normal, tr("Нормальный")},
+            {Settings::VramUsageMode::Aggressive, tr("Агрессивный")},
+        };
+        for (const auto& opt : options) {
+            auto* act = context_menu.addAction(opt.second, [this, opt] {
+                Settings::values.vram_usage_mode.SetValue(opt.first);
+                UpdateVramText();
+            });
+            act->setCheckable(true);
+            act->setChecked(opt.first == cur_vram);
         }
         ShowMenuAtWidget(context_menu, vram_mode_button);
     };
@@ -1388,20 +1392,25 @@ void MainWindow::InitializeWidgets() {
     UpdateAnisotropyText();
     auto show_anisotropy_menu = [this]() {
         QMenu context_menu(this);
-        const auto cur_aniso = static_cast<u32>(Settings::values.max_anisotropy.GetValue());
-        const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-        const auto it = combo_map->find(Settings::EnumMetadata<Settings::AnisotropyMode>::Index());
-        if (it != combo_map->end()) {
-            for (const auto& item : it->second) {
-                const u32 val = item.first;
-                const QString name = item.second;
-                auto* act = context_menu.addAction(name, [this, val] {
-                    Settings::values.max_anisotropy.SetValue(static_cast<Settings::AnisotropyMode>(val));
-                    UpdateAnisotropyText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_aniso);
-            }
+        const auto cur_aniso = Settings::values.max_anisotropy.GetValue();
+        const std::vector<std::pair<Settings::AnisotropyMode, QString>> options = {
+            {Settings::AnisotropyMode::Automatic, tr("Автоматически")},
+            {Settings::AnisotropyMode::Default, tr("По умолчанию")},
+            {Settings::AnisotropyMode::X2, QStringLiteral("2x")},
+            {Settings::AnisotropyMode::X4, QStringLiteral("4x")},
+            {Settings::AnisotropyMode::X8, QStringLiteral("8x")},
+            {Settings::AnisotropyMode::X16, QStringLiteral("16x")},
+            {Settings::AnisotropyMode::X32, QStringLiteral("32x")},
+            {Settings::AnisotropyMode::X64, QStringLiteral("64x")},
+            {Settings::AnisotropyMode::None, tr("Отключено")},
+        };
+        for (const auto& opt : options) {
+            auto* act = context_menu.addAction(opt.second, [this, opt] {
+                Settings::values.max_anisotropy.SetValue(opt.first);
+                UpdateAnisotropyText();
+            });
+            act->setCheckable(true);
+            act->setChecked(opt.first == cur_aniso);
         }
         ShowMenuAtWidget(context_menu, anisotropy_button);
     };
@@ -1470,9 +1479,27 @@ void MainWindow::InitializeWidgets() {
     addons_status_button->setFocusPolicy(Qt::NoFocus);
     UpdateAddonsStatusButton();
     connect(addons_status_button, &QPushButton::clicked, this, [this] {
+        if (m_current_addons_title_id == 0 && game_list) {
+            const auto [tid, path] = game_list->GetSelectedGameInfo();
+            if (tid != 0) {
+                m_current_addons_title_id = tid;
+                m_current_addons_game_path = path.toStdString();
+                m_current_addons_game_name = QFileInfo(path).completeBaseName();
+                UpdateAddonsStatusButton(m_current_addons_title_id, m_current_addons_game_name);
+            }
+        }
         ShowDLCDialog(m_current_addons_title_id, m_current_addons_game_name);
     });
     auto show_addons_menu = [this]() {
+        if (m_current_addons_title_id == 0 && game_list) {
+            const auto [tid, path] = game_list->GetSelectedGameInfo();
+            if (tid != 0) {
+                m_current_addons_title_id = tid;
+                m_current_addons_game_path = path.toStdString();
+                m_current_addons_game_name = QFileInfo(path).completeBaseName();
+                UpdateAddonsStatusButton(m_current_addons_title_id, m_current_addons_game_name);
+            }
+        }
         QMenu context_menu(this);
         if (m_current_addons_title_id == 0) {
             auto* act = context_menu.addAction(tr("⚠️ Нет выделенной или запущенной игры"));
@@ -1813,55 +1840,54 @@ void MainWindow::InitializeWidgets() {
         container->setObjectName(QStringLiteral("StatusBarGroup"));
         container->setStyleSheet(QStringLiteral(
             "QWidget#StatusBarGroup {"
-            "  background-color: rgba(255, 255, 255, 0.04);"
-            "  border: 1px solid rgba(255, 255, 255, 0.12);"
+            "  background-color: #0e1320;"
+            "  border: 1px solid rgba(255, 255, 255, 0.10);"
             "  border-top: 2px solid %1;"
-            "  border-radius: 4px;"
+            "  border-radius: 5px;"
             "  margin: 1px 1px;"
-            "  padding: 1px;"
+            "  padding: 1px 2px;"
             "}"
             "QWidget#StatusBarGroup:hover {"
-            "  background-color: rgba(255, 255, 255, 0.08);"
+            "  background-color: #141b2e;"
             "  border: 1px solid %1;"
             "  border-top: 2px solid %1;"
             "}"
-            "QLabel#StatusBarGroupLabel {"
-            "  background: transparent;"
+            "QPushButton#StatusBarGroupLabel {"
+            "  background-color: rgba(255, 255, 255, 0.07);"
             "  color: %1;"
-            "  font-size: 6.5pt;"
-            "  font-weight: 700;"
+            "  font-size: 6.8pt;"
+            "  font-weight: 800;"
             "  letter-spacing: 0.8px;"
-            "  padding: 0px 2px;"
-            "  margin: 0px;"
-            "  border: none;"
-            "  min-height: 10px;"
-            "}"
-            "QLabel#StatusBarGroupLabel:hover {"
-            "  color: #ffffff;"
-            "  background: rgba(255, 255, 255, 0.16);"
-            "  border-radius: 2px;"
-            "}"
-            "QPushButton {"
-            "  background-color: #0c0f18;"
-            "  color: #ffffff;"
-            "  border: 1px solid rgba(255, 255, 255, 0.15);"
+            "  padding: 1px 6px;"
+            "  margin: 0px 1px 2px 1px;"
+            "  border: 1px solid rgba(255, 255, 255, 0.08);"
             "  border-radius: 3px;"
-            "  padding: 1px 4px;"
+            "  min-height: 12px;"
+            "}"
+            "QPushButton#StatusBarGroupLabel:hover {"
+            "  background-color: %1;"
+            "  color: #000000;"
+            "  border: 1px solid %1;"
+            "}"
+            "QPushButton#TogglableStatusBarButton, QPushButton {"
+            "  background-color: #121826;"
+            "  color: #ffffff;"
+            "  border: 1px solid rgba(255, 255, 255, 0.13);"
+            "  border-radius: 4px;"
+            "  padding: 2px 5px;"
             "  font-size: 6.8pt;"
             "  font-weight: 700;"
-            "  min-height: 25px;"
+            "  min-height: 26px;"
             "  min-width: 44px;"
             "}"
-            "QPushButton:hover {"
+            "QPushButton#TogglableStatusBarButton:hover, QPushButton:hover {"
             "  background-color: rgba(255, 255, 255, 0.16);"
             "  color: %1;"
             "  border: 1px solid %1;"
-            "  font-weight: 700;"
             "}"
-            "QPushButton:pressed {"
+            "QPushButton#TogglableStatusBarButton:pressed, QPushButton:pressed {"
             "  background-color: %1;"
             "  color: #000000;"
-            "  font-weight: 700;"
             "}"
             "QLabel {"
             "  color: #ffffff;"
@@ -1885,24 +1911,6 @@ void MainWindow::InitializeWidgets() {
         headerBtn->setCursor(Qt::PointingHandCursor);
         headerBtn->setFocusPolicy(Qt::NoFocus);
         headerBtn->setFlat(true);
-        headerBtn->setStyleSheet(QStringLiteral(
-            "QPushButton#StatusBarGroupLabel {"
-            "  background: transparent;"
-            "  color: %1;"
-            "  font-size: 6.5pt;"
-            "  font-weight: 700;"
-            "  letter-spacing: 0.8px;"
-            "  padding: 0px 2px;"
-            "  margin: 0px;"
-            "  border: none;"
-            "  min-height: 10px;"
-            "}"
-            "QPushButton#StatusBarGroupLabel:hover {"
-            "  color: #ffffff;"
-            "  background: rgba(255, 255, 255, 0.16);"
-            "  border-radius: 2px;"
-            "}"
-        ).arg(color));
         headerBtn->setToolTip(tr("Нажмите для быстрого меню раздела «%1»").arg(title));
         auto show_grp = [this, title, container]() {
             ShowGroupMenu(title, container);
@@ -1919,7 +1927,7 @@ void MainWindow::InitializeWidgets() {
         btnLayout->setSpacing(2);
         btnLayout->setAlignment(Qt::AlignCenter);
         for (auto* w : widgets) {
-            w->setMinimumHeight(25);
+            w->setMinimumHeight(26);
             btnLayout->addWidget(w);
         }
         layout->addWidget(btnRow);
@@ -1964,12 +1972,19 @@ void MainWindow::InitializeWidgets() {
     // --- Group 7: СИСТЕМА (Orange accent) ---
     auto* sys_group = createGroup(
         tr("СИСТЕМА"), QStringLiteral("#ff9100"),
-        {firmware_label, multiplayer_state->GetStatusIcon(), multiplayer_state->GetStatusText()});
-    sys_group->setMinimumWidth(150);
+        {firmware_label});
+    sys_group->setMinimumWidth(90);
     firmware_label->setMinimumWidth(80);
     statusBar()->insertPermanentWidget(6, sys_group);
 
-    statusBar()->insertPermanentWidget(7, footer_customize_button);
+    // --- Group 8: СЕТЬ (Blue/Cyan accent) ---
+    auto* net_group = createGroup(
+        tr("СЕТЬ"), QStringLiteral("#00b0ff"),
+        {multiplayer_state->GetStatusIcon(), multiplayer_state->GetStatusText()});
+    net_group->setMinimumWidth(90);
+    statusBar()->insertPermanentWidget(7, net_group);
+
+    statusBar()->insertPermanentWidget(8, footer_customize_button);
     statusBar()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(statusBar(), &QStatusBar::customContextMenuRequested, this, &MainWindow::ShowFooterCustomizeMenu);
 
@@ -2194,6 +2209,14 @@ void MainWindow::OnAppFocusStateChanged(Qt::ApplicationState state) {
 
 void MainWindow::ConnectWidgetEvents() {
     connect(game_list, &GameList::BootGame, this, &MainWindow::BootGameFromList);
+    connect(game_list, &GameList::GameSelected, this, [this](u64 program_id, const QString& game_path) {
+        if (program_id != 0) {
+            m_current_addons_title_id = program_id;
+            m_current_addons_game_path = game_path.toStdString();
+            m_current_addons_game_name = QFileInfo(game_path).completeBaseName();
+            UpdateAddonsStatusButton(m_current_addons_title_id, m_current_addons_game_name);
+        }
+    });
     connect(game_list, &GameList::GameChosen, this, [this](const QString& game_path, u64 program_id) {
         m_current_addons_game_path = game_path.toStdString();
         UpdateAddonsStatusButton(program_id, QFileInfo(game_path).completeBaseName());
@@ -2355,6 +2378,7 @@ void MainWindow::ConnectMenuEvents() {
         LaunchFirmwareApplet(u64(Service::AM::AppletProgramId::Cabinet),
                              {Service::NFP::CabinetMode::StartFormatter});
     });
+    connect_menu(ui->action_Amiibo_Online_Database, &MainWindow::OnAmiiboOnlineDatabase);
 
     connect_menu(ui->action_Desktop, &MainWindow::OnCreateHomeMenuDesktopShortcut);
     connect_menu(ui->action_Application_Menu, &MainWindow::OnCreateHomeMenuApplicationMenuShortcut);
@@ -2590,18 +2614,15 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
         switch (result) {
         case Core::SystemResultStatus::ErrorGetLoader:
             LOG_CRITICAL(Frontend, "Failed to obtain loader for {}!", filename.toStdString());
-            QMessageBox::critical(this, tr("Error while loading ROM!"),
-                                  tr("The ROM format is not supported."));
+            QMessageBox::critical(this, tr("Ошибка при загрузке игры!"),
+                                  tr("Формат файла игры не поддерживается."));
             break;
         case Core::SystemResultStatus::ErrorVideoCore:
             QMessageBox::critical(
-                this, tr("An error occurred initializing the video core."),
-                tr("STORM EDEN has encountered an error while running the video core. "
-                   "This is usually caused by outdated GPU drivers, including integrated ones. "
-                   "Please see the log for more details. "
-                   "For more information on accessing the log, please see the following page: "
-                   "<a href='https://yuzu-mirror.github.io/help/reference/log-files/'>"
-                   "How to Upload the Log File</a>. "));
+                this, tr("Ошибка инициализации видеоядра."),
+                tr("STORM EDEN столкнулся с ошибкой при запуске видеоядра GPU. "
+                   "Обычно это вызвано устаревшими драйверами видеокарты. "
+                   "Пожалуйста, обновите графические драйверы."));
             break;
         default:
             if (result > Core::SystemResultStatus::ErrorLoader) {
@@ -2611,10 +2632,10 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
                 LOG_CRITICAL(Frontend, "Failed to load ROM! {}", error_code);
 
                 const auto title =
-                    tr("Error while loading ROM! %1", "%1 signifies a numeric error code.")
+                    tr("Ошибка при загрузке игры! %1", "%1 signifies a numeric error code.")
                         .arg(QString::fromStdString(error_code));
                 const auto description =
-                    tr("%1<br>Please redump your files or ask on Discord/Stoat for help.",
+                    tr("%1<br><br>Пожалуйста, проверьте наличие свежих ключей prod.keys или пересоздайте дамп файла игры.",
                        "%1 signifies an error string.")
                         .arg(QString::fromStdString(
                             GetResultStatusString(static_cast<Loader::ResultStatus>(error_id))));
@@ -2622,8 +2643,8 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
                 QMessageBox::critical(this, title, description);
             } else {
                 QMessageBox::critical(
-                    this, tr("Error while loading ROM!"),
-                    tr("An unknown error occurred. Please see the log for more details."));
+                    this, tr("Ошибка при загрузке игры!"),
+                    tr("Произошла неизвестная ошибка при запуске. Подробности смотрите в логе."));
             }
             break;
         }
@@ -2765,11 +2786,9 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     std::string title_version;
     const auto res = QtCommon::system->GetGameName(title_name);
 
-    const auto metadata = [title_id] {
-        const FileSys::PatchManager pm(title_id, QtCommon::system->GetFileSystemController(),
-                                       QtCommon::system->GetContentProvider());
-        return pm.GetControlMetadata();
-    }();
+    const FileSys::PatchManager pm(title_id, QtCommon::system->GetFileSystemController(),
+                                   QtCommon::system->GetContentProvider());
+    const auto metadata = pm.GetControlMetadata();
     std::string title_developer;
     QPixmap game_icon_pix;
     if (metadata.first != nullptr) {
@@ -2791,10 +2810,15 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
             std::filesystem::path{Common::U16StringFromBuffer(filename.utf16(), filename.size())}
                 .filename());
     }
-    const auto window_title_name = QFileInfo(filename).completeBaseName().toStdString();
-    LOG_INFO(Frontend, "Booting game: {:016X} | {} | {}", title_id, window_title_name, title_version);
-    const auto gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
-    UpdateWindowTitle(window_title_name, title_version, gpu_vendor);
+    const auto full_file_name = QFileInfo(filename).fileName().toStdString();
+    const u32 raw_internal_version = pm.GetGameVersion().value_or(0);
+    const std::string internal_version_str = fmt::format("v{}", raw_internal_version);
+    const std::string display_version_str = title_version.empty() ? "1.0.0" : title_version;
+    const auto raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
+    const auto gpu_vendor = QString::fromStdString(raw_gpu_vendor).toUpper().toStdString();
+
+    LOG_INFO(Frontend, "Booting game: {:016X} | {} | {} | {} | {}", title_id, full_file_name, display_version_str, internal_version_str, gpu_vendor);
+    UpdateWindowTitle(full_file_name, display_version_str, internal_version_str, gpu_vendor);
     m_current_addons_game_path = filename.toStdString();
     UpdateAddonsStatusButton(title_id, QString::fromStdString(title_name));
 
@@ -4528,6 +4552,16 @@ void MainWindow::OnLoadAmiibo() {
     LoadAmiibo(filename);
 }
 
+void MainWindow::OnAmiiboOnlineDatabase() {
+    AmiiboBrowserDialog dialog(this, *QtCommon::system);
+    connect(&dialog, &AmiiboBrowserDialog::AmiiboSelectedForLoading, this, [this](const QString& path) {
+        if (QtCommon::emu_thread && QtCommon::emu_thread->IsRunning()) {
+            LoadAmiibo(path);
+        }
+    });
+    dialog.exec();
+}
+
 // TODO(crueter): does this need to be ported to QML?
 bool MainWindow::question(QWidget* parent, const QString& title, const QString& text,
                           QMessageBox::StandardButtons buttons,
@@ -4929,22 +4963,31 @@ void MainWindow::OnEmulatorUpdateAvailable() {
 }
 #endif
 
-void MainWindow::UpdateWindowTitle(std::string_view title_name, std::string_view title_version,
-                                   std::string_view gpu_vendor) {
+void MainWindow::UpdateWindowTitle(std::string_view filename, std::string_view display_version,
+                                   std::string_view internal_version, std::string_view gpu_vendor) {
     static const std::string window_title =
         fmt::format("{} {}", std::string{Common::g_build_name}, std::string{Common::g_build_version});
 
-    if (title_name.empty()) {
+    if (filename.empty()) {
         setWindowTitle(QString::fromStdString(window_title));
     } else {
-        const auto run_title = [title_name, title_version, gpu_vendor]() {
-            if (title_version.empty()) {
-                return fmt::format("{} {} | {} | {}", std::string{Common::g_build_name},
-                                   std::string{Common::g_build_version}, title_name, gpu_vendor);
+        const std::string upper_gpu = QString::fromStdString(std::string{gpu_vendor}).toUpper().toStdString();
+        const auto run_title = [filename, display_version, internal_version, upper_gpu]() {
+            std::string disp_ver = std::string{display_version};
+            if (disp_ver.empty()) {
+                disp_ver = "1.0.0";
             }
-            return fmt::format("{} {} | {} | {} | {}", std::string{Common::g_build_name},
-                               std::string{Common::g_build_version}, title_name, title_version,
-                               gpu_vendor);
+            std::string intern_ver = std::string{internal_version};
+            if (intern_ver.empty()) {
+                intern_ver = "v0";
+            }
+            return fmt::format("{} {} | {} | {} | {} | {}",
+                               std::string{Common::g_build_name},
+                               std::string{Common::g_build_version},
+                               filename,
+                               disp_ver,
+                               intern_ver,
+                               upper_gpu.empty() ? "GPU" : upper_gpu);
         }();
         setWindowTitle(QString::fromStdString(run_title));
     }
@@ -5074,14 +5117,7 @@ QString MainWindow::CleanDisplayString(const QString& str) {
 void MainWindow::UpdateGPUAccuracyButton() {
     if (!gpu_accuracy_button) return;
     const auto gpu_accuracy = Settings::values.gpu_accuracy.GetValue();
-    QString text;
-    if (gpu_accuracy == Settings::GpuAccuracy::Low) {
-        text = tr("Быстро");
-    } else if (gpu_accuracy == Settings::GpuAccuracy::High) {
-        text = tr("Точно");
-    } else {
-        text = tr("Экстрим");
-    }
+    QString text = (gpu_accuracy == Settings::GpuAccuracy::Low) ? tr("Быстрый") : tr("Высокая точность");
     gpu_accuracy_button->setText(tr("ТОЧНОСТЬ ГПУ:\n%1").arg(text));
     gpu_accuracy_button->setChecked(gpu_accuracy != Settings::GpuAccuracy::Low);
 }
@@ -5146,9 +5182,9 @@ void MainWindow::UpdateAspectText() {
         for (const auto& item : it->second) {
             if (item.first == val) {
                 val_text = CleanDisplayString(item.second);
-                if (val_text.startsWith(QStringLiteral("Default"))) val_text = QStringLiteral("16:9");
-                else if (val_text.startsWith(QStringLiteral("Force"))) val_text = val_text.mid(5).trimmed();
-                else if (val_text.contains(QStringLiteral("Stretch"))) val_text = tr("Растянуть");
+                if (val_text.contains(QStringLiteral("Растянуть")) || val_text.contains(QStringLiteral("Stretch"))) {
+                    val_text = tr("Растянуть");
+                }
                 break;
             }
         }
@@ -5158,75 +5194,109 @@ void MainWindow::UpdateAspectText() {
 
 void MainWindow::UpdateDmaText() {
     if (!dma_accuracy_button) return;
-    QString val_text = QStringLiteral("NCE");
-    const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-    const auto it = combo_map->find(Settings::EnumMetadata<Settings::DmaAccuracy>::Index());
-    if (it != combo_map->end()) {
-        const u32 val = static_cast<u32>(Settings::values.dma_accuracy.GetValue());
-        for (const auto& item : it->second) {
-            if (item.first == val) {
-                val_text = CleanDisplayString(item.second);
-                if (val_text == QStringLiteral("Default")) val_text = QStringLiteral("NCE");
-                break;
-            }
-        }
+    QString val_text;
+    switch (Settings::values.dma_accuracy.GetValue()) {
+    case Settings::DmaAccuracy::Default:
+        val_text = tr("По умолчанию");
+        break;
+    case Settings::DmaAccuracy::Normal:
+        val_text = tr("Нормально");
+        break;
+    case Settings::DmaAccuracy::Unsafe:
+        val_text = tr("Небезопасно");
+        break;
+    case Settings::DmaAccuracy::Safe:
+        val_text = tr("Безопасно");
+        break;
+    default:
+        val_text = tr("По умолчанию");
+        break;
     }
     dma_accuracy_button->setText(tr("DMA:\n%1").arg(val_text));
+    dma_accuracy_button->setToolTip(tr("Точность прямого доступа к памяти DMA"));
 }
 
 void MainWindow::UpdateGpuFenceText() {
     if (!gpu_fence_button) return;
-    QString val_text = QStringLiteral("Авто");
-    const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-    const auto it = combo_map->find(Settings::EnumMetadata<Settings::GpuFenceBehavior>::Index());
-    if (it != combo_map->end()) {
-        const u32 val = static_cast<u32>(Settings::values.gpu_fence_behavior.GetValue());
-        for (const auto& item : it->second) {
-            if (item.first == val) {
-                val_text = CleanDisplayString(item.second);
-                if (val_text == QStringLiteral("Default")) val_text = QStringLiteral("Авто");
-                break;
-            }
-        }
+    QString val_text;
+    switch (Settings::values.gpu_fence_behavior.GetValue()) {
+    case Settings::GpuFenceBehavior::Default:
+        val_text = tr("По умолчанию");
+        break;
+    case Settings::GpuFenceBehavior::Immediate:
+        val_text = tr("Немедленно");
+        break;
+    case Settings::GpuFenceBehavior::Balanced:
+        val_text = tr("Сбалансированно");
+        break;
+    case Settings::GpuFenceBehavior::Accurate:
+        val_text = tr("Точно");
+        break;
+    case Settings::GpuFenceBehavior::Strict:
+        val_text = tr("Строго");
+        break;
+    default:
+        val_text = tr("По умолчанию");
+        break;
     }
-    gpu_fence_button->setText(tr("FENCE ГПУ:\n%1").arg(val_text));
+    gpu_fence_button->setText(tr("БАРЬЕРЫ ГПУ:\n%1").arg(val_text));
+    gpu_fence_button->setToolTip(tr("Поведение барьеров ГПУ — синхронизация команд рендера"));
 }
 
 void MainWindow::UpdateVramText() {
     if (!vram_mode_button) return;
-    QString val_text = QStringLiteral("Норма");
-    const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-    const auto it = combo_map->find(Settings::EnumMetadata<Settings::VramUsageMode>::Index());
-    if (it != combo_map->end()) {
-        const u32 val = static_cast<u32>(Settings::values.vram_usage_mode.GetValue());
-        for (const auto& item : it->second) {
-            if (item.first == val) {
-                val_text = CleanDisplayString(item.second);
-                if (val_text == QStringLiteral("Normal")) val_text = QStringLiteral("Норма");
-                else if (val_text == QStringLiteral("Conservative")) val_text = QStringLiteral("Эконом");
-                else if (val_text == QStringLiteral("Aggressive")) val_text = QStringLiteral("Агрессив");
-                break;
-            }
-        }
+    QString val_text;
+    switch (Settings::values.vram_usage_mode.GetValue()) {
+    case Settings::VramUsageMode::Conservative:
+        val_text = tr("Экономный");
+        break;
+    case Settings::VramUsageMode::Normal:
+        val_text = tr("Нормальный");
+        break;
+    case Settings::VramUsageMode::Aggressive:
+        val_text = tr("Агрессивный");
+        break;
+    default:
+        val_text = tr("Нормальный");
+        break;
     }
     vram_mode_button->setText(tr("VRAM:\n%1").arg(val_text));
 }
 
 void MainWindow::UpdateAnisotropyText() {
     if (!anisotropy_button) return;
-    QString val_text = QStringLiteral("Авто");
-    const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-    const auto it = combo_map->find(Settings::EnumMetadata<Settings::AnisotropyMode>::Index());
-    if (it != combo_map->end()) {
-        const u32 val = static_cast<u32>(Settings::values.max_anisotropy.GetValue());
-        for (const auto& item : it->second) {
-            if (item.first == val) {
-                val_text = CleanDisplayString(item.second);
-                if (val_text == QStringLiteral("Automatic") || val_text == QStringLiteral("Default")) val_text = QStringLiteral("Авто");
-                else if (val_text == QStringLiteral("None")) val_text = QStringLiteral("Выкл");
-                break;
-            }
-        }
+    QString val_text;
+    switch (Settings::values.max_anisotropy.GetValue()) {
+    case Settings::AnisotropyMode::Automatic:
+        val_text = tr("Автоматически");
+        break;
+    case Settings::AnisotropyMode::Default:
+        val_text = tr("По умолчанию");
+        break;
+    case Settings::AnisotropyMode::X2:
+        val_text = QStringLiteral("2x");
+        break;
+    case Settings::AnisotropyMode::X4:
+        val_text = QStringLiteral("4x");
+        break;
+    case Settings::AnisotropyMode::X8:
+        val_text = QStringLiteral("8x");
+        break;
+    case Settings::AnisotropyMode::X16:
+        val_text = QStringLiteral("16x");
+        break;
+    case Settings::AnisotropyMode::X32:
+        val_text = QStringLiteral("32x");
+        break;
+    case Settings::AnisotropyMode::X64:
+        val_text = QStringLiteral("64x");
+        break;
+    case Settings::AnisotropyMode::None:
+        val_text = tr("Отключено");
+        break;
+    default:
+        val_text = tr("Автоматически");
+        break;
     }
     anisotropy_button->setText(tr("АНИЗОТРОПИЯ:\n%1").arg(val_text));
 }
@@ -5300,40 +5370,138 @@ void MainWindow::UpdateAddonsStatusButton(u64 title_id, const QString& game_name
     }
     if (m_current_addons_title_id == 0) {
         addons_status_button->setText(tr("ДОПОЛНЕНИЯ:\nНет"));
+        addons_status_button->setStyleSheet(QString{});
         addons_status_button->setToolTip(tr("Выберите или запустите игру для просмотра дополнений"));
         return;
     }
-    const FileSys::PatchManager patch_manager(m_current_addons_title_id, QtCommon::system->GetFileSystemController(), QtCommon::system->GetContentProvider());
-    auto patches = patch_manager.GetPatches();
 
-    int addon_count = 0;
-    for (const auto& patch : patches) {
-        if (patch.type == FileSys::PatchType::DLC || patch.type == FileSys::PatchType::Mod) {
-            addon_count++;
+    const u64 cur_tid = m_current_addons_title_id;
+    const QString cur_name = m_current_addons_game_name;
+    const std::string cur_path = m_current_addons_game_path;
+
+    auto apply_button_style = [this, cur_tid, cur_name](int file_dlc_count, int tinfoil_dlc_count) {
+        if (m_current_addons_title_id != cur_tid) return;
+        const QString dlc_display_text = QStringLiteral("%1 / %2").arg(file_dlc_count).arg(tinfoil_dlc_count);
+        addons_status_button->setText(tr("ДОПОЛНЕНИЯ:\n%1").arg(dlc_display_text));
+
+        if (file_dlc_count >= tinfoil_dlc_count && (file_dlc_count > 0 || tinfoil_dlc_count > 0)) {
+            addons_status_button->setStyleSheet(QStringLiteral(
+                "QPushButton#TogglableStatusBarButton, QPushButton {"
+                "  background-color: #0c2618;"
+                "  color: #00e676;"
+                "  border: 1px solid #00e676;"
+                "  border-radius: 4px;"
+                "  padding: 2px 5px;"
+                "  font-size: 6.8pt;"
+                "  font-weight: 800;"
+                "  min-height: 26px;"
+                "  min-width: 44px;"
+                "}"
+                "QPushButton#TogglableStatusBarButton:hover, QPushButton:hover {"
+                "  background-color: #00e676;"
+                "  color: #000000;"
+                "}"
+            ));
+        } else if (file_dlc_count < tinfoil_dlc_count) {
+            addons_status_button->setStyleSheet(QStringLiteral(
+                "QPushButton#TogglableStatusBarButton, QPushButton {"
+                "  background-color: #2e1014;"
+                "  color: #ff5252;"
+                "  border: 1px solid #ff5252;"
+                "  border-radius: 4px;"
+                "  padding: 2px 5px;"
+                "  font-size: 6.8pt;"
+                "  font-weight: 800;"
+                "  min-height: 26px;"
+                "  min-width: 44px;"
+                "}"
+                "QPushButton#TogglableStatusBarButton:hover, QPushButton:hover {"
+                "  background-color: #ff5252;"
+                "  color: #000000;"
+                "}"
+            ));
+        } else {
+            addons_status_button->setStyleSheet(QString{});
+        }
+
+        addons_status_button->setToolTip(tr(
+            "Дополнения (DLC):\n"
+            "• В файле игры: %1\n"
+            "• В базе Tinfoil: %2\n"
+            "Игра: %3 (ID: 0x%4)\n\n"
+            "Нажмите для просмотра подробного списка всех дополнений и модов"
+        ).arg(file_dlc_count)
+         .arg(tinfoil_dlc_count)
+         .arg(cur_name.isEmpty() ? tr("игре") : cur_name,
+              QStringLiteral("%1").arg(cur_tid, 16, 16, QLatin1Char('0')).toUpper()));
+    };
+
+    {
+        std::lock_guard<std::mutex> lock(m_addons_cache_mutex);
+        auto it = m_addons_dlc_cache.find(cur_tid);
+        if (it != m_addons_dlc_cache.end()) {
+            apply_button_style(it->second.first, it->second.second);
+            return;
         }
     }
 
-    const auto aoc_data = QtCommon::system->GetContentProvider().ListEntriesFilter(
-        FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
-    for (const auto& entry : aoc_data) {
-        if ((entry.title_id & 0xFFFFFFFFFFFFF000) == (m_current_addons_title_id & 0xFFFFFFFFFFFFF000) ||
-            (entry.title_id >= m_current_addons_title_id + 1 && entry.title_id < m_current_addons_title_id + 0x800)) {
-            addon_count++;
-        }
-    }
+    // Show quick status immediately without blocking
+    addons_status_button->setText(tr("ДОПОЛНЕНИЯ:\n..."));
 
-    if (addon_count == 0 && !m_current_addons_game_path.empty()) {
-        static const QRegularExpression fn_dlc_tag{QStringLiteral(R"(\+([0-9]+)D\b)"), QRegularExpression::CaseInsensitiveOption};
-        const auto dm = fn_dlc_tag.match(QString::fromStdString(m_current_addons_game_path));
-        if (dm.hasMatch() && dm.hasCaptured(1)) {
-            addon_count += dm.captured(1).toInt();
-        }
-    }
+    // Compute in background thread
+    std::thread([this, cur_tid, cur_name, cur_path, apply_button_style]() {
+        std::set<u64> seen_dlc_ids;
 
-    addons_status_button->setText(tr("ДОПОЛНЕНИЯ:\n%1").arg(addon_count));
-    addons_status_button->setToolTip(tr("Дополнения к %1 (ID: 0x%2)\nНажмите для просмотра полного списка или копирования")
-        .arg(m_current_addons_game_name.isEmpty() ? tr("игре") : m_current_addons_game_name,
-             QStringLiteral("%1").arg(m_current_addons_title_id, 16, 16, QLatin1Char('0')).toUpper()));
+        if (QtCommon::system) {
+            const auto aoc_data = QtCommon::system->GetContentProvider().ListEntriesFilter(
+                FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
+            for (const auto& entry : aoc_data) {
+                if ((entry.title_id & 0xFFFFFFFFFFFFF000) == (cur_tid & 0xFFFFFFFFFFFFF000) ||
+                    (entry.title_id >= cur_tid + 1 && entry.title_id < cur_tid + 0x2000)) {
+                    seen_dlc_ids.insert(entry.title_id);
+                }
+            }
+
+            const FileSys::PatchManager patch_manager(cur_tid, QtCommon::system->GetFileSystemController(), QtCommon::system->GetContentProvider());
+            const auto patches = patch_manager.GetPatches();
+            for (const auto& patch : patches) {
+                if (patch.type == FileSys::PatchType::DLC) {
+                    const QStringList dlc_indices = QString::fromStdString(patch.version).split(QLatin1Char(','), Qt::SkipEmptyParts);
+                    for (const auto& idx_str : dlc_indices) {
+                        const u32 idx_val = idx_str.trimmed().toUInt();
+                        const u64 generated_tid = (cur_tid & 0xFFFFFFFFFFFFF000) | (idx_val > 0 ? (0x1000 | (idx_val & 0x7FF)) : 0x1001);
+                        seen_dlc_ids.insert(generated_tid);
+                    }
+                    if (dlc_indices.isEmpty()) {
+                        seen_dlc_ids.insert((cur_tid & 0xFFFFFFFFFFFFF000) | 0x1001);
+                    }
+                }
+            }
+        }
+
+        if (!cur_path.empty()) {
+            static const QRegularExpression fn_dlc_tag{QStringLiteral(R"(\+([0-9]+)D\b)"), QRegularExpression::CaseInsensitiveOption};
+            const auto dm = fn_dlc_tag.match(QString::fromStdString(cur_path));
+            if (dm.hasMatch() && dm.hasCaptured(1)) {
+                const int tag_count = dm.captured(1).toInt();
+                for (int i = 1; i <= tag_count; ++i) {
+                    seen_dlc_ids.insert((cur_tid & 0xFFFFFFFFFFFFF000) | (0x1000 + i));
+                }
+            }
+        }
+
+        const int file_dlc_count = static_cast<int>(seen_dlc_ids.size());
+        const int tinfoil_dlc_count = TitleDB::TitleDatabase::Instance().GetDlcCount(cur_tid);
+
+        {
+            std::lock_guard<std::mutex> lock(m_addons_cache_mutex);
+            m_addons_dlc_cache[cur_tid] = {file_dlc_count, tinfoil_dlc_count};
+        }
+
+        QMetaObject::invokeMethod(this, [apply_button_style, file_dlc_count, tinfoil_dlc_count]() {
+            apply_button_style(file_dlc_count, tinfoil_dlc_count);
+        }, Qt::QueuedConnection);
+    }).detach();
 }
 
 void MainWindow::UpdateAirplaneModeButton() {
@@ -5510,11 +5678,13 @@ void MainWindow::ShowFooterCustomizeMenu() {
 
     const std::vector<GroupInfo> groups = {
         {tr("Раздел: УПРАВЛЕНИЕ"), m_status_groups.size() > 0 ? m_status_groups[0] : nullptr},
-        {tr("Раздел: РЕНДЕР"), m_status_groups.size() > 1 ? m_status_groups[1] : nullptr},
-        {tr("Раздел: ГРАФИКА"), m_status_groups.size() > 2 ? m_status_groups[2] : nullptr},
-        {tr("Раздел: ASTC"), m_status_groups.size() > 3 ? m_status_groups[3] : nullptr},
-        {tr("Раздел: РЕЖИМ"), m_status_groups.size() > 4 ? m_status_groups[4] : nullptr},
-        {tr("Раздел: СИСТЕМА"), m_status_groups.size() > 5 ? m_status_groups[5] : nullptr},
+        {tr("Раздел: ДОПОЛНЕНИЯ"), m_status_groups.size() > 1 ? m_status_groups[1] : nullptr},
+        {tr("Раздел: РЕНДЕР"), m_status_groups.size() > 2 ? m_status_groups[2] : nullptr},
+        {tr("Раздел: ГРАФИКА"), m_status_groups.size() > 3 ? m_status_groups[3] : nullptr},
+        {tr("Раздел: ASTC"), m_status_groups.size() > 4 ? m_status_groups[4] : nullptr},
+        {tr("Раздел: РЕЖИМ"), m_status_groups.size() > 5 ? m_status_groups[5] : nullptr},
+        {tr("Раздел: СИСТЕМА"), m_status_groups.size() > 6 ? m_status_groups[6] : nullptr},
+        {tr("Раздел: СЕТЬ"), m_status_groups.size() > 7 ? m_status_groups[7] : nullptr},
     };
 
     for (const auto& g : groups) {
@@ -5545,7 +5715,7 @@ void MainWindow::ShowFooterCustomizeMenu() {
         {tr("Точность ЦП"), cpu_accuracy_button},
         {tr("VSync"), vsync_mode_button},
         {tr("DMA"), dma_accuracy_button},
-        {tr("FENCE ГПУ"), gpu_fence_button},
+        {tr("Барьеры ГПУ"), gpu_fence_button},
         {tr("NVDEC"), nvdec_status_button},
         {tr("Сглаживание"), aa_status_button},
         {tr("Фильтр масштабирования"), filter_status_button},
@@ -5734,6 +5904,41 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
             act->setCheckable(true);
             act->setChecked(opt.first == cur_nvdec);
         }
+
+        auto* dma_menu = context_menu.addMenu(tr("⚡ Точность DMA"));
+        const auto cur_dma = Settings::values.dma_accuracy.GetValue();
+        const std::vector<std::pair<Settings::DmaAccuracy, QString>> dma_options = {
+            {Settings::DmaAccuracy::Default, tr("По умолчанию")},
+            {Settings::DmaAccuracy::Normal, tr("Нормально")},
+            {Settings::DmaAccuracy::Unsafe, tr("Небезопасно")},
+            {Settings::DmaAccuracy::Safe, tr("Безопасно")},
+        };
+        for (const auto& item : dma_options) {
+            auto* act = dma_menu->addAction(item.second, [this, item] {
+                Settings::values.dma_accuracy.SetValue(item.first);
+                UpdateDmaText();
+            });
+            act->setCheckable(true);
+            act->setChecked(item.first == cur_dma);
+        }
+
+        auto* fence_menu = context_menu.addMenu(tr("🛡️ Поведение барьеров ГПУ"));
+        const auto cur_fence = Settings::values.gpu_fence_behavior.GetValue();
+        const std::vector<std::pair<Settings::GpuFenceBehavior, QString>> fence_options = {
+            {Settings::GpuFenceBehavior::Default, tr("По умолчанию")},
+            {Settings::GpuFenceBehavior::Immediate, tr("Немедленно")},
+            {Settings::GpuFenceBehavior::Balanced, tr("Сбалансированно")},
+            {Settings::GpuFenceBehavior::Accurate, tr("Точно")},
+            {Settings::GpuFenceBehavior::Strict, tr("Строго")},
+        };
+        for (const auto& item : fence_options) {
+            auto* act = fence_menu->addAction(item.second, [this, item] {
+                Settings::values.gpu_fence_behavior.SetValue(item.first);
+                UpdateGpuFenceText();
+            });
+            act->setCheckable(true);
+            act->setChecked(item.first == cur_fence);
+        }
     } else if (title == tr("ГРАФИКА")) {
         auto* header_act = context_menu.addAction(tr("🖼️ Графика и масштабирование"));
         header_act->setEnabled(false);
@@ -5760,34 +5965,41 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         }
 
         auto* vram_menu = context_menu.addMenu(tr("💾 Видеопамять"));
-        const auto cur_vram = static_cast<u32>(Settings::values.vram_usage_mode.GetValue());
-        const auto combo_map = ConfigurationShared::ComboboxEnumeration(this);
-        const auto it_vram = combo_map->find(Settings::EnumMetadata<Settings::VramUsageMode>::Index());
-        if (it_vram != combo_map->end()) {
-            for (const auto& item : it_vram->second) {
-                const u32 val = item.first;
-                auto* act = vram_menu->addAction(item.second, [this, val] {
-                    Settings::values.vram_usage_mode.SetValue(static_cast<Settings::VramUsageMode>(val));
-                    UpdateVramText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_vram);
-            }
+        const auto cur_vram = Settings::values.vram_usage_mode.GetValue();
+        const std::vector<std::pair<Settings::VramUsageMode, QString>> vram_options = {
+            {Settings::VramUsageMode::Conservative, tr("Экономный")},
+            {Settings::VramUsageMode::Normal, tr("Нормальный")},
+            {Settings::VramUsageMode::Aggressive, tr("Агрессивный")},
+        };
+        for (const auto& opt : vram_options) {
+            auto* act = vram_menu->addAction(opt.second, [this, opt] {
+                Settings::values.vram_usage_mode.SetValue(opt.first);
+                UpdateVramText();
+            });
+            act->setCheckable(true);
+            act->setChecked(opt.first == cur_vram);
         }
 
         auto* aniso_menu = context_menu.addMenu(tr("🔍 Анизотропная фильтрация"));
-        const auto cur_aniso = static_cast<u32>(Settings::values.max_anisotropy.GetValue());
-        const auto it_aniso = combo_map->find(Settings::EnumMetadata<Settings::AnisotropyMode>::Index());
-        if (it_aniso != combo_map->end()) {
-            for (const auto& item : it_aniso->second) {
-                const u32 val = item.first;
-                auto* act = aniso_menu->addAction(item.second, [this, val] {
-                    Settings::values.max_anisotropy.SetValue(static_cast<Settings::AnisotropyMode>(val));
-                    UpdateAnisotropyText();
-                });
-                act->setCheckable(true);
-                act->setChecked(val == cur_aniso);
-            }
+        const auto cur_aniso = Settings::values.max_anisotropy.GetValue();
+        const std::vector<std::pair<Settings::AnisotropyMode, QString>> aniso_options = {
+            {Settings::AnisotropyMode::Automatic, tr("Автоматически")},
+            {Settings::AnisotropyMode::Default, tr("По умолчанию")},
+            {Settings::AnisotropyMode::X2, QStringLiteral("2x")},
+            {Settings::AnisotropyMode::X4, QStringLiteral("4x")},
+            {Settings::AnisotropyMode::X8, QStringLiteral("8x")},
+            {Settings::AnisotropyMode::X16, QStringLiteral("16x")},
+            {Settings::AnisotropyMode::X32, QStringLiteral("32x")},
+            {Settings::AnisotropyMode::X64, QStringLiteral("64x")},
+            {Settings::AnisotropyMode::None, tr("Отключено")},
+        };
+        for (const auto& opt : aniso_options) {
+            auto* act = aniso_menu->addAction(opt.second, [this, opt] {
+                Settings::values.max_anisotropy.SetValue(opt.first);
+                UpdateAnisotropyText();
+            });
+            act->setCheckable(true);
+            act->setChecked(opt.first == cur_aniso);
         }
 
         auto* aa_menu = context_menu.addMenu(tr("✨ Сглаживание"));
@@ -5879,6 +6091,23 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
             ui->action_Fullscreen->setChecked(!ui->action_Fullscreen->isChecked());
             ToggleFullscreen();
             UpdateFullscreenButton();
+        });
+    } else if (title == tr("СИСТЕМА")) {
+        auto* header_act = context_menu.addAction(tr("🛠️ Системные компоненты"));
+        header_act->setEnabled(false);
+        context_menu.addSeparator();
+        context_menu.addAction(tr("📦 Установить прошивку из папки..."), this, &MainWindow::OnInstallFirmware);
+        context_menu.addAction(tr("📦 Установить прошивку из ZIP..."), this, &MainWindow::OnInstallFirmwareFromZIP);
+        context_menu.addAction(tr("🔑 Установить ключи (prod.keys)..."), this, &MainWindow::OnInstallDecryptionKeys);
+        context_menu.addAction(tr("📁 Открыть папку NAND..."), this, &MainWindow::OnOpenNANDFolder);
+    } else if (title == tr("СЕТЬ")) {
+        auto* header_act = context_menu.addAction(tr("🌐 Сетевые функции"));
+        header_act->setEnabled(false);
+        context_menu.addSeparator();
+        context_menu.addAction(tr("🌐 Мультиплеер (Обзор комнат)..."), multiplayer_state, &MultiplayerState::OnOpenNetworkRoom);
+        context_menu.addAction(tr("🔗 Прямое подключение к комнате..."), multiplayer_state, &MultiplayerState::OnDirectConnectToRoom);
+        context_menu.addAction(tr("⚙️ Настройки сети..."), this, [this] {
+            OnConfigure();
         });
     }
     context_menu.addSeparator();

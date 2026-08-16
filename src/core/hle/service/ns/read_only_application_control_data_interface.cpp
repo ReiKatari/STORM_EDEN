@@ -219,18 +219,28 @@ Result IReadOnlyApplicationControlDataInterface::GetApplicationDesiredLanguage(
         R_THROW(Service::NS::ResultApplicationLanguageNotFound);
     }
 
-    // Try to find a valid language.
+    // Check if user's desired language is supported directly
+    const auto desired_flag = GetSupportedLanguageFlag(*application_language);
+    if (supported_languages == 0 || (supported_languages & desired_flag) == desired_flag) {
+        *out_desired_language = *application_language;
+        LOG_INFO(Service_NS, "Using user configured application language: {}", *application_language);
+        R_SUCCEED();
+    }
+
+    // Try to find a valid language from priority list
     for (const auto lang : *priority_list) {
         const auto supported_flag = GetSupportedLanguageFlag(lang);
-        if (supported_languages == 0 || (supported_languages & supported_flag) == supported_flag) {
+        if ((supported_languages & supported_flag) == supported_flag) {
             *out_desired_language = lang;
+            LOG_INFO(Service_NS, "Fallback application language: {}", lang);
             R_SUCCEED();
         }
     }
 
-    LOG_ERROR(Service_NS, "Could not find a valid language! supported_languages={:08X}",
-              supported_languages);
-    R_THROW(Service::NS::ResultApplicationLanguageNotFound);
+    // If game NACP doesn't list it (e.g. fan translations, LayeredFS mods), still provide the user's requested language
+    *out_desired_language = *application_language;
+    LOG_INFO(Service_NS, "Defaulting to user configured application language: {}", *application_language);
+    R_SUCCEED();
 }
 
 Result IReadOnlyApplicationControlDataInterface::ConvertApplicationLanguageToLanguageCode(

@@ -429,177 +429,329 @@ namespace Common::Android {
 
     jint InitFFmpegOnLoad(JavaVM *vm);
 
+#ifdef __ANDROID__
+#include <csignal>
+#include <fcntl.h>
+#include <unistd.h>
+#include <android/log.h>
+#include <cstdio>
+#include <cstring>
+#include <unwind.h>
+#include <dlfcn.h>
+#include <exception>
+#include <typeinfo>
+
+struct BacktraceState {
+    void** current;
+    void** end;
+};
+
+static _Unwind_Reason_Code UnwindCallback(struct _Unwind_Context* context, void* arg) {
+    auto* state = static_cast<BacktraceState*>(arg);
+    uintptr_t pc = _Unwind_GetIP(context);
+    if (pc) {
+        if (state->current >= state->end) {
+            return _URC_END_OF_STACK;
+        }
+        *state->current++ = reinterpret_cast<void*>(pc);
+    }
+    return _URC_NO_REASON;
+}
+
+static size_t CaptureBacktrace(void** buffer, size_t max) {
+    BacktraceState state = {buffer, buffer + max};
+    _Unwind_Backtrace(UnwindCallback, &state);
+    return static_cast<size_t>(state.current - buffer);
+}
+
+static void AppendBacktrace(char* out_buf, size_t out_buf_size, void** buffer, size_t count) {
+    size_t offset = strlen(out_buf);
+    for (size_t i = 0; i < count; ++i) {
+        const void* addr = buffer[i];
+        const char* symbol = "";
+        const char* fname = "";
+        ptrdiff_t sym_offset = 0;
+
+        Dl_info info;
+        if (dladdr(addr, &info)) {
+            if (info.dli_sname) {
+                symbol = info.dli_sname;
+                sym_offset = reinterpret_cast<ptrdiff_t>(addr) - reinterpret_cast<ptrdiff_t>(info.dli_saddr);
+            }
+            if (info.dli_fname) {
+                fname = info.dli_fname;
+                if (!info.dli_sname) {
+                    sym_offset = reinterpret_cast<ptrdiff_t>(addr) - reinterpret_cast<ptrdiff_t>(info.dli_fbase);
+                }
+            }
+        }
+
+        char line[256];
+        if (symbol && symbol[0] != '\0') {
+            snprintf(line, sizeof(line), "#%02zu  %p  %s (%s+%td)\n", i, addr, fname, symbol, sym_offset);
+        } else {
+            snprintf(line, sizeof(line), "#%02zu  %p  %s\n", i, addr, fname);
+        }
+
+        size_t len = strlen(line);
+        if (offset + len < out_buf_size - 1) {
+            memcpy(out_buf + offset, line, len);
+            offset += len;
+            out_buf[offset] = '\0';
+        }
+    }
+}
+
+static void WriteCrashReportToDisk(const char* text) {
+    const char* paths[] = {
+        "/storage/emulated/0/Download/STORM_EDEN_CRASH.txt",
+        "/sdcard/Download/STORM_EDEN_CRASH.txt",
+        "/data/data/dev.eden.eden_emulator/files/STORM_EDEN_CRASH.txt",
+        "/data/data/org.yuzu.yuzu_emu/files/STORM_EDEN_CRASH.txt",
+        "/data/user/0/dev.eden.eden_emulator/files/STORM_EDEN_CRASH.txt",
+        "/data/user/0/org.yuzu.yuzu_emu/files/STORM_EDEN_CRASH.txt",
+        "/sdcard/Android/data/dev.eden.eden_emulator/files/STORM_EDEN_CRASH.txt",
+        "/sdcard/Android/data/org.yuzu.yuzu_emu/files/STORM_EDEN_CRASH.txt"
+    };
+
+    for (const auto& path : paths) {
+        int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (fd >= 0) {
+            write(fd, text, strlen(text));
+            close(fd);
+        }
+    }
+}
+
+static void NativeCrashSignalHandler(int sig, siginfo_t* info, void* ucontext) {
+    const char* sig_name = "UNKNOWN";
+    switch (sig) {
+        case SIGSEGV: sig_name = "SIGSEGV (Segmentation Fault)"; break;
+        case SIGABRT: sig_name = "SIGABRT (Abort)"; break;
+        case SIGBUS:  sig_name = "SIGBUS (Bus Error)"; break;
+        case SIGILL:  sig_name = "SIGILL (Illegal Instruction)"; break;
+        case SIGFPE:  sig_name = "SIGFPE (Floating Point Exception)"; break;
+        case SIGSYS:  sig_name = "SIGSYS (Bad System Call)"; break;
+    }
+
+    void* frames[48];
+    size_t count = CaptureBacktrace(frames, 48);
+
+    char buf[4096];
+    snprintf(buf, sizeof(buf),
+        "=======================================================\n"
+        "STORM EDEN Android - NATIVE CRASH REPORT\n"
+        "=======================================================\n"
+        "Signal: %d (%s)\n"
+        "Fault Address: %p\n"
+        "Signal Code: %d\n\n"
+        "--- NATIVE BACKTRACE ---\n",
+        sig, sig_name, info ? info->si_addr : nullptr, info ? info->si_code : 0);
+
+    AppendBacktrace(buf, sizeof(buf), frames, count);
+
+    __android_log_print(ANDROID_LOG_FATAL, "STORM_EDEN_CRASH", "%s", buf);
+    WriteCrashReportToDisk(buf);
+
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
+static void CustomTerminateHandler() {
+    char exc_buf[512] = "C++ Exception: unknown\n";
+    try {
+        auto cur = ::std::current_exception();
+        if (cur) {
+            ::std::rethrow_exception(cur);
+        }
+    } catch (const ::std::exception& e) {
+        snprintf(exc_buf, sizeof(exc_buf), "C++ std::exception: %s\n", e.what());
+    } catch (...) {
+        snprintf(exc_buf, sizeof(exc_buf), "C++ Exception: unknown non-std exception\n");
+    }
+
+    void* frames[48];
+    size_t count = CaptureBacktrace(frames, 48);
+
+    char buf[4096];
+    snprintf(buf, sizeof(buf),
+        "=======================================================\n"
+        "STORM EDEN Android - UNCAUGHT C++ EXCEPTION REPORT\n"
+        "=======================================================\n"
+        "%s\n"
+        "--- NATIVE BACKTRACE ---\n", exc_buf);
+
+    AppendBacktrace(buf, sizeof(buf), frames, count);
+
+    __android_log_print(ANDROID_LOG_FATAL, "STORM_EDEN_CRASH", "%s", buf);
+    WriteCrashReportToDisk(buf);
+
+    abort();
+}
+
+static void InstallNativeCrashHandler() {
+    ::std::set_terminate(CustomTerminateHandler);
+
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = NativeCrashSignalHandler;
+    sa.sa_flags = static_cast<int>(SA_SIGINFO | SA_ONSTACK | SA_RESETHAND);
+    sigaction(SIGSEGV, &sa, nullptr);
+    sigaction(SIGABRT, &sa, nullptr);
+    sigaction(SIGBUS, &sa, nullptr);
+    sigaction(SIGILL, &sa, nullptr);
+    sigaction(SIGFPE, &sa, nullptr);
+    sigaction(SIGSYS, &sa, nullptr);
+}
+
+static jclass FindClassSafe(JNIEnv* env, const char* name) {
+    jclass local = env->FindClass(name);
+    if (env->ExceptionCheck() || !local) {
+        __android_log_print(ANDROID_LOG_ERROR, "STORM_EDEN_CRASH", "[JNI] FindClass FAILED for: %s", name);
+        env->ExceptionClear();
+        return nullptr;
+    }
+    jclass global = reinterpret_cast<jclass>(env->NewGlobalRef(local));
+    env->DeleteLocalRef(local);
+    return global;
+}
+
+static jmethodID GetMethodIDSafe(JNIEnv* env, jclass clazz, const char* name, const char* sig) {
+    if (!clazz) return nullptr;
+    jmethodID id = env->GetMethodID(clazz, name, sig);
+    if (env->ExceptionCheck() || !id) {
+        __android_log_print(ANDROID_LOG_ERROR, "STORM_EDEN_CRASH", "[JNI] GetMethodID FAILED for: %s %s", name, sig);
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return id;
+}
+
+static jmethodID GetStaticMethodIDSafe(JNIEnv* env, jclass clazz, const char* name, const char* sig) {
+    if (!clazz) return nullptr;
+    jmethodID id = env->GetStaticMethodID(clazz, name, sig);
+    if (env->ExceptionCheck() || !id) {
+        __android_log_print(ANDROID_LOG_ERROR, "STORM_EDEN_CRASH", "[JNI] GetStaticMethodID FAILED for: %s %s", name, sig);
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return id;
+}
+
+static jfieldID GetFieldIDSafe(JNIEnv* env, jclass clazz, const char* name, const char* sig) {
+    if (!clazz) return nullptr;
+    jfieldID id = env->GetFieldID(clazz, name, sig);
+    if (env->ExceptionCheck() || !id) {
+        __android_log_print(ANDROID_LOG_ERROR, "STORM_EDEN_CRASH", "[JNI] GetFieldID FAILED for: %s %s", name, sig);
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return id;
+}
+#endif
+
     jint JNI_OnLoad(JavaVM *vm, void *reserved) {
         s_java_vm = vm;
+#ifdef __ANDROID__
+        InstallNativeCrashHandler();
+#endif
         InitFFmpegOnLoad(vm);
 
         JNIEnv *env;
         if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION) != JNI_OK)
             return JNI_ERR;
 
-        // Initialize Java classes
-        const jclass native_library_class = env->FindClass("org/yuzu/yuzu_emu/NativeLibrary");
-        s_native_library_class = reinterpret_cast<jclass>(env->NewGlobalRef(native_library_class));
-        s_disk_cache_progress_class = reinterpret_cast<jclass>(env->NewGlobalRef(
-                env->FindClass("org/yuzu/yuzu_emu/disk_shader_cache/DiskShaderCacheProgress")));
-        s_load_callback_stage_class = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(
-                "org/yuzu/yuzu_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage")));
+#ifdef __ANDROID__
+        // Initialize Java classes safely
+        s_native_library_class = FindClassSafe(env, "org/yuzu/yuzu_emu/NativeLibrary");
+        s_disk_cache_progress_class = FindClassSafe(env, "org/yuzu/yuzu_emu/disk_shader_cache/DiskShaderCacheProgress");
+        s_load_callback_stage_class = FindClassSafe(env, "org/yuzu/yuzu_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage");
 
-        const jclass game_dir_class = env->FindClass("org/yuzu/yuzu_emu/model/GameDir");
-        s_game_dir_class = reinterpret_cast<jclass>(env->NewGlobalRef(game_dir_class));
-        s_game_dir_constructor = env->GetMethodID(game_dir_class, "<init>",
-                                                  "(Ljava/lang/String;Z)V");
-        env->DeleteLocalRef(game_dir_class);
+        s_game_dir_class = FindClassSafe(env, "org/yuzu/yuzu_emu/model/GameDir");
+        s_game_dir_constructor = GetMethodIDSafe(env, s_game_dir_class, "<init>", "(Ljava/lang/String;Z)V");
 
         // Initialize methods
-        s_exit_emulation_activity =
-                env->GetStaticMethodID(s_native_library_class, "exitEmulationActivity", "(I)V");
-        s_disk_cache_load_progress =
-                env->GetStaticMethodID(s_disk_cache_progress_class, "loadProgress", "(III)V");
-        s_copy_to_storage = env->GetStaticMethodID(s_native_library_class, "copyFileToStorage",
-                                                   "(Ljava/lang/String;Ljava/lang/String;)Z");
-        s_file_exists = env->GetStaticMethodID(s_native_library_class, "exists",
-                                               "(Ljava/lang/String;)Z");
-        s_file_extension = env->GetStaticMethodID(s_native_library_class, "getFileExtension",
-                                               "(Ljava/lang/String;)Ljava/lang/String;");
-        s_on_emulation_started =
-                env->GetStaticMethodID(s_native_library_class, "onEmulationStarted", "()V");
-        s_on_emulation_stopped =
-                env->GetStaticMethodID(s_native_library_class, "onEmulationStopped", "(I)V");
-        s_on_program_changed =
-                env->GetStaticMethodID(s_native_library_class, "onProgramChanged", "(I)V");
+        s_exit_emulation_activity = GetStaticMethodIDSafe(env, s_native_library_class, "exitEmulationActivity", "(I)V");
+        s_disk_cache_load_progress = GetStaticMethodIDSafe(env, s_disk_cache_progress_class, "loadProgress", "(III)V");
+        s_copy_to_storage = GetStaticMethodIDSafe(env, s_native_library_class, "copyFileToStorage", "(Ljava/lang/String;Ljava/lang/String;)Z");
+        s_file_exists = GetStaticMethodIDSafe(env, s_native_library_class, "exists", "(Ljava/lang/String;)Z");
+        s_file_extension = GetStaticMethodIDSafe(env, s_native_library_class, "getFileExtension", "(Ljava/lang/String;)Ljava/lang/String;");
+        s_on_emulation_started = GetStaticMethodIDSafe(env, s_native_library_class, "onEmulationStarted", "()V");
+        s_on_emulation_stopped = GetStaticMethodIDSafe(env, s_native_library_class, "onEmulationStopped", "(I)V");
+        s_on_program_changed = GetStaticMethodIDSafe(env, s_native_library_class, "onProgramChanged", "(I)V");
 
-        const jclass game_class = env->FindClass("org/yuzu/yuzu_emu/model/Game");
-        s_game_class = reinterpret_cast<jclass>(env->NewGlobalRef(game_class));
-        s_game_constructor = env->GetMethodID(game_class, "<init>",
-                                              "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
-                                              "String;Ljava/lang/String;Ljava/lang/String;Z)V");
-        s_game_title_field = env->GetFieldID(game_class, "title", "Ljava/lang/String;");
-        s_game_path_field = env->GetFieldID(game_class, "path", "Ljava/lang/String;");
-        s_game_program_id_field = env->GetFieldID(game_class, "programId", "Ljava/lang/String;");
-        s_game_developer_field = env->GetFieldID(game_class, "developer", "Ljava/lang/String;");
-        s_game_version_field = env->GetFieldID(game_class, "version", "Ljava/lang/String;");
-        s_game_is_homebrew_field = env->GetFieldID(game_class, "isHomebrew", "Z");
-        env->DeleteLocalRef(game_class);
+        s_game_class = FindClassSafe(env, "org/yuzu/yuzu_emu/model/Game");
+        s_game_constructor = GetMethodIDSafe(env, s_game_class, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+        s_game_title_field = GetFieldIDSafe(env, s_game_class, "title", "Ljava/lang/String;");
+        s_game_path_field = GetFieldIDSafe(env, s_game_class, "path", "Ljava/lang/String;");
+        s_game_program_id_field = GetFieldIDSafe(env, s_game_class, "programId", "Ljava/lang/String;");
+        s_game_developer_field = GetFieldIDSafe(env, s_game_class, "developer", "Ljava/lang/String;");
+        s_game_version_field = GetFieldIDSafe(env, s_game_class, "version", "Ljava/lang/String;");
+        s_game_is_homebrew_field = GetFieldIDSafe(env, s_game_class, "isHomebrew", "Z");
 
-        const jclass string_class = env->FindClass("java/lang/String");
-        s_string_class = reinterpret_cast<jclass>(env->NewGlobalRef(string_class));
-        env->DeleteLocalRef(string_class);
+        s_string_class = FindClassSafe(env, "java/lang/String");
 
-        const jclass pair_class = env->FindClass("kotlin/Pair");
-        s_pair_class = reinterpret_cast<jclass>(env->NewGlobalRef(pair_class));
-        s_pair_constructor =
-                env->GetMethodID(pair_class, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
-        s_pair_first_field = env->GetFieldID(pair_class, "first", "Ljava/lang/Object;");
-        s_pair_second_field = env->GetFieldID(pair_class, "second", "Ljava/lang/Object;");
-        env->DeleteLocalRef(pair_class);
+        s_pair_class = FindClassSafe(env, "kotlin/Pair");
+        s_pair_constructor = GetMethodIDSafe(env, s_pair_class, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+        s_pair_first_field = GetFieldIDSafe(env, s_pair_class, "first", "Ljava/lang/Object;");
+        s_pair_second_field = GetFieldIDSafe(env, s_pair_class, "second", "Ljava/lang/Object;");
 
-        const jclass overlay_control_data_class =
-                env->FindClass("org/yuzu/yuzu_emu/overlay/model/OverlayControlData");
-        s_overlay_control_data_class =
-                reinterpret_cast<jclass>(env->NewGlobalRef(overlay_control_data_class));
-        s_overlay_control_data_constructor =
-                env->GetMethodID(overlay_control_data_class, "<init>",
-                                 "(Ljava/lang/String;ZLkotlin/Pair;Lkotlin/Pair;Lkotlin/Pair;F)V");
-        s_overlay_control_data_id_field =
-                env->GetFieldID(overlay_control_data_class, "id", "Ljava/lang/String;");
-        s_overlay_control_data_enabled_field =
-                env->GetFieldID(overlay_control_data_class, "enabled", "Z");
-        s_overlay_control_data_landscape_position_field =
-                env->GetFieldID(overlay_control_data_class, "landscapePosition", "Lkotlin/Pair;");
-        s_overlay_control_data_portrait_position_field =
-                env->GetFieldID(overlay_control_data_class, "portraitPosition", "Lkotlin/Pair;");
-        s_overlay_control_data_foldable_position_field =
-                env->GetFieldID(overlay_control_data_class, "foldablePosition", "Lkotlin/Pair;");
-        s_overlay_control_data_individual_scale_field =
-                env->GetFieldID(overlay_control_data_class, "individualScale", "F");
-        env->DeleteLocalRef(overlay_control_data_class);
+        s_overlay_control_data_class = FindClassSafe(env, "org/yuzu/yuzu_emu/overlay/model/OverlayControlData");
+        s_overlay_control_data_constructor = GetMethodIDSafe(env, s_overlay_control_data_class, "<init>", "(Ljava/lang/String;ZLkotlin/Pair;Lkotlin/Pair;Lkotlin/Pair;F)V");
+        s_overlay_control_data_id_field = GetFieldIDSafe(env, s_overlay_control_data_class, "id", "Ljava/lang/String;");
+        s_overlay_control_data_enabled_field = GetFieldIDSafe(env, s_overlay_control_data_class, "enabled", "Z");
+        s_overlay_control_data_landscape_position_field = GetFieldIDSafe(env, s_overlay_control_data_class, "landscapePosition", "Lkotlin/Pair;");
+        s_overlay_control_data_portrait_position_field = GetFieldIDSafe(env, s_overlay_control_data_class, "portraitPosition", "Lkotlin/Pair;");
+        s_overlay_control_data_foldable_position_field = GetFieldIDSafe(env, s_overlay_control_data_class, "foldablePosition", "Lkotlin/Pair;");
+        s_overlay_control_data_individual_scale_field = GetFieldIDSafe(env, s_overlay_control_data_class, "individualScale", "F");
 
-        const jclass patch_class = env->FindClass("org/yuzu/yuzu_emu/model/Patch");
-        s_patch_class = reinterpret_cast<jclass>(env->NewGlobalRef(patch_class));
-        s_patch_constructor = env->GetMethodID(
-                patch_class, "<init>",
-                "(ZLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;JI)V");
-        s_patch_enabled_field = env->GetFieldID(patch_class, "enabled", "Z");
-        s_patch_name_field = env->GetFieldID(patch_class, "name", "Ljava/lang/String;");
-        s_patch_version_field = env->GetFieldID(patch_class, "version", "Ljava/lang/String;");
-        s_patch_type_field = env->GetFieldID(patch_class, "type", "I");
-        s_patch_program_id_field = env->GetFieldID(patch_class, "programId", "Ljava/lang/String;");
-        s_patch_title_id_field = env->GetFieldID(patch_class, "titleId", "Ljava/lang/String;");
-        env->DeleteLocalRef(patch_class);
+        s_patch_class = FindClassSafe(env, "org/yuzu/yuzu_emu/model/Patch");
+        s_patch_constructor = GetMethodIDSafe(env, s_patch_class, "<init>", "(ZLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;JI)V");
+        s_patch_enabled_field = GetFieldIDSafe(env, s_patch_class, "enabled", "Z");
+        s_patch_name_field = GetFieldIDSafe(env, s_patch_class, "name", "Ljava/lang/String;");
+        s_patch_version_field = GetFieldIDSafe(env, s_patch_class, "version", "Ljava/lang/String;");
+        s_patch_type_field = GetFieldIDSafe(env, s_patch_class, "type", "I");
+        s_patch_program_id_field = GetFieldIDSafe(env, s_patch_class, "programId", "Ljava/lang/String;");
+        s_patch_title_id_field = GetFieldIDSafe(env, s_patch_class, "titleId", "Ljava/lang/String;");
 
-        const jclass double_class = env->FindClass("java/lang/Double");
-        s_double_class = reinterpret_cast<jclass>(env->NewGlobalRef(double_class));
-        s_double_constructor = env->GetMethodID(double_class, "<init>", "(D)V");
-        s_double_value_field = env->GetFieldID(double_class, "value", "D");
-        env->DeleteLocalRef(double_class);
+        s_double_class = FindClassSafe(env, "java/lang/Double");
+        s_double_constructor = GetMethodIDSafe(env, s_double_class, "<init>", "(D)V");
+        s_double_value_field = GetFieldIDSafe(env, s_double_class, "value", "D");
 
-        const jclass int_class = env->FindClass("java/lang/Integer");
-        s_integer_class = reinterpret_cast<jclass>(env->NewGlobalRef(int_class));
-        s_integer_constructor = env->GetMethodID(int_class, "<init>", "(I)V");
-        s_integer_value_field = env->GetFieldID(int_class, "value", "I");
-        env->DeleteLocalRef(int_class);
+        s_integer_class = FindClassSafe(env, "java/lang/Integer");
+        s_integer_constructor = GetMethodIDSafe(env, s_integer_class, "<init>", "(I)V");
+        s_integer_value_field = GetFieldIDSafe(env, s_integer_class, "value", "I");
 
-        const jclass boolean_class = env->FindClass("java/lang/Boolean");
-        s_boolean_class = reinterpret_cast<jclass>(env->NewGlobalRef(boolean_class));
-        s_boolean_constructor = env->GetMethodID(boolean_class, "<init>", "(Z)V");
-        s_boolean_value_field = env->GetFieldID(boolean_class, "value", "Z");
-        env->DeleteLocalRef(boolean_class);
+        s_boolean_class = FindClassSafe(env, "java/lang/Boolean");
+        s_boolean_constructor = GetMethodIDSafe(env, s_boolean_class, "<init>", "(Z)V");
+        s_boolean_value_field = GetFieldIDSafe(env, s_boolean_class, "value", "Z");
 
-        const jclass player_input_class =
-                env->FindClass("org/yuzu/yuzu_emu/features/input/model/PlayerInput");
-        s_player_input_class = reinterpret_cast<jclass>(env->NewGlobalRef(player_input_class));
-        s_player_input_constructor = env->GetMethodID(
-                player_input_class, "<init>",
-                "(Z[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;ZIJJJJLjava/lang/String;Z)V");
-        s_player_input_connected_field = env->GetFieldID(player_input_class, "connected", "Z");
-        s_player_input_buttons_field =
-                env->GetFieldID(player_input_class, "buttons", "[Ljava/lang/String;");
-        s_player_input_analogs_field =
-                env->GetFieldID(player_input_class, "analogs", "[Ljava/lang/String;");
-        s_player_input_motions_field =
-                env->GetFieldID(player_input_class, "motions", "[Ljava/lang/String;");
-        s_player_input_vibration_enabled_field =
-                env->GetFieldID(player_input_class, "vibrationEnabled", "Z");
-        s_player_input_vibration_strength_field =
-                env->GetFieldID(player_input_class, "vibrationStrength", "I");
-        s_player_input_body_color_left_field =
-                env->GetFieldID(player_input_class, "bodyColorLeft", "J");
-        s_player_input_body_color_right_field =
-                env->GetFieldID(player_input_class, "bodyColorRight", "J");
-        s_player_input_button_color_left_field =
-                env->GetFieldID(player_input_class, "buttonColorLeft", "J");
-        s_player_input_button_color_right_field =
-                env->GetFieldID(player_input_class, "buttonColorRight", "J");
-        s_player_input_profile_name_field =
-                env->GetFieldID(player_input_class, "profileName", "Ljava/lang/String;");
-        s_player_input_use_system_vibrator_field =
-                env->GetFieldID(player_input_class, "useSystemVibrator", "Z");
-        env->DeleteLocalRef(player_input_class);
+        s_player_input_class = FindClassSafe(env, "org/yuzu/yuzu_emu/features/input/model/PlayerInput");
+        s_player_input_constructor = GetMethodIDSafe(env, s_player_input_class, "<init>", "(Z[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;ZIJJJJLjava/lang/String;Z)V");
+        s_player_input_connected_field = GetFieldIDSafe(env, s_player_input_class, "connected", "Z");
+        s_player_input_buttons_field = GetFieldIDSafe(env, s_player_input_class, "buttons", "[Ljava/lang/String;");
+        s_player_input_analogs_field = GetFieldIDSafe(env, s_player_input_class, "analogs", "[Ljava/lang/String;");
+        s_player_input_motions_field = GetFieldIDSafe(env, s_player_input_class, "motions", "[Ljava/lang/String;");
+        s_player_input_vibration_enabled_field = GetFieldIDSafe(env, s_player_input_class, "vibrationEnabled", "Z");
+        s_player_input_vibration_strength_field = GetFieldIDSafe(env, s_player_input_class, "vibrationStrength", "I");
+        s_player_input_body_color_left_field = GetFieldIDSafe(env, s_player_input_class, "bodyColorLeft", "J");
+        s_player_input_body_color_right_field = GetFieldIDSafe(env, s_player_input_class, "bodyColorRight", "J");
+        s_player_input_button_color_left_field = GetFieldIDSafe(env, s_player_input_class, "buttonColorLeft", "J");
+        s_player_input_button_color_right_field = GetFieldIDSafe(env, s_player_input_class, "buttonColorRight", "J");
+        s_player_input_profile_name_field = GetFieldIDSafe(env, s_player_input_class, "profileName", "Ljava/lang/String;");
+        s_player_input_use_system_vibrator_field = GetFieldIDSafe(env, s_player_input_class, "useSystemVibrator", "Z");
 
-        const jclass yuzu_input_device_interface =
-                env->FindClass("org/yuzu/yuzu_emu/features/input/YuzuInputDevice");
-        s_yuzu_input_device_interface =
-                reinterpret_cast<jclass>(env->NewGlobalRef(yuzu_input_device_interface));
-        s_yuzu_input_device_get_name =
-                env->GetMethodID(yuzu_input_device_interface, "getName", "()Ljava/lang/String;");
-        s_yuzu_input_device_get_guid =
-                env->GetMethodID(yuzu_input_device_interface, "getGUID", "()Ljava/lang/String;");
-        s_yuzu_input_device_get_port = env->GetMethodID(yuzu_input_device_interface, "getPort",
-                                                        "()I");
-        s_yuzu_input_device_get_supports_vibration =
-                env->GetMethodID(yuzu_input_device_interface, "getSupportsVibration", "()Z");
-        s_yuzu_input_device_vibrate = env->GetMethodID(yuzu_input_device_interface, "vibrate",
-                                                       "(F)V");
-        s_yuzu_input_device_get_axes =
-                env->GetMethodID(yuzu_input_device_interface, "getAxes", "()[Ljava/lang/Integer;");
-        s_yuzu_input_device_has_keys =
-                env->GetMethodID(yuzu_input_device_interface, "hasKeys", "([I)[Z");
-        env->DeleteLocalRef(yuzu_input_device_interface);
-        s_add_netplay_message = env->GetStaticMethodID(s_native_library_class, "addNetPlayMessage",
-                                                       "(ILjava/lang/String;)V");
-        s_clear_chat = env->GetStaticMethodID(s_native_library_class, "clearChat", "()V");
+        s_yuzu_input_device_interface = FindClassSafe(env, "org/yuzu/yuzu_emu/features/input/YuzuInputDevice");
+        s_yuzu_input_device_get_name = GetMethodIDSafe(env, s_yuzu_input_device_interface, "getName", "()Ljava/lang/String;");
+        s_yuzu_input_device_get_guid = GetMethodIDSafe(env, s_yuzu_input_device_interface, "getGUID", "()Ljava/lang/String;");
+        s_yuzu_input_device_get_port = GetMethodIDSafe(env, s_yuzu_input_device_interface, "getPort", "()I");
+        s_yuzu_input_device_get_supports_vibration = GetMethodIDSafe(env, s_yuzu_input_device_interface, "getSupportsVibration", "()Z");
+        s_yuzu_input_device_vibrate = GetMethodIDSafe(env, s_yuzu_input_device_interface, "vibrate", "(F)V");
+        s_yuzu_input_device_get_axes = GetMethodIDSafe(env, s_yuzu_input_device_interface, "getAxes", "()[Ljava/lang/Integer;");
+        s_yuzu_input_device_has_keys = GetMethodIDSafe(env, s_yuzu_input_device_interface, "hasKeys", "([I)[Z");
 
+        s_add_netplay_message = GetStaticMethodIDSafe(env, s_native_library_class, "addNetPlayMessage", "(ILjava/lang/String;)V");
+        s_clear_chat = GetStaticMethodIDSafe(env, s_native_library_class, "clearChat", "()V");
 
         // Initialize Android Storage
         Common::FS::Android::RegisterCallbacks(env, s_native_library_class);
@@ -607,6 +759,7 @@ namespace Common::Android {
         // Initialize applets
         Common::Android::SoftwareKeyboard::InitJNI(env);
         Common::Android::WebBrowser::InitJNI(env);
+#endif
 
         return JNI_VERSION;
     }

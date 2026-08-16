@@ -115,6 +115,7 @@ public:
     virtual bool IsReadable() const = 0;
 
     virtual bool IsNczFile() const { return false; }
+    virtual bool HasDecryptedSections() const { return false; }
     virtual std::shared_ptr<VfsFile> GetUnderlyingFile() const { return nullptr; }
     virtual NCZVirtualFile* GetNczFilePointer() { return nullptr; }
 

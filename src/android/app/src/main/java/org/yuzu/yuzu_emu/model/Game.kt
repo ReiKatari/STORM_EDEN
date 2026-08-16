@@ -30,10 +30,18 @@ class Game(
     val programId: String = "",
     val developer: String = "",
     var version: String = "",
-    val isHomebrew: Boolean = false
+    var internalVersion: String = "",
+    val isHomebrew: Boolean = false,
+    var addonCount: Int = 0
 ) : Parcelable {
     val keyAddedToLibraryTime get() = "${path}_AddedToLibraryTime"
     val keyLastPlayedTime get() = "${path}_LastPlayed"
+
+    val extension: String
+        get() {
+            val ext = FileUtil.getExtension(Uri.parse(path)).uppercase()
+            return if (ext.isNotEmpty()) ext else "NSP"
+        }
 
     val settingsName: String
         get() {
@@ -83,7 +91,9 @@ class Game(
         if (programId != other.programId) return false
         if (developer != other.developer) return false
         if (version != other.version) return false
+        if (internalVersion != other.internalVersion) return false
         if (isHomebrew != other.isHomebrew) return false
+        if (addonCount != other.addonCount) return false
 
         return true
     }
@@ -94,13 +104,15 @@ class Game(
         result = 31 * result + programId.hashCode()
         result = 31 * result + developer.hashCode()
         result = 31 * result + version.hashCode()
+        result = 31 * result + internalVersion.hashCode()
         result = 31 * result + isHomebrew.hashCode()
+        result = 31 * result + addonCount.hashCode()
         return result
     }
 
     companion object {
         val extensions: Set<String> = HashSet(
-            listOf("xci", "nsp", "nca", "nro")
+            listOf("xci", "nsp", "nca", "nro", "nsz", "xcz")
         )
     }
 }

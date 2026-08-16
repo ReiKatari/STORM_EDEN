@@ -14,6 +14,10 @@ object GameMetadata {
 
     external fun getVersion(path: String, reload: Boolean): String
 
+    external fun getInternalVersion(path: String): String
+
+    external fun getAddonCount(path: String): Int
+
     external fun getIcon(path: String): ByteArray
 
     external fun getIsHomebrew(path: String): Boolean

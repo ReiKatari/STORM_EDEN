@@ -380,6 +380,7 @@ private slots:
     void OnToggleAdaptingFilter();
     void OnConfigurePerGame();
     void OnLoadAmiibo();
+    void OnAmiiboOnlineDatabase();
     void OnOpenRootDataFolder();
     void OnOpenNANDFolder();
     void OnOpenSDMCFolder();
@@ -440,8 +441,8 @@ private:
     bool SelectRomFSDumpTarget(const FileSys::ContentProvider&, u64 program_id,
                                u64* selected_title_id, u8* selected_content_record_type);
     ContentManager::InstallResult InstallNCA(const QString& filename);
-    void UpdateWindowTitle(std::string_view title_name = {}, std::string_view title_version = {},
-                           std::string_view gpu_vendor = {});
+    void UpdateWindowTitle(std::string_view filename = {}, std::string_view display_version = {},
+                           std::string_view internal_version = {}, std::string_view gpu_vendor = {});
     void UpdateDockedButton();
     void UpdateAPIText();
     void UpdateFilterText();
@@ -566,6 +567,8 @@ private:
     u64 m_current_addons_title_id = 0;
     QString m_current_addons_game_name;
     std::string m_current_addons_game_path;
+    std::unordered_map<u64, std::pair<int, int>> m_addons_dlc_cache;
+    std::mutex m_addons_cache_mutex;
     void ShowDLCDialog(u64 title_id, const QString& game_name);
     QTimer status_bar_update_timer;
 

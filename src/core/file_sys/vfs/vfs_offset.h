@@ -38,6 +38,8 @@ public:
     std::size_t GetOffset() const;
     VirtualFile GetUnderlyingFile() const override;
     NCZVirtualFile* GetNczFilePointer() override;
+    bool IsNczFile() const override { return file && file->IsNczFile(); }
+    bool HasDecryptedSections() const override { return file && file->HasDecryptedSections(); }
 
 private:
     std::size_t TrimToFit(std::size_t r_size, std::size_t r_offset) const;

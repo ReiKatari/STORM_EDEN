@@ -1,7 +1,10 @@
 # SPDX-FileCopyrightText: Copyright 2026 crueter
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.22)
+if (POLICY CMP0140)
+    cmake_policy(SET CMP0140 NEW)
+endif()
 
 if(MSVC OR ANDROID OR IOS)
     set(BUNDLED_DEFAULT ON)

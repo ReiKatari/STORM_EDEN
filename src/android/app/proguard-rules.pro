@@ -9,6 +9,17 @@
 -keep class org.ini4j.spi.IniBuilder
 -keep class org.ini4j.spi.IniFormatter
 
+# Keep all JNI-referenced classes and members
+-keep class org.yuzu.yuzu_emu.NativeLibrary { *; }
+-keepclassmembers class org.yuzu.yuzu_emu.NativeLibrary { *; }
+-keep class org.yuzu.yuzu_emu.disk_shader_cache.** { *; }
+-keep class org.yuzu.yuzu_emu.model.** { *; }
+-keep class org.yuzu.yuzu_emu.overlay.model.** { *; }
+-keep class org.yuzu.yuzu_emu.features.input.** { *; }
+-keep class org.yuzu.yuzu_emu.features.settings.** { *; }
+-keep class org.yuzu.yuzu_emu.utils.** { *; }
+-keep class kotlin.Pair { *; }
+
 # Suppress warnings for R8
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
 -dontwarn org.bouncycastle.jsse.BCSSLSocket

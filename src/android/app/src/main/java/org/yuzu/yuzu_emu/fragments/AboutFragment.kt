@@ -67,6 +67,9 @@ class AboutFragment : Fragment() {
             true
         }
 
+        binding.buttonForkInfo.setOnClickListener {
+            openLink(getString(R.string.github_link))
+        }
         binding.buttonContributors.setOnClickListener {
             openLink(
                 getString(R.string.contributors_link)

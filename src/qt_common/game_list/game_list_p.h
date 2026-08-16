@@ -186,7 +186,26 @@ public:
                     version_num = clean;
                 }
             } else {
-                addon_count++;
+                QString clean = line.trimmed();
+                clean.replace(QStringLiteral("DLC "), QStringLiteral(""), Qt::CaseInsensitive);
+                clean.replace(QStringLiteral("DLC"), QStringLiteral(""), Qt::CaseInsensitive);
+                clean.remove(QLatin1Char('('));
+                clean.remove(QLatin1Char(')'));
+                clean = clean.trimmed();
+                if (!clean.isEmpty()) {
+                    const auto parts = clean.split(QLatin1Char(','), Qt::SkipEmptyParts);
+                    addon_count += parts.isEmpty() ? 1 : parts.size();
+                } else {
+                    addon_count++;
+                }
+            }
+        }
+
+        if (addon_count == 0) {
+            static const QRegularExpression fn_dlc_regex{QStringLiteral(R"(\+([0-9]+)D\b)"), QRegularExpression::CaseInsensitiveOption};
+            const auto dm = fn_dlc_regex.match(game_path);
+            if (dm.hasMatch() && dm.hasCaptured(1)) {
+                addon_count = dm.captured(1).toInt();
             }
         }
 

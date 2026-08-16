@@ -39,10 +39,15 @@ object DirectoryInitialization {
 
     private fun initializeInternalStorage() {
         try {
-            userPath = YuzuApplication.appContext.getExternalFilesDir(null)!!.canonicalPath
+            val baseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
+            userPath = baseDir.canonicalPath
             NativeLibrary.setAppDirectory(userPath!!)
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (e: Throwable) {
+            CrashHandler.logError(YuzuApplication.appContext, "DirectoryInitialization.initializeInternalStorage", e)
+            try {
+                userPath = YuzuApplication.appContext.filesDir.absolutePath
+                NativeLibrary.setAppDirectory(userPath!!)
+            } catch (ignored: Throwable) {}
         }
     }
 

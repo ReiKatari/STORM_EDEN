@@ -49,6 +49,7 @@
 #include "yuzu/configuration/configure_network.h"
 #include "yuzu/configuration/configure_per_game.h"
 #include "yuzu/configuration/configure_per_game_addons.h"
+#include "yuzu/configuration/configure_gamebanana_mods.h"
 #include "yuzu/configuration/configure_system.h"
 #include "yuzu/util/util.h"
 
@@ -74,6 +75,7 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     }
     game_config = std::make_unique<QtConfig>(config_file_name, Config::ConfigType::PerGameConfig);
     addons_tab = std::make_unique<ConfigurePerGameAddons>(system_, this);
+    gamebanana_tab = std::make_unique<ConfigureGameBananaMods>(system_, title_id_, QString::fromStdString(file_name), addons_tab.get(), this);
     audio_tab = std::make_unique<ConfigureAudio>(system_, tab_group, *builder, this);
     cpu_tab = std::make_unique<ConfigureCpu>(system_, tab_group, *builder, this);
     graphics_advanced_tab =
@@ -88,21 +90,30 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     network_tab = std::make_unique<ConfigureNetwork>(system_, this);
     applets_tab = std::make_unique<ConfigureApplets>(system_, tab_group, *builder, this);
 
+    connect(gamebanana_tab.get(), &ConfigureGameBananaMods::ModInstalled, this, [this]() {
+        if (file) {
+            addons_tab->LoadFromFile(file);
+        }
+    });
+
     ui->setupUi(this);
 
-    ui->tabWidget->addTab(addons_tab.get(), tr("Add-Ons"));
-    ui->tabWidget->addTab(system_tab.get(), tr("System"));
+    ui->tabWidget->addTab(addons_tab.get(), tr("Дополнения и моды"));
+    ui->tabWidget->addTab(gamebanana_tab.get(), tr("🍌 Моды GameBanana"));
+    ui->tabWidget->addTab(system_tab.get(), tr("Система"));
     ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
-    ui->tabWidget->addTab(graphics_tab.get(), tr("Graphics"));
-    ui->tabWidget->addTab(graphics_advanced_tab.get(), tr("Adv. Graphics"));
-    ui->tabWidget->addTab(graphics_extensions_tab.get(), tr("Ext. Graphics"));
-    ui->tabWidget->addTab(audio_tab.get(), tr("Audio"));
-    ui->tabWidget->addTab(input_tab.get(), tr("Input Profiles"));
-    ui->tabWidget->addTab(network_tab.get(), tr("Network"));
-    ui->tabWidget->addTab(applets_tab.get(), tr("Applets"));
+    ui->tabWidget->addTab(graphics_tab.get(), tr("Графика"));
+    ui->tabWidget->addTab(graphics_advanced_tab.get(), tr("Расширенные"));
+    ui->tabWidget->addTab(graphics_extensions_tab.get(), tr("Расширения"));
+    ui->tabWidget->addTab(audio_tab.get(), tr("Аудио"));
+    ui->tabWidget->addTab(input_tab.get(), tr("Управление"));
+    ui->tabWidget->addTab(network_tab.get(), tr("Сеть"));
+    ui->tabWidget->addTab(applets_tab.get(), tr("Апплеты"));
 
     setFocusPolicy(Qt::ClickFocus);
     setWindowTitle(tr("Параметры игры"));
+    resize(1360, 760);
+    setMinimumSize(1200, 700);
 
     ui->display_name->setLineWrapMode(QTextEdit::WidgetWidth);
     ui->display_filename->setLineWrapMode(QTextEdit::WidgetWidth);
@@ -249,6 +260,10 @@ void ConfigurePerGame::LoadConfiguration() {
     ui->display_name->setPlainText(title_text);
     ui->display_developer->setText(dev_text);
     ui->display_version->setText(ver_str);
+
+    if (gamebanana_tab) {
+        gamebanana_tab->SetGameInfo(title_id, title_text);
+    }
 
     if (control.second != nullptr) {
         scene->clear();

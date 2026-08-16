@@ -52,7 +52,12 @@ object NativeLibrary {
     init {
         try {
             System.loadLibrary("yuzu-android")
-        } catch (ex: UnsatisfiedLinkError) {
+        } catch (ex: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.recordException(
+                Thread.currentThread(),
+                ex,
+                extraNotes = "NativeLibrary System.loadLibrary(yuzu-android) failed"
+            )
             error("[NativeLibrary] $ex")
         }
     }

@@ -63,6 +63,7 @@ class GamesFragment : Fragment() {
     companion object {
         private const val SEARCH_TEXT = "SearchText"
         private const val PREF_SORT_TYPE = "GamesSortType"
+        const val PREF_GLOBAL_GAME_VIEW_TYPE = "game_view_type_global"
     }
 
     private val gamesViewModel: GamesViewModel by activityViewModels()
@@ -81,16 +82,11 @@ class GamesFragment : Fragment() {
         }
 
     private fun getCurrentViewType(): Int {
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val key = if (isLandscape) CarouselRecyclerView.CAROUSEL_VIEW_TYPE_LANDSCAPE else CarouselRecyclerView.CAROUSEL_VIEW_TYPE_PORTRAIT
-        val fallback = if (isLandscape) GameAdapter.VIEW_TYPE_CAROUSEL else GameAdapter.VIEW_TYPE_GRID
-        return preferences.getInt(key, fallback)
+        return preferences.getInt(PREF_GLOBAL_GAME_VIEW_TYPE, GameAdapter.VIEW_TYPE_GRID)
     }
 
     private fun setCurrentViewType(type: Int) {
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val key = if (isLandscape) CarouselRecyclerView.CAROUSEL_VIEW_TYPE_LANDSCAPE else CarouselRecyclerView.CAROUSEL_VIEW_TYPE_PORTRAIT
-        preferences.edit { putInt(key, type) }
+        preferences.edit { putInt(PREF_GLOBAL_GAME_VIEW_TYPE, type) }
     }
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -193,9 +189,8 @@ class GamesFragment : Fragment() {
 
     val applyGridGamesBinding = {
         (binding.gridGames as? RecyclerView)?.apply {
-            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val currentViewType = getCurrentViewType()
-            val savedViewType = if (isLandscape || currentViewType != GameAdapter.VIEW_TYPE_CAROUSEL) currentViewType else GameAdapter.VIEW_TYPE_GRID
+            val savedViewType = currentViewType
 
             //This prevents Grid/List views from reusing scaled or otherwise modified ViewHolders left over from the carousel.
             adapter = null
@@ -255,6 +250,10 @@ class GamesFragment : Fragment() {
         if (getCurrentViewType() == GameAdapter.VIEW_TYPE_CAROUSEL) {
             (binding.gridGames as? CarouselRecyclerView)?.setupCarousel(true)
             (binding.gridGames as? CarouselRecyclerView)?.restoreScrollState(gamesViewModel.lastScrollPosition)
+        } else {
+            if (lastViewType != getCurrentViewType()) {
+                applyGridGamesBinding()
+            }
         }
     }
 
@@ -537,14 +536,21 @@ class GamesFragment : Fragment() {
             )
             binding.header.layoutParams = mlpHeader
 
-            binding.noticeText.updatePadding(bottom = spacingNavigation)
+            val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val gestureInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures())
+            val bottomInset = maxOf(barInsets.bottom, navInsets.bottom, gestureInsets.bottom, cutoutInsets.bottom)
+            fallbackBottomInset = bottomInset
+            (binding.gridGames as? CarouselRecyclerView)?.notifyInsetsReady(bottomInset)
+
+            val fabPadding = resources.getDimensionPixelSize(R.dimen.spacing_large)
+            val totalBottomPadding = bottomInset + resources.getDimensionPixelSize(R.dimen.spacing_bottom_list_fab) + fabPadding
 
             binding.gridGames.updatePadding(
-                top = resources.getDimensionPixelSize(R.dimen.spacing_med)
+                top = resources.getDimensionPixelSize(R.dimen.spacing_med),
+                bottom = totalBottomPadding
             )
 
             val mlpFab = binding.addDirectory.layoutParams as ViewGroup.MarginLayoutParams
-            val fabPadding = resources.getDimensionPixelSize(R.dimen.spacing_large)
             mlpFab.leftMargin = leftInset + fabPadding
             mlpFab.bottomMargin = barInsets.bottom + fabPadding
             mlpFab.rightMargin = rightInset + fabPadding
@@ -557,11 +563,6 @@ class GamesFragment : Fragment() {
                 qlaunchButton.layoutParams = mlpQLaunch
             }
 
-            val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val gestureInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures())
-            val bottomInset = maxOf(navInsets.bottom, gestureInsets.bottom, cutoutInsets.bottom)
-            fallbackBottomInset = bottomInset
-            (binding.gridGames as? CarouselRecyclerView)?.notifyInsetsReady(bottomInset)
             windowInsets
         }
 }

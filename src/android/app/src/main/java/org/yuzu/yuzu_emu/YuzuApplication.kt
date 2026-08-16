@@ -57,25 +57,81 @@ class YuzuApplication : Application() {
         notificationManager.createNotificationChannel(foregroundService)
     }
 
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        org.yuzu.yuzu_emu.utils.CrashHandler.install(base)
+    }
+
     override fun onCreate() {
         super.onCreate()
         application = this
-        documentsTree = DocumentsTree()
-        DirectoryInitialization.start()
+        org.yuzu.yuzu_emu.utils.CrashHandler.install(this)
 
-        // Initialize Freedreno config BEFORE loading native library
-        // This ensures GPU driver environment variables are set before adrenotools initializes
-        GpuDriverHelper.initializeFreedrenoConfigEarly()
+        try {
+            documentsTree = DocumentsTree()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "DocumentsTree", t)
+        }
 
-        NativeLibrary.playTimeManagerInit()
-        GpuDriverHelper.initializeDriverParameters()
-        NativeInput.reloadInputDevices()
-        NativeLibrary.logDeviceInfo()
-        PowerStateUpdater.start()
-        Log.logDeviceInfo()
-        ControllerNavigationGlobalHook.install(this)
+        try {
+            DirectoryInitialization.start()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "DirectoryInitialization", t)
+        }
 
-        createNotificationChannels()
+        try {
+            GpuDriverHelper.initializeFreedrenoConfigEarly()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "GpuDriverHelper.initializeFreedrenoConfigEarly", t)
+        }
+
+        try {
+            NativeLibrary.playTimeManagerInit()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "NativeLibrary.playTimeManagerInit", t)
+        }
+
+        try {
+            GpuDriverHelper.initializeDriverParameters()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "GpuDriverHelper.initializeDriverParameters", t)
+        }
+
+        try {
+            NativeInput.reloadInputDevices()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "NativeInput.reloadInputDevices", t)
+        }
+
+        try {
+            NativeLibrary.logDeviceInfo()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "NativeLibrary.logDeviceInfo", t)
+        }
+
+        try {
+            PowerStateUpdater.start()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "PowerStateUpdater.start", t)
+        }
+
+        try {
+            Log.logDeviceInfo()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "Log.logDeviceInfo", t)
+        }
+
+        try {
+            ControllerNavigationGlobalHook.install(this)
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "ControllerNavigationGlobalHook.install", t)
+        }
+
+        try {
+            createNotificationChannels()
+        } catch (t: Throwable) {
+            org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "createNotificationChannels", t)
+        }
     }
 
     companion object {

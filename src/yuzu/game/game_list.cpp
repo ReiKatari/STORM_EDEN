@@ -71,6 +71,22 @@ GameList::GameList(FileSys::VirtualFilesystem vfs_, FileSys::ManualContentProvid
     connect(carousel_view, &QListView::activated, this, &GameList::ValidateEntry);
     connect(carousel_view, &QListView::customContextMenuRequested, this, &GameList::PopupContextMenu);
 
+    auto connect_selection = [this](QAbstractItemView* view) {
+        if (!view) return;
+        connect(view, &QAbstractItemView::clicked, this, [this](const QModelIndex& index) {
+            if (!index.isValid()) return;
+            const auto selected = index.sibling(index.row(), 0);
+            if (selected.data(GameListItem::TypeRole).value<GameListItemType>() == GameListItemType::Game) {
+                u64 tid = selected.data(GameListItemPath::ProgramIdRole).toULongLong();
+                QString path = selected.data(GameListItemPath::FullPathRole).toString();
+                emit GameSelected(tid, path);
+            }
+        });
+    };
+    connect_selection(tree_view);
+    connect_selection(grid_view);
+    connect_selection(carousel_view);
+
     connect(controller_navigation, &ControllerNavigation::TriggerKeyboardEvent, this,
             [this](Qt::Key key) {
                 if (system.IsPoweredOn()) {
@@ -419,7 +435,7 @@ void GameList::PopupContextMenu(const QPoint& menu_location) {
             return;
 
         QMenu blank_menu;
-        QAction* addGameDirAction = blank_menu.addAction(tr("&Add New Game Directory"));
+        QAction* addGameDirAction = blank_menu.addAction(tr("📁 Добавить папку с играми..."));
 
         connect(addGameDirAction, &QAction::triggered, this, &GameList::AddDirectory);
         blank_menu.exec(m_currentView->viewport()->mapToGlobal(menu_location));
@@ -427,12 +443,19 @@ void GameList::PopupContextMenu(const QPoint& menu_location) {
     }
 
     const auto selected = item.sibling(item.row(), 0);
+    if (m_currentView && m_currentView->selectionModel()) {
+        m_currentView->selectionModel()->setCurrentIndex(selected, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
+
     QMenu context_menu;
     switch (selected.data(GameListItem::TypeRole).value<GameListItemType>()) {
-    case GameListItemType::Game:
-        AddGamePopup(context_menu, selected.data(GameListItemPath::ProgramIdRole).toULongLong(),
-                     selected.data(GameListItemPath::FullPathRole).toString().toStdString());
+    case GameListItemType::Game: {
+        const u64 pid = selected.data(GameListItemPath::ProgramIdRole).toULongLong();
+        const QString gpath = selected.data(GameListItemPath::FullPathRole).toString();
+        emit GameSelected(pid, gpath);
+        AddGamePopup(context_menu, pid, gpath.toStdString());
         break;
+    }
     case GameListItemType::CustomDir:
         AddPermDirPopup(context_menu, selected);
         AddCustomDirPopup(context_menu, selected);
@@ -452,45 +475,44 @@ void GameList::PopupContextMenu(const QPoint& menu_location) {
 }
 
 void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::string& path) {
-    // TODO(crueter): Refactor this and make it less bad
-    QAction* favorite = context_menu.addAction(tr("Favorite"));
+    QAction* favorite = context_menu.addAction(tr("⭐ Добавить в избранное"));
     context_menu.addSeparator();
-    QAction* start_game = context_menu.addAction(tr("Start Game"));
+    QAction* start_game = context_menu.addAction(tr("▶️ Запустить игру"));
     QAction* start_game_global =
-        context_menu.addAction(tr("Start Game without Custom Configuration"));
+        context_menu.addAction(tr("🚀 Запустить со стандартными настройками"));
     context_menu.addSeparator();
-    QAction* open_save_location = context_menu.addAction(tr("Open Save Data Location"));
-    QAction* open_mod_location = context_menu.addAction(tr("Open Mod Data Location"));
+    QAction* open_save_location = context_menu.addAction(tr("💾 Открыть папку сохранений"));
+    QAction* open_mod_location = context_menu.addAction(tr("🧩 Открыть папку модов"));
     QAction* open_transferable_shader_cache =
-        context_menu.addAction(tr("Open Transferable Pipeline Cache"));
-    QAction* ryujinx = context_menu.addAction(tr("Link to Ryujinx"));
+        context_menu.addAction(tr("⚡ Открыть кэш шейдеров"));
+    QAction* ryujinx = context_menu.addAction(tr("🔗 Связать с Ryujinx"));
     context_menu.addSeparator();
-    QMenu* remove_menu = context_menu.addMenu(tr("Remove"));
-    QAction* remove_update = remove_menu->addAction(tr("Remove Installed Update"));
-    QAction* remove_dlc = remove_menu->addAction(tr("Remove All Installed DLC"));
-    QAction* remove_custom_config = remove_menu->addAction(tr("Remove Custom Configuration"));
-    QAction* remove_cache_storage = remove_menu->addAction(tr("Remove Cache Storage"));
-    QAction* remove_gl_shader_cache = remove_menu->addAction(tr("Remove OpenGL Pipeline Cache"));
-    QAction* remove_vk_shader_cache = remove_menu->addAction(tr("Remove Vulkan Pipeline Cache"));
+    QMenu* remove_menu = context_menu.addMenu(tr("🗑️ Удалить"));
+    QAction* remove_update = remove_menu->addAction(tr("Удалить установленное обновление"));
+    QAction* remove_dlc = remove_menu->addAction(tr("Удалить все установленные DLC"));
+    QAction* remove_custom_config = remove_menu->addAction(tr("Удалить индивидуальные настройки"));
+    QAction* remove_cache_storage = remove_menu->addAction(tr("Очистить хранилище кэша"));
+    QAction* remove_gl_shader_cache = remove_menu->addAction(tr("Удалить кэш шейдеров OpenGL"));
+    QAction* remove_vk_shader_cache = remove_menu->addAction(tr("Удалить кэш шейдеров Vulkan"));
     remove_menu->addSeparator();
-    QAction* remove_shader_cache = remove_menu->addAction(tr("Remove All Pipeline Caches"));
-    QAction* remove_all_content = remove_menu->addAction(tr("Remove All Installed Contents"));
-    QMenu* play_time_menu = context_menu.addMenu(tr("Manage Play Time"));
-    QAction* set_play_time = play_time_menu->addAction(tr("Edit Play Time Data"));
-    QAction* remove_play_time_data = play_time_menu->addAction(tr("Remove Play Time Data"));
-    QMenu* dump_romfs_menu = context_menu.addMenu(tr("Dump RomFS"));
-    QAction* dump_romfs = dump_romfs_menu->addAction(tr("Dump RomFS"));
-    QAction* dump_romfs_sdmc = dump_romfs_menu->addAction(tr("Dump RomFS to SDMC"));
-    QAction* verify_integrity = context_menu.addAction(tr("Verify Integrity"));
-    QAction* copy_tid = context_menu.addAction(tr("Copy Title ID to Clipboard"));
+    QAction* remove_shader_cache = remove_menu->addAction(tr("Удалить все кэши шейдеров"));
+    QAction* remove_all_content = remove_menu->addAction(tr("Удалить весь установленный контент"));
+    QMenu* play_time_menu = context_menu.addMenu(tr("⏱️ Управление временем игры"));
+    QAction* set_play_time = play_time_menu->addAction(tr("Изменить время игры..."));
+    QAction* remove_play_time_data = play_time_menu->addAction(tr("Сбросить время игры"));
+    QMenu* dump_romfs_menu = context_menu.addMenu(tr("📦 Дамп RomFS"));
+    QAction* dump_romfs = dump_romfs_menu->addAction(tr("Дамп RomFS"));
+    QAction* dump_romfs_sdmc = dump_romfs_menu->addAction(tr("Дамп RomFS на SD-карту"));
+    QAction* verify_integrity = context_menu.addAction(tr("🔍 Проверить целостность"));
+    QAction* copy_tid = context_menu.addAction(tr("📋 Скопировать Title ID в буфер обмена"));
 #if !defined(__APPLE__)
-    QMenu* shortcut_menu = context_menu.addMenu(tr("Create Shortcut"));
-    QAction* create_desktop_shortcut = shortcut_menu->addAction(tr("Add to Desktop"));
+    QMenu* shortcut_menu = context_menu.addMenu(tr("🔗 Создать ярлык"));
+    QAction* create_desktop_shortcut = shortcut_menu->addAction(tr("На рабочий стол"));
     QAction* create_applications_menu_shortcut =
-        shortcut_menu->addAction(tr("Add to Applications Menu"));
+        shortcut_menu->addAction(tr("В меню приложений"));
 #endif
     context_menu.addSeparator();
-    QAction* properties = context_menu.addAction(tr("Configure Game"));
+    QAction* properties = context_menu.addAction(tr("⚙️ Свойства / Настройки игры..."));
 
     favorite->setVisible(program_id != 0);
     favorite->setCheckable(true);
@@ -788,4 +810,31 @@ void GameListPlaceholder::changeEvent(QEvent* event) {
 
 void GameListPlaceholder::RetranslateUI() {
     text->setText(tr("Double-click to add a new folder to the game list"));
+}
+
+std::pair<u64, QString> GameList::GetSelectedGameInfo() const {
+    if (!m_currentView) {
+        return {0, QString{}};
+    }
+    if (m_currentView->selectionModel()) {
+        const auto indexes = m_currentView->selectionModel()->selectedIndexes();
+        for (const auto& idx : indexes) {
+            const auto selected = idx.sibling(idx.row(), 0);
+            if (selected.data(GameListItem::TypeRole).value<GameListItemType>() == GameListItemType::Game) {
+                u64 tid = selected.data(GameListItemPath::ProgramIdRole).toULongLong();
+                QString path = selected.data(GameListItemPath::FullPathRole).toString();
+                return {tid, path};
+            }
+        }
+    }
+    const auto curr = m_currentView->currentIndex();
+    if (curr.isValid()) {
+        const auto selected = curr.sibling(curr.row(), 0);
+        if (selected.data(GameListItem::TypeRole).value<GameListItemType>() == GameListItemType::Game) {
+            u64 tid = selected.data(GameListItemPath::ProgramIdRole).toULongLong();
+            QString path = selected.data(GameListItemPath::FullPathRole).toString();
+            return {tid, path};
+        }
+    }
+    return {0, QString{}};
 }

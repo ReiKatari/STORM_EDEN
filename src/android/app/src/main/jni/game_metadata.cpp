@@ -17,6 +17,8 @@ struct RomMetadata {
     u64 programId;
     std::string developer;
     std::string version;
+    std::string internal_version;
+    int addon_count{0};
     std::vector<u8> icon;
     bool isHomebrew;
 };
@@ -37,17 +39,50 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
             instance.System().GetContentProvider()
         };
         const auto control = pm.GetControlMetadata();
+        const auto game_version = pm.GetGameVersion();
 
         if (control.first != nullptr) {
             entry.developer = control.first->GetDeveloperName();
             entry.version = control.first->GetVersionString();
         } else {
             FileSys::NACP nacp{};
-            entry.developer = loader->ReadControlData(nacp) == Loader::ResultStatus::Success
-                ? nacp.GetDeveloperName()
-                : "";
+            if (loader->ReadControlData(nacp) == Loader::ResultStatus::Success) {
+                entry.developer = nacp.GetDeveloperName();
+                entry.version = nacp.GetVersionString();
+            } else {
+                entry.developer = "";
+                entry.version = "1.0.0";
+            }
+        }
+
+        // Clean version string: remove leading 'v' / 'V'
+        while (entry.version.starts_with('v') || entry.version.starts_with('V')) {
+            entry.version = entry.version.substr(1);
+        }
+        if (entry.version.empty()) {
             entry.version = "1.0.0";
         }
+
+        // Accurate internal version: numeric string without 'v' (e.g. 65536, 393216, 0)
+        u32 internal_ver = 0;
+        if (game_version.has_value()) {
+            internal_ver = *game_version;
+        } else {
+            internal_ver = instance.System().GetContentProvider().GetEntryVersion(entry.programId).value_or(0);
+        }
+        entry.internal_version = std::to_string(internal_ver);
+
+        // Count DLC / Addons for this game
+        const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
+            FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
+        int dlc_count = 0;
+        for (const auto& dlc : dlc_entries) {
+            if (FileSys::GetBaseTitleID(dlc.title_id) == entry.programId) {
+                ++dlc_count;
+            }
+        }
+        entry.addon_count = dlc_count;
+
         if (loader->GetFileType() == Loader::FileType::NRO) {
             auto loader_nro = reinterpret_cast<Loader::AppLoader_NRO*>(loader.get());
             entry.isHomebrew = loader_nro->IsHomebrew();
@@ -99,6 +134,14 @@ jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getDeveloper(JNIEnv* env, job
 
 jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getVersion(JNIEnv* env, jobject obj, jstring jpath, jboolean jreload) {
     return Common::Android::ToJString(env, GetRomMetadata(Common::Android::GetJString(env, jpath), jreload).version);
+}
+
+jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getInternalVersion(JNIEnv* env, jobject obj, jstring jpath) {
+    return Common::Android::ToJString(env, GetRomMetadata(Common::Android::GetJString(env, jpath)).internal_version);
+}
+
+jint Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getAddonCount(JNIEnv* env, jobject obj, jstring jpath) {
+    return jint(GetRomMetadata(Common::Android::GetJString(env, jpath)).addon_count);
 }
 
 jbyteArray Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIcon(JNIEnv* env, jobject obj, jstring jpath) {

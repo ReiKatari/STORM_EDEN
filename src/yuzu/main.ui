@@ -59,7 +59,7 @@
     </widget>
     <widget class="QMenu" name="menuOpen_Eden_Folders">
      <property name="title">
-      <string>Open &amp;STORM EDEN Folders</string>
+      <string>Открыть папки STORM EDEN</string>
      </property>
      <addaction name="action_Root_Data_Folder"/>
      <addaction name="action_NAND_Folder"/>
@@ -177,6 +177,8 @@
      <property name="title">
       <string>Am&amp;iibo</string>
      </property>
+     <addaction name="action_Amiibo_Online_Database"/>
+     <addaction name="separator"/>
      <addaction name="action_Launch_Cabinet_Nickname_Owner"/>
      <addaction name="action_Launch_Cabinet_Eraser"/>
      <addaction name="action_Launch_Cabinet_Restorer"/>
@@ -231,11 +233,12 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_Report_Compatibility"/>
     <addaction name="action_Open_Mods_Page"/>
     <addaction name="action_Open_Quickstart_Guide"/>
     <addaction name="action_Open_FAQ"/>
+    <addaction name="separator"/>
     <addaction name="action_Check_Updates"/>
+    <addaction name="separator"/>
     <addaction name="action_About"/>
     <addaction name="action_Eden_Dependencies"/>
    </widget>
@@ -530,27 +533,27 @@
   </action>
   <action name="action_Root_Data_Folder">
    <property name="text">
-    <string>&amp;Root Data Folder</string>
+    <string>Корневая папка</string>
    </property>
   </action>
   <action name="action_NAND_Folder">
    <property name="text">
-    <string>&amp;NAND Folder</string>
+    <string>Папка NAND</string>
    </property>
   </action>
   <action name="action_SDMC_Folder">
    <property name="text">
-    <string>&amp;SDMC Folder</string>
+    <string>Папка SDMC</string>
    </property>
   </action>
   <action name="action_Mod_Folder">
    <property name="text">
-    <string>&amp;Mod Folder</string>
+    <string>Папка модов</string>
    </property>
   </action>
   <action name="action_Log_Folder">
    <property name="text">
-    <string>&amp;Log Folder</string>
+    <string>Папка журнала</string>
    </property>
   </action>
   <action name="action_Firmware_From_Folder">
@@ -597,6 +600,11 @@
   <action name="actionNone">
    <property name="text">
     <string>Без иконок</string>
+   </property>
+  </action>
+  <action name="action_Amiibo_Online_Database">
+   <property name="text">
+    <string>Онлайн-база &amp;Amiibo...</string>
    </property>
   </action>
   <action name="action_Show_Game_Name">

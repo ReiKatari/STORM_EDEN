@@ -233,13 +233,23 @@ void NSP::InitializeExeFSAndRomFS(const std::vector<VirtualFile>& files) {
 static bool IsNczFile(const VirtualFile& file) {
     if (!file || file->GetSize() < 8) return false;
     u64 magic = 0;
-    if (file->ReadObject(&magic, 0) != sizeof(magic)) return false;
     constexpr u64 MAGIC_NCZBLOCK = 0x4B434F4C425A434E;
     constexpr u64 MAGIC_NCZSECTN = 0x4E544345535A434E;
-    if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) return true;
-    if (file->GetSize() >= 0x4008) {
-        if (file->ReadObject(&magic, 0x4000) != sizeof(magic)) return false;
+    if (file->ReadObject(&magic, 0) == sizeof(magic)) {
         if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) return true;
+    }
+    if (file->GetSize() >= 0x4000) {
+        constexpr std::size_t SEARCH_START = 0x3800;
+        constexpr std::size_t SEARCH_LEN = 0x1000;
+        std::vector<u8> search_buf(SEARCH_LEN);
+        const std::size_t read_bytes = file->Read(search_buf.data(), SEARCH_LEN, SEARCH_START);
+        for (std::size_t i = 0; i + sizeof(u64) <= read_bytes; ++i) {
+            u64 candidate = 0;
+            std::memcpy(&candidate, search_buf.data() + i, sizeof(u64));
+            if (candidate == MAGIC_NCZSECTN || candidate == MAGIC_NCZBLOCK) {
+                return true;
+            }
+        }
     }
     return false;
 }

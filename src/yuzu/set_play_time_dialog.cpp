@@ -46,7 +46,7 @@ void SetPlayTimeDialog::OnValueChanged() {
     constexpr u64 max_reasonable_time = 9999ULL * 3600;
 
     if (total_seconds > max_reasonable_time) {
-        ui->errorLabel->setText(tr("Total play time reached maximum."));
+        ui->errorLabel->setText(tr("Общее время игры достигло максимума."));
         ui->errorLabel->setVisible(true);
     }
 }

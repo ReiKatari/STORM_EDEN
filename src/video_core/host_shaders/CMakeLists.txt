@@ -93,7 +93,7 @@ if (HAIKUOS)
     set(GLSLANGVALIDATOR "glslang")
 else()
     # Normal sane platform who doesn't have a CRASHING glslangValidator
-    find_program(GLSLANGVALIDATOR "glslangValidator")
+    find_program(GLSLANGVALIDATOR NAMES glslangValidator glslang glslangValidator.exe glslang.exe HINTS "${CMAKE_SOURCE_DIR}/tools/glslang/bin" "C:/Users/ReiKatari/glslang/bin" "C:/Users/ReiKatari/glslang" ENV VULKAN_SDK PATHS ENV PATH)
 endif()
 
 if ("${GLSLANGVALIDATOR}" STREQUAL "GLSLANGVALIDATOR-NOTFOUND")

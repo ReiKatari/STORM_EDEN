@@ -597,7 +597,12 @@ std::pair<u32, std::string> get_pretty_cpus() {
             const auto part = (midr >> 4) & 0xfff;
 
             if (!cpus.empty()) cpus += " + ";
-            cpus += fmt::format("{}x {}", count, find_cpu_name(vendor, part));
+            const char* cpu_name = find_cpu_name(vendor, part);
+            if (cpu_name) {
+                cpus += fmt::format("{}x {}", count, cpu_name);
+            } else {
+                cpus += fmt::format("{}x Core (0x{:X}:0x{:03X})", count, vendor, part);
+            }
         }
     }
 

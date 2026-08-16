@@ -107,12 +107,27 @@ NCZVirtualFile::NCZVirtualFile(VirtualFile file_)
     file->ReadObject(&magic, 0);
 
     if (magic != MAGIC_NCZBLOCK && magic != MAGIC_NCZSECTN) {
-        file->ReadObject(&magic, 0x4000);
-        if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) {
-            offset = 0x4000;
-            LOG_DEBUG(Service_FS, "Found NCZ magic at offset 0x4000 for {}", file->GetName());
-            is_header_uncompressed = true;
-        } else {
+        constexpr std::size_t SEARCH_START = 0x3800;
+        constexpr std::size_t SEARCH_LEN = 0x1000;
+        std::vector<u8> search_buf(SEARCH_LEN);
+        const std::size_t read_bytes = file->Read(search_buf.data(), SEARCH_LEN, SEARCH_START);
+        bool found_magic = false;
+
+        for (std::size_t i = 0; i + sizeof(u64) <= read_bytes; ++i) {
+            u64 candidate = 0;
+            std::memcpy(&candidate, search_buf.data() + i, sizeof(u64));
+            if (candidate == MAGIC_NCZSECTN || candidate == MAGIC_NCZBLOCK) {
+                magic = candidate;
+                offset = SEARCH_START + i;
+                is_header_uncompressed = true;
+                uncompressed_header_size = offset;
+                found_magic = true;
+                LOG_INFO(Service_FS, "Found NCZ magic {:016X} at offset 0x{:X} for {}", magic, offset, file->GetName());
+                break;
+            }
+        }
+
+        if (!found_magic) {
             LOG_INFO(Service_FS, "No NCZ magic in file {}, treating as raw NCA pass-through", file->GetName());
             decompressed_size = file->GetSize();
             is_valid = true;
@@ -372,7 +387,19 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
         if (is_header_uncompressed && current_offset < 0x4000) {
             std::size_t to_read = std::min<std::size_t>(remaining, 0x4000 - current_offset);
-            std::size_t read = SafeRead(file, data + bytes_read, to_read, current_offset);
+            std::size_t read = 0;
+            if (current_offset < uncompressed_header_size) {
+                std::size_t avail = uncompressed_header_size - current_offset;
+                std::size_t file_to_read = std::min(to_read, avail);
+                read = SafeRead(file, data + bytes_read, file_to_read, current_offset);
+                if (read < to_read) {
+                    std::memset(data + bytes_read + read, 0, to_read - read);
+                    read = to_read;
+                }
+            } else {
+                std::memset(data + bytes_read, 0, to_read);
+                read = to_read;
+            }
             if (read == 0) break;
             bytes_read += read;
             current_offset += read;
@@ -528,7 +555,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                                      block_index, expected_decompressed_size, decomp.size(), block.compressed_size, file->GetName());
                     }
 
-                    if (block_cache.size() >= 32) {
+                    if (block_cache.size() >= 64) {
                         block_cache.pop_back();
                     }
                     block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});

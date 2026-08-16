@@ -1937,6 +1937,43 @@ void Image::UploadMemory(VkBuffer buffer, VkDeviceSize offset,
 
     if (info.num_samples > 1) {
         LOG_WARNING(Render_Vulkan, "MSAA upload not implemented for format {}", info.format);
+        // Ensure image layout is transitioned from UNDEFINED to GENERAL to prevent GPU device loss
+        scheduler->RequestOutsideRenderPassOperationContext();
+        const VkImage vk_image = *original_image;
+        const VkImageAspectFlags vk_aspect_mask = aspect_mask;
+        const bool was_initialized = std::exchange(initialized, true);
+        if (!was_initialized) {
+            scheduler->Record([vk_image, vk_aspect_mask](vk::CommandBuffer cmdbuf) {
+                const VkImageSubresourceRange subresource_range{
+                    .aspectMask = vk_aspect_mask,
+                    .baseMipLevel = 0,
+                    .levelCount = VK_REMAINING_MIP_LEVELS,
+                    .baseArrayLayer = 0,
+                    .layerCount = VK_REMAINING_ARRAY_LAYERS,
+                };
+                const VkImageMemoryBarrier barrier{
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                    .pNext = nullptr,
+                    .srcAccessMask = 0,
+                    .dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT |
+                                     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                                     VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                     VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
+                    .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                    .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+                    .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .image = vk_image,
+                    .subresourceRange = subresource_range,
+                };
+                cmdbuf.PipelineBarrier(
+                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                    0, barrier);
+            });
+        }
         if (is_rescaled) {
             ScaleUp();
         }
@@ -2332,12 +2369,10 @@ bool Image::BlitScaleHelper(bool scale_up) {
 }
 
 bool Image::NeedsScaleHelper() const {
-    const auto& device = runtime->device;
-    const bool needs_msaa_helper = info.num_samples > 1 &&
-        (device.CantBlitMSAA() || aspect_mask == VK_IMAGE_ASPECT_COLOR_BIT);
-    if (needs_msaa_helper) {
+    if (info.num_samples > 1) {
         return true;
     }
+    const auto& device = runtime->device;
     static constexpr auto OPTIMAL_FORMAT = FormatType::Optimal;
     const auto vk_format =
         MaxwellToVK::SurfaceFormat(device, OPTIMAL_FORMAT, false, info.format).format;

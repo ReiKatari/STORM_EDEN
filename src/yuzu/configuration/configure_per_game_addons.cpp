@@ -29,6 +29,7 @@
 #include "frontend_common/mod_manager.h"
 #include "qt_common/abstract/frontend.h"
 #include "qt_common/config/uisettings.h"
+#include "qt_common/titledb.h"
 #include "qt_common/util/mod.h"
 #include "ui_configure_per_game_addons.h"
 #include "yuzu/configuration/configure_input.h"
@@ -53,12 +54,16 @@ ConfigurePerGameAddons::ConfigurePerGameAddons(Core::System& system_, QWidget* p
     tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
     item_model->insertColumns(0, 2);
-    item_model->setHeaderData(0, Qt::Horizontal, tr("Patch Name"));
-    item_model->setHeaderData(1, Qt::Horizontal, tr("Version"));
+    item_model->setHeaderData(0, Qt::Horizontal, tr("ТИП / ЭЛЕМЕНТ"));
+    item_model->setHeaderData(1, Qt::Horizontal, tr("ВЕРСИЯ / НАЗВАНИЕ ДОПОЛНЕНИЯ"));
 
-    tree_view->header()->setStretchLastSection(false);
-    tree_view->header()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-    tree_view->header()->setMinimumSectionSize(150);
+    tree_view->header()->setStretchLastSection(true);
+    tree_view->header()->setMinimumSectionSize(160);
+    tree_view->header()->resizeSection(0, 180);
+    tree_view->header()->resizeSection(1, 480);
+
+    ui->folder->setText(tr("📁 Установить мод из папки..."));
+    ui->zip->setText(tr("📦 Установить мод из архива (ZIP)..."));
 
     // We must register all custom types with the Qt Automoc system so that we are able to use it
     // with signals/slots. In this case, QList falls under the umbrella of custom types.
@@ -109,11 +114,20 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
     for (const auto& item : list_items) {
         const auto disabled = item.front()->checkState() == Qt::Unchecked;
         if (disabled) {
-            QVariant userData = item.front()->data(Qt::UserRole);
+            QVariant dlcData = item.front()->data(DLC_INDEX);
+            if (dlcData.isValid()) {
+                quint32 dlc_num = dlcData.toUInt();
+                disabled_addons.push_back(fmt::format("DLC@{}", dlc_num));
+                continue;
+            }
+
+            QVariant userData = item.front()->data(NUMERIC_VERSION);
             if (userData.isValid() && userData.canConvert<quint32>() &&
-                item.front()->text() == QStringLiteral("Update")) {
+                (item.front()->text() == tr("Обновление") || item.front()->text() == QStringLiteral("Update"))) {
                 quint32 numeric_version = userData.toUInt();
                 disabled_addons.push_back(fmt::format("Update@{}", numeric_version));
+            } else if (item.front()->text() == tr("Обновление") || item.front()->text() == QStringLiteral("Update")) {
+                disabled_addons.push_back("Update");
             } else if (item.front()->text() == tr("Дополнения") || item.front()->text() == QStringLiteral("DLC")) {
                 disabled_addons.push_back("DLC");
             } else {
@@ -315,11 +329,97 @@ void ConfigurePerGameAddons::LoadConfiguration() {
     std::vector<FileSys::Patch> patches = pm.GetPatches(update_raw);
 
     bool has_enabled_update = false;
+    int mod_counter = 1;
+
+    // Ensure TitleDB is loaded
+    TitleDB::TitleDatabase::Instance().EnsureLoaded();
 
     for (const auto& patch : patches) {
-        QString name = QString::fromStdString(patch.name);
         if (patch.type == FileSys::PatchType::DLC || patch.name == "DLC") {
-            name = tr("Дополнения");
+            QStringList dlc_list = QString::fromStdString(patch.version).split(QLatin1Char(','), Qt::SkipEmptyParts);
+            if (dlc_list.isEmpty()) {
+                dlc_list.append(QStringLiteral("1"));
+            }
+            for (const auto& dlc_idx_str : dlc_list) {
+                const u32 dlc_num = dlc_idx_str.trimmed().toUInt();
+                const u64 dlc_tid = (title_id & 0xFFFFFFFFFFFFF000) | (dlc_num > 0 ? (0x1000 | (dlc_num & 0x7FF)) : 0x1001);
+
+                auto* const first_item = new QStandardItem;
+                first_item->setText(tr("Дополнение #%1").arg(dlc_num > 0 ? dlc_num : 1));
+                first_item->setCheckable(true);
+                first_item->setData(static_cast<quint32>(dlc_num), DLC_INDEX);
+
+                QString dlc_title;
+                auto opt_entry = TitleDB::TitleDatabase::Instance().Lookup(dlc_tid);
+                if (opt_entry.has_value() && !opt_entry->name.empty()) {
+                    dlc_title = QString::fromStdString(opt_entry->name).trimmed();
+                }
+                if (dlc_title.isEmpty() || dlc_title.startsWith(QStringLiteral("Дополнение #"))) {
+                    const auto tdb_dlcs = TitleDB::TitleDatabase::Instance().GetDlcs(title_id);
+                    for (const auto& d : tdb_dlcs) {
+                        const std::string d_hex = fmt::format("{:016X}", dlc_tid);
+                        if (d.id == d_hex && !d.name.empty()) {
+                            dlc_title = QString::fromStdString(d.name).trimmed();
+                            break;
+                        }
+                    }
+                    if ((dlc_title.isEmpty() || dlc_title.startsWith(QStringLiteral("Дополнение #"))) && dlc_num > 0 && dlc_num <= tdb_dlcs.size()) {
+                        if (!tdb_dlcs[dlc_num - 1].name.empty()) {
+                            dlc_title = QString::fromStdString(tdb_dlcs[dlc_num - 1].name).trimmed();
+                        }
+                    }
+                }
+                if (dlc_title.isEmpty()) {
+                    dlc_title = tr("Дополнение #%1").arg(dlc_num > 0 ? dlc_num : 1);
+                }
+
+                const std::string dlc_key = fmt::format("DLC@{}", dlc_num);
+                const std::string dlc_tid_key = fmt::format("DLC@{:016X}", dlc_tid);
+                bool dlc_disabled = (std::find(disabled.begin(), disabled.end(), "DLC") != disabled.end()) ||
+                                     (std::find(disabled.begin(), disabled.end(), dlc_key) != disabled.end()) ||
+                                     (std::find(disabled.begin(), disabled.end(), dlc_tid_key) != disabled.end());
+                first_item->setCheckState(dlc_disabled ? Qt::Unchecked : Qt::Checked);
+
+                auto* const name_item = new QStandardItem{dlc_title};
+                list_items.push_back(QList<QStandardItem*>{first_item, name_item});
+                item_model->appendRow(list_items.back());
+            }
+            continue;
+        }
+
+        QString name = QString::fromStdString(patch.name);
+        QString version_display = QString::fromStdString(patch.version);
+
+        if (patch.type == FileSys::PatchType::Update || patch.name == "Update") {
+            name = tr("Обновление");
+            FileSys::NACP file_nacp;
+            if (loader != nullptr && loader->ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
+                const auto nacp_ver = file_nacp.GetVersionString();
+                if (!nacp_ver.empty() && nacp_ver != "0") {
+                    version_display = QString::fromStdString(nacp_ver);
+                }
+            }
+            if ((version_display.isEmpty() || version_display == QStringLiteral("0") || version_display == QStringLiteral("PACKED") || version_display == QStringLiteral("1.0.0")) && file != nullptr) {
+                static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+                const auto m = fn_ver_regex.match(QString::fromStdString(file->GetName()));
+                if (m.hasMatch() && m.hasCaptured(1)) {
+                    version_display = m.captured(1);
+                }
+            }
+            if (version_display.isEmpty() || version_display == QStringLiteral("0") || version_display == QStringLiteral("PACKED")) {
+                version_display = QStringLiteral("1.0.0");
+            }
+        } else if (patch.type == FileSys::PatchType::Mod) {
+            name = tr("Модификация #%1").arg(mod_counter++);
+            QString mod_display = QString::fromStdString(patch.name);
+            if (mod_display.compare(QStringLiteral("romfs"), Qt::CaseInsensitive) == 0) {
+                mod_display = tr("Вшитый RomFS (LayeredFS)");
+            } else if (mod_display.compare(QStringLiteral("exefs"), Qt::CaseInsensitive) == 0) {
+                mod_display = tr("Вшитый ExeFS (LayeredExeFS)");
+            } else if (!patch.version.empty() && patch.version != "Cheats" && !mod_display.contains(QString::fromStdString(patch.version))) {
+                mod_display = QStringLiteral("%1 (%2)").arg(mod_display, QString::fromStdString(patch.version));
+            }
+            version_display = mod_display;
         }
 
         auto* const first_item = new QStandardItem;
@@ -343,8 +443,12 @@ void ConfigurePerGameAddons::LoadConfiguration() {
             std::string disabled_key = fmt::format("Update@{}", patch.numeric_version);
             patch_disabled =
                 std::find(disabled.begin(), disabled.end(), disabled_key) != disabled.end();
+        } else if (patch.type == FileSys::PatchType::Update) {
+            std::string disabled_key = "Update";
+            patch_disabled =
+                std::find(disabled.begin(), disabled.end(), disabled_key) != disabled.end();
         } else {
-            const std::string key = (patch.type == FileSys::PatchType::DLC) ? "DLC" : patch.name;
+            const std::string key = patch.name;
             patch_disabled =
                 std::find(disabled.begin(), disabled.end(), key) != disabled.end();
         }
@@ -365,9 +469,11 @@ void ConfigurePerGameAddons::LoadConfiguration() {
         first_item->setCheckState(should_enable ? Qt::Checked : Qt::Unchecked);
 
         list_items.push_back(QList<QStandardItem*>{
-            first_item, new QStandardItem{QString::fromStdString(patch.version)}});
+            first_item, new QStandardItem{version_display}});
         item_model->appendRow(list_items.back());
     }
 
-    tree_view->resizeColumnToContents(1);
+    tree_view->resizeColumnToContents(0);
+    tree_view->header()->resizeSection(0, std::max(200, tree_view->columnWidth(0)));
+    tree_view->header()->resizeSection(1, 520);
 }

@@ -89,6 +89,18 @@ public:
         }
     }
 };
+
+bool DecompressZstdBlock(const u8* src, std::size_t src_size, u8* dst, std::size_t dst_size) {
+    if (!src || src_size == 0 || !dst || dst_size == 0) return false;
+    auto* dctx = ZstdContextPool::Get().Acquire();
+    const std::size_t ret = ZSTD_decompressDCtx(dctx, dst, dst_size, src, src_size);
+    ZstdContextPool::Get().Release(dctx);
+    if (ZSTD_isError(ret)) {
+        LOG_ERROR(Service_FS, "ZSTD_decompressDCtx failed: {}", ZSTD_getErrorName(ret));
+        return false;
+    }
+    return true;
+}
 }
 
 namespace FileSys {
@@ -294,6 +306,7 @@ void NCZVirtualFile::RegisterPartition(s32 fs_index, s64 virtual_offset, s64 vir
 }
 
 void NCZVirtualFile::SetDecryptedHeader(const u8* data, std::size_t size) {
+    std::lock_guard<std::mutex> lock(header_mutex);
     decrypted_header.resize(size);
     std::memcpy(decrypted_header.data(), data, size);
     LOG_INFO(Service_FS, "NCZ: Cached decrypted header ({} bytes) for {}", size, GetName());
@@ -359,21 +372,25 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
     std::size_t current_offset = offset;
 
     while (remaining > 0) {
-        if (current_offset < 0x4000 && !decrypted_header.empty()) {
-            std::size_t to_read = std::min<std::size_t>(remaining, 0x4000 - current_offset);
-            std::size_t copy_len = std::min<std::size_t>(to_read, decrypted_header.size() - current_offset);
-            std::memcpy(data + bytes_read, decrypted_header.data() + current_offset, copy_len);
-            std::size_t read = copy_len;
-            if (read < to_read) {
-                std::size_t extra = to_read - read;
-                std::size_t extra_read = SafeRead(file, data + bytes_read + read, extra, current_offset + read);
-                read += extra_read;
+        if (current_offset < 0x4000) {
+            std::unique_lock<std::mutex> hlock(header_mutex);
+            if (!decrypted_header.empty()) {
+                std::size_t to_read = std::min<std::size_t>(remaining, 0x4000 - current_offset);
+                std::size_t copy_len = std::min<std::size_t>(to_read, decrypted_header.size() - current_offset);
+                std::memcpy(data + bytes_read, decrypted_header.data() + current_offset, copy_len);
+                hlock.unlock();
+                std::size_t read = copy_len;
+                if (read < to_read) {
+                    std::size_t extra = to_read - read;
+                    std::size_t extra_read = SafeRead(file, data + bytes_read + read, extra, current_offset + read);
+                    read += extra_read;
+                }
+                if (read == 0) break;
+                bytes_read += read;
+                current_offset += read;
+                remaining -= read;
+                continue;
             }
-            if (read == 0) break;
-            bytes_read += read;
-            current_offset += read;
-            remaining -= read;
-            continue;
         }
 
         if (is_raw_nca) {
@@ -438,6 +455,16 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
             } else if (found) {
                 // fallthrough
             } else {
+                // In sparse gap between sections
+                u64 next_sec_offset = static_cast<u64>(decompressed_size);
+                for (const auto& sec : sections) {
+                    if (static_cast<u64>(sec.offset) > virtual_offset_in_nca && static_cast<u64>(sec.offset) < next_sec_offset) {
+                        next_sec_offset = static_cast<u64>(sec.offset);
+                    }
+                }
+                if (next_sec_offset > virtual_offset_in_nca) {
+                    copy_size = std::min<std::size_t>(copy_size, static_cast<std::size_t>(next_sec_offset - virtual_offset_in_nca));
+                }
                 std::memset(data + bytes_read, 0, copy_size);
                 bytes_read += copy_size;
                 current_offset += copy_size;
@@ -484,7 +511,6 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
             if (disk_cache_file) {
                 std::size_t r = disk_cache_file->Read(data + bytes_read, copy_size, virtual_offset_in_nca);
                 if (r == 0) {
-                    // Fallback to zeros if read fails
                     std::memset(data + bytes_read, 0, copy_size);
                     r = copy_size;
                 }
@@ -517,15 +543,9 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
         }
 
         if (!is_solid_stream) {
-            std::unique_lock<std::mutex> cache_lock(cache_mutex);
-
-            auto cache_it = std::find_if(block_cache.begin(), block_cache.end(),
-                [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
-
             const auto& block = blocks[block_index];
             std::size_t expected_decompressed_size = block_size;
             if (block_index == blocks.size() - 1) {
-                // packed_size is the total ZSTD decompressed size (excludes 0x4000 NCA header per NCZ spec)
                 expected_decompressed_size = packed_size % block_size;
                 if (expected_decompressed_size == 0) expected_decompressed_size = block_size;
             }
@@ -535,39 +555,53 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 if (read == 0) break;
                 copy_size = read;
             } else {
-                if (cache_it != block_cache.end()) {
-                    if (cache_it != block_cache.begin()) {
-                        std::rotate(block_cache.begin(), cache_it, cache_it + 1);
+                bool hit = false;
+                {
+                    std::unique_lock<std::mutex> cache_lock(cache_mutex);
+                    auto cache_it = std::find_if(block_cache.begin(), block_cache.end(),
+                        [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
+
+                    if (cache_it != block_cache.end()) {
+                        if (cache_it != block_cache.begin()) {
+                            std::rotate(block_cache.begin(), cache_it, cache_it + 1);
+                        }
+                        const auto& cached_entry = block_cache.front();
+                        std::size_t available = (cached_entry.data.size() > block_offset) ? (cached_entry.data.size() - block_offset) : 0;
+                        copy_size = std::min<std::size_t>(copy_size, available);
+                        if (copy_size > 0) {
+                            std::memcpy(data + bytes_read, cached_entry.data.data() + block_offset, copy_size);
+                            hit = true;
+                        }
                     }
-                } else {
+                }
+
+                if (!hit) {
                     std::vector<u8> compressed_data(block.compressed_size);
                     if (SafeRead(file, compressed_data.data(), block.compressed_size, block.offset) != block.compressed_size) {
                         break;
                     }
 
-                    std::vector<u8> decomp = Common::Compression::DecompressDataZSTD(compressed_data);
-                    if (decomp.empty()) {
-                        LOG_ERROR(Service_FS, "ZSTD decompression failed at block {}", block_index);
+                    std::vector<u8> decomp(expected_decompressed_size);
+                    if (!DecompressZstdBlock(compressed_data.data(), block.compressed_size, decomp.data(), expected_decompressed_size)) {
+                        LOG_ERROR(Service_FS, "ZSTD decompression failed at block {} (expected: {})", block_index, expected_decompressed_size);
                         break;
                     }
-                    if (decomp.size() != expected_decompressed_size) {
-                        LOG_CRITICAL(Service_FS, "ZSTD block {} size mismatch! Expected: {}, Got: {}, compressed_size: {}, file: {}",
-                                     block_index, expected_decompressed_size, decomp.size(), block.compressed_size, file->GetName());
-                    }
 
-                    if (block_cache.size() >= 64) {
-                        block_cache.pop_back();
+                    std::size_t available = (decomp.size() > block_offset) ? (decomp.size() - block_offset) : 0;
+                    copy_size = std::min<std::size_t>(copy_size, available);
+                    if (copy_size == 0) break;
+
+                    std::memcpy(data + bytes_read, decomp.data() + block_offset, copy_size);
+
+                    {
+                        std::unique_lock<std::mutex> cache_lock(cache_mutex);
+                        if (block_cache.size() >= 64) {
+                            block_cache.pop_back();
+                        }
+                        block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
+                        last_accessed_block = block_index;
                     }
-                    block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
-                    last_accessed_block = block_index;
                 }
-
-                const auto& cached_entry = block_cache.front();
-                std::size_t available = (cached_entry.data.size() > block_offset) ? (cached_entry.data.size() - block_offset) : 0;
-                copy_size = std::min<std::size_t>(copy_size, available);
-                if (copy_size == 0) break;
-
-                std::memcpy(data + bytes_read, cached_entry.data.data() + block_offset, copy_size);
             }
         }
 

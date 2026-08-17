@@ -118,6 +118,7 @@ public:
     
     mutable std::mutex cache_mutex;
     mutable std::mutex solid_mutex;
+    mutable std::mutex header_mutex;
     mutable std::size_t last_accessed_block = SIZE_MAX;
     mutable std::shared_future<void> prefetch_future;
     mutable std::size_t prefetching_block_index = SIZE_MAX;

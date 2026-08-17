@@ -771,6 +771,15 @@ std::vector<ContentProviderEntry> RegisteredCache::ListEntriesFilter(
 static std::shared_ptr<NCA> GetNCAFromNSPForID(const NSP& nsp, const NcaID& id) {
     auto file = nsp.GetFile(fmt::format("{}.nca", Common::HexToString(id, false)));
     if (file == nullptr) {
+        file = nsp.GetFile(fmt::format("{}.ncz", Common::HexToString(id, false)));
+    }
+    if (file == nullptr) {
+        file = nsp.GetFile(fmt::format("{}.NCA", Common::HexToString(id, false)));
+    }
+    if (file == nullptr) {
+        file = nsp.GetFile(fmt::format("{}.NCZ", Common::HexToString(id, false)));
+    }
+    if (file == nullptr) {
         return nullptr;
     }
     return std::make_shared<NCA>(std::move(file));

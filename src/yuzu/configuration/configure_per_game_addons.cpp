@@ -332,7 +332,7 @@ void ConfigurePerGameAddons::LoadConfiguration() {
     int mod_counter = 1;
 
     // Ensure TitleDB is loaded
-    TitleDB::TitleDatabase::Instance().EnsureLoaded();
+    TitleDB::TitleDatabase::Instance().WaitLoaded(std::chrono::milliseconds(3000));
 
     for (const auto& patch : patches) {
         if (patch.type == FileSys::PatchType::DLC || patch.name == "DLC") {

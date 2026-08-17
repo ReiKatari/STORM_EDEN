@@ -494,11 +494,10 @@ Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
             R_SUCCEED();
         }
 
-        // TODO(DarkLordZach): Find the right error code to use here
-        LOG_ERROR(Service_FS,
-                  "Could not open data storage with title_id={:016X}, storage_id={:02X}", title_id,
-                  storage_id);
-        R_RETURN(ResultUnknown);
+        LOG_WARNING(Service_FS,
+                    "Data storage for title_id={:016X}, storage_id={:02X} not found (empty or missing RomFS). Returning ResultTargetNotFound.",
+                    title_id, static_cast<u8>(storage_id));
+        R_RETURN(FileSys::ResultTargetNotFound);
     }
 
     const FileSys::PatchManager pm{title_id, fsc, content_provider};

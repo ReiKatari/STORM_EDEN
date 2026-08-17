@@ -28,10 +28,21 @@
 #include "yuzu/configuration/configure_gamebanana_mods.h"
 #include "yuzu/configuration/configure_per_game_addons.h"
 
+static QString FormatNumber(qint64 num) {
+    if (num < 0) return QString::number(num);
+    QString s = QString::number(num);
+    int n = s.length() - 3;
+    while (n > 0) {
+        s.insert(n, QLatin1Char(' '));
+        n -= 3;
+    }
+    return s;
+}
+
 static int ResolveGameBananaGameId(u64 title_id, const QString& game_name) {
     switch (title_id) {
-    case 0x01007EF00011E000: return 5866;  // Zelda: Breath of the Wild
-    case 0x0100F2C0115B6000: return 17654; // Zelda: Tears of the Kingdom
+    case 0x01007EF00011E000: return 5866;  // The Legend of Zelda: Breath of the Wild (Switch)
+    case 0x0100F2C0115B6000: return 17654; // The Legend of Zelda: Tears of the Kingdom
     case 0x01006A800016E000: return 6686;  // Super Smash Bros. Ultimate
     case 0x0100000000010000: return 6150;  // Super Mario Odyssey
     case 0x0100152000022000: return 6507;  // Mario Kart 8 Deluxe
@@ -40,15 +51,34 @@ static int ResolveGameBananaGameId(u64 title_id, const QString& game_name) {
     case 0x01008F6008C5E000: return 16871; // Pokemon Violet
     case 0x0100ABF008968000: return 7616;  // Pokemon Sword
     case 0x01008DB008C2C000: return 7616;  // Pokemon Shield
+    case 0x01001F5010DFA000: return 12845; // Pokemon Legends: Arceus
+    case 0x0100000011D90000: return 18365; // Pokemon Legends: Z-A
+    case 0x0100000000014000: return 7018;  // Pokemon: Let's Go, Pikachu!
+    case 0x0100000000015000: return 7018;  // Pokemon: Let's Go, Eevee!
+    case 0x0100000011DE8000: return 12844; // Pokemon Brilliant Diamond / Shining Pearl
     case 0x01002DA013484000: return 11394; // Metroid Dread
-    case 0x01000A10041EA000: return 16777; // Persona 5 Royal
+    case 0x0100121014688000: return 14457; // Metroid Prime Remastered
+    case 0x01000A10041EA000: return 16777; // Persona 5 Royal (Switch)
     case 0x010074F013262000: return 16781; // Xenoblade Chronicles 3
+    case 0x0100E95004038000: return 6927;  // Xenoblade Chronicles 2
+    case 0x0100FF500E34A000: return 8449;  // Xenoblade Chronicles: Definitive Edition
     case 0x0100C2500FC20000: return 15797; // Splatoon 3
+    case 0x01003BC0000A0000: return 5956;  // Splatoon 2
     case 0x0100C9A00ECE6000: return 17462; // Fire Emblem Engage
+    case 0x010055D009F78000: return 7460;  // Fire Emblem: Three Houses
     case 0x01004A4010FE8000: return 17088; // Bayonetta 3
     case 0x01004D300C5AE000: return 15206; // Kirby and the Forgotten Land
-    case 0x010003200D166000: return 14688; // Sonic Frontiers
+    case 0x010003200D166000: return 17497; // Sonic Frontiers (Switch)
     case 0x010028600EBDA000: return 17655; // Super Mario Bros. Wonder
+    case 0x01009B90006DC000: return 6848;  // Super Mario Party
+    case 0x0100D8701267E000: return 12797; // Mario Party Superstars
+    case 0x01002B4019BCA000: return 18980; // Super Mario Party Jamboree
+    case 0x01009AA000FAA000: return 6853;  // Luigi's Mansion 3
+    case 0x0100B04011742000: return 12836; // Super Mario 3D World + Bowser's Fury
+    case 0x01004BC0000AA000: return 6554;  // Super Mario Maker 2
+    case 0x01004A5013054000: return 18600; // The Legend of Zelda: Echoes of Wisdom
+    case 0x01006BB00C6F0000: return 7433;  // The Legend of Zelda: Link's Awakening
+    case 0x010065800002A000: return 6168;  // The Legend of Zelda: Skyward Sword HD
     default: break;
     }
 
@@ -60,10 +90,15 @@ static int ResolveGameBananaGameId(u64 title_id, const QString& game_name) {
     if (lower.contains(QStringLiteral("mario kart 8"))) return 6507;
     if (lower.contains(QStringLiteral("animal crossing"))) return 8282;
     if (lower.contains(QStringLiteral("metroid dread"))) return 11394;
+    if (lower.contains(QStringLiteral("metroid prime"))) return 14457;
     if (lower.contains(QStringLiteral("splatoon 3"))) return 15797;
+    if (lower.contains(QStringLiteral("splatoon 2"))) return 5956;
     if (lower.contains(QStringLiteral("persona 5"))) return 16777;
     if (lower.contains(QStringLiteral("xenoblade 3"))) return 16781;
-    if (lower.contains(QStringLiteral("sonic frontiers"))) return 14688;
+    if (lower.contains(QStringLiteral("xenoblade 2"))) return 6927;
+    if (lower.contains(QStringLiteral("sonic frontiers"))) return 17497;
+    if (lower.contains(QStringLiteral("mario wonder"))) return 17655;
+    if (lower.contains(QStringLiteral("echoes of wisdom"))) return 18600;
     return 0;
 }
 
@@ -269,10 +304,10 @@ void ConfigureGameBananaMods::SetGameInfo(u64 title_id_, const QString& game_nam
     clean_title = clean_title.trimmed();
 
     QString game_id_badge = (gamebanana_game_id > 0)
-        ? QStringLiteral(" | GameBanana ID: %1").arg(gamebanana_game_id)
+        ? QStringLiteral(" | GameBanana ID: %1").arg(FormatNumber(gamebanana_game_id))
         : QString{};
 
-    game_header_label->setText(tr("🎮 Игра: %1  |  Title ID: %2%3")
+    game_header_label->setText(tr("🎮 Игра: %1  |  Платформа: Nintendo Switch (1, 2)  |  Title ID: %2%3")
         .arg(clean_title, QStringLiteral("%1").arg(title_id, 16, 16, QLatin1Char('0')).toUpper(), game_id_badge));
 
     SearchMods({}, 1);
@@ -341,8 +376,8 @@ void ConfigureGameBananaMods::PopulateModTree() {
         auto* tree_item = new QTreeWidgetItem(mod_tree);
         tree_item->setText(0, item.name);
         tree_item->setText(1, item.submitter.isEmpty() ? QStringLiteral("-") : item.submitter);
-        tree_item->setText(2, QString::number(item.downloads));
-        tree_item->setText(3, QString::number(item.likes));
+        tree_item->setText(2, FormatNumber(item.downloads));
+        tree_item->setText(3, FormatNumber(item.likes));
         tree_item->setText(4, item.category.isEmpty() ? QStringLiteral("Мод") : item.category);
         tree_item->setData(0, Qt::UserRole, item.id);
         tree_item->setTextAlignment(0, Qt::AlignLeft | Qt::AlignVCenter);
@@ -359,7 +394,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     }
 
     current_page = std::max(1, page);
-    page_label->setText(tr("Страница %1").arg(current_page));
+    page_label->setText(tr("Страница %1").arg(FormatNumber(current_page)));
     first_page_btn->setEnabled(current_page > 1);
     prev_page_btn->setEnabled(current_page > 1);
     next_page_btn->setEnabled(false);
@@ -369,7 +404,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     detail_browser->clear();
     files_combo->clear();
     install_btn->setEnabled(false);
-    status_label->setText(tr("Поиск модов на GameBanana (стр. %1)...").arg(current_page));
+    status_label->setText(tr("Поиск модов на GameBanana (стр. %1)...").arg(FormatNumber(current_page)));
 
     QString clean_title = game_name;
     clean_title.remove(QRegularExpression(QStringLiteral("\\[.*?\\]")));
@@ -399,7 +434,10 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
             q.addQueryItem(QStringLiteral("_idGameRow"), QString::number(gamebanana_game_id));
             q.addQueryItem(QStringLiteral("_sSearchString"), query);
         } else {
-            QString search_term = query.isEmpty() ? clean_title : QStringLiteral("%1 %2").arg(clean_title, query);
+            // Strictly target Nintendo Switch (1, 2) platform
+            QString search_term = query.isEmpty()
+                ? QStringLiteral("%1 Switch").arg(clean_title)
+                : QStringLiteral("%1 %2 Switch").arg(clean_title, query);
             q.addQueryItem(QStringLiteral("_sSearchString"), search_term);
         }
         q.addQueryItem(QStringLiteral("_sModelName"), QStringLiteral("Mod"));
@@ -469,7 +507,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
         ApplySorting();
         PopulateModTree();
 
-        page_label->setText(total_records > 0 ? tr("Страница %1 из %2").arg(current_page).arg(total_pages) : tr("Страница %1").arg(current_page));
+        page_label->setText(total_records > 0 ? tr("Страница %1 из %2").arg(FormatNumber(current_page)).arg(FormatNumber(total_pages)) : tr("Страница %1").arg(FormatNumber(current_page)));
         first_page_btn->setEnabled(current_page > 1);
         prev_page_btn->setEnabled(current_page > 1);
         next_page_btn->setEnabled((current_page < total_pages && !is_complete) || (!records.isEmpty() && !is_complete));
@@ -480,7 +518,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
                 details_widget->setVisible(false);
             }
         } else {
-            status_label->setText(tr("Всего доступно модов: %1  |  Страница %2 из %3 (показано %4)").arg(total_records > 0 ? total_records : current_mods.size()).arg(current_page).arg(total_pages).arg(current_mods.size()));
+            status_label->setText(tr("Всего доступно модов: %1  |  Страница %2 из %3 (показано %4)").arg(FormatNumber(total_records > 0 ? total_records : current_mods.size())).arg(FormatNumber(current_page)).arg(FormatNumber(total_pages)).arg(FormatNumber(current_mods.size())));
         }
     });
 }
@@ -512,7 +550,7 @@ void ConfigureGameBananaMods::LoadModDetails(int mod_id) {
 
     QUrl details_url(QStringLiteral("https://gamebanana.com/apiv11/Mod/%1/ProfilePage").arg(mod_id));
     QNetworkRequest request(details_url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM-EDEN-Client/3.2.4"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM-EDEN-Client/3.3.4"));
 
     current_reply = network_manager->get(request);
     connect(current_reply, &QNetworkReply::finished, this, [this]() {

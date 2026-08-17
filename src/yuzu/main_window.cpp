@@ -6939,8 +6939,23 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
         }
     }
 
+    auto format_dlc_count_ru = [](int count) -> QString {
+        const int mod10 = count % 10;
+        const int mod100 = count % 100;
+        if (mod100 >= 11 && mod100 <= 19) {
+            return QStringLiteral("%1 дополнений").arg(count);
+        }
+        if (mod10 == 1) {
+            return QStringLiteral("%1 дополнение").arg(count);
+        }
+        if (mod10 >= 2 && mod10 <= 4) {
+            return QStringLiteral("%1 дополнения").arg(count);
+        }
+        return QStringLiteral("%1 дополнений").arg(count);
+    };
+
     const int tinfoil_dlc_count = TitleDB::TitleDatabase::Instance().GetDlcCount(title_id);
-    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? tr("%1 DLC").arg(tinfoil_dlc_count) : (base_tdb.has_value() ? tr("0 DLC") : tr("Не найдено"));
+    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? format_dlc_count_ru(tinfoil_dlc_count) : (base_tdb.has_value() ? QStringLiteral("0 дополнений") : tr("Не найдено"));
 
     auto* header_card = new QWidget(&dlg);
     header_card->setStyleSheet(QStringLiteral("background-color: #121826; border: 1px solid #1e283d; border-radius: 8px; padding: 6px;"));

@@ -708,6 +708,8 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
         ApplyLayeredFS(romfs, title_id, type, fs_controller);
     }
 
+    LOG_INFO(Loader, "PatchRomFS: Finished RomFS for title_id={:016X}, type={:02X}, size={}",
+             title_id, static_cast<u8>(type), romfs ? romfs->GetSize() : 0);
     return romfs;
 }
 

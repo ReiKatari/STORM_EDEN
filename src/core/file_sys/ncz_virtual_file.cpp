@@ -93,10 +93,24 @@ public:
 };
 
 bool DecompressZstdBlock(const u8* src, std::size_t src_size, u8* dst, std::size_t dst_size) {
-    if (!src || src_size == 0 || !dst || dst_size == 0) return false;
-    auto* dctx = ZstdContextPool::Get().Acquire();
-    const std::size_t ret = ZSTD_decompressDCtx(dctx, dst, dst_size, src, src_size);
-    ZstdContextPool::Get().Release(dctx);
+    auto* ctx = ZstdContextPool::Get().Acquire();
+    if (!ctx) return false;
+
+    unsigned long long frame_size = ZSTD_getFrameContentSize(src, src_size);
+    if (frame_size != ZSTD_CONTENTSIZE_UNKNOWN && frame_size != ZSTD_CONTENTSIZE_ERROR && frame_size > dst_size) {
+        std::vector<u8> temp(frame_size);
+        std::size_t ret = ZSTD_decompressDCtx(ctx, temp.data(), frame_size, src, src_size);
+        ZstdContextPool::Get().Release(ctx);
+        if (ZSTD_isError(ret)) {
+            LOG_ERROR(Service_FS, "ZSTD_decompressDCtx failed: {}", ZSTD_getErrorName(ret));
+            return false;
+        }
+        std::memcpy(dst, temp.data(), dst_size);
+        return true;
+    }
+
+    std::size_t ret = ZSTD_decompressDCtx(ctx, dst, dst_size, src, src_size);
+    ZstdContextPool::Get().Release(ctx);
     if (ZSTD_isError(ret)) {
         LOG_ERROR(Service_FS, "ZSTD_decompressDCtx failed: {}", ZSTD_getErrorName(ret));
         return false;
@@ -489,7 +503,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 std::filesystem::path completed_path = cache_path.string() + ".completed";
                 
                 bool cache_valid = std::filesystem::exists(cache_path, ec) && 
-                                   std::filesystem::file_size(cache_path, ec) == decompressed_size &&
+                                   std::filesystem::file_size(cache_path, ec) >= decompressed_size &&
                                    std::filesystem::exists(completed_path, ec);
                 
                 if (!cache_valid && !disk_cache_checked) {
@@ -512,8 +526,8 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
             if (disk_cache_file) {
                 std::size_t r = disk_cache_file->Read(data + bytes_read, copy_size, virtual_offset_in_nca);
-                if (r == 0) {
-                    std::memset(data + bytes_read, 0, copy_size);
+                if (r < copy_size) {
+                    std::memset(data + bytes_read + r, 0, copy_size - r);
                     r = copy_size;
                 }
                 bytes_read += r;
@@ -632,8 +646,18 @@ bool NCZVirtualFile::Rename(std::string_view name) {
 bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) const {
     if (!is_solid_stream) return false;
 
+    std::error_code ec;
+    std::filesystem::remove(dest_path, ec);
+
     Common::FS::IOFile out_file(dest_path, Common::FS::FileAccessMode::Write, Common::FS::FileType::BinaryFile);
-    if (!out_file.IsOpen()) return false;
+    if (!out_file.IsOpen()) {
+        LOG_ERROR(Service_FS, "DecompressSolidTo: Failed to open destination file {}", dest_path.string());
+        return false;
+    }
+
+    if (decompressed_size > 0) {
+        std::filesystem::resize_file(dest_path, decompressed_size, ec);
+    }
 
     // Initialize ZSTD stream decompression
     std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)> dctx(ZSTD_createDCtx(), &ZSTD_freeDCtx);
@@ -693,6 +717,7 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
         u64 write_offset = zstd_sec_start;
         if (remaining_in_sec > 0) {
             if (!out_file.Seek(static_cast<s64>(write_offset))) {
+                LOG_ERROR(Service_FS, "DecompressSolidTo: Failed to seek to offset 0x{:X}", write_offset);
                 return false;
             }
         }
@@ -727,7 +752,7 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
                 total_decompressed_so_far += produced;
                 
                 if (total_decompressed_so_far - last_log_progress >= 512ULL * 1024 * 1024 || total_decompressed_so_far == total_decompressed_size) {
-                    double progress_pct = (double)total_decompressed_so_far / total_decompressed_size * 100.0;
+                    double progress_pct = total_decompressed_size > 0 ? ((double)total_decompressed_so_far / total_decompressed_size * 100.0) : 100.0;
                     LOG_INFO(Service_FS, "DecompressSolidTo: Decompressed {:.1f}% ({:.2f} / {:.2f} GB)...",
                              progress_pct, (double)total_decompressed_so_far / (1024*1024*1024),
                              (double)total_decompressed_size / (1024*1024*1024));
@@ -749,6 +774,12 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
         }
     }
 
+    out_file.Flush();
+    out_file.Close();
+    if (decompressed_size > 0) {
+        std::filesystem::resize_file(dest_path, decompressed_size, ec);
+    }
+    LOG_INFO(Service_FS, "DecompressSolidTo: Successfully finished decompression to {} ({} bytes)", dest_path.string(), decompressed_size);
     return true;
 }
 

@@ -28,16 +28,26 @@ Result IStorage::Read(
     s64 offset, s64 length) {
     LOG_DEBUG(Service_FS, "called, offset={:#x}, length={}", offset, length);
 
+    R_UNLESS(backend != nullptr, FileSys::ResultTargetNotFound);
     R_UNLESS(length >= 0, FileSys::ResultInvalidSize);
     R_UNLESS(offset >= 0, FileSys::ResultInvalidOffset);
 
+    if (length == 0) {
+        R_SUCCEED();
+    }
+    R_UNLESS(out_bytes.data() != nullptr, FileSys::ResultNullptrArgument);
+
     // Read the data from the Storage backend
-    backend->Read(out_bytes.data(), length, offset);
+    const std::size_t read_bytes = backend->Read(out_bytes.data(), length, offset);
+    if (read_bytes < static_cast<std::size_t>(length)) {
+        std::memset(out_bytes.data() + read_bytes, 0, length - read_bytes);
+    }
 
     R_SUCCEED();
 }
 
 Result IStorage::GetSize(Out<u64> out_size) {
+    R_UNLESS(backend != nullptr, FileSys::ResultTargetNotFound);
     *out_size = backend->GetSize();
 
     LOG_DEBUG(Service_FS, "called, size={}", *out_size);

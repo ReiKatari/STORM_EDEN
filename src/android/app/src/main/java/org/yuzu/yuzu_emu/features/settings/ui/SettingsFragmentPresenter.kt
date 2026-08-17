@@ -1159,6 +1159,7 @@ class SettingsFragmentPresenter(
 
                 override fun setInt(value: Int) {
                     IntSetting.STATIC_THEME_COLOR.setInt(value)
+                    IntSetting.THEME.setInt(0)
                     settingsViewModel.setShouldRecreate(true)
                 }
 
@@ -1176,16 +1177,14 @@ class SettingsFragmentPresenter(
                 }
             }
 
-            if (IntSetting.THEME.getInt() != 1) {
-                add(
-                    SingleChoiceSetting(
-                        staticThemeColor,
-                        titleId = R.string.static_theme_color,
-                        choicesId = R.array.staticThemeNames,
-                        valuesId = R.array.staticThemeValues
-                    )
+            add(
+                SingleChoiceSetting(
+                    staticThemeColor,
+                    titleId = R.string.static_theme_color,
+                    choicesId = R.array.staticThemeNames,
+                    valuesId = R.array.staticThemeValues
                 )
-            }
+            )
 
             val blackBackgrounds: AbstractBooleanSetting = object : AbstractBooleanSetting {
                 override fun getBoolean(needsGlobal: Boolean): Boolean =

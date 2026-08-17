@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2023 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <regex>
 #include "common/android/android_common.h"
 #include "core/core.h"
 #include "core/file_sys/fs_filesystem.h"
@@ -65,11 +66,33 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
 
         // Accurate internal version: numeric string without 'v' (e.g. 65536, 393216, 0)
         u32 internal_ver = 0;
-        if (game_version.has_value()) {
+        if (game_version.has_value() && *game_version > 0) {
             internal_ver = *game_version;
         } else {
             internal_ver = instance.System().GetContentProvider().GetEntryVersion(entry.programId).value_or(0);
         }
+
+        // Check if filename contains version tag like [v65536], (v131072), [v0], _v393216
+        if (internal_ver == 0) {
+            std::regex ver_tag_regex(R"([\[\(_]v(\d+)[\]\)])", std::regex::icase);
+            std::smatch match;
+            if (std::regex_search(path, match, ver_tag_regex) && match.size() > 1) {
+                try {
+                    internal_ver = static_cast<u32>(std::stoul(match[1].str()));
+                } catch (...) {}
+            }
+        }
+
+        // If internal_ver is still 0, but display version string is e.g. "1.2.0" or "1.1.0" or "2.0.0"
+        if (internal_ver == 0 && !entry.version.empty() && entry.version != "1.0.0" && entry.version != "1.0") {
+            int major = 1, minor = 0, patch = 0;
+            if (std::sscanf(entry.version.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {
+                if (major >= 1) {
+                    internal_ver = static_cast<u32>((major - 1) * 655360 + minor * 65536 + (patch * 65536) / 10);
+                }
+            }
+        }
+
         entry.internal_version = std::to_string(internal_ver);
 
         // Count DLC / Addons for this game

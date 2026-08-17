@@ -61,34 +61,14 @@ std::vector<Asset> Release::GetPlatformAssets() const {
     };
 
 #ifdef _WIN32
-#ifdef ARCHITECTURE_x86_64
-#ifdef _MSC_VER
-    find_asset("Standard", {"amd64-msvc-standard.exe", "amd64-msvc-standard.zip"});
-#else // _MSC_VER
-    find_asset("Standard", {BUILD_ID "-gcc-standard.exe", BUILD_ID "-gcc-standard.zip"});
-    find_asset("PGO", {BUILD_ID "-clang-pgo.exe", BUILD_ID "-clang-pgo.zip"});
-#endif // _MSC_VER
-#elif defined(ARCHITECTURE_arm64)
-    find_asset("Standard", {"arm64-clang-standard.exe", "arm64-clang-standard.zip"});
-    find_asset("PGO", {"arm64-clang-pgo.exe", "arm64-clang-pgo.zip"});
-#endif // ARCHITECTURE_arm64
+    find_asset("Standard", {"win-x64.zip", ".zip", ".7z", ".exe"});
 #elif defined(__APPLE__)
 #ifdef ARCHITECTURE_arm64
     find_asset("Standard", {"standard.dmg", "standard.tar.gz", ".dmg", ".tar.gz"});
     find_asset("PGO", {"pgo.dmg", "pgo.tar.gz"});
 #endif // ARCHITECTURE_arm64
 #elif defined(__ANDROID__)
-#ifdef ARCHITECTURE_x86_64
-    find_asset("Standard", {"chromeos.apk"});
-#elif defined(ARCHITECTURE_arm64)
-#ifdef YUZU_LEGACY
-    find_asset("Standard", {"legacy.apk"});
-#elif defined(GENSHIN_SPOOF)
-    find_asset("Standard", {"optimized.apk"});
-#else
-    find_asset("Standard", {"standard.apk"});
-#endif // GENSHIN_SPOOF
-#endif // ARCHITECTURE_arm64
+    find_asset("Standard", {"Android.apk", ".apk"});
 #endif // __APPLE__
     return found_assets;
 }
@@ -222,9 +202,15 @@ std::optional<std::string> MakeRequest(const std::string& url, const std::string
             return {};
         }
 
+        httplib::Headers headers = {
+            {"User-Agent", fmt::format("STORM-EDEN/{}", Common::g_build_version)},
+            {"Accept", "application/vnd.github.v3+json, application/json, */*"},
+        };
+
         httplib::Request request{
             .method = "GET",
             .path = path,
+            .headers = headers,
         };
 
         client->set_follow_location(true);

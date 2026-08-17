@@ -252,16 +252,16 @@
         <item name="android:elevation">0dp</item>
         <item name="android:padding">16dp</item>
     </style>
-    <!-- Synthwave Text Styles -->
+    <!-- Gothic / STORM Text Styles -->
     <style name="SynthwaveText.Title" parent="TextAppearance.Material3.DisplayLarge">
         <item name="android:textColor">@color/eden_on_background</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.1</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:shadowColor">@color/eden_glow_pink</item>
+        <item name="android:letterSpacing">0.14</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:shadowColor">#FF1744</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">8</item>
+        <item name="android:shadowRadius">12</item>
     </style>
     <style name="SynthwaveText.Header" parent="TextAppearance.Material3.DisplaySmall">
         <item name="android:textColor">@color/eden_primary</item>

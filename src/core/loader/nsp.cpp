@@ -59,6 +59,16 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
         if (program_file == nullptr) {
             for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
                 if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                    (nca_item->GetTitleId() & 0x800) == 0 &&
+                    nca_item->GetStatus() == ResultStatus::Success) {
+                    program_file = nca_item->GetBaseFile();
+                    break;
+                }
+            }
+        }
+        if (program_file == nullptr) {
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
                     nca_item->GetStatus() == ResultStatus::Success) {
                     program_file = nca_item->GetBaseFile();
                     break;
@@ -128,8 +138,22 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
     }
 
     const auto nsp_program_status = nsp->GetProgramStatus();
-    if (nsp_program_status != ResultStatus::Success) {
-        return {nsp_program_status, {}};
+    if (nsp_program_status != ResultStatus::Success &&
+        nsp_program_status != ResultStatus::ErrorMissingBKTRBaseRomFS) {
+        if (!secondary_loader) {
+            bool has_bootable_nca = false;
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                    (nca_item->GetStatus() == ResultStatus::Success ||
+                     nca_item->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                    has_bootable_nca = true;
+                    break;
+                }
+            }
+            if (!has_bootable_nca) {
+                return {nsp_program_status, {}};
+            }
+        }
     }
 
     if (!nsp->IsExtractedType() &&

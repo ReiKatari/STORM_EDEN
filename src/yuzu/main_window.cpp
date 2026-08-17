@@ -7,6 +7,7 @@
 #undef VMA_IMPLEMENTATION
 #endif
 
+#include <regex>
 #include <boost/algorithm/string/split.hpp>
 #include "common/cityhash.h"
 #include "common/fs/path_util.h"
@@ -2811,9 +2812,31 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
                 .filename());
     }
     const auto full_file_name = QFileInfo(filename).fileName().toStdString();
-    const u32 raw_internal_version = pm.GetGameVersion().value_or(0);
-    const std::string internal_version_str = fmt::format("v{}", raw_internal_version);
+    u32 raw_internal_version = pm.GetGameVersion().value_or(0);
+    if (raw_internal_version == 0) {
+        std::regex ver_regex(R"([\[\(_]v(\d+)[\]\)]|[-_\s](\d{5,8})[-_\s\)])", std::regex::icase);
+        std::smatch match;
+        if (std::regex_search(full_file_name, match, ver_regex)) {
+            for (size_t i = 1; i < match.size(); ++i) {
+                if (match[i].matched) {
+                    try {
+                        raw_internal_version = static_cast<u32>(std::stoul(match[i].str()));
+                        break;
+                    } catch (...) {}
+                }
+            }
+        }
+    }
     const std::string display_version_str = title_version.empty() ? "1.0.0" : title_version;
+    if (raw_internal_version == 0 && !display_version_str.empty() && display_version_str != "1.0.0" && display_version_str != "1.0") {
+        int major = 1, minor = 0, patch = 0;
+        if (std::sscanf(display_version_str.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {
+            if (major >= 1) {
+                raw_internal_version = static_cast<u32>((major - 1) * 655360 + minor * 65536 + (patch * 65536) / 10);
+            }
+        }
+    }
+    const std::string internal_version_str = fmt::format("v{}", raw_internal_version);
     const auto raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
     const auto gpu_vendor = QString::fromStdString(raw_gpu_vendor).toUpper().toStdString();
 

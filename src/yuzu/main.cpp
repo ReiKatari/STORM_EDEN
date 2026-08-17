@@ -23,6 +23,7 @@
 #endif
 
 #include "main_window.h"
+#include "qt_common/titledb.h"
 
 #ifdef _WIN32
 #include <QScreen>
@@ -78,6 +79,9 @@ static Qt::HighDpiScaleFactorRoundingPolicy GetHighDpiRoundingPolicy() {
 }
 
 int main(int argc, char* argv[]) {
+    // Start background loading of TitleDB immediately at application startup
+    TitleDB::TitleDatabase::Instance().EnsureLoaded();
+
 #if YUZU_ROOM
     bool launch_room = false;
     for (int i = 1; i < argc; i++) {

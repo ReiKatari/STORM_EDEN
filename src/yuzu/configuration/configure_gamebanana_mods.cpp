@@ -283,8 +283,12 @@ void ConfigureGameBananaMods::OnSearchClicked() {
 }
 
 void ConfigureGameBananaMods::OnSortChanged(int) {
-    ApplySorting();
-    PopulateModTree();
+    if (gamebanana_game_id > 0 && search_input->text().trimmed().isEmpty()) {
+        SearchMods({}, 1);
+    } else {
+        ApplySorting();
+        PopulateModTree();
+    }
 }
 
 void ConfigureGameBananaMods::OnFirstPage() {
@@ -335,11 +339,11 @@ void ConfigureGameBananaMods::PopulateModTree() {
     mod_tree->clear();
     for (const auto& item : current_mods) {
         auto* tree_item = new QTreeWidgetItem(mod_tree);
-        tree_item->setText(0, item.name.toUpper());
-        tree_item->setText(1, item.submitter);
+        tree_item->setText(0, item.name);
+        tree_item->setText(1, item.submitter.isEmpty() ? QStringLiteral("-") : item.submitter);
         tree_item->setText(2, QString::number(item.downloads));
         tree_item->setText(3, QString::number(item.likes));
-        tree_item->setText(4, item.category);
+        tree_item->setText(4, item.category.isEmpty() ? QStringLiteral("Мод") : item.category);
         tree_item->setData(0, Qt::UserRole, item.id);
         tree_item->setTextAlignment(0, Qt::AlignLeft | Qt::AlignVCenter);
         for (int i = 1; i < 5; ++i) {
@@ -358,6 +362,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     page_label->setText(tr("Страница %1").arg(current_page));
     first_page_btn->setEnabled(current_page > 1);
     prev_page_btn->setEnabled(current_page > 1);
+    next_page_btn->setEnabled(false);
 
     mod_tree->clear();
     current_mods.clear();
@@ -377,7 +382,17 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     q.addQueryItem(QStringLiteral("_nPerpage"), QStringLiteral("40"));
 
     if (gamebanana_game_id > 0 && query.isEmpty()) {
-        search_url = QUrl(QStringLiteral("https://gamebanana.com/apiv11/Game/%1/Subfeed").arg(gamebanana_game_id));
+        search_url = QUrl(QStringLiteral("https://gamebanana.com/apiv11/Mod/Index"));
+        q.addQueryItem(QStringLiteral("_aFilters[Generic_Game]"), QString::number(gamebanana_game_id));
+
+        QString sort_param = QStringLiteral("Generic_MostDownloaded");
+        const int sort_idx = sort_combo->currentIndex();
+        if (sort_idx == 0) sort_param = QStringLiteral("Generic_MostDownloaded");
+        else if (sort_idx == 1) sort_param = QStringLiteral("Generic_MostLiked");
+        else if (sort_idx == 2) sort_param = QStringLiteral("Generic_MostViewed");
+        else if (sort_idx == 3) sort_param = QStringLiteral("Generic_Latest");
+        else if (sort_idx == 4) sort_param = QStringLiteral("Generic_Alphabetical");
+        q.addQueryItem(QStringLiteral("_sSort"), sort_param);
     } else {
         search_url = QUrl(QStringLiteral("https://gamebanana.com/apiv11/Util/Search/Results"));
         if (gamebanana_game_id > 0) {
@@ -392,7 +407,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     search_url.setQuery(q);
 
     QNetworkRequest request(search_url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM-EDEN-Client/3.3.3"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM-EDEN-Client/3.3.4"));
 
     current_reply = network_manager->get(request);
     connect(current_reply, &QNetworkReply::finished, this, [this]() {
@@ -415,14 +430,16 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
         }
 
         const auto root_obj = doc.object();
+        const auto meta = root_obj.value(QStringLiteral("_aMetadata")).toObject();
+        const int total_records = meta.value(QStringLiteral("_nRecordCount")).toInt();
+        const bool is_complete = meta.value(QStringLiteral("_bIsComplete")).toBool();
+        const int per_page = meta.value(QStringLiteral("_nPerpage")).toInt(40);
+        const int total_pages = total_records > 0 ? std::max(1, (total_records + per_page - 1) / per_page) : 1;
+
         const auto records = root_obj.value(QStringLiteral("_aRecords")).toArray();
 
         for (const auto& val : records) {
             const auto obj = val.toObject();
-            if (obj.value(QStringLiteral("_sModelName")).toString() != QStringLiteral("Mod") &&
-                obj.contains(QStringLiteral("_sModelName"))) {
-                continue;
-            }
 
             GameBananaModItem item;
             item.id = obj.value(QStringLiteral("_idRow")).toInt();
@@ -432,6 +449,10 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
             }
             if (obj.contains(QStringLiteral("_aRootCategory"))) {
                 item.category = obj.value(QStringLiteral("_aRootCategory")).toObject().value(QStringLiteral("_sName")).toString();
+            } else if (obj.contains(QStringLiteral("_sSingularTitle"))) {
+                item.category = obj.value(QStringLiteral("_sSingularTitle")).toString();
+            } else if (obj.contains(QStringLiteral("_sModelName"))) {
+                item.category = obj.value(QStringLiteral("_sModelName")).toString();
             }
             item.downloads = obj.value(QStringLiteral("_nDownloadCount")).toInt();
             item.likes = obj.value(QStringLiteral("_nLikeCount")).toInt();
@@ -448,7 +469,10 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
         ApplySorting();
         PopulateModTree();
 
-        next_page_btn->setEnabled(records.size() >= 30);
+        page_label->setText(total_records > 0 ? tr("Страница %1 из %2").arg(current_page).arg(total_pages) : tr("Страница %1").arg(current_page));
+        first_page_btn->setEnabled(current_page > 1);
+        prev_page_btn->setEnabled(current_page > 1);
+        next_page_btn->setEnabled((current_page < total_pages && !is_complete) || (!records.isEmpty() && !is_complete));
 
         if (current_mods.empty()) {
             status_label->setText(tr("Моды для игры не найдены. Попробуйте изменить поисковый запрос."));
@@ -456,8 +480,7 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
                 details_widget->setVisible(false);
             }
         } else {
-            status_label->setText(tr("Страница %1: найдено модов: %2. Нажмите на строку мода для просмотра файлов.")
-                .arg(current_page).arg(current_mods.size()));
+            status_label->setText(tr("Всего доступно модов: %1  |  Страница %2 из %3 (показано %4)").arg(total_records > 0 ? total_records : current_mods.size()).arg(current_page).arg(total_pages).arg(current_mods.size()));
         }
     });
 }

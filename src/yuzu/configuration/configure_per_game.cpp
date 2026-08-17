@@ -50,6 +50,7 @@
 #include "yuzu/configuration/configure_per_game.h"
 #include "yuzu/configuration/configure_per_game_addons.h"
 #include "yuzu/configuration/configure_gamebanana_mods.h"
+#include "yuzu/configuration/configure_per_game_amiibo.h"
 #include "yuzu/configuration/configure_system.h"
 #include "yuzu/util/util.h"
 
@@ -76,6 +77,7 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
     game_config = std::make_unique<QtConfig>(config_file_name, Config::ConfigType::PerGameConfig);
     addons_tab = std::make_unique<ConfigurePerGameAddons>(system_, this);
     gamebanana_tab = std::make_unique<ConfigureGameBananaMods>(system_, title_id_, QString::fromStdString(file_name), addons_tab.get(), this);
+    amiibo_tab = std::make_unique<ConfigurePerGameAmiibo>(system_, title_id_, QString::fromStdString(file_name), this);
     audio_tab = std::make_unique<ConfigureAudio>(system_, tab_group, *builder, this);
     cpu_tab = std::make_unique<ConfigureCpu>(system_, tab_group, *builder, this);
     graphics_advanced_tab =
@@ -100,6 +102,7 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
 
     ui->tabWidget->addTab(addons_tab.get(), tr("Дополнения и моды"));
     ui->tabWidget->addTab(gamebanana_tab.get(), tr("🍌 Моды GameBanana"));
+    ui->tabWidget->addTab(amiibo_tab.get(), tr("🕹️ Amiibo"));
     ui->tabWidget->addTab(system_tab.get(), tr("Система"));
     ui->tabWidget->addTab(cpu_tab.get(), tr("ЦП"));
     ui->tabWidget->addTab(graphics_tab.get(), tr("Графика"));

@@ -372,7 +372,60 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
 
     std::vector<AmiiboEntry> parsed_list;
 
-    auto parseObject = [](const QJsonObject& obj) -> AmiiboEntry {
+    auto populateSwitchGames = [](AmiiboEntry& entry) {
+        if (!entry.switch_games.isEmpty()) return;
+        if (entry.game_series.contains(QStringLiteral("Zelda"), Qt::CaseInsensitive) ||
+            entry.amiibo_series.contains(QStringLiteral("Zelda"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• The Legend of Zelda: Tears of the Kingdom: Эксклюзивная ткань для параплана, редкое оружие, материалы и снаряжение"));
+            entry.switch_games.append(QStringLiteral("• The Legend of Zelda: Breath of the Wild: Специальное оружие, доспехи, призыв Эпоны / Волка Линка, сундуки"));
+            entry.switch_games.append(QStringLiteral("• The Legend of Zelda: Echoes of Wisdom: Уникальные костюмы, аксессуары и ресурсы"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Обучаемый боец FP (Figure Player) с настраиваемыми духами"));
+            entry.switch_games.append(QStringLiteral("• Mario Kart 8 Deluxe: Специальный гоночный костюм Mii"));
+            entry.switch_games.append(QStringLiteral("• Hyrule Warriors: Age of Calamity: Высокоуровневое оружие и материалы"));
+        } else if (entry.game_series.contains(QStringLiteral("Mario"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Mario"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Super Mario Odyssey: Уникальные костюмы для Марио и подсказки Лун энергии у дядюшки Amiibo"));
+            entry.switch_games.append(QStringLiteral("• Super Mario 3D World + Bowser's Fury: Костюм Белого Тануки Неуязвимости, суперзвезды и бонусы"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Обучаемый боец FP (Figure Player) с прокачкой 1-50 ур."));
+            entry.switch_games.append(QStringLiteral("• Mario Kart 8 Deluxe: Гоночный костюм Mii Mario/Luigi/Peach/Bowser"));
+            entry.switch_games.append(QStringLiteral("• Mario Party Superstars / Jamboree: Дополнительные монеты и стикеры"));
+        } else if (entry.game_series.contains(QStringLiteral("Splatoon"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Splatoon"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Splatoon 3: Эксклюзивные наборы экипировки (снаряжение), совместные фотосессии и сохраненные настройки"));
+            entry.switch_games.append(QStringLiteral("• Splatoon 2: Эксклюзивное снаряжение и треки кальмаро-радио"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Боец FP Инклинг"));
+        } else if (entry.game_series.contains(QStringLiteral("Metroid"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Metroid"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Metroid Dread: Дополнительный контейнер энергии (Energy Tank) и ежедневное пополнение ракет/здоровья"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Боец FP Самус / Темная Самус / Ридли"));
+        } else if (entry.game_series.contains(QStringLiteral("Monster Hunter"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Monster Hunter"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Monster Hunter Rise / Sunbreak: Специальная многослойная броня (Layered Armor) и ежедневная лотерея Кагари"));
+            entry.switch_games.append(QStringLiteral("• Monster Hunter Stories 2: Уникальные костюмы наездника"));
+        } else if (entry.game_series.contains(QStringLiteral("Animal Crossing"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Animal Crossing"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Animal Crossing: New Horizons: Приглашение жителя на кемпинг, эксклюзивные плакаты, фотостудия острова Харви и кофейня наседки"));
+        } else if (entry.game_series.contains(QStringLiteral("Kirby"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Kirby"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Kirby and the Forgotten Land: Дополнительные монеты Звезд, ускорение и лечебная еда"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Боец FP Кирби / Метанайт / Король Дидиди"));
+        } else if (entry.game_series.contains(QStringLiteral("Fire Emblem"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Fire Emblem"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Fire Emblem Engage: Музыкальные треки из прошлых частей, билеты на наряды и релейные билеты"));
+            entry.switch_games.append(QStringLiteral("• Fire Emblem: Three Houses: Музыка в беседке Amiibo и редкие предметы"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Боец FP"));
+        } else if (entry.game_series.contains(QStringLiteral("Xenoblade"), Qt::CaseInsensitive) ||
+                   entry.amiibo_series.contains(QStringLiteral("Xenoblade"), Qt::CaseInsensitive)) {
+            entry.switch_games.append(QStringLiteral("• Xenoblade Chronicles 3: Облик Меча Монадо (Monado Skin) и полезные расходники"));
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Боец FP Шулк / Пайра / Мифра"));
+        } else {
+            entry.switch_games.append(QStringLiteral("• Super Smash Bros. Ultimate: Обучаемый боец FP или получение бонусов/духов"));
+            entry.switch_games.append(QStringLiteral("• Mario Kart 8 Deluxe: Гоночный костюм Mii (для совместимых персонажей)"));
+            entry.switch_games.append(QStringLiteral("• Универсальная поддержка: Совместимо со всеми играми Nintendo Switch, поддерживающими любые Amiibo (бонусы, ресурсы, монеты)"));
+        }
+    };
+
+    auto parseObject = [&populateSwitchGames](const QJsonObject& obj) -> AmiiboEntry {
         AmiiboEntry entry;
         entry.character = obj.value(QStringLiteral("character")).toString();
         entry.name = obj.value(QStringLiteral("name")).toString();
@@ -403,6 +456,7 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
                 entry.switch_games.append(QStringLiteral("• %1").arg(g_name));
             }
         }
+        populateSwitchGames(entry);
         return entry;
     };
 
@@ -413,19 +467,72 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
             parsed_list.reserve(arr.size());
             for (const auto& val : arr) {
                 if (val.isObject()) {
-                    parsed_list.push_back(parseObject(val.toObject()));
+                    AmiiboEntry e = parseObject(val.toObject());
+                    if (e.image_url.isEmpty() && !e.head.isEmpty() && !e.tail.isEmpty()) {
+                        e.image_url = QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/icon_%1-%2.png")
+                                          .arg(e.head.toLower(), e.tail.toLower());
+                    }
+                    parsed_list.push_back(std::move(e));
                 }
             }
         } else if (root.contains(QStringLiteral("amiibos")) && root.value(QStringLiteral("amiibos")).isObject()) {
             QJsonObject dict = root.value(QStringLiteral("amiibos")).toObject();
+            QJsonObject amiibo_series_map = root.value(QStringLiteral("amiibo_series")).toObject();
+            QJsonObject game_series_map = root.value(QStringLiteral("game_series")).toObject();
+            QJsonObject types_map = root.value(QStringLiteral("types")).toObject();
+            QJsonObject characters_map = root.value(QStringLiteral("characters")).toObject();
+
             parsed_list.reserve(dict.size());
             for (auto it = dict.begin(); it != dict.end(); ++it) {
                 if (it.value().isObject()) {
                     AmiiboEntry e = parseObject(it.value().toObject());
-                    if (e.head.isEmpty() && it.key().length() >= 16) {
-                        e.head = it.key().left(8);
-                        e.tail = it.key().mid(8, 8);
+                    QString key = it.key();
+                    if (key.startsWith(QStringLiteral("0x"), Qt::CaseInsensitive)) {
+                        key = key.mid(2);
                     }
+                    if (key.length() >= 16) {
+                        e.head = key.left(8);
+                        e.tail = key.mid(8, 8);
+                    }
+
+                    if (e.amiibo_series.isEmpty() && e.tail.length() >= 4) {
+                        QString series_id = QStringLiteral("0x") + e.tail.mid(2, 2).toLower();
+                        if (amiibo_series_map.contains(series_id)) {
+                            e.amiibo_series = amiibo_series_map.value(series_id).toString();
+                        }
+                    }
+                    if (e.amiibo_series.isEmpty()) e.amiibo_series = QStringLiteral("Others");
+
+                    if (e.type.isEmpty() && e.tail.length() >= 8) {
+                        QString type_id = QStringLiteral("0x") + e.tail.mid(6, 2).toLower();
+                        if (types_map.contains(type_id)) {
+                            e.type = types_map.value(type_id).toString();
+                        }
+                    }
+                    if (e.type.isEmpty()) e.type = QStringLiteral("Figure");
+
+                    if (e.game_series.isEmpty() && e.head.length() >= 3) {
+                        QString g_id = QStringLiteral("0x") + e.head.left(3).toLower();
+                        if (game_series_map.contains(g_id)) {
+                            e.game_series = game_series_map.value(g_id).toString();
+                        }
+                    }
+                    if (e.game_series.isEmpty()) e.game_series = QStringLiteral("Nintendo");
+
+                    if (e.character.isEmpty() && e.head.length() >= 4) {
+                        QString c_id = QStringLiteral("0x") + e.head.left(4).toLower();
+                        if (characters_map.contains(c_id)) {
+                            e.character = characters_map.value(c_id).toString();
+                        }
+                    }
+                    if (e.character.isEmpty()) e.character = e.name;
+
+                    if (e.image_url.isEmpty() && !e.head.isEmpty() && !e.tail.isEmpty()) {
+                        e.image_url = QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/icon_%1-%2.png")
+                                          .arg(e.head.toLower(), e.tail.toLower());
+                    }
+
+                    populateSwitchGames(e);
                     parsed_list.push_back(std::move(e));
                 }
             }
@@ -434,7 +541,12 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
             parsed_list.reserve(arr.size());
             for (const auto& val : arr) {
                 if (val.isObject()) {
-                    parsed_list.push_back(parseObject(val.toObject()));
+                    AmiiboEntry e = parseObject(val.toObject());
+                    if (e.image_url.isEmpty() && !e.head.isEmpty() && !e.tail.isEmpty()) {
+                        e.image_url = QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/icon_%1-%2.png")
+                                          .arg(e.head.toLower(), e.tail.toLower());
+                    }
+                    parsed_list.push_back(std::move(e));
                 }
             }
         }
@@ -443,7 +555,12 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
         parsed_list.reserve(arr.size());
         for (const auto& val : arr) {
             if (val.isObject()) {
-                parsed_list.push_back(parseObject(val.toObject()));
+                AmiiboEntry e = parseObject(val.toObject());
+                if (e.image_url.isEmpty() && !e.head.isEmpty() && !e.tail.isEmpty()) {
+                    e.image_url = QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/icon_%1-%2.png")
+                                      .arg(e.head.toLower(), e.tail.toLower());
+                }
+                parsed_list.push_back(std::move(e));
             }
         }
     }
@@ -608,26 +725,43 @@ void AmiiboBrowserDialog::FetchImage(const QString& image_url, QLabel* target_la
 
     target_label->setText(tr("Загрузка артворка..."));
 
-    QUrl url(image_url);
-    QNetworkRequest req(url);
-    auto* reply = m_network_mgr->get(req);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, local_img_path, target_label]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            QByteArray img_data = reply->readAll();
-            QPixmap pixmap;
-            if (pixmap.loadFromData(img_data)) {
-                // Save to cache
-                QFile file(QString::fromStdString(local_img_path.string()));
-                if (file.open(QIODevice::WriteOnly)) {
-                    file.write(img_data);
-                    file.close();
+    auto downloadWithFallback = [this, target_label, local_img_path, image_url](const QString& current_url, auto&& self, int attempt) -> void {
+        QUrl url(current_url);
+        QNetworkRequest req(url);
+        req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 STORM-EDEN/4.0.1"));
+        req.setRawHeader("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
+
+        auto* reply = m_network_mgr->get(req);
+        connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, current_url, local_img_path, target_label, attempt, self]() {
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray img_data = reply->readAll();
+                QPixmap pixmap;
+                if (pixmap.loadFromData(img_data)) {
+                    QFile file(QString::fromStdString(local_img_path.string()));
+                    if (file.open(QIODevice::WriteOnly)) {
+                        file.write(img_data);
+                        file.close();
+                    }
+                    m_image_cache[image_url] = pixmap;
+                    target_label->setPixmap(pixmap.scaled(target_label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                } else {
+                    target_label->setText(tr("Ошибка формата изображения"));
                 }
-                m_image_cache[image_url] = pixmap;
-                target_label->setPixmap(pixmap.scaled(target_label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            } else {
+                if (attempt == 0 && current_url.contains(QStringLiteral("jsdelivr.net"))) {
+                    QString fallback_url = current_url;
+                    fallback_url.replace(QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"),
+                                         QStringLiteral("https://raw.githubusercontent.com/N3evin/AmiiboAPI/master"));
+                    self(fallback_url, self, 1);
+                } else {
+                    target_label->setText(tr("Изображение отсутствует"));
+                }
             }
-        }
-        reply->deleteLater();
-    });
+            reply->deleteLater();
+        });
+    };
+
+    downloadWithFallback(image_url, downloadWithFallback, 0);
 }
 
 QString AmiiboBrowserDialog::GenerateAndSaveAmiiboBin(const AmiiboEntry& entry) {

@@ -361,6 +361,19 @@ class GamePropertiesFragment : Fragment() {
                         }
                     )
                 )
+                add(
+                    SubmenuProperty(
+                        R.string.amiibo_database_title,
+                        R.string.amiibo_database_description,
+                        R.drawable.ic_amiibo,
+                        action = {
+                            AmiiboDialogFragment.newInstance(false).show(
+                                childFragmentManager,
+                                AmiiboDialogFragment.TAG
+                            )
+                        }
+                    )
+                )
             }
 
             if (GpuDriverHelper.supportsCustomDriverLoading()) {

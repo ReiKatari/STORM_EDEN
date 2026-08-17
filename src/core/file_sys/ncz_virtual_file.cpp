@@ -642,6 +642,12 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
             }
         }
 
+        if (copy_size == 0) {
+            std::memset(data + bytes_read, 0, remaining);
+            bytes_read += remaining;
+            break;
+        }
+
         bytes_read += copy_size;
         current_offset += copy_size;
         remaining -= copy_size;

@@ -112,11 +112,16 @@ object AmiiboHelper {
         val list = mutableListOf<AmiiboEntry>()
         try {
             val root = JSONObject(jsonText)
+            val amiiboSeriesMap = root.optJSONObject("amiibo_series")
+            val gameSeriesMap = root.optJSONObject("game_series")
+            val typesMap = root.optJSONObject("types")
+            val charactersMap = root.optJSONObject("characters")
+
             if (root.has("amiibo")) {
                 val array = root.optJSONArray("amiibo") ?: JSONArray()
                 for (i in 0 until array.length()) {
                     val obj = array.optJSONObject(i) ?: continue
-                    parseAmiiboObject(obj)?.let { list.add(it) }
+                    parseAmiiboObject(obj, "", amiiboSeriesMap, gameSeriesMap, typesMap, charactersMap)?.let { list.add(it) }
                 }
             } else if (root.has("amiibos")) {
                 val amiibosObj = root.optJSONObject("amiibos")
@@ -125,14 +130,14 @@ object AmiiboHelper {
                     while (keys.hasNext()) {
                         val key = keys.next()
                         val obj = amiibosObj.optJSONObject(key) ?: continue
-                        val entry = parseAmiiboObject(obj, key)
+                        val entry = parseAmiiboObject(obj, key, amiiboSeriesMap, gameSeriesMap, typesMap, charactersMap)
                         if (entry != null) list.add(entry)
                     }
                 } else {
                     val arr = root.optJSONArray("amiibos") ?: JSONArray()
                     for (i in 0 until arr.length()) {
                         val obj = arr.optJSONObject(i) ?: continue
-                        parseAmiiboObject(obj)?.let { list.add(it) }
+                        parseAmiiboObject(obj, "", amiiboSeriesMap, gameSeriesMap, typesMap, charactersMap)?.let { list.add(it) }
                     }
                 }
             }
@@ -142,26 +147,65 @@ object AmiiboHelper {
         return list
     }
 
-    private fun parseAmiiboObject(obj: JSONObject, keyFallback: String = ""): AmiiboEntry? {
+    private fun parseAmiiboObject(
+        obj: JSONObject,
+        keyFallback: String = "",
+        amiiboSeriesMap: JSONObject? = null,
+        gameSeriesMap: JSONObject? = null,
+        typesMap: JSONObject? = null,
+        charactersMap: JSONObject? = null
+    ): AmiiboEntry? {
         val name = obj.optString("name", "").ifEmpty { obj.optString("character", "") }
         if (name.isEmpty()) return null
 
-        val character = obj.optString("character", name)
-        val gameSeries = obj.optString("gameSeries", "Nintendo")
-        val amiiboSeries = obj.optString("amiiboSeries", "Others")
-        val type = obj.optString("type", "Figure")
         var head = obj.optString("head", "")
         var tail = obj.optString("tail", "")
-        val image = obj.optString("image", "")
 
-        if (head.isEmpty() && keyFallback.length >= 16) {
-            head = keyFallback.substring(0, 8)
-            tail = keyFallback.substring(8, 16)
+        var cleanKey = keyFallback.trim()
+        if (cleanKey.startsWith("0x", ignoreCase = true)) {
+            cleanKey = cleanKey.substring(2)
+        }
+        if (head.isEmpty() && cleanKey.length >= 16) {
+            head = cleanKey.substring(0, 8)
+            tail = cleanKey.substring(8, 16)
+        }
+
+        var amiiboSeries = obj.optString("amiiboSeries", "")
+        if (amiiboSeries.isEmpty() && tail.length >= 4 && amiiboSeriesMap != null) {
+            val seriesId = "0x" + tail.substring(2, 4).lowercase()
+            amiiboSeries = amiiboSeriesMap.optString(seriesId, "")
+        }
+        if (amiiboSeries.isEmpty()) amiiboSeries = "Others"
+
+        var type = obj.optString("type", "")
+        if (type.isEmpty() && tail.length >= 8 && typesMap != null) {
+            val typeId = "0x" + tail.substring(6, 8).lowercase()
+            type = typesMap.optString(typeId, "")
+        }
+        if (type.isEmpty()) type = "Figure"
+
+        var gameSeries = obj.optString("gameSeries", "")
+        if (gameSeries.isEmpty() && head.length >= 3 && gameSeriesMap != null) {
+            val gId = "0x" + head.substring(0, 3).lowercase()
+            gameSeries = gameSeriesMap.optString(gId, "")
+        }
+        if (gameSeries.isEmpty()) gameSeries = "Nintendo"
+
+        var character = obj.optString("character", "")
+        if (character.isEmpty() && head.length >= 4 && charactersMap != null) {
+            val cId = "0x" + head.substring(0, 4).lowercase()
+            character = charactersMap.optString(cId, "")
+        }
+        if (character.isEmpty()) character = name
+
+        var image = obj.optString("image", "")
+        if (image.isEmpty() && head.isNotEmpty() && tail.isNotEmpty()) {
+            image = "https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/images/icon_${head.lowercase()}-${tail.lowercase()}.png"
         }
 
         val switchGamesList = mutableListOf<String>()
         val gamesSwitch = obj.optJSONArray("gamesSwitch")
-        if (gamesSwitch != null) {
+        if (gamesSwitch != null && gamesSwitch.length() > 0) {
             for (i in 0 until gamesSwitch.length()) {
                 val g = gamesSwitch.optJSONObject(i) ?: continue
                 val gName = g.optString("gameName", "")
@@ -184,6 +228,35 @@ object AmiiboHelper {
                         switchGamesList.add("• $gName")
                     }
                 }
+            }
+        }
+
+        if (switchGamesList.isEmpty()) {
+            if (gameSeries.contains("Zelda", ignoreCase = true) || amiiboSeries.contains("Zelda", ignoreCase = true)) {
+                switchGamesList.add("• The Legend of Zelda: Tears of the Kingdom: Эксклюзивная ткань параплана, оружие, ресурсы")
+                switchGamesList.add("• The Legend of Zelda: Breath of the Wild: Доспехи, оружие, призыв Эпоны / Волка Линка, сундуки")
+                switchGamesList.add("• The Legend of Zelda: Echoes of Wisdom: Уникальные костюмы, аксессуары и ресурсы")
+                switchGamesList.add("• Super Smash Bros. Ultimate: Обучаемый боец FP (Figure Player)")
+                switchGamesList.add("• Mario Kart 8 Deluxe: Гоночный костюм Mii")
+            } else if (gameSeries.contains("Mario", ignoreCase = true) || amiiboSeries.contains("Mario", ignoreCase = true)) {
+                switchGamesList.add("• Super Mario Odyssey: Уникальные костюмы для Марио и подсказки Лун энергии")
+                switchGamesList.add("• Super Mario 3D World + Bowser's Fury: Костюм Белого Тануки Неуязвимости, бонусы")
+                switchGamesList.add("• Super Smash Bros. Ultimate: Боец FP с прокачкой 1-50 ур.")
+                switchGamesList.add("• Mario Kart 8 Deluxe: Специальный гоночный костюм Mii")
+            } else if (gameSeries.contains("Splatoon", ignoreCase = true) || amiiboSeries.contains("Splatoon", ignoreCase = true)) {
+                switchGamesList.add("• Splatoon 3 / 2: Эксклюзивные наборы экипировки и совместные фотосессии")
+            } else if (gameSeries.contains("Metroid", ignoreCase = true) || amiiboSeries.contains("Metroid", ignoreCase = true)) {
+                switchGamesList.add("• Metroid Dread: Дополнительный контейнер энергии (Energy Tank) и ракеты")
+            } else if (gameSeries.contains("Animal Crossing", ignoreCase = true) || amiiboSeries.contains("Animal Crossing", ignoreCase = true)) {
+                switchGamesList.add("• Animal Crossing: New Horizons: Плакаты, визит жителя на кемпинг, фотостудия")
+            } else if (gameSeries.contains("Monster Hunter", ignoreCase = true) || amiiboSeries.contains("Monster Hunter", ignoreCase = true)) {
+                switchGamesList.add("• Monster Hunter Rise: Многослойная броня и ежедневная лотерея Кагари")
+            } else if (gameSeries.contains("Xenoblade", ignoreCase = true) || amiiboSeries.contains("Xenoblade", ignoreCase = true)) {
+                switchGamesList.add("• Xenoblade Chronicles 3: Облик Меча Монадо и ресурсы")
+            } else {
+                switchGamesList.add("• Super Smash Bros. Ultimate: Обучаемый боец FP или бонусы")
+                switchGamesList.add("• Mario Kart 8 Deluxe: Гоночный костюм Mii")
+                switchGamesList.add("• Универсальная поддержка: Совместимо со всеми Switch играми с поддержкой Amiibo")
             }
         }
 
@@ -266,6 +339,33 @@ object AmiiboHelper {
         val bytes = generateAmiiboBin(entry)
         FileOutputStream(targetFile).use { it.write(bytes) }
         return targetFile
+    }
+
+    fun getAmiibosForGame(allAmiibos: List<AmiiboEntry>, titleId: Long, gameTitle: String): List<AmiiboEntry> {
+        val gameLower = gameTitle.lowercase()
+        return allAmiibos.filter { a ->
+            when {
+                gameLower.contains("zelda") -> a.gameSeries.contains("zelda", ignoreCase = true) || a.amiiboSeries.contains("zelda", ignoreCase = true)
+                gameLower.contains("mario") -> a.gameSeries.contains("mario", ignoreCase = true) || a.amiiboSeries.contains("mario", ignoreCase = true)
+                gameLower.contains("smash") || gameLower.contains("ssbu") -> true
+                gameLower.contains("splatoon") -> a.gameSeries.contains("splatoon", ignoreCase = true) || a.amiiboSeries.contains("splatoon", ignoreCase = true)
+                gameLower.contains("metroid") -> a.gameSeries.contains("metroid", ignoreCase = true) || a.amiiboSeries.contains("metroid", ignoreCase = true)
+                gameLower.contains("pokemon") -> a.gameSeries.contains("pokemon", ignoreCase = true) || a.amiiboSeries.contains("pokemon", ignoreCase = true)
+                gameLower.contains("kirby") -> a.gameSeries.contains("kirby", ignoreCase = true) || a.amiiboSeries.contains("kirby", ignoreCase = true)
+                gameLower.contains("fire emblem") -> a.gameSeries.contains("fire emblem", ignoreCase = true) || a.amiiboSeries.contains("fire emblem", ignoreCase = true)
+                gameLower.contains("xenoblade") -> a.gameSeries.contains("xenoblade", ignoreCase = true) || a.amiiboSeries.contains("xenoblade", ignoreCase = true)
+                gameLower.contains("monster hunter") -> a.gameSeries.contains("monster hunter", ignoreCase = true) || a.amiiboSeries.contains("monster hunter", ignoreCase = true)
+                gameLower.contains("animal crossing") -> a.gameSeries.contains("animal crossing", ignoreCase = true) || a.amiiboSeries.contains("animal crossing", ignoreCase = true)
+                else -> a.amiiboSeries.contains("Smash", ignoreCase = true) || a.amiiboSeries.contains("Zelda", ignoreCase = true) || a.amiiboSeries.contains("Mario", ignoreCase = true)
+            }
+        }
+    }
+
+    fun isAmiiboSaved(entry: AmiiboEntry): Boolean {
+        val userDir = File(DirectoryInitialization.userDirectory, "amiibo")
+        val safeName = entry.name.replace(Regex("[^a-zA-Z0-9._ -]"), "_").trim()
+        val fileName = if (safeName.isNotEmpty()) "$safeName.bin" else "Amiibo_${entry.fullId}.bin"
+        return File(userDir, fileName).exists()
     }
 
     fun loadAmiiboDirectly(entry: AmiiboEntry): Boolean {

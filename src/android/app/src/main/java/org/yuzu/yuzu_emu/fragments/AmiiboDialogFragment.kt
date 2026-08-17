@@ -189,9 +189,20 @@ class AmiiboDialogFragment : DialogFragment() {
                 val imgUrl = entry.imageUrl
                 lifecycleScope.launch(Dispatchers.IO) {
                     try {
-                        val req = Request.Builder().url(imgUrl).build()
                         val client = OkHttpClient()
-                        val resp = client.newCall(req).execute()
+                        var req = Request.Builder()
+                            .url(imgUrl)
+                            .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 STORM-EDEN/4.0.1")
+                            .build()
+                        var resp = client.newCall(req).execute()
+                        if (!resp.isSuccessful && imgUrl.contains("jsdelivr.net")) {
+                            val fallbackUrl = imgUrl.replace("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master", "https://raw.githubusercontent.com/N3evin/AmiiboAPI/master")
+                            req = Request.Builder()
+                                .url(fallbackUrl)
+                                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 STORM-EDEN/4.0.1")
+                                .build()
+                            resp = client.newCall(req).execute()
+                        }
                         if (resp.isSuccessful && resp.body != null) {
                             val stream: InputStream = resp.body!!.byteStream()
                             val bitmap = BitmapFactory.decodeStream(stream)

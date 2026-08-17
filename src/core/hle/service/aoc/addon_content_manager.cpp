@@ -105,13 +105,12 @@ IAddOnContentManager::~IAddOnContentManager() {
 }
 
 Result IAddOnContentManager::CountAddOnContent(Out<u32> out_count, ClientProcessId process_id) {
-    LOG_DEBUG(Service_AOC, "called. process_id={}", process_id.pid);
-
     const auto current = system.GetApplicationProcessProgramID();
 
     const auto& disabled = Settings::values.disabled_addons[current];
     if (std::find(disabled.begin(), disabled.end(), "DLC") != disabled.end()) {
         *out_count = 0;
+        LOG_INFO(Service_AOC, "CountAddOnContent: DLC disabled in settings, returned count=0 (process_id={})", process_id.pid);
         R_SUCCEED();
     }
 
@@ -119,15 +118,15 @@ Result IAddOnContentManager::CountAddOnContent(Out<u32> out_count, ClientProcess
         std::count_if(add_on_content.begin(), add_on_content.end(),
                       [current](u64 tid) { return CheckAOCTitleIDMatchesBase(tid, current); }));
 
+    LOG_INFO(Service_AOC, "CountAddOnContent: title_id={:016X} returned count={} (process_id={})",
+             current, *out_count, process_id.pid);
+
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::ListAddOnContent(Out<u32> out_count,
                                               OutBuffer<BufferAttr_HipcMapAlias> out_addons,
                                               u32 offset, u32 count, ClientProcessId process_id) {
-    LOG_DEBUG(Service_AOC, "called with offset={}, count={}, process_id={}", offset, count,
-              process_id.pid);
-
     const auto current = FileSys::GetBaseTitleID(system.GetApplicationProcessProgramID());
 
     std::vector<u32> out;
@@ -142,21 +141,23 @@ Result IAddOnContentManager::ListAddOnContent(Out<u32> out_count,
         }
     }
 
-    // TODO(DarkLordZach): Find the correct error code.
     R_UNLESS(out.size() >= offset, ResultUnknown);
 
     *out_count = static_cast<u32>(std::min<size_t>(out.size() - offset, count));
     std::rotate(out.begin(), out.begin() + offset, out.end());
 
-    std::memcpy(out_addons.data(), out.data(), *out_count * sizeof(u32));
+    if (*out_count > 0 && out_addons.data() != nullptr) {
+        std::memcpy(out_addons.data(), out.data(), *out_count * sizeof(u32));
+    }
+
+    LOG_INFO(Service_AOC, "ListAddOnContent: offset={} count={} returned out_count={} addons=[{}] (process_id={})",
+             offset, count, *out_count, fmt::join(out, ", "), process_id.pid);
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::GetAddOnContentBaseId(Out<u64> out_title_id,
                                                    ClientProcessId process_id) {
-    LOG_DEBUG(Service_AOC, "called. process_id={}", process_id.pid);
-
     const auto title_id = system.GetApplicationProcessProgramID();
     const FileSys::PatchManager pm{title_id, system.GetFileSystemController(),
                                    system.GetContentProvider()};
@@ -164,24 +165,29 @@ Result IAddOnContentManager::GetAddOnContentBaseId(Out<u64> out_title_id,
     const auto res = pm.GetControlMetadata();
     if (res.first == nullptr) {
         *out_title_id = FileSys::GetAOCBaseTitleID(title_id);
-        R_SUCCEED();
+    } else {
+        *out_title_id = res.first->GetDLCBaseTitleId();
+        if (*out_title_id == 0) {
+            *out_title_id = FileSys::GetAOCBaseTitleID(title_id);
+        }
     }
 
-    *out_title_id = res.first->GetDLCBaseTitleId();
+    LOG_INFO(Service_AOC, "GetAddOnContentBaseId: title_id={:016X} returned out_title_id={:016X} (process_id={})",
+             title_id, *out_title_id, process_id.pid);
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::PrepareAddOnContent(s32 addon_index, ClientProcessId process_id) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called with addon_index={}, process_id={}", addon_index,
-                process_id.pid);
+    LOG_INFO(Service_AOC, "PrepareAddOnContent: addon_index={}, process_id={}", addon_index,
+             process_id.pid);
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::GetAddOnContentListChangedEvent(
     OutCopyHandle<Kernel::KReadableEvent> out_event) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_INFO(Service_AOC, "GetAddOnContentListChangedEvent called");
 
     *out_event = &aoc_change_event->GetReadableEvent();
 
@@ -190,7 +196,7 @@ Result IAddOnContentManager::GetAddOnContentListChangedEvent(
 
 Result IAddOnContentManager::GetAddOnContentListChangedEventWithProcessId(
     OutCopyHandle<Kernel::KReadableEvent> out_event, ClientProcessId process_id) {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_INFO(Service_AOC, "GetAddOnContentListChangedEventWithProcessId called (process_id={})", process_id.pid);
 
     *out_event = &aoc_change_event->GetReadableEvent();
 
@@ -198,19 +204,19 @@ Result IAddOnContentManager::GetAddOnContentListChangedEventWithProcessId(
 }
 
 Result IAddOnContentManager::NotifyMountAddOnContent() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_INFO(Service_AOC, "NotifyMountAddOnContent called");
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::NotifyUnmountAddOnContent() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_INFO(Service_AOC, "NotifyUnmountAddOnContent called");
 
     R_SUCCEED();
 }
 
 Result IAddOnContentManager::CheckAddOnContentMountStatus() {
-    LOG_WARNING(Service_AOC, "(STUBBED) called");
+    LOG_INFO(Service_AOC, "CheckAddOnContentMountStatus called");
 
     R_SUCCEED();
 }

@@ -1,1 +1,104 @@
-<?xml version='1.0' encoding='utf-8'?><resources><color name='ic_launcher_background'>#1F143C</color></resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#1F143C</color>
+
+    <!-- STORM NIGHT -->
+    <color name="storm_night_primary">#00F0FF</color>
+    <color name="storm_night_primary_container">#0A2540</color>
+    <color name="storm_night_secondary">#38BDF8</color>
+    <color name="storm_night_background">#0A0E17</color>
+    <color name="storm_night_surface">#111827</color>
+    <color name="storm_night_surface_variant">#1F2937</color>
+    <color name="storm_night_on_surface">#F1F5F9</color>
+    <color name="storm_night_outline">#374151</color>
+
+    <!-- STORM DAY -->
+    <color name="storm_day_primary">#0284C7</color>
+    <color name="storm_day_primary_container">#BAE6FD</color>
+    <color name="storm_day_secondary">#0EA5E9</color>
+    <color name="storm_day_background">#F8FAFC</color>
+    <color name="storm_day_surface">#FFFFFF</color>
+    <color name="storm_day_surface_variant">#F1F5F9</color>
+    <color name="storm_day_on_surface">#0F172A</color>
+    <color name="storm_day_outline">#CBD5E1</color>
+
+    <!-- STORM MIDNIGHT (Deep Velvet Violet & Electric Purple) -->
+    <color name="storm_midnight_primary">#B388FF</color>
+    <color name="storm_midnight_primary_container">#332655</color>
+    <color name="storm_midnight_secondary">#7C4DFF</color>
+    <color name="storm_midnight_background">#0B0914</color>
+    <color name="storm_midnight_surface">#161128</color>
+    <color name="storm_midnight_surface_variant">#241B42</color>
+    <color name="storm_midnight_on_surface">#F1F5F9</color>
+    <color name="storm_midnight_outline">#4A3875</color>
+
+    <!-- STORM CYBERPUNK (Night City Yellow & Cyan/Neon) -->
+    <color name="storm_cyberpunk_primary">#FEE715</color>
+    <color name="storm_cyberpunk_primary_container">#4C4500</color>
+    <color name="storm_cyberpunk_secondary">#00F0FF</color>
+    <color name="storm_cyberpunk_background">#08090D</color>
+    <color name="storm_cyberpunk_surface">#12151E</color>
+    <color name="storm_cyberpunk_surface_variant">#1C2130</color>
+    <color name="storm_cyberpunk_on_surface">#E0E6ED</color>
+    <color name="storm_cyberpunk_outline">#FEE715</color>
+
+    <!-- STORM GOTHIC (Ruby Blood Red & Deep Graphite) -->
+    <color name="storm_gothic_primary">#E11D48</color>
+    <color name="storm_gothic_primary_container">#4C0519</color>
+    <color name="storm_gothic_secondary">#9F1239</color>
+    <color name="storm_gothic_background">#09090B</color>
+    <color name="storm_gothic_surface">#18181B</color>
+    <color name="storm_gothic_surface_variant">#27272A</color>
+    <color name="storm_gothic_on_surface">#F4F4F5</color>
+    <color name="storm_gothic_outline">#3F3F46</color>
+
+    <!-- STORM NEON (Electric Lime & Teal) -->
+    <color name="storm_neon_primary">#10B981</color>
+    <color name="storm_neon_primary_container">#052E16</color>
+    <color name="storm_neon_secondary">#06B6D4</color>
+    <color name="storm_neon_background">#050D0A</color>
+    <color name="storm_neon_surface">#0B1A14</color>
+    <color name="storm_neon_surface_variant">#132C22</color>
+    <color name="storm_neon_on_surface">#F0FDF4</color>
+    <color name="storm_neon_outline">#15803D</color>
+
+    <!-- STORM CRIMSON (Fiery Sunset Crimson) -->
+    <color name="storm_crimson_primary">#F43F5E</color>
+    <color name="storm_crimson_primary_container">#881337</color>
+    <color name="storm_crimson_secondary">#FB923C</color>
+    <color name="storm_crimson_background">#0C0A09</color>
+    <color name="storm_crimson_surface">#1C1917</color>
+    <color name="storm_crimson_surface_variant">#292524</color>
+    <color name="storm_crimson_on_surface">#FAFAF9</color>
+    <color name="storm_crimson_outline">#44403C</color>
+
+    <!-- STORM EMERALD (Deep Emerald Forest) -->
+    <color name="storm_emerald_primary">#10B981</color>
+    <color name="storm_emerald_primary_container">#064E3B</color>
+    <color name="storm_emerald_secondary">#34D399</color>
+    <color name="storm_emerald_background">#061A14</color>
+    <color name="storm_emerald_surface">#0B2E23</color>
+    <color name="storm_emerald_surface_variant">#0F3F31</color>
+    <color name="storm_emerald_on_surface">#ECFDF5</color>
+    <color name="storm_emerald_outline">#047857</color>
+
+    <!-- STORM GLACIER (Arctic Glacier Ice) -->
+    <color name="storm_glacier_primary">#38BDF8</color>
+    <color name="storm_glacier_primary_container">#075985</color>
+    <color name="storm_glacier_secondary">#7DD3FC</color>
+    <color name="storm_glacier_background">#081A24</color>
+    <color name="storm_glacier_surface">#0C2838</color>
+    <color name="storm_glacier_surface_variant">#12384E</color>
+    <color name="storm_glacier_on_surface">#F0F9FF</color>
+    <color name="storm_glacier_outline">#0284C7</color>
+
+    <!-- STORM AMETHYST (Royal Amethyst Fuchsia) -->
+    <color name="storm_amethyst_primary">#D946EF</color>
+    <color name="storm_amethyst_primary_container">#701A75</color>
+    <color name="storm_amethyst_secondary">#C084FC</color>
+    <color name="storm_amethyst_background">#15081C</color>
+    <color name="storm_amethyst_surface">#250E32</color>
+    <color name="storm_amethyst_surface_variant">#39164C</color>
+    <color name="storm_amethyst_on_surface">#FDF4FF</color>
+    <color name="storm_amethyst_outline">#A21CAF</color>
+</resources>

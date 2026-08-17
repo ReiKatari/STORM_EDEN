@@ -1072,25 +1072,6 @@ class SettingsFragmentPresenter(
 
     private fun addThemeSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
-            val theme: AbstractIntSetting = object : AbstractIntSetting {
-                override fun getInt(needsGlobal: Boolean): Int = IntSetting.THEME.getInt()
-                override fun setInt(value: Int) {
-                    IntSetting.THEME.setInt(value)
-                    settingsViewModel.setShouldRecreate(true)
-                }
-
-                override val key: String = IntSetting.THEME.key
-                override val isRuntimeModifiable: Boolean = IntSetting.THEME.isRuntimeModifiable
-                override fun getValueAsString(needsGlobal: Boolean): String =
-                    IntSetting.THEME.getValueAsString()
-
-                override val defaultValue: Int = IntSetting.THEME.defaultValue
-                override fun reset() {
-                    IntSetting.THEME.setInt(defaultValue)
-                    settingsViewModel.setShouldRecreate(true)
-                }
-            }
-
             add(HeaderSetting(R.string.app_settings))
             add(IntSetting.APP_LANGUAGE.key)
 
@@ -1107,19 +1088,22 @@ class SettingsFragmentPresenter(
                 override fun getInt(needsGlobal: Boolean): Int = IntSetting.THEME_MODE.getInt()
                 override fun setInt(value: Int) {
                     IntSetting.THEME_MODE.setInt(value)
+                    IntSetting.STATIC_THEME_COLOR.setInt(value)
+                    IntSetting.THEME.setInt(0)
                     settingsViewModel.setShouldRecreate(true)
                 }
 
                 override val key: String = IntSetting.THEME_MODE.key
-                override val isRuntimeModifiable: Boolean =
-                    IntSetting.THEME_MODE.isRuntimeModifiable
+                override val isRuntimeModifiable: Boolean = true
 
                 override fun getValueAsString(needsGlobal: Boolean): String =
                     IntSetting.THEME_MODE.getValueAsString()
 
-                override val defaultValue: Int = IntSetting.THEME_MODE.defaultValue
+                override val defaultValue: Int = 0
                 override fun reset() {
-                    IntSetting.THEME_MODE.setInt(defaultValue)
+                    IntSetting.THEME_MODE.setInt(0)
+                    IntSetting.STATIC_THEME_COLOR.setInt(0)
+                    IntSetting.THEME.setInt(0)
                     settingsViewModel.setShouldRecreate(true)
                 }
             }
@@ -1128,59 +1112,6 @@ class SettingsFragmentPresenter(
                 SingleChoiceSetting(
                     themeMode,
                     titleId = R.string.change_theme_mode,
-                    choicesId = R.array.themeModeEntries,
-                    valuesId = R.array.themeModeValues
-                )
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                add(
-                    SingleChoiceSetting(
-                        theme,
-                        titleId = R.string.change_app_theme,
-                        choicesId = R.array.themeEntriesA12,
-                        valuesId = R.array.themeValuesA12
-                    )
-                )
-            } else {
-                add(
-                    SingleChoiceSetting(
-                        theme,
-                        titleId = R.string.change_app_theme,
-                        choicesId = R.array.themeEntries,
-                        valuesId = R.array.themeValues
-                    )
-                )
-            }
-
-            val staticThemeColor: AbstractIntSetting = object : AbstractIntSetting {
-                override fun getInt(needsGlobal: Boolean): Int =
-                    IntSetting.STATIC_THEME_COLOR.getInt(needsGlobal)
-
-                override fun setInt(value: Int) {
-                    IntSetting.STATIC_THEME_COLOR.setInt(value)
-                    IntSetting.THEME.setInt(0)
-                    settingsViewModel.setShouldRecreate(true)
-                }
-
-                override val key: String = IntSetting.STATIC_THEME_COLOR.key
-                override val isRuntimeModifiable: Boolean = true
-
-                override fun getValueAsString(needsGlobal: Boolean): String =
-                    IntSetting.STATIC_THEME_COLOR.getValueAsString(needsGlobal)
-
-                override val defaultValue: Any = IntSetting.STATIC_THEME_COLOR.defaultValue
-
-                override fun reset() {
-                    IntSetting.STATIC_THEME_COLOR.reset()
-                    settingsViewModel.setShouldRecreate(true)
-                }
-            }
-
-            add(
-                SingleChoiceSetting(
-                    staticThemeColor,
-                    titleId = R.string.static_theme_color,
                     choicesId = R.array.staticThemeNames,
                     valuesId = R.array.staticThemeValues
                 )

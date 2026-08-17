@@ -295,6 +295,11 @@ object GameHelper {
         }
         val cleanInternalVersion = rawInternalVersion.ifEmpty { "0" }
         val addonCount = GameMetadata.getAddonCount(filePath)
+        val finalAddonCount = if (addonCount > 0) {
+            addonCount
+        } else {
+            cachedGameList.firstOrNull { it.path == filePath || it.programId == programId }?.addonCount ?: 0
+        }
 
         val newGame = Game(
             name,
@@ -304,7 +309,7 @@ object GameHelper {
             cleanVersion,
             cleanInternalVersion,
             GameMetadata.getIsHomebrew(filePath),
-            addonCount
+            finalAddonCount
         )
 
         if (addedToLibrary) {

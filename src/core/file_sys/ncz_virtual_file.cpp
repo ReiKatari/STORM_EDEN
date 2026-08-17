@@ -553,6 +553,10 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
             if (block_index >= blocks.size()) {
                 LOG_ERROR(Service_FS, "block_index {} out of range (blocks count: {}) for physical offset {}",
                           block_index, blocks.size(), mapped_offset);
+                std::memset(data + bytes_read, 0, copy_size);
+                bytes_read += copy_size;
+                current_offset += copy_size;
+                remaining -= copy_size;
                 break;
             }
             copy_size = std::min<std::size_t>(copy_size, block_size - block_offset);
@@ -568,8 +572,9 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
             if (block.compressed_size == expected_decompressed_size) {
                 std::size_t read = SafeRead(file, data + bytes_read, copy_size, block.offset + block_offset);
-                if (read == 0) break;
-                copy_size = read;
+                if (read < copy_size) {
+                    std::memset(data + bytes_read + read, 0, copy_size - read);
+                }
             } else {
                 bool hit = false;
                 {
@@ -594,20 +599,29 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 if (!hit) {
                     std::vector<u8> compressed_data(block.compressed_size);
                     if (SafeRead(file, compressed_data.data(), block.compressed_size, block.offset) != block.compressed_size) {
+                        LOG_ERROR(Service_FS, "Failed to read compressed block {} at offset 0x{:X}", block_index, block.offset);
+                        std::memset(data + bytes_read, 0, copy_size);
+                        bytes_read += copy_size;
+                        current_offset += copy_size;
+                        remaining -= copy_size;
                         break;
                     }
 
                     std::vector<u8> decomp(expected_decompressed_size);
                     if (!DecompressZstdBlock(compressed_data.data(), block.compressed_size, decomp.data(), expected_decompressed_size)) {
-                        LOG_ERROR(Service_FS, "ZSTD decompression failed at block {} (expected: {})", block_index, expected_decompressed_size);
+                        LOG_ERROR(Service_FS, "ZSTD decompression failed at block {} (size: {}, expected: {})", block_index, block.compressed_size, expected_decompressed_size);
+                        std::memset(data + bytes_read, 0, copy_size);
+                        bytes_read += copy_size;
+                        current_offset += copy_size;
+                        remaining -= copy_size;
                         break;
                     }
 
                     std::size_t available = (decomp.size() > block_offset) ? (decomp.size() - block_offset) : 0;
                     copy_size = std::min<std::size_t>(copy_size, available);
-                    if (copy_size == 0) break;
-
-                    std::memcpy(data + bytes_read, decomp.data() + block_offset, copy_size);
+                    if (copy_size > 0) {
+                        std::memcpy(data + bytes_read, decomp.data() + block_offset, copy_size);
+                    }
 
                     {
                         std::unique_lock<std::mutex> cache_lock(cache_mutex);

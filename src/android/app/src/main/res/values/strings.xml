@@ -1175,7 +1175,7 @@
     <string name="fullscreen_mode_description">Hide Android system bars across app screens. Swipe from an edge to reveal them temporarily.</string>
 
     <!-- Theme Modes -->
-    <string name="change_theme_mode">Change theme mode</string>
+    <string name="change_theme_mode">Theme</string>
     <string name="theme_mode_follow_system">Follow System</string>
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>

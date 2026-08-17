@@ -1061,6 +1061,14 @@ abstract class SettingsItem(
                     descriptionId = R.string.enable_overlay_description
                 )
             )
+
+            put(
+                SwitchSetting(
+                    BooleanSetting.SHOW_FILENAME_AS_TITLE,
+                    titleId = R.string.show_filename_as_title,
+                    descriptionId = R.string.show_filename_as_title_description
+                )
+            )
         }
     }
 }

@@ -182,6 +182,17 @@ class HomeSettingsFragment : Fragment() {
             )
             add(
                 HomeSetting(
+                    R.string.amiibo_database_title,
+                    R.string.amiibo_database_description,
+                    R.drawable.ic_amiibo,
+                    {
+                        AmiiboDialogFragment.newInstance(isEmulating = false)
+                            .show(parentFragmentManager, AmiiboDialogFragment.TAG)
+                    }
+                )
+            )
+            add(
+                HomeSetting(
                     R.string.applets,
                     R.string.applets_description,
                     R.drawable.ic_applet,

@@ -335,7 +335,7 @@
     <string name="install_game_content_help_link">https://yuzu-mirror.github.io/help/quickstart/#dumping-installed-updates</string>
     <string name="custom_driver_not_supported">Пользовательские драйверы не поддерживаются</string>
     <string name="custom_driver_not_supported_description">Загрузка пользовательского драйвера в настоящее время не поддерживается для этого устройства.\nПроверьте этот параметр в будущем чтобы узнать была ли добавлена ​​поддержка!</string>
-    <string name="manage_yuzu_data">Управление данными Eden</string>
+    <string name="manage_yuzu_data">Управление данными STORM EDEN</string>
     <string name="manage_yuzu_data_description">Импортируйте/экспортируйте прошивку, ключи, пользовательские данные и многое другое!</string>
     <string name="game_folders">Папки с играми</string>
     <string name="deep_scan">Глубокий анализ</string>
@@ -1211,5 +1211,39 @@
     <string name="external_content">Дополнительный контент</string>
     <string name="add_folders">Добавить папку</string>
     <string name="percent">%1$d %%</string>
+
+    <!-- Amiibo Manager -->
+    <string name="amiibo">Amiibo</string>
+    <string name="amiibo_database_title">Онлайн-база Amiibo</string>
+    <string name="amiibo_database_description">Каталог, генерация и быстрая загрузка виртуальных Amiibo в эмуляцию</string>
+    <string name="search_amiibo_hint">Поиск по имени, персонажу или ID...</string>
+    <string name="all_series">Все серии</string>
+    <string name="no_amiibo_found">Amiibo не найдены</string>
+    <string name="amiibo_count_format">Отображается: %1$d из %2$d Amiibo</string>
+    <string name="save_bin">Сохранить .bin</string>
+    <string name="inject_amiibo">В игру</string>
+    <string name="amiibo_saved_format">Сохранено: %1$s</string>
+    <string name="amiibo_injected_success">%1$s успешно отправлен в игру!</string>
+    <string name="amiibo_injected_fail">Не удалось применить Amiibo. Убедитесь, что игра ожидает прикосновения Amiibo.</string>
+    <string name="amiibo_pick_file">Выбрать свой .bin файл...</string>
+
+    <!-- GameBanana Mods -->
+    <string name="sort_by">Сортировка:</string>
+    <string name="sort_downloads">По скачиваниям</string>
+    <string name="sort_likes">По лайкам</string>
+    <string name="sort_views">По просмотрам</string>
+    <string name="sort_latest">Сначала новые</string>
+    <string name="sort_name">По названию</string>
+    <string name="page_1">Страница 1</string>
+    <string name="page_format">Страница %1$d</string>
+    <string name="loading_mod_details">Загрузка описания и списка файлов...</string>
+    <string name="installing_mod_title">Установка %1$s</string>
+    <string name="gamebanana_no_files">Для данного мода нет доступных файлов.</string>
+    <string name="gamebanana_installed_success">Мод %1$s успешно установлен!</string>
+    <string name="gamebanana_likes">%1$d лайков</string>
+
+    <!-- Title display -->
+    <string name="show_filename_as_title">Название из имени файла</string>
+    <string name="show_filename_as_title_description">Отображать понятное название игры из файла вместо внутреннего ROM-заголовка</string>
 
 </resources>

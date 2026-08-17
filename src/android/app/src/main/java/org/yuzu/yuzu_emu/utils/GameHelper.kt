@@ -20,6 +20,7 @@ import org.yuzu.yuzu_emu.model.GameDir
 import org.yuzu.yuzu_emu.model.MinimalDocumentFile
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 
 object GameHelper {
     private const val KEY_OLD_GAME_PATH = "game_path"
@@ -259,6 +260,7 @@ object GameHelper {
         } else if (firstBracket == 0) {
             clean = clean.replace(Regex("\\[.*?\\]"), " ").replace(Regex("\\(.*?\\)"), " ").trim()
         }
+        clean = clean.replace(Regex("[-_:]+$"), "").trim()
         return clean.ifEmpty { rawTitle }
     }
 
@@ -279,8 +281,12 @@ object GameHelper {
 
         val nacpTitle = GameMetadata.getTitle(filePath).trim()
         val filename = FileUtil.getFilename(uri)
-        val rawName = if (nacpTitle.isNotEmpty()) nacpTitle else filename
-        val name = cleanGameTitle(rawName)
+        val useFilename = BooleanSetting.SHOW_FILENAME_AS_TITLE.getBoolean()
+        val name = if (useFilename) {
+            cleanGameTitle(filename)
+        } else {
+            if (nacpTitle.isNotEmpty()) nacpTitle else cleanGameTitle(filename)
+        }
 
         var programId = GameMetadata.getProgramId(filePath)
 

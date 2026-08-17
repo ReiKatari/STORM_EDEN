@@ -168,10 +168,17 @@ std::shared_ptr<NCA> NSP::GetNCA(u64 title_id, ContentRecordType type, TitleType
         return nullptr;
 
     const auto type_iter = title_id_iter->second.find({title_type, type});
-    if (type_iter == title_id_iter->second.end())
-        return nullptr;
+    if (type_iter != title_id_iter->second.end())
+        return type_iter->second;
 
-    return type_iter->second;
+    // Fallback: search across all title types registered for this title_id
+    for (const auto& [tt_pair, nca_ptr] : title_id_iter->second) {
+        if (tt_pair.second == type && nca_ptr != nullptr) {
+            return nca_ptr;
+        }
+    }
+
+    return nullptr;
 }
 
 VirtualFile NSP::GetNCAFile(u64 title_id, ContentRecordType type, TitleType title_type) const {
@@ -260,6 +267,30 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                             file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ");
 
     std::set<std::string> used_files;
+
+    struct CandidateNca {
+        VirtualFile raw_file;
+        VirtualFile v_file;
+        std::shared_ptr<NCA> nca;
+        std::string name;
+    };
+    std::vector<CandidateNca> candidates;
+    candidates.reserve(files.size());
+
+    for (const auto& potential_file : files) {
+        if (!potential_file) continue;
+        const std::string name = potential_file->GetName();
+        if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos ||
+            name.ends_with(".tik") || name.ends_with(".cert") || name.ends_with(".xml")) {
+            continue;
+        }
+        VirtualFile temp_file = potential_file;
+        if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
+            temp_file = std::make_shared<NCZVirtualFile>(temp_file);
+        }
+        auto temp_nca = std::make_shared<NCA>(temp_file);
+        candidates.push_back({potential_file, temp_file, temp_nca, name});
+    }
 
     for (const auto& outer_file : files) {
         if (outer_file == nullptr) {
@@ -363,30 +394,17 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                     VirtualFile matched_file = nullptr;
 
                     // Pass 1: Exact TitleID & Type match
-                    for (const auto& potential_file : files) {
-                        if (potential_file == nullptr) continue;
-                        std::string name = potential_file->GetName();
-                        if (used_files.contains(name)) continue;
-                        if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos ||
-                            name.ends_with(".tik") || name.ends_with(".cert") || name.ends_with(".xml")) {
-                            continue;
-                        }
-
-                        VirtualFile temp_file = potential_file;
-                        if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
-                            temp_file = std::make_shared<NCZVirtualFile>(temp_file);
-                        }
-
-                        auto temp_nca = std::make_shared<NCA>(temp_file);
-                        if (temp_nca->GetStatus() == Loader::ResultStatus::Success ||
-                            temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
-                            bool tid_matches = (temp_nca->GetTitleId() == cnmt.GetTitleID()) ||
+                    for (const auto& cand : candidates) {
+                        if (used_files.contains(cand.name)) continue;
+                        if (cand.nca && (cand.nca->GetStatus() == Loader::ResultStatus::Success ||
+                            cand.nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                            bool tid_matches = (cand.nca->GetTitleId() == cnmt.GetTitleID()) ||
                                                ((cnmt.GetType() == TitleType::AOC || rec.type == ContentRecordType::Data) &&
-                                                ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
-                            if (temp_nca->GetType() == expected_nca_type && tid_matches) {
-                                LOG_INFO(Service_FS, "Exact fallback matched record type {} to file {}", static_cast<int>(rec.type), name);
-                                matched_file = temp_file;
-                                used_files.insert(name);
+                                                ((cand.nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
+                            if (cand.nca->GetType() == expected_nca_type && tid_matches) {
+                                LOG_INFO(Service_FS, "Exact fallback matched record type {} to file {}", static_cast<int>(rec.type), cand.name);
+                                matched_file = cand.v_file;
+                                used_files.insert(cand.name);
                                 break;
                             }
                         }
@@ -394,32 +412,19 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
 
                     // Pass 2: Base / Update Family match
                     if (matched_file == nullptr) {
-                        for (const auto& potential_file : files) {
-                            if (potential_file == nullptr) continue;
-                            std::string name = potential_file->GetName();
-                            if (used_files.contains(name)) continue;
-                            if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos ||
-                                name.ends_with(".tik") || name.ends_with(".cert") || name.ends_with(".xml")) {
-                            continue;
-                            }
-
-                            VirtualFile temp_file = potential_file;
-                            if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
-                                temp_file = std::make_shared<NCZVirtualFile>(temp_file);
-                            }
-
-                            auto temp_nca = std::make_shared<NCA>(temp_file);
-                            if (temp_nca->GetStatus() == Loader::ResultStatus::Success ||
-                                temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
-                                if (temp_nca->GetType() == expected_nca_type) {
+                        for (const auto& cand : candidates) {
+                            if (used_files.contains(cand.name)) continue;
+                            if (cand.nca && (cand.nca->GetStatus() == Loader::ResultStatus::Success ||
+                                cand.nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                                if (cand.nca->GetType() == expected_nca_type) {
                                     bool is_cnmt_update = (cnmt.GetTitleID() & 0x800) != 0;
-                                    bool is_nca_update = (temp_nca->GetTitleId() & 0x800) != 0 ||
-                                                         temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS;
-                                    bool family_matches = ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000));
+                                    bool is_nca_update = (cand.nca->GetTitleId() & 0x800) != 0 ||
+                                                         cand.nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS;
+                                    bool family_matches = ((cand.nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000));
                                     if (family_matches && (is_cnmt_update == is_nca_update)) {
-                                        LOG_INFO(Service_FS, "Family fallback matched record type {} to file {}", static_cast<int>(rec.type), name);
-                                        matched_file = temp_file;
-                                        used_files.insert(name);
+                                        LOG_INFO(Service_FS, "Family fallback matched record type {} to file {}", static_cast<int>(rec.type), cand.name);
+                                        matched_file = cand.v_file;
+                                        used_files.insert(cand.name);
                                         break;
                                     }
                                 }
@@ -429,30 +434,17 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
 
                     // Pass 3: Title ID match without type restriction (e.g. Data vs PublicData)
                     if (matched_file == nullptr) {
-                        for (const auto& potential_file : files) {
-                            if (potential_file == nullptr) continue;
-                            std::string name = potential_file->GetName();
-                            if (used_files.contains(name)) continue;
-                            if (name.find(".cnmt.nca") != std::string::npos || name.find(".cnmt.ncz") != std::string::npos ||
-                                name.ends_with(".tik") || name.ends_with(".cert") || name.ends_with(".xml")) {
-                                continue;
-                            }
-
-                            VirtualFile temp_file = potential_file;
-                            if (is_nsz_container || name.ends_with(".ncz") || IsNczFile(temp_file)) {
-                                temp_file = std::make_shared<NCZVirtualFile>(temp_file);
-                            }
-
-                            auto temp_nca = std::make_shared<NCA>(temp_file);
-                            if (temp_nca->GetStatus() == Loader::ResultStatus::Success ||
-                                temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
-                                bool tid_matches = (temp_nca->GetTitleId() == cnmt.GetTitleID()) ||
+                        for (const auto& cand : candidates) {
+                            if (used_files.contains(cand.name)) continue;
+                            if (cand.nca && (cand.nca->GetStatus() == Loader::ResultStatus::Success ||
+                                cand.nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                                bool tid_matches = (cand.nca->GetTitleId() == cnmt.GetTitleID()) ||
                                                    ((cnmt.GetType() == TitleType::AOC || rec.type == ContentRecordType::Data) &&
-                                                    ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
+                                                    ((cand.nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
                                 if (tid_matches) {
-                                    LOG_INFO(Service_FS, "Title ID fallback matched record type {} to file {}", static_cast<int>(rec.type), name);
-                                    matched_file = temp_file;
-                                    used_files.insert(name);
+                                    LOG_INFO(Service_FS, "Title ID fallback matched record type {} to file {}", static_cast<int>(rec.type), cand.name);
+                                    matched_file = cand.v_file;
+                                    used_files.insert(cand.name);
                                     break;
                                 }
                             }

@@ -6593,54 +6593,55 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     };
 
     auto resolve_dlc_name = [&](u64 dlc_tid, int dlc_order, const QString& nacp_fallback = QString{}) -> QString {
+        const int dlc_num = static_cast<int>(dlc_tid & 0x7FF);
+        const int num_to_show = dlc_order > 0 ? dlc_order : (dlc_num > 0 ? dlc_num : 1);
+
         const auto tdb = TitleDB::TitleDatabase::Instance().Lookup(dlc_tid);
         if (tdb.has_value() && !tdb->name.empty()) {
-            const QString cleaned = clean_item_name(QString::fromStdString(tdb->name));
-            if (!cleaned.isEmpty()) {
-                if (cleaned.startsWith(QStringLiteral("DLC Pack"), Qt::CaseInsensitive) && !tdb->description.empty()) {
-                    const QString desc = QString::fromStdString(tdb->description);
-                    const int q1 = desc.indexOf(QLatin1Char('"'));
-                    if (q1 >= 0 && q1 < 40) {
-                        const int q2 = desc.indexOf(QLatin1Char('"'), q1 + 1);
-                        if (q2 > q1 + 1) {
-                            const QString sub = desc.mid(q1 + 1, q2 - q1 - 1).trimmed();
-                            if (!sub.isEmpty() && !cleaned.contains(sub, Qt::CaseInsensitive)) {
-                                return QStringLiteral("%1: %2").arg(cleaned, sub);
-                            }
-                        }
-                    }
-                }
-                return cleaned;
+            QString name_str = QString::fromStdString(tdb->name).trimmed();
+            QString cleaned = clean_item_name(name_str);
+            if (cleaned.isEmpty()) cleaned = name_str;
+            if (!cleaned.isEmpty() && !cleaned.startsWith(QStringLiteral("Дополнение #"))) {
+                return QStringLiteral("Дополнение #%1: %2").arg(num_to_show).arg(cleaned);
             }
-            return QString::fromStdString(tdb->name);
+            if (!name_str.isEmpty()) return name_str;
         }
 
         const std::string d_hex = fmt::format("{:016X}", dlc_tid);
         for (const auto& d : tdb_dlcs) {
             if (d.id == d_hex && !d.name.empty()) {
-                const QString cleaned = clean_item_name(QString::fromStdString(d.name));
-                if (!cleaned.isEmpty()) return cleaned;
-                return QString::fromStdString(d.name);
+                QString name_str = QString::fromStdString(d.name).trimmed();
+                QString cleaned = clean_item_name(name_str);
+                if (cleaned.isEmpty()) cleaned = name_str;
+                if (!cleaned.isEmpty() && !cleaned.startsWith(QStringLiteral("Дополнение #"))) {
+                    return QStringLiteral("Дополнение #%1: %2").arg(num_to_show).arg(cleaned);
+                }
+                return name_str;
             }
         }
 
         if (dlc_order > 0 && dlc_order <= static_cast<int>(tdb_dlcs.size())) {
             const auto& d = tdb_dlcs[dlc_order - 1];
             if (!d.name.empty()) {
-                const QString cleaned = clean_item_name(QString::fromStdString(d.name));
-                if (!cleaned.isEmpty()) return cleaned;
-                return QString::fromStdString(d.name);
+                QString name_str = QString::fromStdString(d.name).trimmed();
+                QString cleaned = clean_item_name(name_str);
+                if (cleaned.isEmpty()) cleaned = name_str;
+                if (!cleaned.isEmpty() && !cleaned.startsWith(QStringLiteral("Дополнение #"))) {
+                    return QStringLiteral("Дополнение #%1: %2").arg(num_to_show).arg(cleaned);
+                }
+                return name_str;
             }
         }
 
         if (!nacp_fallback.trimmed().isEmpty()) {
             const QString cleaned = clean_item_name(nacp_fallback);
-            if (!cleaned.isEmpty()) return cleaned;
+            if (!cleaned.isEmpty() && !cleaned.startsWith(QStringLiteral("Дополнение #"))) {
+                return QStringLiteral("Дополнение #%1: %2").arg(num_to_show).arg(cleaned);
+            }
             return nacp_fallback;
         }
 
-        const int dlc_num = static_cast<int>(dlc_tid & 0x7FF);
-        return tr("Дополнение #%1").arg(dlc_num > 0 ? dlc_num : dlc_order);
+        return tr("Дополнение #%1").arg(num_to_show);
     };
 
     auto resolve_dlc_desc = [&](u64 dlc_tid, int dlc_order) -> QString {
@@ -6939,7 +6940,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     }
 
     const int tinfoil_dlc_count = TitleDB::TitleDatabase::Instance().GetDlcCount(title_id);
-    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? QString::number(tinfoil_dlc_count) : (base_tdb.has_value() ? QStringLiteral("0") : tr("Не найдено"));
+    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? tr("%1 DLC").arg(tinfoil_dlc_count) : (base_tdb.has_value() ? tr("0 DLC") : tr("Не найдено"));
 
     auto* header_card = new QWidget(&dlg);
     header_card->setStyleSheet(QStringLiteral("background-color: #121826; border: 1px solid #1e283d; border-radius: 8px; padding: 6px;"));

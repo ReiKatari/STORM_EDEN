@@ -156,7 +156,7 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         }
     }
 
-    if (!nsp->IsExtractedType() &&
+    if (!nsp->IsExtractedType() && secondary_loader == nullptr &&
         nsp->GetNCA(title_id, FileSys::ContentRecordType::Program) == nullptr) {
         if (!Core::Crypto::KeyManager::KeyFileExists(false)) {
             return {ResultStatus::ErrorMissingProductionKeyFile, {}};

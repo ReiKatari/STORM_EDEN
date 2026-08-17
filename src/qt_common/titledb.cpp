@@ -45,8 +45,9 @@ void TitleDatabase::WaitLoaded(std::chrono::milliseconds timeout) {
         return;
     }
     EnsureLoaded();
+    const auto safe_timeout = std::min(timeout, std::chrono::milliseconds(50));
     std::unique_lock<std::mutex> lock(db_mutex);
-    cv.wait_for(lock, timeout, [this]() {
+    cv.wait_for(lock, safe_timeout, [this]() {
         return is_loaded.load(std::memory_order_acquire);
     });
 }
@@ -58,7 +59,7 @@ bool TitleDatabase::IsLoaded() const {
 static std::string ExtractDlcTitleFromDesc(std::string_view desc) {
     if (desc.empty()) return {};
 
-    // 1. Look for leading quotes: "The Champions' Ballad" or \"The Champions' Ballad\"
+    // 1. Look for leading quotes: "The Master Trials" or "The Champions' Ballad"
     size_t start_q = desc.find('"');
     if (start_q != std::string_view::npos && start_q < 40) {
         size_t end_q = desc.find('"', start_q + 1);
@@ -75,15 +76,15 @@ static std::string ExtractDlcTitleFromDesc(std::string_view desc) {
     std::string_view first_line = (newline != std::string_view::npos) ? desc.substr(0, newline) : desc;
 
     size_t will_inc = first_line.find(" will include");
-    if (will_inc == std::string_view::npos) {
-        will_inc = first_line.find(" includes ");
-    }
+    if (will_inc == std::string_view::npos) will_inc = first_line.find(" includes ");
+    if (will_inc == std::string_view::npos) will_inc = first_line.find(" features ");
+    if (will_inc == std::string_view::npos) will_inc = first_line.find(" contains ");
     if (will_inc != std::string_view::npos) {
         std::string_view candidate = first_line.substr(0, will_inc);
-        while (!candidate.empty() && (candidate.front() == '"' || candidate.front() == ' ' || candidate.front() == '\\')) {
+        while (!candidate.empty() && (candidate.front() == '"' || candidate.front() == ' ' || candidate.front() == '\\' || candidate.front() == '\'')) {
             candidate.remove_prefix(1);
         }
-        while (!candidate.empty() && (candidate.back() == '"' || candidate.back() == ' ' || candidate.back() == '\\')) {
+        while (!candidate.empty() && (candidate.back() == '"' || candidate.back() == ' ' || candidate.back() == '\\' || candidate.back() == '\'')) {
             candidate.remove_suffix(1);
         }
         if (!candidate.empty() && candidate.length() < 80) return std::string(candidate);
@@ -202,34 +203,6 @@ void TitleDatabase::LoadDataSync() {
             if (val.contains("description") && !val["description"].is_null()) {
                 entry.description = val["description"].get<std::string>();
             }
-            if (entry.name.empty() && !entry.description.empty()) {
-                const std::string extracted = ExtractDlcTitleFromDesc(entry.description);
-                if (!extracted.empty()) {
-                    entry.name = extracted;
-                }
-            }
-            if (val.contains("version") && !val["version"].is_null()) {
-                if (val["version"].is_string()) {
-                    entry.version = val["version"].get<std::string>();
-                } else if (val["version"].is_number()) {
-                    entry.version = std::to_string(val["version"].get<u64>());
-                }
-            }
-            if (val.contains("key") && !val["key"].is_null() && val["key"].is_string()) {
-                const std::string key_hex = val["key"].get<std::string>();
-                if (key_hex.length() == 32) {
-                    std::string rid_hex = (val.contains("rightsId") && !val["rightsId"].is_null() && val["rightsId"].is_string())
-                                              ? val["rightsId"].get<std::string>()
-                                              : (entry.id + "0000000000000000");
-                    if (rid_hex.length() == 32) {
-                        const auto rights_id_raw = Common::HexStringToArray<16>(rid_hex);
-                        u128 rights_id{};
-                        std::memcpy(rights_id.data(), rights_id_raw.data(), rights_id_raw.size());
-                        const Core::Crypto::Key128 key_data = Common::HexStringToArray<16>(key_hex);
-                        Core::Crypto::KeyManager::Instance().SetKey(Core::Crypto::S128KeyType::Titlekey, key_data, rights_id[1], rights_id[0]);
-                    }
-                }
-            }
 
             u64 tid_val = 0;
             if (key.length() == 16) {
@@ -240,11 +213,27 @@ void TitleDatabase::LoadDataSync() {
                 }
             }
 
+            const bool is_dlc_item = (tid_val != 0) && (((tid_val & 0x1FFF) >= 0x1000) || ((tid_val & 0xFFF) > 0 && (tid_val & 0x800) == 0));
+            if ((entry.name.empty() || is_dlc_item) && !entry.description.empty()) {
+                const std::string extracted = ExtractDlcTitleFromDesc(entry.description);
+                if (!extracted.empty()) {
+                    entry.name = extracted;
+                }
+            }
+
+            if (val.contains("version") && !val["version"].is_null()) {
+                if (val["version"].is_string()) {
+                    entry.version = val["version"].get<std::string>();
+                } else if (val["version"].is_number()) {
+                    entry.version = std::to_string(val["version"].get<u64>());
+                }
+            }
+
             if (tid_val != 0) {
                 temp_by_id.emplace(tid_val, entry);
 
                 // Index DLCs
-                if ((tid_val & 0x1FFF) >= 0x1000 || ((tid_val & 0xFFF) > 0 && (tid_val & 0x800) == 0)) {
+                if (is_dlc_item) {
                     const u64 base_id = (tid_val & ~0x1000ULL) & ~0xFFFULL;
                     const u64 base_masked = tid_val & 0xFFFFFFFFFFFFE000;
                     temp_base_dlcs[base_id].push_back(entry);
@@ -304,6 +293,18 @@ std::optional<Entry> TitleDatabase::Lookup(u64 title_id) {
     const bool is_update = ((title_id & 0x800) != 0);
     const bool is_dlc = ((title_id & 0x1FFF) >= 0x1000);
 
+    if (is_dlc) {
+        const u64 base_clean = (title_id & ~0x1000ULL) & ~0xFFFULL;
+        const u32 dlc_idx = static_cast<u32>(title_id & 0x7FF);
+        auto dlc_list_it = base_to_dlcs.find(base_clean);
+        if (dlc_list_it == base_to_dlcs.end()) {
+            dlc_list_it = base_to_dlcs.find(title_id & 0xFFFFFFFFFFFFE000);
+        }
+        if (dlc_list_it != base_to_dlcs.end() && dlc_idx > 0 && dlc_idx <= dlc_list_it->second.size()) {
+            return dlc_list_it->second[dlc_idx - 1];
+        }
+    }
+
     u64 base_tid = 0;
     if (is_update) {
         base_tid = title_id - 0x800;
@@ -362,6 +363,20 @@ std::optional<Entry> TitleDatabase::Lookup(std::string_view hex_id) {
 
 std::vector<Entry> TitleDatabase::GetDlcs(u64 base_title_id) {
     std::lock_guard<std::mutex> lock(db_mutex);
+
+    // 1. Direct AOC range probe (0x1001 to 0x1200)
+    std::vector<Entry> results;
+    const u64 aoc_base = (base_title_id & 0xFFFFFFFFFFFFF000) | 0x1000;
+    for (u32 i = 1; i <= 500; ++i) {
+        auto dlc_it = db_by_id.find(aoc_base + i);
+        if (dlc_it != db_by_id.end()) {
+            results.push_back(dlc_it->second);
+        }
+    }
+    if (!results.empty()) {
+        return results;
+    }
+
     const u64 base_clean = (base_title_id & ~0x1000ULL) & ~0xFFFULL;
     auto it = base_to_dlcs.find(base_clean);
     if (it != base_to_dlcs.end() && !it->second.empty()) {
@@ -387,6 +402,19 @@ std::vector<Entry> TitleDatabase::GetDlcs(u64 base_title_id) {
 
 int TitleDatabase::GetDlcCount(u64 base_title_id) {
     std::lock_guard<std::mutex> lock(db_mutex);
+
+    // 1. Direct AOC range probe count
+    int count = 0;
+    const u64 aoc_base = (base_title_id & 0xFFFFFFFFFFFFF000) | 0x1000;
+    for (u32 i = 1; i <= 500; ++i) {
+        if (db_by_id.find(aoc_base + i) != db_by_id.end()) {
+            count++;
+        }
+    }
+    if (count > 0) {
+        return count;
+    }
+
     const u64 base_clean = (base_title_id & ~0x1000ULL) & ~0xFFFULL;
     auto it = base_to_dlc_count.find(base_clean);
     if (it != base_to_dlc_count.end() && it->second > 0) {

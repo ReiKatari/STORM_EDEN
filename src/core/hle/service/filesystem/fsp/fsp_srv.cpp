@@ -481,8 +481,8 @@ Result FSP_SRV::OpenDataStorageByCurrentProcess(OutInterface<IStorage> out_inter
 
 Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
                                         FileSys::StorageId storage_id, u32 unknown, u64 title_id) {
-    LOG_DEBUG(Service_FS, "called with storage_id={:02X}, unknown={:08X}, title_id={:016X}",
-              storage_id, unknown, title_id);
+    LOG_INFO(Service_FS, "OpenDataStorageByDataId: called with storage_id={:02X}, unknown={:08X}, title_id={:016X}",
+             static_cast<u8>(storage_id), unknown, title_id);
 
     auto data = romfs_controller->OpenRomFS(title_id, storage_id, FileSys::ContentRecordType::Data);
 
@@ -504,8 +504,15 @@ Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
 
     auto base =
         romfs_controller->OpenBaseNca(title_id, storage_id, FileSys::ContentRecordType::Data);
-    auto storage = std::make_shared<IStorage>(
-        system, pm.PatchRomFS(base.get(), std::move(data), FileSys::ContentRecordType::Data));
+    auto patched = pm.PatchRomFS(base.get(), std::move(data), FileSys::ContentRecordType::Data);
+    if (!patched) {
+        LOG_WARNING(Service_FS, "PatchRomFS returned nullptr for data storage title_id={:016X}", title_id);
+        R_RETURN(FileSys::ResultTargetNotFound);
+    }
+
+    LOG_INFO(Service_FS, "OpenDataStorageByDataId: Successfully mounted Data RomFS for title_id={:016X}, size={}",
+             title_id, patched->GetSize());
+    auto storage = std::make_shared<IStorage>(system, std::move(patched));
 
     *out_interface = std::move(storage);
     R_SUCCEED();

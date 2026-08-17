@@ -97,18 +97,23 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
 
         entry.internal_version = std::to_string(internal_ver);
 
-        // Count DLC / Addons for this game (cached for ultra-fast list loading)
-        if (!m_aoc_cache_valid) {
-            m_aoc_count_cache.clear();
-            const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
-                FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
-            for (const auto& dlc : dlc_entries) {
-                m_aoc_count_cache[FileSys::GetBaseTitleID(dlc.title_id)]++;
+        // Count DLC / Addons for this game from ContentProvider
+        int aoc_count = 0;
+        const u64 base_tid = FileSys::GetBaseTitleID(entry.programId);
+        const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
+            FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
+        for (const auto& dlc : dlc_entries) {
+            if (FileSys::GetBaseTitleID(dlc.title_id) == base_tid) {
+                aoc_count++;
             }
-            m_aoc_cache_valid = true;
         }
-        auto aoc_it = m_aoc_count_cache.find(entry.programId);
-        entry.addon_count = (aoc_it != m_aoc_count_cache.end()) ? aoc_it->second : 0;
+        if (aoc_count == 0) {
+            auto prev_it = m_rom_metadata_cache.find(path);
+            if (prev_it != m_rom_metadata_cache.end() && prev_it->second.addon_count > 0) {
+                aoc_count = prev_it->second.addon_count;
+            }
+        }
+        entry.addon_count = aoc_count;
 
         if (loader->GetFileType() == Loader::FileType::NRO) {
             auto loader_nro = reinterpret_cast<Loader::AppLoader_NRO*>(loader.get());

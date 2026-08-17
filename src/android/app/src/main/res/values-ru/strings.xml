@@ -1088,7 +1088,7 @@
     <string name="fullscreen_mode_description">Скрывать системные панели Android на всех экранах приложения. Проведите от края экрана, чтобы временно отобразить их</string>
 
     <!-- Theme Modes -->
-    <string name="change_theme_mode">Сменить режим темы</string>
+    <string name="change_theme_mode">Тема оформления</string>
     <string name="theme_mode_follow_system">Системная</string>
     <string name="theme_mode_light">Светлая</string>
     <string name="theme_mode_dark">Темная</string>

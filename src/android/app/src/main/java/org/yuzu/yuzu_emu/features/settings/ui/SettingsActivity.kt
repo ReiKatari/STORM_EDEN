@@ -43,6 +43,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeHelper.ThemeChangeListener(this)
         ThemeHelper.setTheme(this)
 
         super.onCreate(savedInstanceState)

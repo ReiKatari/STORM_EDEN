@@ -75,6 +75,7 @@
     <addaction name="menu_recent_files"/>
     <addaction name="separator"/>
     <addaction name="action_Load_Amiibo"/>
+    <addaction name="action_Amiibo_Online_Database"/>
     <addaction name="separator"/>
     <addaction name="menuOpen_Eden_Folders"/>
     <addaction name="separator"/>

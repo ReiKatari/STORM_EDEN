@@ -342,7 +342,7 @@
     <string name="install_game_content_help_link">https://yuzu-mirror.github.io/help/quickstart/#dumping-installed-updates</string>
     <string name="custom_driver_not_supported">Custom drivers not supported</string>
     <string name="custom_driver_not_supported_description">Custom driver loading isn\'t currently supported for this device.\nCheck this option again in the future to see if support was added!</string>
-    <string name="manage_yuzu_data">Manage Eden data</string>
+    <string name="manage_yuzu_data">Manage STORM EDEN data</string>
     <string name="manage_yuzu_data_description">Import/export firmware, keys, user data, and more!</string>
     <string name="game_folders">Game folders</string>
     <string name="deep_scan">Deep scan</string>
@@ -1839,5 +1839,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="external_content">External Content</string>
     <string name="add_folders">Add Folder</string>
     <string name="percent">%1$d%%</string>
+
+    <!-- Amiibo Manager -->
+    <string name="amiibo">Amiibo</string>
+    <string name="amiibo_database_title">Online Amiibo Database</string>
+    <string name="amiibo_database_description">Browse, generate, and quickly inject virtual Amiibos into games</string>
+    <string name="search_amiibo_hint">Search by Amiibo name, character, or ID...</string>
+    <string name="all_series">All Series</string>
+    <string name="no_amiibo_found">No Amiibos found</string>
+    <string name="amiibo_count_format">Showing %1$d of %2$d Amiibos</string>
+    <string name="save_bin">Save .bin</string>
+    <string name="inject_amiibo">Inject</string>
+    <string name="amiibo_saved_format">Saved: %1$s</string>
+    <string name="amiibo_injected_success">%1$s successfully loaded into game!</string>
+    <string name="amiibo_injected_fail">Failed to inject Amiibo. Make sure the game is requesting an Amiibo tag.</string>
+    <string name="amiibo_pick_file">Choose local .bin file...</string>
+
+    <!-- GameBanana Mods -->
+    <string name="sort_by">Sort by:</string>
+    <string name="sort_downloads">Most Downloaded</string>
+    <string name="sort_likes">Most Liked</string>
+    <string name="sort_views">Most Viewed</string>
+    <string name="sort_latest">Latest</string>
+    <string name="sort_name">By Name</string>
+    <string name="page_1">Page 1</string>
+    <string name="page_format">Page %1$d</string>
+    <string name="loading_mod_details">Loading mod files and description...</string>
+    <string name="installing_mod_title">Installing %1$s</string>
+    <string name="gamebanana_no_files">No downloadable files found for this mod.</string>
+    <string name="gamebanana_installed_success">%1$s installed successfully!</string>
+    <string name="gamebanana_likes">%1$d likes</string>
+
+    <!-- Title display -->
+    <string name="show_filename_as_title">Game Title from Filename</string>
+    <string name="show_filename_as_title_description">Display clean game title parsed from filename instead of internal ROM name</string>
 
 </resources>

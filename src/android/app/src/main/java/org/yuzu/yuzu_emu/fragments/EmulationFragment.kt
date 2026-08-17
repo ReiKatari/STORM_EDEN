@@ -1338,25 +1338,36 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             return true
         }
 
-        when (AmiiboState.fromValue(NativeLibrary.getVirtualAmiiboState())) {
-            AmiiboState.TagNearby -> {
-                amiiboLoadJob?.cancel()
-                NativeInput.onRemoveNfcTag()
-                showAmiiboDialog(R.string.amiibo_removed_message)
-            }
-
-            AmiiboState.WaitingForAmiibo -> {
-                if (isAmiiboPickerOpen) {
-                    return true
-                }
-
-                isAmiiboPickerOpen = true
-                binding.drawerLayout.close()
-                loadAmiiboLauncher.launch(AMIIBO_MIME_TYPES)
-            }
-
-            else -> showAmiiboDialog(R.string.amiibo_wrong_state)
+        if (AmiiboState.fromValue(NativeLibrary.getVirtualAmiiboState()) == AmiiboState.TagNearby) {
+            amiiboLoadJob?.cancel()
+            NativeInput.onRemoveNfcTag()
+            showAmiiboDialog(R.string.amiibo_removed_message)
+            return true
         }
+
+        binding.drawerLayout.close()
+
+        val options = arrayOf(
+            getString(R.string.amiibo_database_title),
+            getString(R.string.amiibo_pick_file)
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.amiibo)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        AmiiboDialogFragment.newInstance(isEmulating = true)
+                            .show(parentFragmentManager, AmiiboDialogFragment.TAG)
+                    }
+                    1 -> {
+                        isAmiiboPickerOpen = true
+                        loadAmiiboLauncher.launch(AMIIBO_MIME_TYPES)
+                    }
+                }
+            }
+            .setNegativeButton(R.string.close, null)
+            .show()
 
         return true
     }

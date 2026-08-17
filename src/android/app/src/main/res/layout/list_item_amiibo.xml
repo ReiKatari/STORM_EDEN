@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.yuzu.yuzu_emu.views.GradientBorderCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_amiibo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/eden_card_background"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/image_amiibo"
+            android:layout_width="48dp"
+            android:layout_height="64dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/amiibo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_amiibo" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_amiibo_name"
+            style="@style/SynthwaveText.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:requiresFadingEdge="horizontal"
+            app:layout_constraintEnd_toStartOf="@+id/layout_buttons"
+            app:layout_constraintStart_toEndOf="@+id/image_amiibo"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Link - Rider" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_amiibo_series"
+            style="@style/SynthwaveText.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:alpha="0.8"
+            android:singleLine="true"
+            app:layout_constraintEnd_toStartOf="@+id/layout_buttons"
+            app:layout_constraintStart_toEndOf="@+id/image_amiibo"
+            app:layout_constraintTop_toBottomOf="@+id/text_amiibo_name"
+            tools:text="The Legend of Zelda • Figure" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_amiibo_id"
+            style="@style/SynthwaveText.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="2dp"
+            android:textSize="10sp"
+            android:alpha="0.5"
+            android:singleLine="true"
+            app:layout_constraintEnd_toStartOf="@+id/layout_buttons"
+            app:layout_constraintStart_toEndOf="@+id/image_amiibo"
+            app:layout_constraintTop_toBottomOf="@+id/text_amiibo_series"
+            tools:text="ID: 01010000002F0002" />
+
+        <LinearLayout
+            android:id="@+id/layout_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_save_bin"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/save_bin"
+                android:textSize="11sp"
+                android:paddingHorizontal="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_inject_amiibo"
+                style="@style/EdenButton.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/inject_amiibo"
+                android:textSize="11sp"
+                android:paddingHorizontal="10dp" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</org.yuzu.yuzu_emu.views.GradientBorderCardView>

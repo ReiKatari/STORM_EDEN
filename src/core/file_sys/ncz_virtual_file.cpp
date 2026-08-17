@@ -206,7 +206,7 @@ NCZVirtualFile::NCZVirtualFile(VirtualFile file_)
             section_solid_offsets.push_back(current_solid_offset);
             
             u8* bytes = reinterpret_cast<u8*>(&sec);
-            LOG_DEBUG(Service_FS, "NCZSECTN Section [{}]: offset={:016X}, size={:016X}, crypto_type={}, solid_offset={:016X}", i, sec.offset, sec.size, sec.crypto_type, current_solid_offset);
+            LOG_INFO(Service_FS, "NCZSECTN {}: Section [{}]: offset={:016X}, size={:016X}, crypto_type={}, solid_offset={:016X}", file->GetName(), i, sec.offset, sec.size, sec.crypto_type, current_solid_offset);
             
             // For header_uncompressed, only the portion of the section
             // after 0x4000 is in the ZSTD stream

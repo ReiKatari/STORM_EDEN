@@ -305,56 +305,74 @@ void AmiiboBrowserDialog::FetchAmiiboDatabase() {
         if (file.open(QIODevice::ReadOnly)) {
             ParseDatabaseJson(file.readAll());
             file.close();
-            m_status_label->setText(tr("Загружено из кэша: %1 Amiibo. Обновление из сети...").arg(m_all_amiibos.size()));
+            if (!m_all_amiibos.empty()) {
+                PopulateSeriesFilter();
+                ApplyFilters();
+                m_status_label->setText(tr("Загружено из кэша: %1 Amiibo. Обновление из сети...").arg(m_all_amiibos.size()));
+            }
         }
     }
 
-    QUrl url(QStringLiteral("https://www.amiiboapi.com/api/amiibo/"));
-    QNetworkRequest request(url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+    const QStringList urls = {
+        QStringLiteral("https://www.amiiboapi.com/api/amiibo/"),
+        QStringLiteral("https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/database/amiibo.json"),
+        QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/database/amiibo.json")
+    };
 
-    auto* reply = m_network_mgr->get(request);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, cache_file]() {
-        m_progress_bar->setVisible(false);
-        if (reply->error() == QNetworkReply::NoError) {
-            QByteArray data = reply->readAll();
-            // Cache response to disk
-            QFile file(QString::fromStdString(cache_file.string()));
-            if (file.open(QIODevice::WriteOnly)) {
-                file.write(data);
-                file.close();
-            }
-            ParseDatabaseJson(data);
-            m_status_label->setText(tr("Каталог успешно обновлен. Всего доступно: %1 Amiibo").arg(m_all_amiibos.size()));
-        } else {
+    auto tryFetchUrl = [this, urls, cache_file](auto self, int url_index) -> void {
+        if (url_index >= urls.size()) {
+            m_progress_bar->setVisible(false);
             if (m_all_amiibos.empty()) {
-                m_status_label->setText(tr("Не удалось загрузить каталог Amiibo: %1").arg(reply->errorString()));
+                m_status_label->setText(tr("Не удалось загрузить каталог Amiibo из всех источников"));
             } else {
-                m_status_label->setText(tr("Работа в автономном режиме. Доступно из кэша: %1 Amiibo").arg(m_all_amiibos.size()));
+                m_status_label->setText(tr("Автономный режим. Доступно из кэша: %1 Amiibo").arg(m_all_amiibos.size()));
             }
+            return;
         }
-        reply->deleteLater();
-    });
+
+        QUrl url(urls[url_index]);
+        QNetworkRequest request(url);
+        request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+        request.setRawHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 STORM-EDEN/4.0.0");
+        request.setRawHeader("Accept", "application/json, text/plain, */*");
+
+        auto* reply = m_network_mgr->get(request);
+        connect(reply, &QNetworkReply::finished, this, [this, reply, self, url_index, urls, cache_file]() {
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray data = reply->readAll();
+                m_progress_bar->setVisible(false);
+                ParseDatabaseJson(data);
+                if (!m_all_amiibos.empty()) {
+                    QFile file(QString::fromStdString(cache_file.string()));
+                    if (file.open(QIODevice::WriteOnly)) {
+                        file.write(data);
+                        file.close();
+                    }
+                    PopulateSeriesFilter();
+                    ApplyFilters();
+                    m_status_label->setText(tr("Каталог успешно обновлен. Всего доступно: %1 Amiibo").arg(m_all_amiibos.size()));
+                    reply->deleteLater();
+                    return;
+                }
+            }
+            reply->deleteLater();
+            self(self, url_index + 1);
+        });
+    };
+
+    tryFetchUrl(tryFetchUrl, 0);
 }
 
 void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
     QJsonParseError err{};
     QJsonDocument doc = QJsonDocument::fromJson(json_data, &err);
-    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+    if (err.error != QJsonParseError::NoError) {
         return;
     }
 
-    QJsonObject root = doc.object();
-    QJsonArray amiibo_array = root.value(QStringLiteral("amiibo")).toArray();
-    if (amiibo_array.isEmpty()) {
-        return;
-    }
+    std::vector<AmiiboEntry> parsed_list;
 
-    m_all_amiibos.clear();
-    m_all_amiibos.reserve(amiibo_array.size());
-
-    for (const auto& val : amiibo_array) {
-        QJsonObject obj = val.toObject();
+    auto parseObject = [](const QJsonObject& obj) -> AmiiboEntry {
         AmiiboEntry entry;
         entry.character = obj.value(QStringLiteral("character")).toString();
         entry.name = obj.value(QStringLiteral("name")).toString();
@@ -385,12 +403,54 @@ void AmiiboBrowserDialog::ParseDatabaseJson(const QByteArray& json_data) {
                 entry.switch_games.append(QStringLiteral("• %1").arg(g_name));
             }
         }
+        return entry;
+    };
 
-        m_all_amiibos.push_back(std::move(entry));
+    if (doc.isObject()) {
+        QJsonObject root = doc.object();
+        if (root.contains(QStringLiteral("amiibo")) && root.value(QStringLiteral("amiibo")).isArray()) {
+            QJsonArray arr = root.value(QStringLiteral("amiibo")).toArray();
+            parsed_list.reserve(arr.size());
+            for (const auto& val : arr) {
+                if (val.isObject()) {
+                    parsed_list.push_back(parseObject(val.toObject()));
+                }
+            }
+        } else if (root.contains(QStringLiteral("amiibos")) && root.value(QStringLiteral("amiibos")).isObject()) {
+            QJsonObject dict = root.value(QStringLiteral("amiibos")).toObject();
+            parsed_list.reserve(dict.size());
+            for (auto it = dict.begin(); it != dict.end(); ++it) {
+                if (it.value().isObject()) {
+                    AmiiboEntry e = parseObject(it.value().toObject());
+                    if (e.head.isEmpty() && it.key().length() >= 16) {
+                        e.head = it.key().left(8);
+                        e.tail = it.key().mid(8, 8);
+                    }
+                    parsed_list.push_back(std::move(e));
+                }
+            }
+        } else if (root.contains(QStringLiteral("amiibos")) && root.value(QStringLiteral("amiibos")).isArray()) {
+            QJsonArray arr = root.value(QStringLiteral("amiibos")).toArray();
+            parsed_list.reserve(arr.size());
+            for (const auto& val : arr) {
+                if (val.isObject()) {
+                    parsed_list.push_back(parseObject(val.toObject()));
+                }
+            }
+        }
+    } else if (doc.isArray()) {
+        QJsonArray arr = doc.array();
+        parsed_list.reserve(arr.size());
+        for (const auto& val : arr) {
+            if (val.isObject()) {
+                parsed_list.push_back(parseObject(val.toObject()));
+            }
+        }
     }
 
-    PopulateSeriesFilter();
-    ApplyFilters();
+    if (!parsed_list.empty()) {
+        m_all_amiibos = std::move(parsed_list);
+    }
 }
 
 void AmiiboBrowserDialog::PopulateSeriesFilter() {

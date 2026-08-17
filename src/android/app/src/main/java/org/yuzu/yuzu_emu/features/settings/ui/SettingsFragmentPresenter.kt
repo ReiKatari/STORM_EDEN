@@ -1079,6 +1079,7 @@ class SettingsFragmentPresenter(
                 add(BooleanSetting.ENABLE_UPDATE_CHECKS.key)
             }
 
+            add(BooleanSetting.SHOW_FILENAME_AS_TITLE.key)
             add(BooleanSetting.ENABLE_QUICK_SETTINGS.key)
             add(BooleanSetting.INVERT_CONFIRM_BACK_CONTROLLER_BUTTONS.key)
 

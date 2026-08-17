@@ -106,6 +106,7 @@ private:
     std::vector<std::string> path_components;
     std::optional<u64> size;
     OpenMode perms;
+    mutable std::mutex io_mutex;
 };
 
 // An implementation of VfsDirectory that represents a directory on the user's computer.

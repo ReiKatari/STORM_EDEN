@@ -333,6 +333,7 @@ bool RealVfsFile::IsReadable() const {
 }
 
 std::size_t RealVfsFile::Read(u8* data, std::size_t length, std::size_t offset) const {
+    std::lock_guard<std::mutex> lk_io(io_mutex);
     auto lk = base.RefreshReference(path, perms, *reference);
     if (!reference->file || !reference->file->Seek(static_cast<s64>(offset))) {
         return 0;
@@ -342,6 +343,7 @@ std::size_t RealVfsFile::Read(u8* data, std::size_t length, std::size_t offset) 
 
 std::size_t RealVfsFile::Write(const u8* data, std::size_t length, std::size_t offset) {
     size.reset();
+    std::lock_guard<std::mutex> lk_io(io_mutex);
     auto lk = base.RefreshReference(path, perms, *reference);
     if (!reference->file || !reference->file->Seek(static_cast<s64>(offset))) {
         return 0;

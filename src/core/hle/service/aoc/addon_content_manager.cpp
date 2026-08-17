@@ -70,16 +70,16 @@ IAddOnContentManager::IAddOnContentManager(Core::System& system_)
       service_context{system_, "aoc:u"} {
     // clang-format off
     static const FunctionInfo functions[] = {
-        {0, nullptr, "CountAddOnContentByApplicationId"},
-        {1, nullptr, "ListAddOnContentByApplicationId"},
+        {0, D<&IAddOnContentManager::CountAddOnContentByApplicationId>, "CountAddOnContentByApplicationId"},
+        {1, D<&IAddOnContentManager::ListAddOnContentByApplicationId>, "ListAddOnContentByApplicationId"},
         {2, D<&IAddOnContentManager::CountAddOnContent>, "CountAddOnContent"},
         {3, D<&IAddOnContentManager::ListAddOnContent>, "ListAddOnContent"},
-        {4, nullptr, "GetAddOnContentBaseIdByApplicationId"},
+        {4, D<&IAddOnContentManager::GetAddOnContentBaseIdByApplicationId>, "GetAddOnContentBaseIdByApplicationId"},
         {5, D<&IAddOnContentManager::GetAddOnContentBaseId>, "GetAddOnContentBaseId"},
-        {6, nullptr, "PrepareAddOnContentByApplicationId"},
+        {6, D<&IAddOnContentManager::PrepareAddOnContentByApplicationId>, "PrepareAddOnContentByApplicationId"},
         {7, D<&IAddOnContentManager::PrepareAddOnContent>, "PrepareAddOnContent"},
         {8, D<&IAddOnContentManager::GetAddOnContentListChangedEvent>, "GetAddOnContentListChangedEvent"},
-        {9, nullptr, "GetAddOnContentLostErrorCode"},
+        {9, D<&IAddOnContentManager::GetAddOnContentLostErrorCode>, "GetAddOnContentLostErrorCode"},
         {10, D<&IAddOnContentManager::GetAddOnContentListChangedEventWithProcessId>, "GetAddOnContentListChangedEventWithProcessId"},
         {11, D<&IAddOnContentManager::NotifyMountAddOnContent>, "NotifyMountAddOnContent"},
         {12, D<&IAddOnContentManager::NotifyUnmountAddOnContent>, "NotifyUnmountAddOnContent"},
@@ -102,6 +102,95 @@ IAddOnContentManager::IAddOnContentManager(Core::System& system_)
 
 IAddOnContentManager::~IAddOnContentManager() {
     service_context.CloseEvent(aoc_change_event);
+}
+
+Result IAddOnContentManager::CountAddOnContentByApplicationId(Out<u32> out_count,
+                                                              u64 application_id) {
+    const auto& disabled = Settings::values.disabled_addons[application_id];
+    if (std::find(disabled.begin(), disabled.end(), "DLC") != disabled.end()) {
+        *out_count = 0;
+        LOG_INFO(Service_AOC, "CountAddOnContentByApplicationId: DLC disabled in settings for {:016X}", application_id);
+        R_SUCCEED();
+    }
+
+    *out_count = static_cast<u32>(
+        std::count_if(add_on_content.begin(), add_on_content.end(),
+                      [application_id](u64 tid) { return CheckAOCTitleIDMatchesBase(tid, application_id); }));
+
+    LOG_INFO(Service_AOC, "CountAddOnContentByApplicationId: application_id={:016X} returned count={}",
+             application_id, *out_count);
+
+    R_SUCCEED();
+}
+
+Result IAddOnContentManager::ListAddOnContentByApplicationId(
+    Out<u32> out_count, OutBuffer<BufferAttr_HipcMapAlias> out_addons, u32 offset, u32 count,
+    u64 application_id) {
+    const auto base_id = FileSys::GetBaseTitleID(application_id);
+
+    std::vector<u32> out;
+    const auto& disabled = Settings::values.disabled_addons[base_id];
+    if (std::find(disabled.begin(), disabled.end(), "DLC") == disabled.end()) {
+        for (u64 content_id : add_on_content) {
+            if (FileSys::GetBaseTitleID(content_id) != base_id) {
+                continue;
+            }
+
+            out.push_back(static_cast<u32>(FileSys::GetAOCID(content_id)));
+        }
+    }
+
+    R_UNLESS(out.size() >= offset, ResultUnknown);
+
+    *out_count = static_cast<u32>(std::min<size_t>(out.size() - offset, count));
+    std::rotate(out.begin(), out.begin() + offset, out.end());
+
+    if (*out_count > 0 && out_addons.data() != nullptr) {
+        std::memcpy(out_addons.data(), out.data(), *out_count * sizeof(u32));
+    }
+
+    LOG_INFO(Service_AOC, "ListAddOnContentByApplicationId: app_id={:016X} offset={} count={} returned out_count={} addons=[{}]",
+             application_id, offset, count, *out_count, fmt::join(out, ", "));
+
+    R_SUCCEED();
+}
+
+Result IAddOnContentManager::GetAddOnContentBaseIdByApplicationId(Out<u64> out_title_id,
+                                                                  u64 application_id) {
+    const FileSys::PatchManager pm{application_id, system.GetFileSystemController(),
+                                   system.GetContentProvider()};
+
+    const auto res = pm.GetControlMetadata();
+    if (res.first == nullptr) {
+        *out_title_id = FileSys::GetAOCBaseTitleID(application_id);
+    } else {
+        *out_title_id = res.first->GetDLCBaseTitleId();
+        if (*out_title_id == 0) {
+            *out_title_id = FileSys::GetAOCBaseTitleID(application_id);
+        }
+    }
+
+    LOG_INFO(Service_AOC, "GetAddOnContentBaseIdByApplicationId: app_id={:016X} returned out_title_id={:016X}",
+             application_id, *out_title_id);
+
+    R_SUCCEED();
+}
+
+Result IAddOnContentManager::PrepareAddOnContentByApplicationId(s32 addon_index,
+                                                                u64 application_id) {
+    LOG_INFO(Service_AOC, "PrepareAddOnContentByApplicationId: addon_index={}, app_id={:016X}",
+             addon_index, application_id);
+
+    R_SUCCEED();
+}
+
+Result IAddOnContentManager::GetAddOnContentLostErrorCode(Out<u32> out_error_code, u32 index,
+                                                          u64 application_id) {
+    LOG_INFO(Service_AOC, "GetAddOnContentLostErrorCode: index={}, app_id={:016X}", index,
+             application_id);
+
+    *out_error_code = 0;
+    R_SUCCEED();
 }
 
 Result IAddOnContentManager::CountAddOnContent(Out<u32> out_count, ClientProcessId process_id) {

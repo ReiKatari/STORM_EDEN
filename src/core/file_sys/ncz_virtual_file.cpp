@@ -628,10 +628,14 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
                     {
                         std::unique_lock<std::mutex> cache_lock(cache_mutex);
-                        if (block_cache.size() >= 64) {
-                            block_cache.pop_back();
+                        auto it = std::find_if(block_cache.begin(), block_cache.end(),
+                            [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
+                        if (it == block_cache.end()) {
+                            if (block_cache.size() >= 256) {
+                                block_cache.pop_back();
+                            }
+                            block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
                         }
-                        block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
                         last_accessed_block = block_index;
                     }
                 }

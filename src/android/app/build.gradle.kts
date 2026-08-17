@@ -379,7 +379,7 @@ fun getGitVersion(): String {
     } else {
         gitVersion
     }
-    return versionName.ifEmpty { "4.0.0" }
+    return versionName.ifEmpty { "4.0.1" }
 }
 
 afterEvaluate {

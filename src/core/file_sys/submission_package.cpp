@@ -380,7 +380,10 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                         auto temp_nca = std::make_shared<NCA>(temp_file);
                         if (temp_nca->GetStatus() == Loader::ResultStatus::Success ||
                             temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
-                            if (temp_nca->GetType() == expected_nca_type && temp_nca->GetTitleId() == cnmt.GetTitleID()) {
+                            bool tid_matches = (temp_nca->GetTitleId() == cnmt.GetTitleID()) ||
+                                               ((cnmt.GetType() == TitleType::AOC || rec.type == ContentRecordType::Data) &&
+                                                ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
+                            if (temp_nca->GetType() == expected_nca_type && tid_matches) {
                                 LOG_INFO(Service_FS, "Exact fallback matched record type {} to file {}", static_cast<int>(rec.type), name);
                                 matched_file = temp_file;
                                 used_files.insert(name);
@@ -443,7 +446,10 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                             auto temp_nca = std::make_shared<NCA>(temp_file);
                             if (temp_nca->GetStatus() == Loader::ResultStatus::Success ||
                                 temp_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
-                                if (temp_nca->GetTitleId() == cnmt.GetTitleID()) {
+                                bool tid_matches = (temp_nca->GetTitleId() == cnmt.GetTitleID()) ||
+                                                   ((cnmt.GetType() == TitleType::AOC || rec.type == ContentRecordType::Data) &&
+                                                    ((temp_nca->GetTitleId() & 0xFFFFFFFFFFFFF000) == (cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000)));
+                                if (tid_matches) {
                                     LOG_INFO(Service_FS, "Title ID fallback matched record type {} to file {}", static_cast<int>(rec.type), name);
                                     matched_file = temp_file;
                                     used_files.insert(name);
@@ -480,7 +486,7 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                 }
 
                 // If the last 3 hexadecimal digits of the CNMT TitleID is 0x800 or is missing the
-                // BKTRBaseRomFS, this is an update NCA. Otherwise, this is a base NCA.
+                // BKTRBaseRomFS, this is an update NCA. Otherwise, this is a base or DLC NCA.
                 if ((cnmt.GetTitleID() & 0x800) != 0 ||
                     next_nca->GetStatus() == Loader::ResultStatus::ErrorMissingBKTRBaseRomFS) {
                     if ((next_nca->GetTitleId() & 0x7FF) != 0 &&
@@ -497,7 +503,7 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                         ncas[cnmt.GetTitleID()][{cnmt.GetType(), rec.type}] = std::move(next_nca);
                     }
                 } else {
-                    ncas[next_nca->GetTitleId()][{cnmt.GetType(), rec.type}] = std::move(next_nca);
+                    ncas[cnmt.GetTitleID()][{cnmt.GetType(), rec.type}] = std::move(next_nca);
                 }
             }
 

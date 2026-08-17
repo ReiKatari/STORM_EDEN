@@ -55,6 +55,43 @@ bool TitleDatabase::IsLoaded() const {
     return is_loaded.load(std::memory_order_acquire);
 }
 
+static std::string ExtractDlcTitleFromDesc(std::string_view desc) {
+    if (desc.empty()) return {};
+
+    // 1. Look for leading quotes: "The Champions' Ballad" or \"The Champions' Ballad\"
+    size_t start_q = desc.find('"');
+    if (start_q != std::string_view::npos && start_q < 40) {
+        size_t end_q = desc.find('"', start_q + 1);
+        if (end_q != std::string_view::npos && end_q > start_q + 1) {
+            std::string title(desc.substr(start_q + 1, end_q - (start_q + 1)));
+            if (!title.empty() && title.length() < 80) {
+                return title;
+            }
+        }
+    }
+
+    // 2. Look for first line before newline
+    size_t newline = desc.find('\n');
+    std::string_view first_line = (newline != std::string_view::npos) ? desc.substr(0, newline) : desc;
+
+    size_t will_inc = first_line.find(" will include");
+    if (will_inc == std::string_view::npos) {
+        will_inc = first_line.find(" includes ");
+    }
+    if (will_inc != std::string_view::npos) {
+        std::string_view candidate = first_line.substr(0, will_inc);
+        while (!candidate.empty() && (candidate.front() == '"' || candidate.front() == ' ' || candidate.front() == '\\')) {
+            candidate.remove_prefix(1);
+        }
+        while (!candidate.empty() && (candidate.back() == '"' || candidate.back() == ' ' || candidate.back() == '\\')) {
+            candidate.remove_suffix(1);
+        }
+        if (!candidate.empty() && candidate.length() < 80) return std::string(candidate);
+    }
+
+    return {};
+}
+
 void TitleDatabase::LoadDataSync() {
     std::vector<std::filesystem::path> candidate_paths;
 
@@ -100,19 +137,48 @@ void TitleDatabase::LoadDataSync() {
     LOG_INFO(Frontend, "Loading TitleDB in background from: {}", Common::FS::PathToUTF8String(found_path));
 
     try {
-        std::ifstream file(found_path);
-        if (!file.is_open()) {
+        std::FILE* f =
+#ifdef _WIN32
+            _wfopen(found_path.c_str(), L"rb");
+#else
+            std::fopen(found_path.c_str(), "rb");
+#endif
+        if (!f) {
             is_loaded.store(true, std::memory_order_release);
             is_loading.store(false, std::memory_order_release);
             cv.notify_all();
             return;
         }
 
-        const auto json_data = nlohmann::json::parse(file, nullptr, false);
+        std::fseek(f, 0, SEEK_END);
+        const long sz = std::ftell(f);
+        std::fseek(f, 0, SEEK_SET);
+
+        if (sz <= 0) {
+            std::fclose(f);
+            is_loaded.store(true, std::memory_order_release);
+            is_loading.store(false, std::memory_order_release);
+            cv.notify_all();
+            return;
+        }
+
+        std::string json_buffer(static_cast<size_t>(sz), '\0');
+        const size_t read_bytes = std::fread(json_buffer.data(), 1, sz, f);
+        std::fclose(f);
+
+        if (read_bytes != static_cast<size_t>(sz)) {
+            is_loaded.store(true, std::memory_order_release);
+            is_loading.store(false, std::memory_order_release);
+            cv.notify_all();
+            return;
+        }
+
+        const auto json_data = nlohmann::json::parse(json_buffer, nullptr, false);
         if (json_data.is_discarded() || !json_data.is_object()) {
             LOG_WARNING(Frontend, "Failed to parse TitleDB JSON");
             is_loaded.store(true, std::memory_order_release);
             is_loading.store(false, std::memory_order_release);
+            cv.notify_all();
             return;
         }
 
@@ -135,6 +201,12 @@ void TitleDatabase::LoadDataSync() {
             }
             if (val.contains("description") && !val["description"].is_null()) {
                 entry.description = val["description"].get<std::string>();
+            }
+            if (entry.name.empty() && !entry.description.empty()) {
+                const std::string extracted = ExtractDlcTitleFromDesc(entry.description);
+                if (!extracted.empty()) {
+                    entry.name = extracted;
+                }
             }
             if (val.contains("version") && !val["version"].is_null()) {
                 if (val["version"].is_string()) {
@@ -172,7 +244,7 @@ void TitleDatabase::LoadDataSync() {
                 temp_by_id.emplace(tid_val, entry);
 
                 // Index DLCs
-                if ((tid_val & 0x1FFF) >= 0x1000) {
+                if ((tid_val & 0x1FFF) >= 0x1000 || ((tid_val & 0xFFF) > 0 && (tid_val & 0x800) == 0)) {
                     const u64 base_id = (tid_val & ~0x1000ULL) & ~0xFFFULL;
                     const u64 base_masked = tid_val & 0xFFFFFFFFFFFFE000;
                     temp_base_dlcs[base_id].push_back(entry);
@@ -185,6 +257,13 @@ void TitleDatabase::LoadDataSync() {
             }
 
             temp_db.emplace(std::move(key), std::move(entry));
+        }
+
+        // Sort DLC lists by Title ID
+        for (auto& [bid, dlc_list] : temp_base_dlcs) {
+            std::sort(dlc_list.begin(), dlc_list.end(), [](const Entry& a, const Entry& b) {
+                return a.id < b.id;
+            });
         }
 
         {
@@ -208,8 +287,17 @@ void TitleDatabase::LoadDataSync() {
 std::optional<Entry> TitleDatabase::Lookup(u64 title_id) {
     std::lock_guard<std::mutex> lock(db_mutex);
     auto it = db_by_id.find(title_id);
-    if (it != db_by_id.end() && !it->second.name.empty()) {
-        return it->second;
+    if (it != db_by_id.end()) {
+        if (!it->second.name.empty()) {
+            return it->second;
+        }
+        if (!it->second.description.empty()) {
+            const std::string extracted = ExtractDlcTitleFromDesc(it->second.description);
+            if (!extracted.empty()) {
+                it->second.name = extracted;
+                return it->second;
+            }
+        }
     }
 
     // Check if it's an Update or DLC

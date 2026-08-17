@@ -293,7 +293,8 @@ void ConfigureGameBananaMods::SearchMods(const QString& query) {
             tree_item->setText(3, QString::number(item.likes));
             tree_item->setText(4, item.category);
             tree_item->setData(0, Qt::UserRole, item.id);
-            for (int i = 0; i < 5; ++i) {
+            tree_item->setTextAlignment(0, Qt::AlignLeft | Qt::AlignVCenter);
+            for (int i = 1; i < 5; ++i) {
                 tree_item->setTextAlignment(i, Qt::AlignCenter);
             }
         }

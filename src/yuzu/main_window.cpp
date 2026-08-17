@@ -6553,17 +6553,22 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
             if (raw_name.startsWith(base_clean_name, Qt::CaseInsensitive)) {
                 raw_name = raw_name.mid(base_clean_name.length()).trimmed();
             } else {
-                const int colon_idx = base_clean_name.indexOf(QLatin1Char(':'));
-                if (colon_idx > 3) {
-                    const QString short_base = base_clean_name.left(colon_idx).trimmed();
-                    if (raw_name.startsWith(short_base, Qt::CaseInsensitive)) {
-                        const int next_colon = raw_name.indexOf(QLatin1Char(':'));
-                        if (next_colon > 0 && next_colon < raw_name.length() - 1) {
-                            raw_name = raw_name.mid(next_colon + 1).trimmed();
+                const QStringList parts = base_clean_name.split(QRegularExpression(QStringLiteral("[:—–\\-]")), Qt::SkipEmptyParts);
+                for (const auto& part : parts) {
+                    const QString trimmed_part = part.trimmed();
+                    if (trimmed_part.length() >= 4) {
+                        const int idx = raw_name.indexOf(trimmed_part, 0, Qt::CaseInsensitive);
+                        if (idx >= 0) {
+                            raw_name.remove(idx, trimmed_part.length());
+                            raw_name = raw_name.trimmed();
                         }
                     }
                 }
             }
+        }
+
+        if (raw_name.startsWith(QLatin1Char('T')) && raw_name.length() > 1 && (raw_name[1] == QLatin1Char(':') || raw_name[1] == QLatin1Char(' '))) {
+            raw_name = raw_name.mid(1).trimmed();
         }
 
         while (!raw_name.isEmpty() && (raw_name.startsWith(QLatin1Char(':')) ||
@@ -6582,7 +6587,22 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
         const auto tdb = TitleDB::TitleDatabase::Instance().Lookup(dlc_tid);
         if (tdb.has_value() && !tdb->name.empty()) {
             const QString cleaned = clean_item_name(QString::fromStdString(tdb->name));
-            if (!cleaned.isEmpty()) return cleaned;
+            if (!cleaned.isEmpty()) {
+                if (cleaned.startsWith(QStringLiteral("DLC Pack"), Qt::CaseInsensitive) && !tdb->description.empty()) {
+                    const QString desc = QString::fromStdString(tdb->description);
+                    const int q1 = desc.indexOf(QLatin1Char('"'));
+                    if (q1 >= 0 && q1 < 40) {
+                        const int q2 = desc.indexOf(QLatin1Char('"'), q1 + 1);
+                        if (q2 > q1 + 1) {
+                            const QString sub = desc.mid(q1 + 1, q2 - q1 - 1).trimmed();
+                            if (!sub.isEmpty() && !cleaned.contains(sub, Qt::CaseInsensitive)) {
+                                return QStringLiteral("%1: %2").arg(cleaned, sub);
+                            }
+                        }
+                    }
+                }
+                return cleaned;
+            }
             return QString::fromStdString(tdb->name);
         }
 

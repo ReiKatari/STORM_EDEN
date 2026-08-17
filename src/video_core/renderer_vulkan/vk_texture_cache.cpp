@@ -1939,6 +1939,9 @@ void Image::UploadMemory(VkBuffer buffer, VkDeviceSize offset,
         LOG_WARNING(Render_Vulkan, "MSAA upload not implemented for format {}", info.format);
         // Ensure image layout is transitioned from UNDEFINED to GENERAL to prevent GPU device loss
         scheduler->RequestOutsideRenderPassOperationContext();
+        if (aspect_mask == 0) {
+            aspect_mask = ImageAspectMask(info.format);
+        }
         const VkImage vk_image = *original_image;
         const VkImageAspectFlags vk_aspect_mask = aspect_mask;
         const bool was_initialized = std::exchange(initialized, true);
@@ -1974,7 +1977,7 @@ void Image::UploadMemory(VkBuffer buffer, VkDeviceSize offset,
                     0, barrier);
             });
         }
-        if (is_rescaled) {
+        if (is_rescaled && info.rescaleable) {
             ScaleUp();
         }
         return;
@@ -2252,6 +2255,9 @@ bool Image::ScaleUp(bool ignore) {
         return false;
     }
     ASSERT(info.type != ImageType::Linear);
+    if (!info.rescaleable) {
+        return false;
+    }
     flags |= ImageFlagBits::Rescaled;
     has_scaled = true;
     if (!scaled_image) {
@@ -2273,7 +2279,13 @@ bool Image::ScaleUp(bool ignore) {
         aspect_mask = ImageAspectMask(info.format);
     }
     if (NeedsScaleHelper()) {
-        return BlitScaleHelper(true);
+        const bool success = BlitScaleHelper(true);
+        if (!success) {
+            flags &= ~ImageFlagBits::Rescaled;
+            current_image = &Image::original_image;
+            return false;
+        }
+        return true;
     } else {
         BlitScale(*scheduler, *original_image, *scaled_image, info, aspect_mask, resolution);
     }
@@ -2298,7 +2310,12 @@ bool Image::ScaleDown(bool ignore) {
         aspect_mask = ImageAspectMask(info.format);
     }
     if (NeedsScaleHelper()) {
-        return BlitScaleHelper(false);
+        const bool success = BlitScaleHelper(false);
+        if (!success) {
+            current_image = &Image::original_image;
+            return false;
+        }
+        return true;
     } else {
         BlitScale(*scheduler, *scaled_image, *original_image, info, aspect_mask, resolution, false);
     }
@@ -2360,9 +2377,10 @@ bool Image::BlitScaleHelper(bool scale_up) {
         runtime->blit_image_helper.BlitDepthStencil(&*blit_framebuffer, *blit_view,
             dst_region, src_region, operation, BLIT_OPERATION);
     } else {
-        // TODO: Use helper blits where applicable
+        // Device does not support scaling this format
         flags &= ~ImageFlagBits::Rescaled;
-        LOG_ERROR(Render_Vulkan, "Device does not support scaling format {}", info.format);
+        current_image = &Image::original_image;
+        LOG_WARNING(Render_Vulkan, "Device does not support scaling format {}", info.format);
         return false;
     }
     return true;

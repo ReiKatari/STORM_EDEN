@@ -1252,6 +1252,10 @@ bool TextureCache<P>::ImageCanRescale(ImageBase& image) {
     if (!image.info.rescaleable) {
         return false;
     }
+    if (image.info.num_samples > 1 &&
+        GetFormatType(image.info.format) != VideoCore::Surface::SurfaceType::ColorTexture) {
+        return false;
+    }
     if (Settings::values.resolution_info.downscale && !image.info.downscaleable) {
         return false;
     }

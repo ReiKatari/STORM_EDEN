@@ -17,11 +17,16 @@
 
 #include "common/logging.h"
 
+#include <sstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
 std::optional<Common::Net::Release> UpdateChecker::GetUpdate() {
     const auto latest = Common::Net::GetLatestRelease();
     if (!latest) return std::nullopt;
 
-    LOG_INFO(Frontend, "Received update {}", latest->title);
+    LOG_INFO(Frontend, "Received latest release tag: {}", latest->tag);
 
 #ifdef NIGHTLY_BUILD
     std::vector<std::string> result;
@@ -48,8 +53,44 @@ std::optional<Common::Net::Release> UpdateChecker::GetUpdate() {
     }
 #endif
 
-    if (tag != build && !tag.empty())
-        return latest;
+    if (tag.empty()) {
+        return std::nullopt;
+    }
 
+    auto parse_semver = [](const std::string& ver) -> std::vector<int> {
+        std::vector<int> components;
+        std::stringstream ss(ver);
+        std::string part;
+        while (std::getline(ss, part, '.')) {
+            try {
+                components.push_back(std::stoi(part));
+            } catch (...) {
+                components.push_back(0);
+            }
+        }
+        while (components.size() < 3) components.push_back(0);
+        return components;
+    };
+
+    const auto remote_parts = parse_semver(tag);
+    const auto local_parts = parse_semver(build);
+
+    bool is_newer = false;
+    for (std::size_t i = 0; i < std::min(remote_parts.size(), local_parts.size()); ++i) {
+        if (remote_parts[i] > local_parts[i]) {
+            is_newer = true;
+            break;
+        } else if (remote_parts[i] < local_parts[i]) {
+            is_newer = false;
+            break;
+        }
+    }
+
+    if (is_newer) {
+        LOG_INFO(Frontend, "Newer version available: {} > {}", tag, build);
+        return latest;
+    }
+
+    LOG_INFO(Frontend, "Current version {} is up to date (remote: {})", build, tag);
     return std::nullopt;
 }

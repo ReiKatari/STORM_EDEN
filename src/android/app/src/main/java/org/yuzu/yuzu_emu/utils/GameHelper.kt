@@ -245,9 +245,21 @@ object GameHelper {
         }
     }
 
+    fun cleanGameTitle(rawTitle: String): String {
+        var clean = rawTitle.trim()
+        clean = clean.replace(Regex("\\.(nsp|nsz|xci|xcz|zip|7z)$", RegexOption.IGNORE_CASE), "").trim()
+        val firstBracket = clean.indexOfAny(charArrayOf('[', '('))
+        if (firstBracket > 0) {
+            clean = clean.substring(0, firstBracket).trim()
+        } else if (firstBracket == 0) {
+            clean = clean.replace(Regex("\\[.*?\\]"), " ").replace(Regex("\\(.*?\\)"), " ").trim()
+        }
+        return clean.ifEmpty { rawTitle }
+    }
+
     fun getGame(
         uri: Uri,
-        addedToLibrary: Boolean,
+        addedToLibrary: Boolean = false,
         registerFilesystemProvider: Boolean = true
     ): Game? {
         val filePath = uri.toString()
@@ -260,14 +272,16 @@ object GameHelper {
             NativeLibrary.addFileToFilesystemProvider(filePath)
         }
 
+        val nacpTitle = GameMetadata.getTitle(filePath).trim()
         val filename = FileUtil.getFilename(uri)
-        var name = if (filename.isNotEmpty()) filename else GameMetadata.getTitle(filePath)
+        val rawName = if (nacpTitle.isNotEmpty()) nacpTitle else filename
+        val name = cleanGameTitle(rawName)
 
         var programId = GameMetadata.getProgramId(filePath)
 
         // If the game's ID field is empty, use the filename without extension.
         if (programId.isEmpty()) {
-            programId = if (name.contains(".")) name.substring(0, name.lastIndexOf(".")) else name
+            programId = if (filename.contains(".")) filename.substring(0, filename.lastIndexOf(".")) else filename
         }
 
         val rawVersion = GameMetadata.getVersion(filePath, false)

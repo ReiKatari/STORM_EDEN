@@ -32,36 +32,27 @@ object ThemeHelper {
 
     fun setTheme(activity: AppCompatActivity) {
         setThemeMode(activity)
-        val themeIndex = IntSetting.THEME_MODE.getInt()
-        if (themeIndex == 2) {
-            activity.setTheme(R.style.Theme_Eden_Main)
+        activity.setTheme(getSelectedStaticThemeColor())
+        if (BooleanSetting.BLACK_BACKGROUNDS.getBoolean() && isNightMode(activity)) {
             activity.setTheme(R.style.ThemeOverlay_Yuzu_Dark)
-        } else {
-            activity.setTheme(getSelectedStaticThemeColor())
-            if (BooleanSetting.BLACK_BACKGROUNDS.getBoolean() && isNightMode(activity)) {
-                activity.setTheme(R.style.ThemeOverlay_Yuzu_Dark)
-            }
         }
     }
 
     private fun getSelectedStaticThemeColor(): Int {
         val themeIndex = IntSetting.THEME_MODE.getInt()
-        val themes = arrayOf(
-            R.style.Theme_Eden_Main,
-            R.style.Theme_Yuzu_Main_Blue,
-            R.style.Theme_Eden_Main,
-            R.style.Theme_Yuzu_Main_Violet,
-            R.style.Theme_Yuzu_Main_Gray,
-            R.style.Theme_Yuzu_Main_Cyan,
-            R.style.Theme_Yuzu_Main_Red,
-            R.style.Theme_Yuzu_Main_Green,
-            R.style.Theme_Yuzu_Main_Cyan,
-            R.style.Theme_Yuzu_Main_Pink
-        )
-        if (themeIndex in themes.indices) {
-            return themes[themeIndex]
+        return when (themeIndex) {
+            0 -> R.style.Theme_Storm_Night
+            1 -> R.style.Theme_Storm_Day
+            2 -> R.style.Theme_Storm_Midnight
+            3 -> R.style.Theme_Storm_Cyberpunk
+            4 -> R.style.Theme_Storm_Gothic
+            5 -> R.style.Theme_Storm_Neon
+            6 -> R.style.Theme_Storm_Crimson
+            7 -> R.style.Theme_Storm_Emerald
+            8 -> R.style.Theme_Storm_Glacier
+            9 -> R.style.Theme_Storm_Amethyst
+            else -> R.style.Theme_Storm_Night
         }
-        return R.style.Theme_Eden_Main
     }
 
     @ColorInt

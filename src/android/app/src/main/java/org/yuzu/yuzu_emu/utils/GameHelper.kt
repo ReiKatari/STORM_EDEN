@@ -42,6 +42,15 @@ object GameHelper {
         }
         gameDirs.addAll(NativeConfig.getGameDirs())
 
+        if (cachedGameList.isEmpty()) {
+            val stored = preferences.getStringSet(KEY_GAMES, emptySet()) ?: emptySet()
+            for (item in stored) {
+                try {
+                    cachedGameList.add(Json.decodeFromString(item))
+                } catch (_: Exception) {}
+            }
+        }
+
         // Ensure keys are loaded so that ROM metadata can be decrypted.
         NativeLibrary.reloadKeys()
 
@@ -54,6 +63,21 @@ object GameHelper {
         val mountedContainerUris = mutableSetOf<String>()
         mountExternalContentDirectories(mountedContainerUris)
 
+        // Stage 1: Pre-mount ALL containers across ALL game directories and subdirectories
+        gameDirs.forEach { gameDir ->
+            val gameDirUri = gameDir.uriString.toUri()
+            if (FileUtil.isTreeUriValid(gameDirUri)) {
+                val scanDepth = if (gameDir.deepScan) 3 else 1
+                scanContentContainersRecursive(FileUtil.listFiles(gameDirUri), scanDepth) {
+                    val filePath = it.uri.toString()
+                    if (mountedContainerUris.add(filePath)) {
+                        NativeLibrary.addGameFolderFileToFilesystemProvider(filePath)
+                    }
+                }
+            }
+        }
+
+        // Stage 2: Load games with all content/updates/DLCs already registered in ContentProvider
         val badDirs = mutableListOf<Int>()
         gameDirs.forEachIndexed { index: Int, gameDir: GameDir ->
             val gameDirUri = gameDir.uriString.toUri()
@@ -64,8 +88,7 @@ object GameHelper {
                 addGamesRecursive(
                     games,
                     FileUtil.listFiles(gameDirUri),
-                    scanDepth,
-                    mountedContainerUris
+                    scanDepth
                 )
             } else {
                 badDirs.add(index)
@@ -137,36 +160,18 @@ object GameHelper {
     private fun addGamesRecursive(
         games: MutableList<Game>,
         files: Array<MinimalDocumentFile>,
-        depth: Int,
-        mountedContainerUris: MutableSet<String>
+        depth: Int
     ) {
         if (depth <= 0) {
             return
         }
 
-        // Pass 1: Mount all containers first so PatchManager can find all updates/DLCs immediately
-        files.forEach {
-            if (it.isDirectory) {
-                // Directories will be processed recursively below
-            } else {
-                val extension = FileUtil.getExtension(it.uri).lowercase()
-                val filePath = it.uri.toString()
-
-                if (externalContentExtensions.contains(extension) &&
-                    mountedContainerUris.add(filePath)) {
-                    NativeLibrary.addGameFolderFileToFilesystemProvider(filePath)
-                }
-            }
-        }
-
-        // Pass 2: Load games with all patches/updates already mounted
         files.forEach {
             if (it.isDirectory) {
                 addGamesRecursive(
                     games,
                     FileUtil.listFiles(it.uri),
-                    depth - 1,
-                    mountedContainerUris
+                    depth - 1
                 )
             } else {
                 val extension = FileUtil.getExtension(it.uri).lowercase()

@@ -387,6 +387,9 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
     std::size_t remaining = std::min<std::size_t>(length, decompressed_size - offset);
     std::size_t current_offset = offset;
 
+    LOG_INFO(Service_FS, "NCZ::ReadImpl: file='{}' offset={:#x} length={} decomp_size={} is_solid={}",
+             GetName(), offset, length, decompressed_size, is_solid_stream);
+
     while (remaining > 0) {
         if (current_offset < 0x4000) {
             std::unique_lock<std::mutex> hlock(header_mutex);

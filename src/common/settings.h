@@ -657,7 +657,7 @@ struct Values {
 
     // System
     SwitchableSetting<Language, true> language_index{linkage,
-                                                     Language::EnglishAmerican,
+                                                     Language::Russian,
                                                      "language_index",
                                                      Category::System};
     SwitchableSetting<Region, true> region_index{linkage, Region::Usa, "region_index", Category::System};

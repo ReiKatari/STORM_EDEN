@@ -52,6 +52,8 @@ public:
     bool IsWritable() const override { return false; }
     bool IsReadable() const override { return file.IsOpen(); }
     bool Rename(std::string_view name_) override { return false; }
+    bool IsNczFile() const override { return true; }
+    bool HasDecryptedSections() const override { return true; }
 
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
         if (!file.IsOpen()) return 0;

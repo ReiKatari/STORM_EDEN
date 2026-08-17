@@ -208,7 +208,6 @@ class GameAdapter(private val activity: AppCompatActivity) :
             gridBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
             gridBinding.textGameAddons.text = formatAddons(model)
 
-            gridBinding.textGameTitle.marquee()
             gridBinding.cardGameGrid.setOnClickListener { onClick(model) }
             gridBinding.cardGameGrid.setOnLongClickListener { onLongClick(model) }
 
@@ -229,7 +228,6 @@ class GameAdapter(private val activity: AppCompatActivity) :
             gridCompactBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
             gridCompactBinding.textGameAddonsCompact.text = formatAddons(model)
 
-            gridCompactBinding.textGameTitleCompact.marquee()
             gridCompactBinding.cardGameGridCompact.setOnClickListener { onClick(model) }
             gridCompactBinding.cardGameGridCompact.setOnLongClickListener { onLongClick(model) }
 

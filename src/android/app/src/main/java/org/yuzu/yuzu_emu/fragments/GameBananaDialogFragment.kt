@@ -4,9 +4,9 @@
 package org.yuzu.yuzu_emu.fragments
 
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -21,7 +21,6 @@ import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.databinding.DialogGamebananaModsBinding
 import org.yuzu.yuzu_emu.databinding.ListItemGamebananaModBinding
 import org.yuzu.yuzu_emu.model.Game
-import org.yuzu.yuzu_emu.utils.GameBananaFile
 import org.yuzu.yuzu_emu.utils.GameBananaHelper
 import org.yuzu.yuzu_emu.utils.GameBananaMod
 
@@ -36,11 +35,27 @@ class GameBananaDialogFragment : DialogFragment() {
 
     companion object {
         const val TAG = "GameBananaDialogFragment"
+        private const val ARG_GAME = "arg_game"
 
         fun newInstance(game: Game, onModsUpdated: (() -> Unit)? = null): GameBananaDialogFragment {
             return GameBananaDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_GAME, game)
+                }
                 this.game = game
                 this.onModsUpdated = onModsUpdated
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (game == null) {
+            game = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arguments?.getParcelable(ARG_GAME, Game::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                arguments?.getParcelable(ARG_GAME)
             }
         }
     }

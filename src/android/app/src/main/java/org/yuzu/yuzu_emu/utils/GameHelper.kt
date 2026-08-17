@@ -272,8 +272,14 @@ object GameHelper {
 
         val rawVersion = GameMetadata.getVersion(filePath, false)
         val cleanVersion = rawVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "1.0.0" }
-        val rawInternalVersion = GameMetadata.getInternalVersion(filePath)
-        val cleanInternalVersion = rawInternalVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "0" }
+        var rawInternalVersion = GameMetadata.getInternalVersion(filePath).trim().removePrefix("v").removePrefix("V")
+        if (rawInternalVersion.isEmpty() || rawInternalVersion == "0") {
+            val match = Regex("[\\[\\(_]v(\\d+)[\\]\\)]", RegexOption.IGNORE_CASE).find(filePath)
+            if (match != null) {
+                rawInternalVersion = match.groupValues[1]
+            }
+        }
+        val cleanInternalVersion = rawInternalVersion.ifEmpty { "0" }
         val addonCount = GameMetadata.getAddonCount(filePath)
 
         val newGame = Game(

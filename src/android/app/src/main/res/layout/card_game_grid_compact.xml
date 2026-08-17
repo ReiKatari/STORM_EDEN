@@ -131,8 +131,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_margin="6dp"
-                    android:requiresFadingEdge="horizontal"
-                    android:textAlignment="center"
+                    android:gravity="start|bottom"
+                    android:textAlignment="viewStart"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
@@ -140,7 +140,7 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="2"
-                    android:maxLines="2"
+                    android:maxLines="3"
                     android:ellipsize="end"
                     tools:text="The Legend of Zelda: Skyward Sword" />
 

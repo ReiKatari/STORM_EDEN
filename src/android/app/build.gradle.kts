@@ -85,6 +85,7 @@ android {
                         "-DCPMUTIL_FORCE_BUNDLED=ON",
                         "-DYUZU_USE_BUNDLED_FFMPEG=ON",
                         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                        "-DENABLE_UPDATE_CHECKER=ON",
                         "-DBUILD_TESTING=OFF",
                         "-DYUZU_TESTS=OFF",
                         "-DDYNARMIC_TESTS=OFF",
@@ -95,7 +96,6 @@ android {
 
                 if (isNightly) {
                     arguments.addAll(listOf(
-                        "-DENABLE_UPDATE_CHECKER=ON",
                         "-DNIGHTLY_BUILD=ON",
                     ))
                 }
@@ -379,7 +379,7 @@ fun getGitVersion(): String {
     } else {
         gitVersion
     }
-    return versionName.ifEmpty { "3.2.8" }
+    return versionName.ifEmpty { "3.2.9" }
 }
 
 afterEvaluate {

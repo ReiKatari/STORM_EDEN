@@ -38,11 +38,17 @@ std::optional<Common::Net::Release> UpdateChecker::GetUpdate() {
 
     const std::string build = result[0];
 #else
-    const std::string tag = latest->tag;
-    const std::string build = Common::g_build_version;
+    std::string tag = latest->tag;
+    std::string build = Common::g_build_version;
+    while (!tag.empty() && (tag.front() == 'v' || tag.front() == 'V')) {
+        tag = tag.substr(1);
+    }
+    while (!build.empty() && (build.front() == 'v' || build.front() == 'V')) {
+        build = build.substr(1);
+    }
 #endif
 
-    if (tag != build)
+    if (tag != build && !tag.empty())
         return latest;
 
     return std::nullopt;

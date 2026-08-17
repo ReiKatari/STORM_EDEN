@@ -594,110 +594,112 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
 
     auto romfs = base_romfs;
 
-    // Game Updates
-    const auto update_tid = GetUpdateTitleID(title_id);
-    const auto& disabled = Settings::values.disabled_addons[title_id];
+    // Game Updates (only apply to Program content)
+    if (type == ContentRecordType::Program) {
+        const auto update_tid = GetUpdateTitleID(title_id);
+        const auto& disabled = Settings::values.disabled_addons[title_id];
 
-    bool update_disabled = true;
-    std::optional<u32> enabled_version;
-    VirtualFile update_raw = nullptr;
-    bool checked_external = false;
-    bool checked_manual = false;
+        bool update_disabled = true;
+        std::optional<u32> enabled_version;
+        VirtualFile update_raw = nullptr;
+        bool checked_external = false;
+        bool checked_manual = false;
 
-    const auto* content_union = static_cast<const ContentProviderUnion*>(&content_provider);
-    if (content_union) {
-        // First, check ExternalContentProvider
-        const auto* external_provider = content_union->GetExternalProvider();
-        if (external_provider) {
-            const auto update_versions = external_provider->ListUpdateVersions(update_tid);
+        const auto* content_union = static_cast<const ContentProviderUnion*>(&content_provider);
+        if (content_union) {
+            // First, check ExternalContentProvider
+            const auto* external_provider = content_union->GetExternalProvider();
+            if (external_provider) {
+                const auto update_versions = external_provider->ListUpdateVersions(update_tid);
 
-            if (!update_versions.empty()) {
-                checked_external = true;
-                for (const auto& update_entry : update_versions) {
-                    if (!IsVersionedExternalUpdateDisabled(disabled, update_entry.version)) {
-                        update_disabled = false;
-                        enabled_version = update_entry.version;
-                        update_raw = external_provider->GetEntryForVersion(update_tid, type, update_entry.version);
-                        break;
+                if (!update_versions.empty()) {
+                    checked_external = true;
+                    for (const auto& update_entry : update_versions) {
+                        if (!IsVersionedExternalUpdateDisabled(disabled, update_entry.version)) {
+                            update_disabled = false;
+                            enabled_version = update_entry.version;
+                            update_raw = external_provider->GetEntryForVersion(update_tid, type, update_entry.version);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!checked_external) {
+                const auto* manual_provider = static_cast<const ManualContentProvider*>(
+                    content_union->GetSlotProvider(ContentProviderUnionSlot::FrontendManual));
+                if (manual_provider) {
+                    const auto manual_update_versions = manual_provider->ListUpdateVersions(update_tid);
+
+                    if (!manual_update_versions.empty()) {
+                        checked_manual = true;
+                        for (const auto& update_entry : manual_update_versions) {
+                            if (!IsVersionedExternalUpdateDisabled(disabled, update_entry.version)) {
+                                update_disabled = false;
+                                enabled_version = update_entry.version;
+                                update_raw = manual_provider->GetEntryForVersion(update_tid, type, update_entry.version);
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (!checked_external) {
-            const auto* manual_provider = static_cast<const ManualContentProvider*>(
-                content_union->GetSlotProvider(ContentProviderUnionSlot::FrontendManual));
-            if (manual_provider) {
-                const auto manual_update_versions = manual_provider->ListUpdateVersions(update_tid);
+        if (!checked_external && !checked_manual) {
+            const bool nand_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (NAND)") != disabled.cend();
+            const bool sdmc_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (SDMC)") != disabled.cend();
+            const bool generic_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update") != disabled.cend();
 
-                if (!manual_update_versions.empty()) {
-                    checked_manual = true;
-                    for (const auto& update_entry : manual_update_versions) {
-                        if (!IsVersionedExternalUpdateDisabled(disabled, update_entry.version)) {
+            if (!nand_disabled && !sdmc_disabled && !generic_disabled) {
+                update_disabled = false;
+            }
+            if (!update_disabled) {
+                update_raw = content_provider.GetEntryRaw(update_tid, type);
+            }
+        } else if (update_disabled && content_union) {
+            const bool nand_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (NAND)") != disabled.cend();
+            const bool sdmc_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (SDMC)") != disabled.cend();
+
+            if (!nand_disabled || !sdmc_disabled) {
+                const auto nand_sdmc_entries = content_union->ListEntriesFilterOrigin(
+                    std::nullopt, TitleType::Update, type, update_tid);
+
+                for (const auto& [slot, entry] : nand_sdmc_entries) {
+                    if (slot == ContentProviderUnionSlot::UserNAND ||
+                        slot == ContentProviderUnionSlot::SysNAND) {
+                        if (!nand_disabled) {
                             update_disabled = false;
-                            enabled_version = update_entry.version;
-                            update_raw = manual_provider->GetEntryForVersion(update_tid, type, update_entry.version);
+                            update_raw = content_provider.GetEntryRaw(update_tid, type);
+                            break;
+                        }
+                    } else if (slot == ContentProviderUnionSlot::SDMC) {
+                        if (!sdmc_disabled) {
+                            update_disabled = false;
+                            update_raw = content_provider.GetEntryRaw(update_tid, type);
                             break;
                         }
                     }
                 }
             }
         }
-    }
 
-    if (!checked_external && !checked_manual) {
-        const bool nand_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (NAND)") != disabled.cend();
-        const bool sdmc_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (SDMC)") != disabled.cend();
-        const bool generic_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update") != disabled.cend();
-
-        if (!nand_disabled && !sdmc_disabled && !generic_disabled) {
-            update_disabled = false;
-        }
-        if (!update_disabled) {
-            update_raw = content_provider.GetEntryRaw(update_tid, type);
-        }
-    } else if (update_disabled && content_union) {
-        const bool nand_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (NAND)") != disabled.cend();
-        const bool sdmc_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update (SDMC)") != disabled.cend();
-
-        if (!nand_disabled || !sdmc_disabled) {
-            const auto nand_sdmc_entries = content_union->ListEntriesFilterOrigin(
-                std::nullopt, TitleType::Update, type, update_tid);
-
-            for (const auto& [slot, entry] : nand_sdmc_entries) {
-                if (slot == ContentProviderUnionSlot::UserNAND ||
-                    slot == ContentProviderUnionSlot::SysNAND) {
-                    if (!nand_disabled) {
-                        update_disabled = false;
-                        update_raw = content_provider.GetEntryRaw(update_tid, type);
-                        break;
-                    }
-                } else if (slot == ContentProviderUnionSlot::SDMC) {
-                    if (!sdmc_disabled) {
-                        update_disabled = false;
-                        update_raw = content_provider.GetEntryRaw(update_tid, type);
-                        break;
-                    }
-                }
+        if (!update_disabled && update_raw != nullptr && base_nca != nullptr) {
+            const auto new_nca = std::make_shared<NCA>(update_raw, base_nca);
+            if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
+                new_nca->GetRomFS() != nullptr) {
+                LOG_INFO(Loader, "    RomFS: Update ({}) applied successfully",
+                         enabled_version.has_value() ? FormatTitleVersion(*enabled_version) :
+                         FormatTitleVersion(content_provider.GetEntryVersion(update_tid).value_or(0)));
+                romfs = new_nca->GetRomFS();
             }
-        }
-    }
-
-    if (!update_disabled && update_raw != nullptr && base_nca != nullptr) {
-        const auto new_nca = std::make_shared<NCA>(update_raw, base_nca);
-        if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
-            new_nca->GetRomFS() != nullptr) {
-            LOG_INFO(Loader, "    RomFS: Update ({}) applied successfully",
-                     enabled_version.has_value() ? FormatTitleVersion(*enabled_version) :
-                     FormatTitleVersion(content_provider.GetEntryVersion(update_tid).value_or(0)));
-            romfs = new_nca->GetRomFS();
-        }
-    } else if (!update_disabled && packed_update_raw != nullptr && base_nca != nullptr) {
-        const auto new_nca = std::make_shared<NCA>(packed_update_raw, base_nca);
-        if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
-            new_nca->GetRomFS() != nullptr) {
-            LOG_INFO(Loader, "    RomFS: Update (PACKED) applied successfully");
-            romfs = new_nca->GetRomFS();
+        } else if (!update_disabled && packed_update_raw != nullptr && base_nca != nullptr) {
+            const auto new_nca = std::make_shared<NCA>(packed_update_raw, base_nca);
+            if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
+                new_nca->GetRomFS() != nullptr) {
+                LOG_INFO(Loader, "    RomFS: Update (PACKED) applied successfully");
+                romfs = new_nca->GetRomFS();
+            }
         }
     }
 

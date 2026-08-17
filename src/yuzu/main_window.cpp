@@ -2836,7 +2836,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
             }
         }
     }
-    const std::string internal_version_str = fmt::format("v{}", raw_internal_version);
+    const std::string internal_version_str = std::to_string(raw_internal_version);
     const auto raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
     const auto gpu_vendor = QString::fromStdString(raw_gpu_vendor).toUpper().toStdString();
 
@@ -5002,7 +5002,7 @@ void MainWindow::UpdateWindowTitle(std::string_view filename, std::string_view d
             }
             std::string intern_ver = std::string{internal_version};
             if (intern_ver.empty()) {
-                intern_ver = "v0";
+                intern_ver = "0";
             }
             return fmt::format("{} {} | {} | {} | {} | {}",
                                std::string{Common::g_build_name},

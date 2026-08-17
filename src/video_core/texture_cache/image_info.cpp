@@ -137,6 +137,9 @@ ImageInfo::ImageInfo(const TICEntry& config) noexcept {
         rescaleable &= (block.depth == 0) && resources.levels == 1;
         rescaleable &= size.height > RescaleHeightThreshold ||
                            GetFormatType(format) != SurfaceType::ColorTexture;
+        if (num_samples > 1 && GetFormatType(format) != SurfaceType::ColorTexture) {
+            rescaleable = false;
+        }
         downscaleable = size.height > DownscaleHeightThreshold;
     }
 }
@@ -176,6 +179,9 @@ ImageInfo::ImageInfo(const Maxwell3D::Regs::RenderTargetConfig& ct,
     } else {
         rescaleable = block.depth == 0;
         rescaleable &= size.height > RescaleHeightThreshold;
+        if (num_samples > 1 && GetFormatType(format) != SurfaceType::ColorTexture) {
+            rescaleable = false;
+        }
         downscaleable = size.height > DownscaleHeightThreshold;
         type = ImageType::e2D;
         resources.layers = ct.depth;
@@ -211,7 +217,7 @@ ImageInfo::ImageInfo(const Maxwell3D::Regs::Zeta& zt, const Maxwell3D::Regs::Zet
         type = ImageType::e3D;
         size.depth = zt_size.depth;
     } else {
-        rescaleable = block.depth == 0;
+        rescaleable = block.depth == 0 && num_samples == 1;
         downscaleable = size.height > 512;
         type = ImageType::e2D;
         switch (zt_size.dim_control) {
@@ -256,6 +262,9 @@ ImageInfo::ImageInfo(const Fermi2D::Surface& config) noexcept {
             .depth = 1,
         };
         rescaleable = block.depth == 0 && size.height > RescaleHeightThreshold;
+        if (num_samples > 1 && GetFormatType(format) != SurfaceType::ColorTexture) {
+            rescaleable = false;
+        }
         downscaleable = size.height > DownscaleHeightThreshold;
     }
 }

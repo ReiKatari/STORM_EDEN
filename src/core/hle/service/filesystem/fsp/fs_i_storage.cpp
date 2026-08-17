@@ -48,8 +48,18 @@ Result IStorage::Read(
     }
 
     const std::size_t read_bytes = backend->Read(out_bytes.data(), length, offset);
-    LOG_INFO(Service_FS, "IStorage::Read: backend='{}' offset={:#x} length={} read_bytes={}",
-             backend->GetName(), offset, length, read_bytes);
+    if (offset == 0 || length <= 128) {
+        std::string hex_preview;
+        const std::size_t preview_len = std::min<std::size_t>(read_bytes, 16);
+        for (std::size_t i = 0; i < preview_len; ++i) {
+            hex_preview += fmt::format("{:02X} ", out_bytes[i]);
+        }
+        LOG_INFO(Service_FS, "IStorage::Read: backend='{}' offset={:#x} length={} read_bytes={} data=[{}]",
+                 backend->GetName(), offset, length, read_bytes, hex_preview);
+    } else {
+        LOG_INFO(Service_FS, "IStorage::Read: backend='{}' offset={:#x} length={} read_bytes={}",
+                 backend->GetName(), offset, length, read_bytes);
+    }
     if (read_bytes < static_cast<std::size_t>(length)) {
         LOG_WARNING(Service_FS, "IStorage::Read: short read for '{}'! Requested {}, read {}. Zero-filling remainder.",
                     backend->GetName(), length, read_bytes);

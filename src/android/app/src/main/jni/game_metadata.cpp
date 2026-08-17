@@ -24,6 +24,8 @@ struct RomMetadata {
     bool isHomebrew;
 };
 static ankerl::unordered_dense::map<std::string, RomMetadata> m_rom_metadata_cache;
+static ankerl::unordered_dense::map<u64, int> m_aoc_count_cache;
+static bool m_aoc_cache_valid = false;
 
 static RomMetadata CacheRomMetadata(const std::string& path) {
     auto& instance = EmulationSession::GetInstance();
@@ -95,16 +97,18 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
 
         entry.internal_version = std::to_string(internal_ver);
 
-        // Count DLC / Addons for this game
-        const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
-            FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
-        int dlc_count = 0;
-        for (const auto& dlc : dlc_entries) {
-            if (FileSys::GetBaseTitleID(dlc.title_id) == entry.programId) {
-                ++dlc_count;
+        // Count DLC / Addons for this game (cached for ultra-fast list loading)
+        if (!m_aoc_cache_valid) {
+            m_aoc_count_cache.clear();
+            const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
+                FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
+            for (const auto& dlc : dlc_entries) {
+                m_aoc_count_cache[FileSys::GetBaseTitleID(dlc.title_id)]++;
             }
+            m_aoc_cache_valid = true;
         }
-        entry.addon_count = dlc_count;
+        auto aoc_it = m_aoc_count_cache.find(entry.programId);
+        entry.addon_count = (aoc_it != m_aoc_count_cache.end()) ? aoc_it->second : 0;
 
         if (loader->GetFileType() == Loader::FileType::NRO) {
             auto loader_nro = reinterpret_cast<Loader::AppLoader_NRO*>(loader.get());
@@ -180,6 +184,8 @@ jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsHomebrew(JNIEnv* env, j
 
 void Java_org_yuzu_yuzu_1emu_utils_GameMetadata_resetMetadata(JNIEnv* env, jobject obj) {
     m_rom_metadata_cache.clear();
+    m_aoc_count_cache.clear();
+    m_aoc_cache_valid = false;
 }
 
 } // extern "C"

@@ -364,13 +364,23 @@ std::vector<Entry> TitleDatabase::GetDlcs(u64 base_title_id) {
     std::lock_guard<std::mutex> lock(db_mutex);
     const u64 base_clean = (base_title_id & ~0x1000ULL) & ~0xFFFULL;
     auto it = base_to_dlcs.find(base_clean);
-    if (it != base_to_dlcs.end()) {
+    if (it != base_to_dlcs.end() && !it->second.empty()) {
         return it->second;
     }
     const u64 base_masked = base_title_id & 0xFFFFFFFFFFFFE000;
     auto it2 = base_to_dlcs.find(base_masked);
-    if (it2 != base_to_dlcs.end()) {
+    if (it2 != base_to_dlcs.end() && !it2->second.empty()) {
         return it2->second;
+    }
+    const u64 base_fff0 = base_title_id & 0xFFFFFFFFFFFFF000;
+    auto it3 = base_to_dlcs.find(base_fff0);
+    if (it3 != base_to_dlcs.end() && !it3->second.empty()) {
+        return it3->second;
+    }
+    const u64 base_f000 = base_title_id & 0xFFFFFFFFFFFF0000;
+    auto it4 = base_to_dlcs.find(base_f000);
+    if (it4 != base_to_dlcs.end() && !it4->second.empty()) {
+        return it4->second;
     }
     return {};
 }
@@ -379,13 +389,23 @@ int TitleDatabase::GetDlcCount(u64 base_title_id) {
     std::lock_guard<std::mutex> lock(db_mutex);
     const u64 base_clean = (base_title_id & ~0x1000ULL) & ~0xFFFULL;
     auto it = base_to_dlc_count.find(base_clean);
-    if (it != base_to_dlc_count.end()) {
+    if (it != base_to_dlc_count.end() && it->second > 0) {
         return it->second;
     }
     const u64 base_masked = base_title_id & 0xFFFFFFFFFFFFE000;
     auto it2 = base_to_dlc_count.find(base_masked);
-    if (it2 != base_to_dlc_count.end()) {
+    if (it2 != base_to_dlc_count.end() && it2->second > 0) {
         return it2->second;
+    }
+    const u64 base_fff0 = base_title_id & 0xFFFFFFFFFFFFF000;
+    auto it3 = base_to_dlc_count.find(base_fff0);
+    if (it3 != base_to_dlc_count.end() && it3->second > 0) {
+        return it3->second;
+    }
+    const u64 base_f000 = base_title_id & 0xFFFFFFFFFFFF0000;
+    auto it4 = base_to_dlc_count.find(base_f000);
+    if (it4 != base_to_dlc_count.end() && it4->second > 0) {
+        return it4->second;
     }
     return 0;
 }

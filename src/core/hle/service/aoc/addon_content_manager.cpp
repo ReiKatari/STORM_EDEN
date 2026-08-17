@@ -42,8 +42,24 @@ static std::vector<u64> AccumulateAOCTitleIDs(Core::System& system) {
         std::remove_if(
             add_on_content.begin(), add_on_content.end(),
             [&rcu](u64 tid) {
-                return rcu.GetEntry(tid, FileSys::ContentRecordType::Data)->GetStatus() !=
-                       Loader::ResultStatus::Success;
+                const auto entry = rcu.GetEntry(tid, FileSys::ContentRecordType::Data);
+                if (entry == nullptr) {
+                    LOG_WARNING(Service_AOC, "DLC title_id={:016X} has no Data entry in ContentProvider, ignoring", tid);
+                    return true;
+                }
+                if (entry->GetStatus() != Loader::ResultStatus::Success) {
+                    LOG_WARNING(Service_AOC, "DLC title_id={:016X} has invalid NCA status ({}), ignoring",
+                                tid, static_cast<int>(entry->GetStatus()));
+                    return true;
+                }
+                const auto romfs = entry->GetRomFS();
+                if (romfs == nullptr || romfs->GetSize() == 0) {
+                    LOG_WARNING(Service_AOC, "DLC title_id={:016X} has empty/missing RomFS payload, ignoring to prevent crash", tid);
+                    return true;
+                }
+                LOG_INFO(Service_AOC, "DLC title_id={:016X} verified and loaded successfully (RomFS size: {} bytes)",
+                         tid, romfs->GetSize());
+                return false;
             }),
         add_on_content.end());
     return add_on_content;

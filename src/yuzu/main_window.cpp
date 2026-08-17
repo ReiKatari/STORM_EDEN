@@ -5811,6 +5811,15 @@ void MainWindow::ShowMenuAtWidget(QMenu& menu, QWidget* widget) {
 
 void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
     if (title == tr("ДОПОЛНЕНИЯ")) {
+        if (m_current_addons_title_id == 0 && game_list) {
+            const auto [tid, path] = game_list->GetSelectedGameInfo();
+            if (tid != 0) {
+                m_current_addons_title_id = tid;
+                m_current_addons_game_path = path.toStdString();
+                m_current_addons_game_name = QFileInfo(path).completeBaseName();
+                UpdateAddonsStatusButton(m_current_addons_title_id, m_current_addons_game_name);
+            }
+        }
         ShowDLCDialog(m_current_addons_title_id, m_current_addons_game_name);
         return;
     }
@@ -6930,7 +6939,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     }
 
     const int tinfoil_dlc_count = TitleDB::TitleDatabase::Instance().GetDlcCount(title_id);
-    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? QString::number(tinfoil_dlc_count) : tr("Не найдено");
+    const QString tinfoil_badge_text = tinfoil_dlc_count > 0 ? QString::number(tinfoil_dlc_count) : (base_tdb.has_value() ? QStringLiteral("0") : tr("Не найдено"));
 
     auto* header_card = new QWidget(&dlg);
     header_card->setStyleSheet(QStringLiteral("background-color: #121826; border: 1px solid #1e283d; border-radius: 8px; padding: 6px;"));

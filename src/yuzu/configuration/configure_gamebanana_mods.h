@@ -63,15 +63,21 @@ private slots:
     void OnModSelected(QTreeWidgetItem* current, QTreeWidgetItem* previous);
     void OnInstallClicked();
     void OnDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void OnPrevPage();
+    void OnNextPage();
+    void OnFirstPage();
 
 private:
-    void SearchMods(const QString& query = {});
+    void SearchMods(const QString& query = {}, int page = 1);
     void LoadModDetails(int mod_id);
     void DownloadAndInstallMod(const GameBananaFile& file_info, const QString& mod_name);
+    void PopulateModTree();
+    void ApplySorting();
 
     u64 title_id{0};
     QString game_name;
     int gamebanana_game_id{0};
+    int current_page{1};
 
     Core::System& system;
     ConfigurePerGameAddons* addons_tab{nullptr};
@@ -84,6 +90,10 @@ private:
     QPushButton* search_btn{nullptr};
     QComboBox* sort_combo{nullptr};
     QPushButton* refresh_btn{nullptr};
+    QPushButton* first_page_btn{nullptr};
+    QPushButton* prev_page_btn{nullptr};
+    QPushButton* next_page_btn{nullptr};
+    QLabel* page_label{nullptr};
     QTreeWidget* mod_tree{nullptr};
     QWidget* details_widget{nullptr};
     QTextBrowser* detail_browser{nullptr};

@@ -5514,6 +5514,7 @@ void MainWindow::UpdateAddonsStatusButton(u64 title_id, const QString& game_name
         }
 
         const int file_dlc_count = static_cast<int>(seen_dlc_ids.size());
+        TitleDB::TitleDatabase::Instance().WaitLoaded(std::chrono::milliseconds(3000));
         const int tinfoil_dlc_count = TitleDB::TitleDatabase::Instance().GetDlcCount(cur_tid);
 
         {
@@ -6492,7 +6493,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     const FileSys::PatchManager patch_manager(title_id, QtCommon::system->GetFileSystemController(), QtCommon::system->GetContentProvider());
     const auto patches = patch_manager.GetPatches();
     const auto& provider = QtCommon::system->GetContentProvider();
-    TitleDB::TitleDatabase::Instance().EnsureLoaded();
+    TitleDB::TitleDatabase::Instance().WaitLoaded(std::chrono::milliseconds(3000));
 
     const int parent_width = this->width();
     const int parent_height = this->height();
@@ -6547,16 +6548,32 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     auto clean_item_name = [&](QString raw_name) -> QString {
         raw_name = raw_name.trimmed();
         if (raw_name.isEmpty()) return QString{};
-        if (!base_clean_name.isEmpty() && raw_name.startsWith(base_clean_name, Qt::CaseInsensitive)) {
-            raw_name = raw_name.mid(base_clean_name.length()).trimmed();
-            while (!raw_name.isEmpty() && (raw_name.startsWith(QLatin1Char(':')) ||
-                                           raw_name.startsWith(QLatin1Char('-')) ||
-                                           raw_name.startsWith(QStringLiteral("—")) ||
-                                           raw_name.startsWith(QStringLiteral("–")) ||
-                                           raw_name.startsWith(QLatin1Char('|')) ||
-                                           raw_name.startsWith(QLatin1Char(' ')))) {
-                raw_name = raw_name.mid(1).trimmed();
+
+        if (!base_clean_name.isEmpty()) {
+            if (raw_name.startsWith(base_clean_name, Qt::CaseInsensitive)) {
+                raw_name = raw_name.mid(base_clean_name.length()).trimmed();
+            } else {
+                const int colon_idx = base_clean_name.indexOf(QLatin1Char(':'));
+                if (colon_idx > 3) {
+                    const QString short_base = base_clean_name.left(colon_idx).trimmed();
+                    if (raw_name.startsWith(short_base, Qt::CaseInsensitive)) {
+                        const int next_colon = raw_name.indexOf(QLatin1Char(':'));
+                        if (next_colon > 0 && next_colon < raw_name.length() - 1) {
+                            raw_name = raw_name.mid(next_colon + 1).trimmed();
+                        }
+                    }
+                }
             }
+        }
+
+        while (!raw_name.isEmpty() && (raw_name.startsWith(QLatin1Char(':')) ||
+                                       raw_name.startsWith(QLatin1Char('-')) ||
+                                       raw_name.startsWith(QStringLiteral("—")) ||
+                                       raw_name.startsWith(QStringLiteral("–")) ||
+                                       raw_name.startsWith(QLatin1Char('|')) ||
+                                       raw_name.startsWith(QLatin1Char('~')) ||
+                                       raw_name.startsWith(QLatin1Char(' ')))) {
+            raw_name = raw_name.mid(1).trimmed();
         }
         return raw_name;
     };
@@ -6566,6 +6583,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
         if (tdb.has_value() && !tdb->name.empty()) {
             const QString cleaned = clean_item_name(QString::fromStdString(tdb->name));
             if (!cleaned.isEmpty()) return cleaned;
+            return QString::fromStdString(tdb->name);
         }
 
         const std::string d_hex = fmt::format("{:016X}", dlc_tid);
@@ -6573,6 +6591,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
             if (d.id == d_hex && !d.name.empty()) {
                 const QString cleaned = clean_item_name(QString::fromStdString(d.name));
                 if (!cleaned.isEmpty()) return cleaned;
+                return QString::fromStdString(d.name);
             }
         }
 
@@ -6581,12 +6600,14 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
             if (!d.name.empty()) {
                 const QString cleaned = clean_item_name(QString::fromStdString(d.name));
                 if (!cleaned.isEmpty()) return cleaned;
+                return QString::fromStdString(d.name);
             }
         }
 
         if (!nacp_fallback.trimmed().isEmpty()) {
             const QString cleaned = clean_item_name(nacp_fallback);
             if (!cleaned.isEmpty()) return cleaned;
+            return nacp_fallback;
         }
 
         const int dlc_num = static_cast<int>(dlc_tid & 0x7FF);

@@ -161,33 +161,39 @@ Result NcaFileSystemDriver::OpenStorageImpl(VirtualFile* out, NcaFsHeaderReader*
     const bool is_pre_decrypted = m_reader->GetStorage() && m_reader->GetStorage()->HasDecryptedSections();
 
     if (patch_info.HasAesCtrExTable()) {
-        // Create the ex meta storage.
-        VirtualFile aes_ctr_ex_storage_meta_storage = patch_meta_aes_ctr_ex_meta_storage;
-        if (aes_ctr_ex_storage_meta_storage == nullptr && !is_pre_decrypted) {
-            // If we don't have a meta storage, we must not have a patch meta hash layer.
-            ASSERT(!out_header_reader->ExistsPatchMetaHashLayer());
+        if (is_pre_decrypted) {
+            // Storage is already plaintext pre-decrypted from block decompression, no AesCtrEx translation needed
+        } else {
+            // Create the ex meta storage.
+            VirtualFile aes_ctr_ex_storage_meta_storage = patch_meta_aes_ctr_ex_meta_storage;
+            if (aes_ctr_ex_storage_meta_storage == nullptr) {
+                // If we don't have a meta storage, we must not have a patch meta hash layer.
+                ASSERT(!out_header_reader->ExistsPatchMetaHashLayer());
 
-            R_TRY(this->CreateAesCtrExStorageMetaStorage(
-                std::addressof(aes_ctr_ex_storage_meta_storage), storage, fs_data_offset,
-                out_header_reader->GetEncryptionType(), out_header_reader->GetAesCtrUpperIv(),
+                R_TRY(this->CreateAesCtrExStorageMetaStorage(
+                    std::addressof(aes_ctr_ex_storage_meta_storage), storage, fs_data_offset,
+                    out_header_reader->GetEncryptionType(), out_header_reader->GetAesCtrUpperIv(),
+                    patch_info));
+            }
+
+            // Create the ex storage.
+            VirtualFile aes_ctr_ex_storage;
+            R_TRY(this->CreateAesCtrExStorage(
+                std::addressof(aes_ctr_ex_storage),
+                ctx != nullptr ? std::addressof(ctx->aes_ctr_ex_storage) : nullptr, std::move(storage),
+                aes_ctr_ex_storage_meta_storage, fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
                 patch_info));
+
+            // Set the base storage as the ex storage.
+            storage = std::move(aes_ctr_ex_storage);
+
+            // Potentially save storages to our context.
+            if (ctx != nullptr) {
+                ctx->aes_ctr_ex_storage_meta_storage = aes_ctr_ex_storage_meta_storage;
+                ctx->aes_ctr_ex_storage_data_storage = storage;
+            }
         }
-
-        // Create the ex storage.
-        VirtualFile aes_ctr_ex_storage;
-        R_TRY(this->CreateAesCtrExStorage(
-            std::addressof(aes_ctr_ex_storage),
-            ctx != nullptr ? std::addressof(ctx->aes_ctr_ex_storage) : nullptr, std::move(storage),
-            aes_ctr_ex_storage_meta_storage, fs_data_offset, out_header_reader->GetAesCtrUpperIv(),
-            patch_info));
-
-        // Set the base storage as the ex storage.
-        storage = std::move(aes_ctr_ex_storage);
-
-        // Potentially save storages to our context.
         if (ctx != nullptr) {
-            ctx->aes_ctr_ex_storage_meta_storage = aes_ctr_ex_storage_meta_storage;
-            ctx->aes_ctr_ex_storage_data_storage = storage;
             ctx->fs_data_storage = storage;
         }
     } else {
@@ -884,13 +890,14 @@ Result NcaFileSystemDriver::CreateAesCtrExStorage(
     // Validate pre-conditions.
     ASSERT(out != nullptr);
     ASSERT(base_storage != nullptr);
-    ASSERT(meta_storage != nullptr);
-    ASSERT(patch_info.HasAesCtrExTable());
 
     if (m_reader->GetStorage() && m_reader->GetStorage()->HasDecryptedSections()) {
         *out = std::move(base_storage);
         R_SUCCEED();
     }
+
+    ASSERT(meta_storage != nullptr);
+    ASSERT(patch_info.HasAesCtrExTable());
 
     // Read the bucket tree header.
     BucketTree::Header header;

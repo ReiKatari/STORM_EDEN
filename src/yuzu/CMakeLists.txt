@@ -39,6 +39,8 @@ add_executable(yuzu
     applets/qt_web_browser_scripts.h
     bootmanager.cpp
     bootmanager.h
+    cheats_dialog.cpp
+    cheats_dialog.h
     configuration/configuration_shared.cpp
     configuration/configuration_shared.h
     configuration/configure.ui
@@ -119,6 +121,8 @@ add_executable(yuzu
     configuration/configure_per_game_addons.ui
     configuration/configure_per_game_amiibo.cpp
     configuration/configure_per_game_amiibo.h
+    configuration/configure_per_game_cheats.cpp
+    configuration/configure_per_game_cheats.h
     configuration/configure_profile_manager.cpp
     configuration/configure_profile_manager.h
     configuration/configure_profile_manager.ui

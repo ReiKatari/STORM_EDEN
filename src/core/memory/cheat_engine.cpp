@@ -24,27 +24,7 @@
 namespace Core::Memory {
 namespace {
 constexpr auto CHEAT_ENGINE_NS = std::chrono::nanoseconds{1000000000 / 12};
-
-std::string_view ExtractName(std::size_t& out_name_size, std::string_view data,
-                             std::size_t start_index, char match) {
-    auto end_index = start_index;
-    while (data[end_index] != match) {
-        ++end_index;
-        if (end_index > data.size()) {
-            return {};
-        }
-    }
-
-    out_name_size = end_index - start_index;
-
-    // Clamp name if it's too big
-    if (out_name_size > sizeof(CheatDefinition::readable_name)) {
-        end_index = start_index + sizeof(CheatDefinition::readable_name);
-    }
-
-    return data.substr(start_index, end_index - start_index);
-}
-} // Anonymous namespace
+} // namespace
 
 StandardVmCallbacks::StandardVmCallbacks(System& system_, const CheatProcessMetadata& metadata_)
     : metadata{metadata_}, system{system_} {}
@@ -137,83 +117,126 @@ CheatParser::~CheatParser() = default;
 TextCheatParser::~TextCheatParser() = default;
 
 std::vector<CheatEntry> TextCheatParser::Parse(std::string_view data) const {
-    std::vector<CheatEntry> out(1);
-    std::optional<u64> current_entry;
+    if (data.empty()) {
+        return {};
+    }
 
-    for (std::size_t i = 0; i < data.size(); ++i) {
-        if (::isspace(data[i])) {
+    // Skip UTF-8 BOM if present
+    if (data.size() >= 3 && static_cast<u8>(data[0]) == 0xEF &&
+        static_cast<u8>(data[1]) == 0xBB && static_cast<u8>(data[2]) == 0xBF) {
+        data.remove_prefix(3);
+    }
+
+    std::vector<CheatEntry> result;
+    CheatEntry current{};
+    bool in_entry = false;
+
+    std::size_t pos = 0;
+    while (pos < data.size()) {
+        // Read one line
+        std::size_t end_line = data.find('\n', pos);
+        if (end_line == std::string_view::npos) {
+            end_line = data.size();
+        }
+
+        std::string_view line = data.substr(pos, end_line - pos);
+        pos = (end_line < data.size()) ? end_line + 1 : data.size();
+
+        // Trim leading and trailing whitespace / carriage return
+        while (!line.empty() && (line.front() == ' ' || line.front() == '\t' || line.front() == '\r')) {
+            line.remove_prefix(1);
+        }
+        while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r')) {
+            line.remove_suffix(1);
+        }
+
+        if (line.empty() || line.starts_with('#') || line.starts_with("//") || line.starts_with(';')) {
             continue;
         }
 
-        if (data[i] == '{') {
-            current_entry = 0;
-
-            if (out[*current_entry].definition.num_opcodes > 0) {
-                return {};
+        // Section header: [Cheat Name] or {Cheat Name}
+        if ((line.front() == '[' && line.find(']') != std::string_view::npos) ||
+            (line.front() == '{' && line.find('}') != std::string_view::npos)) {
+            if (in_entry && current.definition.num_opcodes > 0) {
+                current.enabled = true;
+                current.cheat_id = static_cast<u32>(result.size());
+                result.push_back(current);
             }
 
-            std::size_t name_size{};
-            const auto name = ExtractName(name_size, data, i + 1, '}');
-            if (name.empty()) {
-                return {};
+            current = CheatEntry{};
+            char close_char = (line.front() == '[') ? ']' : '}';
+            std::size_t close_idx = line.find(close_char);
+            std::string_view name = line.substr(1, close_idx - 1);
+
+            // Trim name
+            while (!name.empty() && (name.front() == ' ' || name.front() == '\t')) name.remove_prefix(1);
+            while (!name.empty() && (name.back() == ' ' || name.back() == '\t')) name.remove_suffix(1);
+
+            std::size_t copy_len = std::min<std::size_t>(name.size(), current.definition.readable_name.size() - 1);
+            std::memcpy(current.definition.readable_name.data(), name.data(), copy_len);
+            current.definition.readable_name[copy_len] = '\0';
+            in_entry = true;
+            continue;
+        }
+
+        // Parse opcode line (e.g. "04000000 01234567 00000001" or "580F0000 01234568 // comment")
+        if (!in_entry) {
+            // Unnamed first cheat fallback
+            current = CheatEntry{};
+            const std::string default_name = "Cheat " + std::to_string(result.size() + 1);
+            std::memcpy(current.definition.readable_name.data(), default_name.data(),
+                        std::min(default_name.size(), current.definition.readable_name.size() - 1));
+            in_entry = true;
+        }
+
+        // Strip inline comments
+        auto comment_pos = line.find("//");
+        if (comment_pos != std::string_view::npos) {
+            line = line.substr(0, comment_pos);
+        }
+        comment_pos = line.find('#');
+        if (comment_pos != std::string_view::npos) {
+            line = line.substr(0, comment_pos);
+        }
+        comment_pos = line.find(';');
+        if (comment_pos != std::string_view::npos) {
+            line = line.substr(0, comment_pos);
+        }
+
+        // Tokenize line by whitespace
+        std::size_t token_start = 0;
+        while (token_start < line.size()) {
+            while (token_start < line.size() && (line[token_start] == ' ' || line[token_start] == '\t')) {
+                token_start++;
+            }
+            if (token_start >= line.size()) break;
+
+            std::size_t token_end = token_start;
+            while (token_end < line.size() && line[token_end] != ' ' && line[token_end] != '\t') {
+                token_end++;
             }
 
-            std::memcpy(out[*current_entry].definition.readable_name.data(), name.data(),
-                        std::min<std::size_t>(out[*current_entry].definition.readable_name.size(),
-                                              name.size()));
-            out[*current_entry]
-                .definition.readable_name[out[*current_entry].definition.readable_name.size() - 1] =
-                '\0';
+            std::string_view token = line.substr(token_start, token_end - token_start);
+            token_start = token_end;
 
-            i += name_size + 1;
-        } else if (data[i] == '[') {
-            current_entry = out.size();
-            out.emplace_back();
-
-            std::size_t name_size{};
-            const auto name = ExtractName(name_size, data, i + 1, ']');
-            if (name.empty()) {
-                return {};
+            // Check if token is valid hex string (typically 8 hex chars)
+            if (token.size() <= 8 && std::all_of(token.begin(), token.end(), ::isxdigit)) {
+                if (current.definition.num_opcodes < current.definition.opcodes.size()) {
+                    std::string hex_str(token);
+                    u32 val = static_cast<u32>(std::strtoul(hex_str.c_str(), nullptr, 16));
+                    current.definition.opcodes[current.definition.num_opcodes++] = val;
+                }
             }
-
-            std::memcpy(out[*current_entry].definition.readable_name.data(), name.data(),
-                        std::min<std::size_t>(out[*current_entry].definition.readable_name.size(),
-                                              name.size()));
-            out[*current_entry]
-                .definition.readable_name[out[*current_entry].definition.readable_name.size() - 1] =
-                '\0';
-
-            i += name_size + 1;
-        } else if (::isxdigit(data[i])) {
-            if (!current_entry || out[*current_entry].definition.num_opcodes >=
-                                      out[*current_entry].definition.opcodes.size()) {
-                return {};
-            }
-
-            const auto hex = std::string(data.substr(i, 8));
-            if (!std::all_of(hex.begin(), hex.end(), ::isxdigit)) {
-                return {};
-            }
-
-            const auto value = static_cast<u32>(std::strtoul(hex.c_str(), nullptr, 0x10));
-            out[*current_entry].definition.opcodes[out[*current_entry].definition.num_opcodes++] =
-                value;
-
-            i += 8;
-        } else {
-            return {};
         }
     }
 
-    out[0].enabled = out[0].definition.num_opcodes > 0;
-    out[0].cheat_id = 0;
-
-    for (u32 i = 1; i < out.size(); ++i) {
-        out[i].enabled = out[i].definition.num_opcodes > 0;
-        out[i].cheat_id = i;
+    if (in_entry && current.definition.num_opcodes > 0) {
+        current.enabled = true;
+        current.cheat_id = static_cast<u32>(result.size());
+        result.push_back(current);
     }
 
-    return out;
+    return result;
 }
 
 CheatEngine::CheatEngine(System& system_, std::vector<CheatEntry> cheats_,

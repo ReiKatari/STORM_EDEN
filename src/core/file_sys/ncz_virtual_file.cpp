@@ -679,9 +679,9 @@ std::size_t NCZVirtualFile::Write(const u8* data, std::size_t length, std::size_
 }
 
 bool NCZVirtualFile::HasDecryptedSections() const {
-    // All valid NCZ files (both Solid NCZSECTN and Block NCZBLOCK) contain pre-decrypted plaintext data
-    // because Zstandard cannot compress high-entropy ciphertext.
-    return is_valid && !is_raw_nca;
+    // Only Block-streamed NCZ (NCZBLOCK) returns pre-decrypted plaintext memory blocks.
+    // Solid streams (NCZSECTN) are decompressed and re-encrypted back into standard encrypted NCA format on disk.
+    return is_valid && !is_raw_nca && !is_solid_stream;
 }
 
 bool NCZVirtualFile::Rename(std::string_view name) {

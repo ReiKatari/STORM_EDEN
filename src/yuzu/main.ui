@@ -229,6 +229,7 @@
     <addaction name="separator"/>
     <addaction name="action_Capture_Screenshot"/>
     <addaction name="action_Translate_Screen"/>
+    <addaction name="action_Cheats"/>
     <addaction name="menuTAS"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -479,6 +480,17 @@
    </property>
    <property name="text">
     <string>Configure C&amp;urrent Game...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_Cheats">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Чит-коды...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

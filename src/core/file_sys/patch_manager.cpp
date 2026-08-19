@@ -9,10 +9,15 @@
 #include <cstddef>
 #include <cstring>
 
+#include "common/fs/file.h"
+#include "common/fs/fs.h"
+#include "common/fs/fs_paths.h"
+#include "common/fs/path_util.h"
 #include "common/hex_util.h"
 #include "common/logging.h"
 #include "common/settings.h"
 #include "common/string_util.h"
+#include <fmt/format.h>
 
 #include "core/core.h"
 #include "core/file_sys/common_funcs.h"
@@ -504,6 +509,60 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
             }
         }
     }
+
+    // Scan dedicated cheats directory: user/cheats/<title_id>/
+    const auto cheats_base_path = Common::FS::GetEdenPath(Common::FS::EdenPath::EdenDir) / "cheats";
+    const auto title_str = fmt::format("{:016X}", title_id);
+    const auto title_cheats_dir = cheats_base_path / title_str;
+    const auto build_id_str = Common::HexToString(build_id_, true);
+    const auto build_id_16 = (build_id_str.size() >= 16) ? build_id_str.substr(0, 16) : build_id_str;
+
+    std::vector<std::filesystem::path> cheat_files_to_check;
+    cheat_files_to_check.push_back(title_cheats_dir / (build_id_16 + ".txt"));
+    cheat_files_to_check.push_back(title_cheats_dir / (Common::ToLower(build_id_16) + ".txt"));
+    cheat_files_to_check.push_back(title_cheats_dir / (build_id_str + ".txt"));
+    cheat_files_to_check.push_back(title_cheats_dir / (Common::ToLower(build_id_str) + ".txt"));
+    cheat_files_to_check.push_back(title_cheats_dir / "cheats.txt");
+    cheat_files_to_check.push_back(cheats_base_path / (title_str + ".txt"));
+
+    const bool has_explicit_enabled_tags = std::any_of(disabled.cbegin(), disabled.cend(), [](const std::string& s) {
+        return s.starts_with("__ENABLED__:");
+    });
+
+    for (const auto& c_path : cheat_files_to_check) {
+        if (std::filesystem::exists(c_path)) {
+            Common::FS::IOFile cfile(c_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::TextFile);
+            if (cfile.IsOpen()) {
+                std::vector<u8> data(cfile.GetSize());
+                if (cfile.Read(data) == data.size()) {
+                    const Core::Memory::TextCheatParser parser;
+                    auto res = parser.Parse(std::string_view(reinterpret_cast<const char*>(data.data()), data.size()));
+                    for (auto& entry : res) {
+                        const std::string cheat_name(entry.definition.readable_name.data());
+                        if (cheat_name.empty()) continue;
+
+                        bool is_active = false;
+                        if (has_explicit_enabled_tags) {
+                            is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
+                        } else {
+                            is_active = std::find(disabled.cbegin(), disabled.cend(), cheat_name) == disabled.cend();
+                        }
+
+                        if (is_active) {
+                            // Check if already added
+                            bool already_exists = std::any_of(out.begin(), out.end(), [&](const Core::Memory::CheatEntry& existing) {
+                                return std::string_view(existing.definition.readable_name.data()) == cheat_name;
+                            });
+                            if (!already_exists) {
+                                out.push_back(std::move(entry));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return out;
 }
 

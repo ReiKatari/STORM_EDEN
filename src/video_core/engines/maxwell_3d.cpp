@@ -202,8 +202,21 @@ bool Maxwell3D::IsMethodExecutable(u32 method) {
 
 void Maxwell3D::ProcessMacro(Core::System& system, u32 method, const u32* base_start, u32 amount, bool is_last_call) {
     if (executing_macro == 0) {
-        // A macro call must begin by writing the macro method's register, not its argument.
-        ASSERT((method % 2) == 0 && "Can't start macro execution by writing to the ARGS register");
+        if ((method % 2) != 0) {
+            method -= 1;
+        }
+        executing_macro = method;
+    } else if (method != executing_macro && method != executing_macro + 1) {
+        if (!macro_params.empty()) {
+            ConsumeSink(system);
+            CallMacroMethod(system, executing_macro, macro_params);
+            macro_params.clear();
+            macro_segments.clear();
+            current_macro_dirty = false;
+        }
+        if ((method % 2) != 0) {
+            method -= 1;
+        }
         executing_macro = method;
     }
 
@@ -386,10 +399,16 @@ void Maxwell3D::CallMacroMethod(Core::System& system, u32 method, const std::vec
 }
 
 void Maxwell3D::CallMethod(Core::System& system, u32 method, u32 method_argument, bool is_last_call) {
-    // It is an error to write to a register other than the current macro's ARG register before
-    // it has finished execution.
-    if (executing_macro != 0) {
-        ASSERT(method == executing_macro + 1);
+    // If a register write arrives while a macro was accumulating parameters, flush the previous macro.
+    if (executing_macro != 0 && method != executing_macro + 1) {
+        if (!macro_params.empty()) {
+            ConsumeSink(system);
+            CallMacroMethod(system, executing_macro, macro_params);
+            macro_params.clear();
+            macro_segments.clear();
+            current_macro_dirty = false;
+        }
+        executing_macro = 0;
     }
 
     // Methods after 0xE00 are special, they're actually triggers for some microcode that was

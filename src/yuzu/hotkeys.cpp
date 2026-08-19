@@ -19,7 +19,13 @@ HotkeyRegistry::~HotkeyRegistry() = default;
 void HotkeyRegistry::SaveHotkeys() {
     UISettings::values.shortcuts.clear();
     for (const auto& group : hotkey_groups) {
+        if (group.first.empty()) {
+            continue;
+        }
         for (const auto& hotkey : group.second) {
+            if (hotkey.first.empty()) {
+                continue;
+            }
             UISettings::values.shortcuts.push_back(
                 {hotkey.first, group.first,
                  UISettings::ContextualShortcut({hotkey.second.keyseq.toString().toStdString(),
@@ -33,6 +39,9 @@ void HotkeyRegistry::LoadHotkeys() {
     // Make sure NOT to use a reference here because it would become invalid once we call
     // beginGroup()
     for (auto shortcut : UISettings::values.shortcuts) {
+        if (shortcut.group.empty() || shortcut.name.empty()) {
+            continue;
+        }
         Hotkey& hk = hotkey_groups[shortcut.group][shortcut.name];
         if (!shortcut.shortcut.keyseq.empty()) {
             hk.keyseq = QKeySequence::fromString(QString::fromStdString(shortcut.shortcut.keyseq),

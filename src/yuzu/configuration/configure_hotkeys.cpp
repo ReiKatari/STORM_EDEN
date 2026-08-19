@@ -74,12 +74,18 @@ ConfigureHotkeys::~ConfigureHotkeys() = default;
 
 void ConfigureHotkeys::Populate(const HotkeyRegistry& registry) {
     for (const auto& group : registry.hotkey_groups) {
+        if (group.first.empty()) {
+            continue;
+        }
         QString parent_item_data = QString::fromStdString(group.first);
         auto* parent_item =
             new QStandardItem(QCoreApplication::translate("Hotkeys", qPrintable(parent_item_data)));
         parent_item->setEditable(false);
         parent_item->setData(parent_item_data);
         for (const auto& hotkey : group.second) {
+            if (hotkey.first.empty()) {
+                continue;
+            }
             QString hotkey_action_data = QString::fromStdString(hotkey.first);
             auto* action = new QStandardItem(
                 QCoreApplication::translate("Hotkeys", qPrintable(hotkey_action_data)));
@@ -93,7 +99,11 @@ void ConfigureHotkeys::Populate(const HotkeyRegistry& registry) {
             controller_keyseq->setEditable(false);
             parent_item->appendRow({action, keyseq, controller_keyseq});
         }
-        model->appendRow(parent_item);
+        if (parent_item->rowCount() > 0) {
+            model->appendRow(parent_item);
+        } else {
+            delete parent_item;
+        }
     }
 
     ui->hotkey_list->expandAll();

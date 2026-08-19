@@ -1280,9 +1280,26 @@
     <string name="amiibo_removed_toast">Amiibo отключен и убран с контроллера</string>
 
     <string name="translator_floating_btn_title">Плавающая кнопка перевода</string>
-    <string name="translator_floating_btn_description">Отображать плавающую кнопку перевода экрана (Eden Lens) во время игры</string>
+    <string name="translator_floating_btn_description">Отображать плавающую кнопку перевода экрана во время игры</string>
     <string name="hotkey_quick_actions">Горячие клавиши и действия</string>
     <string name="hotkey_quick_actions_desc">Настройка экранных кнопок быстрых действий и оверлеев</string>
+
+    <string name="cheats">Чит-коды</string>
+    <string name="cheats_description">Управление чит-кодами Atmosphere, включение/отключение читов, скачивание онлайн-базы</string>
+    <string name="cheats_manager_title">Менеджер чит-кодов</string>
+    <string name="download_cheats">📥 Скачать базу читов</string>
+    <string name="downloading_cheats">Загрузка онлайн-базы чит-кодов…</string>
+    <string name="cheats_download_success">База читов успешно загружена! Найдено читов: %1$d</string>
+    <string name="cheats_not_found">Для данной игры в онлайн-базе пока нет чит-кодов. Вы можете добавить чит вручную.</string>
+    <string name="add_cheat">➕ Добавить чит</string>
+    <string name="cheat_name">Название чита</string>
+    <string name="cheat_code">Код чита (Atmosphere)</string>
+    <string name="cheat_status_active">⚡ Активен в игре</string>
+    <string name="cheat_status_enabled">✅ Включен</string>
+    <string name="cheat_status_disabled">⚪ Выключен</string>
+    <string name="select_all">Включить все</string>
+    <string name="deselect_all">Отключить все</string>
+    <string name="cheats_count_summary">Всего читов: %1$d | Включено: %2$d</string>
 
 </resources>
 

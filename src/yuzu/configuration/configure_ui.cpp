@@ -166,9 +166,6 @@ void ConfigureUi::ApplyConfiguration() {
     const u32 height = ScreenshotDimensionToInt(ui->screenshot_height->currentText());
     UISettings::values.screenshot_height.SetValue(height);
 
-    UISettings::values.enable_floating_translate_button =
-        ui->enable_floating_translate_button->isChecked();
-
     RequestGameListUpdate();
     system.ApplySettings();
 }
@@ -188,9 +185,6 @@ void ConfigureUi::SetConfiguration() {
     ui->show_play_time->setChecked(UISettings::values.show_play_time.GetValue());
     ui->folder_icon_size_combobox->setCurrentIndex(
         ui->folder_icon_size_combobox->findData(UISettings::values.folder_icon_size.GetValue()));
-
-    ui->enable_floating_translate_button->setChecked(
-        UISettings::values.enable_floating_translate_button.GetValue());
 
     ui->enable_screenshot_save_as->setChecked(
         UISettings::values.enable_screenshot_save_as.GetValue());

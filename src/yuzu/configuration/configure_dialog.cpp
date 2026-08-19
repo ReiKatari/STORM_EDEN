@@ -135,6 +135,7 @@ void ConfigureDialog::ApplyConfiguration() {
     graphics_extensions_tab->ApplyConfiguration();
     audio_tab->ApplyConfiguration();
     input_tab->ApplyConfiguration();
+    hotkeys_tab->ApplyConfiguration(registry);
     network_tab->ApplyConfiguration();
     debug_tab_tab->ApplyConfiguration();
     web_tab->ApplyConfiguration();

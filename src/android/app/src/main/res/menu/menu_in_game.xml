@@ -20,6 +20,11 @@
             android:title="@string/load_amiibo" />
 
         <item
+            android:id="@+id/menu_cheats"
+            android:icon="@drawable/ic_code"
+            android:title="@string/cheats" />
+
+        <item
             android:id="@+id/menu_multiplayer"
             android:icon="@drawable/ic_two_users"
             android:title="@string/multiplayer" />

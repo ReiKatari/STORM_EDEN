@@ -8,6 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <set>
 
 #include "common/fs/file.h"
 #include "common/fs/fs.h"
@@ -525,10 +526,6 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
     cheat_files_to_check.push_back(title_cheats_dir / "cheats.txt");
     cheat_files_to_check.push_back(cheats_base_path / (title_str + ".txt"));
 
-    const bool has_explicit_enabled_tags = std::any_of(disabled.cbegin(), disabled.cend(), [](const std::string& s) {
-        return s.starts_with("__ENABLED__:");
-    });
-
     for (const auto& c_path : cheat_files_to_check) {
         if (std::filesystem::exists(c_path)) {
             Common::FS::IOFile cfile(c_path, Common::FS::FileAccessMode::Read, Common::FS::FileType::TextFile);
@@ -541,12 +538,8 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
                         const std::string cheat_name(entry.definition.readable_name.data());
                         if (cheat_name.empty()) continue;
 
-                        bool is_active = false;
-                        if (has_explicit_enabled_tags) {
-                            is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
-                        } else {
-                            is_active = std::find(disabled.cbegin(), disabled.cend(), cheat_name) == disabled.cend();
-                        }
+                        // Cheats are strictly disabled by default unless explicitly activated by the user
+                        const bool is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
 
                         if (is_active) {
                             // Check if already added
@@ -1075,20 +1068,25 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
 
     // DLC
     std::vector<ContentProviderEntry> dlc_match;
+    std::set<u64> seen_dlc_tids;
     bool has_external_dlc = false;
     bool has_nand_dlc = false;
     bool has_sdmc_dlc = false;
     bool has_other_dlc = false;
     const auto dlc_entries_with_origin =
-        content_union->ListEntriesFilterOrigin(std::nullopt, TitleType::AOC, ContentRecordType::Data);
+        content_union->ListEntriesFilterOrigin(std::nullopt, TitleType::AOC, std::nullopt);
 
     dlc_match.reserve(dlc_entries_with_origin.size());
     for (const auto& [slot, entry] : dlc_entries_with_origin) {
         const auto base_tid = GetBaseTitleID(entry.title_id);
-        const bool matches_base = base_tid == title_id;
+        const bool matches_base = (base_tid == title_id) || (base_tid == (title_id & 0xFFFFFFFFFFFFF000));
         if (!matches_base) {
             LOG_DEBUG(Loader, "DLC {:016X} base {:016X} doesn't match title {:016X}",
                       entry.title_id, base_tid, title_id);
+            continue;
+        }
+
+        if (seen_dlc_tids.contains(entry.title_id)) {
             continue;
         }
 
@@ -1097,18 +1095,13 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
             continue;
         }
 
-        auto nca = slot_provider->GetEntry(entry);
-        if (!nca) {
-            LOG_DEBUG(Loader, "Failed to get NCA for DLC {:016X}", entry.title_id);
+        const bool has_raw_file = (slot_provider->GetEntryRaw(entry.title_id, entry.type) != nullptr) ||
+                                  slot_provider->HasEntry(entry.title_id, entry.type);
+        if (!has_raw_file) {
             continue;
         }
 
-        const auto status = nca->GetStatus();
-        if (status != Loader::ResultStatus::Success) {
-            LOG_DEBUG(Loader, "DLC {:016X} NCA has status {}", entry.title_id,
-                      static_cast<int>(status));
-            continue;
-        }
+        seen_dlc_tids.insert(entry.title_id);
 
         switch (slot) {
             case ContentProviderUnionSlot::External:
@@ -1131,7 +1124,9 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
 
     if (!dlc_match.empty()) {
         // Ensure sorted so DLC IDs show in order.
-        std::sort(dlc_match.begin(), dlc_match.end());
+        std::sort(dlc_match.begin(), dlc_match.end(), [](const ContentProviderEntry& a, const ContentProviderEntry& b) {
+            return a.title_id < b.title_id;
+        });
 
         std::string list;
         for (size_t i = 0; i < dlc_match.size() - 1; ++i)

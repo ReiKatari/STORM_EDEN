@@ -30,6 +30,7 @@ import org.yuzu.yuzu_emu.databinding.DialogCheatsBinding
 import org.yuzu.yuzu_emu.databinding.ItemCheatBinding
 import org.yuzu.yuzu_emu.model.Game
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
+import org.yuzu.yuzu_emu.utils.NativeConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -271,6 +272,23 @@ class CheatsDialogFragment : DialogFragment() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
         val enabledNames = allCheats.filter { it.isEnabled }.map { it.name }.toSet()
         prefs.edit().putStringSet("cheats_enabled_${game.programIdHex}", enabledNames).apply()
+
+        try {
+            val currentDisabled = NativeConfig.getDisabledAddons(game.programIdHex).toMutableList()
+            currentDisabled.removeAll { s: String ->
+                s.startsWith("__ENABLED__:") || allCheats.any { it.name == s }
+            }
+            for (cheat in allCheats) {
+                if (cheat.isEnabled) {
+                    currentDisabled.add("__ENABLED__:${cheat.name}")
+                } else {
+                    currentDisabled.add(cheat.name)
+                }
+            }
+            NativeConfig.setDisabledAddons(game.programIdHex, currentDisabled.toTypedArray())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         // Also write active cheats into cheats.txt
         val cheatsDir = getCheatsDir()

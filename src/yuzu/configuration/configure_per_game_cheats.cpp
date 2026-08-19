@@ -76,12 +76,13 @@ ConfigurePerGameCheats::ConfigurePerGameCheats(Core::System& system_, u64 title_
     main_layout->setContentsMargins(10, 10, 10, 10);
     main_layout->setSpacing(8);
 
-    // Header info
+    // Header info panel
     info_label = new QLabel(this);
     const QString tid_str = QString(QStringLiteral("%1")).arg(title_id, 16, 16, QLatin1Char('0')).toUpper();
-    info_label->setText(tr("<b>ID приложения:</b> %1 &nbsp;&nbsp;|&nbsp;&nbsp; <b>ID сборки (Build ID):</b> %2 &nbsp;&nbsp;|&nbsp;&nbsp; <b>Режим:</b> %3")
-                            .arg(tid_str, build_id_str, system.IsPoweredOn() ? tr("<b style='color:#00f2fe;'>⚡ В процессе игры</b>") : tr("⚪ Оффлайн / Настройка")));
-    info_label->setStyleSheet(QStringLiteral("font-size: 10pt; color: #00f2fe; padding: 6px 10px; background: rgba(0, 242, 254, 0.08); border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.2);"));
+    const bool is_active_now = system.IsPoweredOn() && (system.GetApplicationProcessProgramID() == title_id);
+    info_label->setText(tr("🎮 <b>ID приложения:</b> <span style='color:#00f2fe;'>%1</span> &nbsp;&nbsp;|&nbsp;&nbsp; ⚙️ <b>ID сборки (Build ID):</b> <span style='color:#c084fc;'>%2</span> &nbsp;&nbsp;|&nbsp;&nbsp; 💡 <b>Режим:</b> %3")
+                            .arg(tid_str, build_id_str, is_active_now ? tr("<b style='color:#00f2fe;'>⚡ Активен в памяти (горячее применение)</b>") : tr("<span style='color:#94a3b8;'>⏸️ Офлайн (применится при запуске)</span>")));
+    info_label->setStyleSheet(QStringLiteral("font-size: 9.5pt; color: #e2e8f0; padding: 8px 12px; background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(15, 23, 42, 0.9), stop:1 rgba(30, 41, 59, 0.8)); border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.3);"));
     main_layout->addWidget(info_label);
 
     // Search and action toolbar
@@ -89,42 +90,48 @@ ConfigurePerGameCheats::ConfigurePerGameCheats(Core::System& system_, u64 title_
     toolbar_layout->setSpacing(6);
 
     search_field = new QLineEdit(this);
-    search_field->setPlaceholderText(tr("🔍 Поиск по названию чита..."));
+    search_field->setPlaceholderText(tr("🔍 Поиск читов по названию или действию..."));
     search_field->setClearButtonEnabled(true);
+    search_field->setStyleSheet(QStringLiteral("QLineEdit { padding: 6px 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 9.5pt; } QLineEdit:focus { border: 1px solid #00f2fe; }"));
     toolbar_layout->addWidget(search_field, 1);
 
     download_button = new QPushButton(tr("📥 Скачать базу читов"), this);
-    download_button->setToolTip(tr("Скачать проверенные уникальные чит-коды из онлайн базы Atmosphere / Switch"));
-    download_button->setStyleSheet(QStringLiteral("background-color: #008080; color: #ffffff; font-weight: bold; padding: 5px 12px; border-radius: 5px;"));
+    download_button->setToolTip(tr("Скачать проверенные чит-коды из официальных баз Tinfoil и Atmosphere"));
+    download_button->setStyleSheet(QStringLiteral("QPushButton { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0891b2, stop:1 #06b6d4); color: #ffffff; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; font-size: 9pt; } QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0e7490, stop:1 #0891b2); } QPushButton:disabled { background: #334155; color: #64748b; }"));
     toolbar_layout->addWidget(download_button);
 
     add_button = new QPushButton(tr("➕ Добавить чит"), this);
     add_button->setToolTip(tr("Добавить собственный чит-код в формате Atmosphere"));
+    add_button->setStyleSheet(QStringLiteral("QPushButton { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #059669, stop:1 #10b981); color: #ffffff; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; font-size: 9pt; } QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #047857, stop:1 #059669); }"));
     toolbar_layout->addWidget(add_button);
 
-    open_folder_button = new QPushButton(tr("📂 Папка"), this);
+    open_folder_button = new QPushButton(tr("📁 Папка"), this);
     open_folder_button->setToolTip(tr("Открыть папку читов игры в проводнике"));
+    open_folder_button->setStyleSheet(QStringLiteral("QPushButton { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #d97706, stop:1 #f59e0b); color: #ffffff; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; font-size: 9pt; } QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #b45309, stop:1 #d97706); }"));
     toolbar_layout->addWidget(open_folder_button);
 
     main_layout->addLayout(toolbar_layout);
 
     // Cheats tree widget
     tree_widget = new QTreeWidget(this);
-    tree_widget->setHeaderLabels({tr("Чит-код / Действие"), tr("Статус"), tr("Версия / Build ID"), tr("Код инструкции")});
+    tree_widget->setHeaderLabels({tr("Чит-код / Описание"), tr("Статус"), tr("Версия / Сборка"), tr("Опкоды (Инструкция)")});
     tree_widget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     tree_widget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     tree_widget->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     tree_widget->header()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     tree_widget->setAlternatingRowColors(true);
     tree_widget->setRootIsDecorated(false);
+    tree_widget->setStyleSheet(QStringLiteral("QTreeWidget { background: #0b0f19; alternate-background-color: #111827; border: 1px solid #1e293b; border-radius: 6px; color: #f1f5f9; } QTreeWidget::item { padding: 4px 0px; } QTreeWidget::item:selected { background: rgba(0, 242, 254, 0.15); color: #ffffff; } QHeaderView::section { background: #1e293b; color: #94a3b8; font-weight: bold; padding: 6px; border: 1px solid #0f172a; }"));
     main_layout->addWidget(tree_widget, 1);
 
     // Selection bottom bar
     auto* bottom_layout = new QHBoxLayout();
-    select_all_button = new QPushButton(tr("Включить все"), this);
-    deselect_all_button = new QPushButton(tr("Отключить все"), this);
+    select_all_button = new QPushButton(tr("☑️ Включить все"), this);
+    select_all_button->setStyleSheet(QStringLiteral("QPushButton { background: #1e293b; color: #38bdf8; font-weight: bold; padding: 5px 12px; border-radius: 5px; border: 1px solid #334155; } QPushButton:hover { background: #334155; }"));
+    deselect_all_button = new QPushButton(tr("⬜ Отключить все"), this);
+    deselect_all_button->setStyleSheet(QStringLiteral("QPushButton { background: #1e293b; color: #94a3b8; font-weight: bold; padding: 5px 12px; border-radius: 5px; border: 1px solid #334155; } QPushButton:hover { background: #334155; }"));
     status_label = new QLabel(this);
-    status_label->setStyleSheet(QStringLiteral("color: #a0aec0; font-size: 9pt;"));
+    status_label->setStyleSheet(QStringLiteral("color: #94a3b8; font-size: 9pt;"));
 
     bottom_layout->addWidget(select_all_button);
     bottom_layout->addWidget(deselect_all_button);
@@ -169,9 +176,6 @@ void ConfigurePerGameCheats::LoadCheats() {
     dir.mkpath(dir_path);
 
     const auto& disabled = Settings::values.disabled_addons[title_id];
-    const bool has_explicit_enabled_tags = std::any_of(disabled.cbegin(), disabled.cend(), [](const std::string& s) {
-        return s.starts_with("__ENABLED__:");
-    });
 
     const QStringList txt_files = dir.entryList(QStringList() << QStringLiteral("*.txt"), QDir::Files);
     for (const auto& fname : txt_files) {
@@ -202,12 +206,8 @@ void ConfigurePerGameCheats::LoadCheats() {
 
             if (line.startsWith(QStringLiteral("[")) && line.contains(QStringLiteral("]"))) {
                 if (!current_cheat_name.isEmpty() && !current_cheat_code.isEmpty()) {
-                    bool is_enabled = false;
-                    if (has_explicit_enabled_tags) {
-                        is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
-                    } else {
-                        is_enabled = std::find(disabled.cbegin(), disabled.cend(), current_cheat_name.toStdString()) == disabled.cend();
-                    }
+                    // Strictly disabled by default unless explicitly in __ENABLED__ list
+                    const bool is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
 
                     // Avoid duplicate cheat names
                     bool exists = std::any_of(cheat_items.begin(), cheat_items.end(), [&](const CheatItem& ci) {
@@ -226,12 +226,7 @@ void ConfigurePerGameCheats::LoadCheats() {
         }
 
         if (!current_cheat_name.isEmpty() && !current_cheat_code.isEmpty()) {
-            bool is_enabled = false;
-            if (has_explicit_enabled_tags) {
-                is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
-            } else {
-                is_enabled = std::find(disabled.cbegin(), disabled.cend(), current_cheat_name.toStdString()) == disabled.cend();
-            }
+            const bool is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
 
             bool exists = std::any_of(cheat_items.begin(), cheat_items.end(), [&](const CheatItem& ci) {
                 return ci.name == current_cheat_name;
@@ -253,6 +248,10 @@ void ConfigurePerGameCheats::PopulateCheatTree() {
     int enabled_count = 0;
     const bool is_game_running = system.IsPoweredOn() && (system.GetApplicationProcessProgramID() == title_id);
 
+    QFont monospace_font(QStringLiteral("Consolas"));
+    monospace_font.setStyleHint(QFont::Monospace);
+    monospace_font.setPointSize(9);
+
     for (int i = 0; i < cheat_items.size(); i++) {
         const auto& item = cheat_items[i];
         if (!search_query.isEmpty() && !item.name.contains(search_query, Qt::CaseInsensitive)) {
@@ -264,22 +263,28 @@ void ConfigurePerGameCheats::PopulateCheatTree() {
         }
 
         auto* tree_item = new QTreeWidgetItem(tree_widget);
-        tree_item->setText(0, item.name);
+        tree_item->setText(0, item.is_custom ? tr("⭐ %1 [Пользовательский]").arg(item.name) : item.name);
         tree_item->setCheckState(0, item.enabled ? Qt::Checked : Qt::Unchecked);
         tree_item->setData(0, Qt::UserRole, i);
 
         if (is_game_running && item.enabled) {
             tree_item->setText(1, tr("⚡ Активен в игре"));
             tree_item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
+            QFont bold_f = tree_item->font(1);
+            bold_f.setBold(true);
+            tree_item->setFont(1, bold_f);
         } else if (item.enabled) {
             tree_item->setText(1, tr("✅ Включен"));
-            tree_item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
+            tree_item->setForeground(1, QColor(QStringLiteral("#10b981")));
+            QFont bold_f = tree_item->font(1);
+            bold_f.setBold(true);
+            tree_item->setFont(1, bold_f);
         } else {
             tree_item->setText(1, tr("⚪ Выключен"));
-            tree_item->setForeground(1, QColor(QStringLiteral("#718096")));
+            tree_item->setForeground(1, QColor(QStringLiteral("#64748b")));
         }
 
-        tree_item->setText(2, item.build_id.isEmpty() ? tr("Все версии") : item.build_id);
+        tree_item->setText(2, item.build_id.isEmpty() ? tr("🌐 Все версии") : QStringLiteral("🏷️ %1").arg(item.build_id));
         tree_item->setForeground(2, QColor(QStringLiteral("#38bdf8")));
 
         QString preview_code = item.code.split(QStringLiteral("\n"), Qt::SkipEmptyParts).value(0, QString{});
@@ -287,15 +292,18 @@ void ConfigurePerGameCheats::PopulateCheatTree() {
             preview_code += QString(QStringLiteral(" (+%1 строк)")).arg(item.code.count(QStringLiteral("\n")));
         }
         tree_item->setText(3, preview_code);
-        tree_item->setForeground(3, QColor(QStringLiteral("#a0aec0")));
+        tree_item->setFont(3, monospace_font);
+        tree_item->setForeground(3, QColor(QStringLiteral("#94a3b8")));
     }
 
     if (cheat_items.isEmpty()) {
         status_label->setText(tr("Чит-коды для этой игры не найдены. Нажмите «📥 Скачать базу читов» или добавьте свой код."));
     } else {
-        status_label->setText(tr("Всего уникальных читов: <b>%1</b> &nbsp;|&nbsp; Включено: <b style='color:#00f2fe;'>%2</b> &nbsp;|&nbsp; Статус: <b style='color:#00f2fe;'>%3</b>")
-                                  .arg(cheat_items.size()).arg(enabled_count)
-                                  .arg(is_game_running ? tr("⚡ Применяются в реальном времени") : tr("Готовы к запуску")));
+        status_label->setText(tr("Всего читов: <b>%1</b> &nbsp;|&nbsp; Включено: <b style='color:%2;'>%3</b> &nbsp;|&nbsp; Статус: <b>%4</b>")
+                                  .arg(cheat_items.size())
+                                  .arg(enabled_count > 0 ? QStringLiteral("#00f2fe") : QStringLiteral("#94a3b8"))
+                                  .arg(enabled_count)
+                                  .arg(is_game_running ? tr("<span style='color:#00f2fe;'>⚡ Применяются в реальном времени</span>") : (enabled_count > 0 ? tr("<span style='color:#10b981;'>✅ Готовы к запуску</span>") : tr("<span style='color:#64748b;'>⚪ Все отключены</span>"))));
     }
     tree_widget->blockSignals(false);
 }
@@ -311,12 +319,21 @@ void ConfigurePerGameCheats::OnItemChanged(QTreeWidgetItem* item, int column) {
         if (is_game_running && is_checked) {
             item->setText(1, tr("⚡ Активен в игре"));
             item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
+            QFont bold_f = item->font(1);
+            bold_f.setBold(true);
+            item->setFont(1, bold_f);
         } else if (is_checked) {
             item->setText(1, tr("✅ Включен"));
-            item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
+            item->setForeground(1, QColor(QStringLiteral("#10b981")));
+            QFont bold_f = item->font(1);
+            bold_f.setBold(true);
+            item->setFont(1, bold_f);
         } else {
             item->setText(1, tr("⚪ Выключен"));
-            item->setForeground(1, QColor(QStringLiteral("#718096")));
+            item->setForeground(1, QColor(QStringLiteral("#64748b")));
+            QFont normal_f = item->font(1);
+            normal_f.setBold(false);
+            item->setFont(1, normal_f);
         }
     }
 
@@ -325,9 +342,11 @@ void ConfigurePerGameCheats::OnItemChanged(QTreeWidgetItem* item, int column) {
         if (it.enabled) enabled_count++;
     }
     const bool is_game_running = system.IsPoweredOn() && (system.GetApplicationProcessProgramID() == title_id);
-    status_label->setText(tr("Всего уникальных читов: <b>%1</b> &nbsp;|&nbsp; Включено: <b style='color:#00f2fe;'>%2</b> &nbsp;|&nbsp; Статус: <b style='color:#00f2fe;'>%3</b>")
-                              .arg(cheat_items.size()).arg(enabled_count)
-                              .arg(is_game_running ? tr("⚡ Применяются в реальном времени") : tr("Готовы к запуску")));
+    status_label->setText(tr("Всего читов: <b>%1</b> &nbsp;|&nbsp; Включено: <b style='color:%2;'>%3</b> &nbsp;|&nbsp; Статус: <b>%4</b>")
+                              .arg(cheat_items.size())
+                              .arg(enabled_count > 0 ? QStringLiteral("#00f2fe") : QStringLiteral("#94a3b8"))
+                              .arg(enabled_count)
+                              .arg(is_game_running ? tr("<span style='color:#00f2fe;'>⚡ Применяются в реальном времени</span>") : (enabled_count > 0 ? tr("<span style='color:#10b981;'>✅ Готовы к запуску</span>") : tr("<span style='color:#64748b;'>⚪ Все отключены</span>"))));
 
     ApplyConfiguration();
     emit CheatsChanged();
@@ -598,23 +617,35 @@ void ConfigurePerGameCheats::SaveCheatsToFile() {
 void ConfigurePerGameCheats::ApplyConfiguration() {
     SaveCheatsToFile();
 
-    // Update disabled_addons list with explicit enabled state
+    // Update disabled_addons list with explicit enabled state, preserving non-cheat addons (mods, DLC, updates)
     auto& disabled = Settings::values.disabled_addons[title_id];
-    disabled.clear();
+
+    // Remove existing cheat tags for current items
+    std::erase_if(disabled, [&](const std::string& s) {
+        if (s.starts_with("__ENABLED__:")) {
+            const std::string name = s.substr(12);
+            return std::any_of(cheat_items.begin(), cheat_items.end(), [&](const CheatItem& ci) {
+                return ci.name.toStdString() == name;
+            });
+        }
+        return std::any_of(cheat_items.begin(), cheat_items.end(), [&](const CheatItem& ci) {
+            return ci.name.toStdString() == s;
+        });
+    });
 
     std::vector<Core::Memory::CheatEntry> active_cheat_entries;
     const Core::Memory::TextCheatParser parser;
 
     for (const auto& item : cheat_items) {
-        if (!item.enabled) {
-            disabled.push_back(item.name.toStdString());
-        } else {
+        if (item.enabled) {
             disabled.push_back("__ENABLED__:" + item.name.toStdString());
             std::string formatted = fmt::format("[{}]\n{}\n", item.name.toStdString(), item.code.toStdString());
             auto parsed = parser.Parse(formatted);
             for (auto& p : parsed) {
                 active_cheat_entries.push_back(std::move(p));
             }
+        } else {
+            disabled.push_back(item.name.toStdString());
         }
     }
 

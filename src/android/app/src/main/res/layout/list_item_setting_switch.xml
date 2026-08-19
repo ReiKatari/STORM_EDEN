@@ -1,50 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/EdenCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/theme_list_item_selector"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="5dp"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="72dp"
-    android:padding="16dp">
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/eden_card_stroke"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="24dp"
+                android:layout_marginEnd="16dp"
                 android:layout_gravity="center_vertical"
                 android:orientation="vertical"
                 android:layout_weight="1">
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_setting_name"
-                    style="@style/TextAppearance.Material3.HeadlineMedium"
-                    android:layout_width="wrap_content"
+                    style="@style/SynthwaveText.Body"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="viewStart"
-                    android:textSize="17sp"
-                    app:lineHeight="28dp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:lineHeight="20dp"
                     tools:text="@string/frame_limit_enable" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_setting_description"
-                    style="@style/TextAppearance.Material3.BodySmall"
-                    android:layout_width="wrap_content"
+                    style="@style/SynthwaveText.Body"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_small"
+                    android:layout_marginTop="3dp"
                     android:textAlignment="viewStart"
+                    android:textSize="13sp"
+                    android:alpha="0.75"
                     tools:text="@string/frame_limit_enable_description" />
 
             </LinearLayout>
@@ -53,20 +64,20 @@
                 android:id="@+id/switch_widget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical" />
 
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_clear"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/EdenButton.Outlined"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:text="@string/use_global_setting"
             android:visibility="gone"
             tools:visibility="visible" />
 
     </LinearLayout>
 
-</RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

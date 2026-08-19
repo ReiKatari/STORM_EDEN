@@ -43,6 +43,7 @@ public:
     void LoadFromFile(FileSys::VirtualFile file_);
 
     void SetTitleId(u64 id);
+    void SetGameVersion(const QString& version);
 
 public slots:
     void InstallMods(const QStringList& mods);
@@ -66,6 +67,7 @@ private:
     std::unique_ptr<Ui::ConfigurePerGameAddons> ui;
     FileSys::VirtualFile file;
     u64 title_id;
+    QString game_version_str;
 
     QVBoxLayout* layout;
     QTreeView* tree_view;

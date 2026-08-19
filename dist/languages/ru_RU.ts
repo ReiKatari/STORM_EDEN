@@ -6613,9 +6613,24 @@ Debug Message: </source>
       <translation>Переключить панель состояния</translation>
     </message>
     <message>
-      <location filename="../../src/qt_common/config/uisettings.cpp" line="66" />
+      <location filename="../../src/qt_common/config/uisettings.cpp" line="67" />
+      <source>Quick Save</source>
+      <translation>Быстрое сохранение</translation>
+    </message>
+    <message>
+      <location filename="../../src/qt_common/config/uisettings.cpp" line="68" />
+      <source>Quick Load</source>
+      <translation>Быстрая загрузка</translation>
+    </message>
+    <message>
+      <location filename="../../src/qt_common/config/uisettings.cpp" line="64" />
       <source>Toggle Performance Overlay</source>
       <translation>Переключить оверлей производительности</translation>
+    </message>
+    <message>
+      <location filename="../../src/qt_common/config/uisettings.cpp" line="69" />
+      <source>Translate Screen</source>
+      <translation>Перевести экран</translation>
     </message>
   </context>
   <context>

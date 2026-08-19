@@ -47,6 +47,7 @@ public:
     VirtualDir CopyDirectory(std::string_view old_path, std::string_view new_path) override;
     VirtualDir MoveDirectory(std::string_view old_path, std::string_view new_path) override;
     bool DeleteDirectory(std::string_view path) override;
+    void InvalidateCache();
 
 private:
     using ReferenceListType = Common::IntrusiveListBaseTraits<FileReference>::ListType;

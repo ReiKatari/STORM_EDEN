@@ -91,7 +91,7 @@ class InputProfileDialogFragment : DialogFragment() {
             adapter = InputProfileAdapter(options)
         }
 
-        return MaterialAlertDialogBuilder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
             .setView(binding.root)
             .create()
     }

@@ -258,6 +258,12 @@ void AmiiboBrowserDialog::SetupUi() {
     connect(m_load_btn, &QPushButton::clicked, this, &AmiiboBrowserDialog::OnLoadAmiiboClicked);
     act_btn_layout->addWidget(m_load_btn);
 
+    m_disconnect_btn = new QPushButton(tr("❌ Отключить Amiibo"), this);
+    m_disconnect_btn->setCursor(Qt::PointingHandCursor);
+    m_disconnect_btn->setStyleSheet(QStringLiteral("background-color: #3b1111; border-color: #ff5252; color: #ff8a80;"));
+    connect(m_disconnect_btn, &QPushButton::clicked, this, &AmiiboBrowserDialog::OnDisconnectAmiiboClicked);
+    act_btn_layout->addWidget(m_disconnect_btn);
+
     details_layout->addLayout(act_btn_layout);
 
     right_layout->addWidget(details_group);
@@ -725,14 +731,35 @@ void AmiiboBrowserDialog::FetchImage(const QString& image_url, QLabel* target_la
 
     target_label->setText(tr("Загрузка артворка..."));
 
-    auto downloadWithFallback = [this, target_label, local_img_path, image_url](const QString& current_url, auto&& self, int attempt) -> void {
-        QUrl url(current_url);
+    QStringList mirror_urls;
+    mirror_urls << image_url;
+    QString fastly_url = image_url;
+    fastly_url.replace(QStringLiteral("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"), QStringLiteral("fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master"));
+    fastly_url.replace(QStringLiteral("raw.githubusercontent.com/N3evin/AmiiboAPI/master"), QStringLiteral("fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master"));
+    mirror_urls << fastly_url;
+
+    QString gh_url = image_url;
+    gh_url.replace(QStringLiteral("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"), QStringLiteral("raw.githubusercontent.com/N3evin/AmiiboAPI/master"));
+    mirror_urls << gh_url;
+
+    QString proxy_url = QStringLiteral("https://ghproxy.net/") + gh_url;
+    mirror_urls << proxy_url;
+    mirror_urls.removeDuplicates();
+
+    auto downloadWithFallback = [this, target_label, local_img_path, image_url, mirror_urls](int mirror_index, auto&& self) -> void {
+        if (mirror_index >= mirror_urls.size()) {
+            target_label->setText(tr("Изображение отсутствует"));
+            return;
+        }
+
+        QUrl url(mirror_urls[mirror_index]);
         QNetworkRequest req(url);
-        req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 STORM-EDEN/4.0.1"));
+        req.setTransferTimeout(2500);
+        req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 STORM-EDEN/4.0.2"));
         req.setRawHeader("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
 
         auto* reply = m_network_mgr->get(req);
-        connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, current_url, local_img_path, target_label, attempt, self]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, local_img_path, target_label, mirror_index, mirror_urls, self]() {
             if (reply->error() == QNetworkReply::NoError) {
                 QByteArray img_data = reply->readAll();
                 QPixmap pixmap;
@@ -744,24 +771,16 @@ void AmiiboBrowserDialog::FetchImage(const QString& image_url, QLabel* target_la
                     }
                     m_image_cache[image_url] = pixmap;
                     target_label->setPixmap(pixmap.scaled(target_label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-                } else {
-                    target_label->setText(tr("Ошибка формата изображения"));
-                }
-            } else {
-                if (attempt == 0 && current_url.contains(QStringLiteral("jsdelivr.net"))) {
-                    QString fallback_url = current_url;
-                    fallback_url.replace(QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"),
-                                         QStringLiteral("https://raw.githubusercontent.com/N3evin/AmiiboAPI/master"));
-                    self(fallback_url, self, 1);
-                } else {
-                    target_label->setText(tr("Изображение отсутствует"));
+                    reply->deleteLater();
+                    return;
                 }
             }
             reply->deleteLater();
+            self(mirror_index + 1, self);
         });
     };
 
-    downloadWithFallback(image_url, downloadWithFallback, 0);
+    downloadWithFallback(0, downloadWithFallback);
 }
 
 QString AmiiboBrowserDialog::GenerateAndSaveAmiiboBin(const AmiiboEntry& entry) {
@@ -884,6 +903,12 @@ void AmiiboBrowserDialog::OnLoadAmiiboClicked() {
     DisplayAmiiboDetails(m_all_amiibos[idx]);
     QMessageBox::information(this, tr("Amiibo загружен"),
                              tr("Amiibo «%1» успешно отправлен в виртуальный NFC-считыватель эмулятора!").arg(m_all_amiibos[idx].name));
+}
+
+void AmiiboBrowserDialog::OnDisconnectAmiiboClicked() {
+    emit AmiiboRemoveRequested();
+    QMessageBox::information(this, tr("Amiibo отключен"),
+                             tr("Текущий подключенный Amiibo успешно убран с виртуального контроллера."));
 }
 
 void AmiiboBrowserDialog::OnOpenAmiiboFolderClicked() {

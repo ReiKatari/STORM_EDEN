@@ -3,60 +3,72 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:ignore="ExtraText">
 
-    <item
-        android:id="@+id/menu_pause_emulation"
-        android:icon="@drawable/ic_pause"
-        android:title="@string/emulation_pause" />
+    <group android:id="@+id/group_gameplay">
+        <item
+            android:id="@+id/menu_pause_emulation"
+            android:icon="@drawable/ic_pause"
+            android:title="@string/emulation_pause" />
 
-    <item
-        android:id="@+id/menu_quick_overlay"
-        android:icon="@drawable/ic_controller"
-        android:title="@string/emulation_show_overlay"/>
+        <item
+            android:id="@+id/menu_translate_screen"
+            android:icon="@drawable/ic_languages"
+            android:title="@string/translator_translate_screen" />
 
-    <item
-        android:id="@+id/menu_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/preferences_settings" />
+        <item
+            android:id="@+id/menu_load_amiibo"
+            android:icon="@drawable/ic_nfc"
+            android:title="@string/load_amiibo" />
 
-    <item
-        android:id="@+id/menu_quick_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/quick_settings" />
+        <item
+            android:id="@+id/menu_multiplayer"
+            android:icon="@drawable/ic_two_users"
+            android:title="@string/multiplayer" />
+    </group>
 
-    <item
-        android:id="@+id/menu_settings_per_game"
-        android:icon="@drawable/ic_settings_outline"
-        android:title="@string/per_game_settings" />
+    <group android:id="@+id/group_settings">
+        <item
+            android:id="@+id/menu_quick_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/quick_settings" />
 
-    <item
-        android:id="@+id/menu_controls"
-        android:icon="@drawable/ic_controller"
-        android:title="@string/preferences_controls" />
+        <item
+            android:id="@+id/menu_settings_per_game"
+            android:icon="@drawable/ic_settings_outline"
+            android:title="@string/per_game_settings" />
 
-    <item
-        android:id="@+id/menu_multiplayer"
-        android:icon="@drawable/ic_two_users"
-        android:title="@string/multiplayer" />
+        <item
+            android:id="@+id/menu_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/preferences_settings" />
+    </group>
 
-    <item
-        android:id="@+id/menu_load_amiibo"
-        android:icon="@drawable/ic_nfc"
-        android:title="@string/load_amiibo" />
+    <group android:id="@+id/group_controls">
+        <item
+            android:id="@+id/menu_quick_overlay"
+            android:icon="@drawable/ic_controller"
+            android:title="@string/emulation_show_overlay"/>
 
+        <item
+            android:id="@+id/menu_controls"
+            android:icon="@drawable/ic_controller"
+            android:title="@string/preferences_controls" />
 
-    <item
-        android:id="@+id/menu_overlay_controls"
-        android:icon="@drawable/ic_overlay"
-        android:title="@string/emulation_input_overlay" />
+        <item
+            android:id="@+id/menu_overlay_controls"
+            android:icon="@drawable/ic_overlay"
+            android:title="@string/emulation_input_overlay" />
 
-    <item
-        android:id="@+id/menu_lock_drawer"
-        android:icon="@drawable/ic_unlock"
-        android:title="@string/emulation_input_overlay" />
+        <item
+            android:id="@+id/menu_lock_drawer"
+            android:icon="@drawable/ic_unlock"
+            android:title="@string/emulation_input_overlay" />
+    </group>
 
-    <item
-        android:id="@+id/menu_exit"
-        android:icon="@drawable/ic_exit"
-        android:title="@string/emulation_exit" />
+    <group android:id="@+id/group_exit">
+        <item
+            android:id="@+id/menu_exit"
+            android:icon="@drawable/ic_exit"
+            android:title="@string/emulation_exit" />
+    </group>
 
 </menu>

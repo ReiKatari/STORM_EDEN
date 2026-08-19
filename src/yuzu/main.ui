@@ -228,6 +228,7 @@
     <addaction name="menu_Create_Shortcuts"/>
     <addaction name="separator"/>
     <addaction name="action_Capture_Screenshot"/>
+    <addaction name="action_Translate_Screen"/>
     <addaction name="menuTAS"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -630,6 +631,14 @@
    </property>
    <property name="text">
     <string>&amp;Карусель</string>
+   </property>
+  </action>
+  <action name="action_Translate_Screen">
+   <property name="text">
+    <string>&amp;Авто-переводчик (OCR + Озвучка)...</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
    </property>
   </action>
  </widget>

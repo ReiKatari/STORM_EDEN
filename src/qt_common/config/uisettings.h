@@ -136,6 +136,7 @@ struct Values {
                                       true};
 
     Setting<bool> check_for_updates{linkage, true, "check_for_updates", Category::UiGeneral};
+    Setting<bool> enable_floating_translate_button{linkage, true, "enable_floating_translate_button", Category::UiGeneral};
 
     // Linux/MinGW may support (requires libdl support)
     SwitchableSetting<bool> enable_gamemode{linkage,
@@ -242,7 +243,7 @@ void SaveWindowState();
 void RestoreWindowState(std::unique_ptr<QtConfig>& qtConfig);
 
 // sync with uisettings.cpp
-extern const std::array<Shortcut, 33> default_hotkeys;
+extern const std::array<Shortcut, 39> default_hotkeys;
 
 } // namespace UISettings
 

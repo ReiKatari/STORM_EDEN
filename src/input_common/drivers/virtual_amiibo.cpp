@@ -201,7 +201,10 @@ VirtualAmiibo::Info VirtualAmiibo::LoadAmiibo(const std::string& filename) {
 }
 
 VirtualAmiibo::Info VirtualAmiibo::LoadAmiibo(std::span<u8> data) {
-    if (state != State::WaitingForAmiibo) {
+    if (state == State::TagNearby) {
+        CloseAmiibo();
+    }
+    if (state != State::WaitingForAmiibo && state != State::Initialized) {
         return Info::WrongDeviceState;
     }
 
@@ -225,7 +228,7 @@ VirtualAmiibo::Info VirtualAmiibo::LoadAmiibo(std::span<u8> data) {
     status.uuid = {};
     status.protocol = 1;
     state = State::TagNearby;
-    status.state = Common::Input::NfcState::NewAmiibo,
+    status.state = Common::Input::NfcState::NewAmiibo;
     memcpy(nfc_data.data(), data.data(), data.size_bytes());
     memcpy(status.uuid.data(), nfc_data.data(), status.uuid_length);
     SetNfc(identifier, status);
@@ -242,14 +245,14 @@ VirtualAmiibo::Info VirtualAmiibo::ReloadAmiibo() {
 }
 
 VirtualAmiibo::Info VirtualAmiibo::CloseAmiibo() {
-    if (state != State::TagNearby) {
-        return Info::Success;
-    }
-
-    state = State::WaitingForAmiibo;
+    state = (state == State::Disabled) ? State::Disabled : State::WaitingForAmiibo;
     status.state = Common::Input::NfcState::AmiiboRemoved;
-    SetNfc(identifier, status);
     status.tag_type = 0;
+    status.uuid = {};
+    status.uuid_length = 0;
+    nfc_data.clear();
+    file_path.clear();
+    SetNfc(identifier, status);
     return Info::Success;
 }
 

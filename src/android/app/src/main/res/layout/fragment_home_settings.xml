@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@color/synthwave_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_home_settings"
@@ -47,8 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="16dp">
+            android:paddingHorizontal="0dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="24dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/home_settings_list"

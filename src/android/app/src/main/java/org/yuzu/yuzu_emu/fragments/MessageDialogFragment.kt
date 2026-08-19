@@ -62,7 +62,7 @@ class MessageDialogFragment : DialogFragment() {
         val clearPositiveAction = requireArguments().getBoolean(CLEAR_ACTIONS)
         val showNegativeButton = requireArguments().getBoolean(SHOW_NEGATIVE_BUTTON)
 
-        val builder = MaterialAlertDialogBuilder(requireContext())
+        val builder = MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
 
         if (clearPositiveAction) {
             messageDialogViewModel.positiveAction = null
@@ -90,7 +90,22 @@ class MessageDialogFragment : DialogFragment() {
 
         isCancelable = dismissible
 
-        return builder.show()
+        return builder.create()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val ctx = context ?: return
+        val primaryColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val surfaceColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(ctx, com.google.android.material.R.attr.colorSurface)
+
+        val bg = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = resources.displayMetrics.density * 22f
+            setColor(surfaceColor)
+            setStroke((resources.displayMetrics.density * 1.5f).toInt(), primaryColor)
+        }
+        dialog?.window?.setBackgroundDrawable(bg)
     }
 
     private fun openLink(link: String) {

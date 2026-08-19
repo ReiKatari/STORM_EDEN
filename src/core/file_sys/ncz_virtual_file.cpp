@@ -5,6 +5,9 @@
 #include "common/zstd_compression.h"
 #include "common/logging.h"
 #include "common/fs/file.h"
+#include "core/crypto/aes_util.h"
+#include "core/crypto/key_manager.h"
+#include "core/file_sys/fssystem/fssystem_nca_header.h"
 
 #include <cstring>
 #include <algorithm>
@@ -33,8 +36,8 @@ public:
     bool IsWritable() const override { return false; }
     bool IsReadable() const override { return file.IsOpen(); }
     bool Rename(std::string_view name_) override { return false; }
-    bool IsNczFile() const override { return true; }
-    bool HasDecryptedSections() const override { return true; }
+    bool IsNczFile() const override { return false; }
+    bool HasDecryptedSections() const override { return false; }
 
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
         if (!file.IsOpen()) return 0;
@@ -93,6 +96,8 @@ public:
 };
 
 bool DecompressZstdBlock(const u8* src, std::size_t src_size, u8* dst, std::size_t dst_size) {
+    if (!src || src_size == 0 || !dst || dst_size == 0) return false;
+
     auto* ctx = ZstdContextPool::Get().Acquire();
     if (!ctx) return false;
 
@@ -100,20 +105,42 @@ bool DecompressZstdBlock(const u8* src, std::size_t src_size, u8* dst, std::size
     if (frame_size != ZSTD_CONTENTSIZE_UNKNOWN && frame_size != ZSTD_CONTENTSIZE_ERROR && frame_size > dst_size) {
         std::vector<u8> temp(frame_size);
         std::size_t ret = ZSTD_decompressDCtx(ctx, temp.data(), frame_size, src, src_size);
-        ZstdContextPool::Get().Release(ctx);
         if (ZSTD_isError(ret)) {
+            ZSTD_DCtx_reset(ctx, ZSTD_reset_session_only);
+            ZstdContextPool::Get().Release(ctx);
             LOG_ERROR(Service_FS, "ZSTD_decompressDCtx failed: {}", ZSTD_getErrorName(ret));
             return false;
         }
+        ZstdContextPool::Get().Release(ctx);
         std::memcpy(dst, temp.data(), dst_size);
         return true;
     }
 
     std::size_t ret = ZSTD_decompressDCtx(ctx, dst, dst_size, src, src_size);
-    ZstdContextPool::Get().Release(ctx);
     if (ZSTD_isError(ret)) {
+        // Reset context before fallback attempt
+        ZSTD_DCtx_reset(ctx, ZSTD_reset_session_only);
+        const std::size_t fallback_size = std::max<std::size_t>(dst_size * 2, 4 * 1024 * 1024);
+        std::vector<u8> fallback_buf(fallback_size);
+        std::size_t fb_ret = ZSTD_decompressDCtx(ctx, fallback_buf.data(), fallback_size, src, src_size);
+        if (!ZSTD_isError(fb_ret)) {
+            ZstdContextPool::Get().Release(ctx);
+            std::size_t to_copy = std::min<std::size_t>(dst_size, fb_ret);
+            std::memcpy(dst, fallback_buf.data(), to_copy);
+            if (to_copy < dst_size) {
+                std::memset(dst + to_copy, 0, dst_size - to_copy);
+            }
+            return true;
+        }
+        ZSTD_DCtx_reset(ctx, ZSTD_reset_session_only);
+        ZstdContextPool::Get().Release(ctx);
         LOG_ERROR(Service_FS, "ZSTD_decompressDCtx failed: {}", ZSTD_getErrorName(ret));
         return false;
+    }
+
+    ZstdContextPool::Get().Release(ctx);
+    if (ret < dst_size) {
+        std::memset(dst + ret, 0, dst_size - ret);
     }
     return true;
 }
@@ -166,33 +193,19 @@ NCZVirtualFile::NCZVirtualFile(VirtualFile file_)
         LOG_DEBUG(Service_FS, "Found NCZ magic at offset 0 for {}", file->GetName());
     }
 
+    s64 total_section_zstd_size = 0;
+
     if (magic == MAGIC_NCZSECTN) {
         // is_header_uncompressed already set above if offset is 0x4000
         u64 section_count = 0;
         file->ReadObject(&section_count, offset + 8);
-        
-        // Some older tools (like StormSwitchBox) write section_count as a 32-bit integer (4 bytes)
-        // instead of 64-bit integer (8 bytes), making sections start at offset + 12.
-        // We detect this by checking if the upper 32-bits are non-zero (which happens if the next field is non-zero),
-        // or by reading the first section and checking if crypto_type is valid.
         u64 sections_start = offset + 16;
-        u32 count_32 = static_cast<u32>(section_count & 0xFFFFFFFF);
-        
-        if ((section_count >> 32) != 0) {
-            // Upper bits are not zero, likely means it's a 4-byte count and we read into the next field.
-            section_count = count_32;
-            sections_start = offset + 12;
-        } else {
-            // Could still be a 4-byte count if the next 4 bytes happen to be zero (e.g. sec.offset == 0).
-            // Let's validate the first section at offset + 16.
-            NCZSection test_sec{};
-            file->ReadBytes(&test_sec, sizeof(NCZSection), offset + 16);
-            if (test_sec.crypto_type > 4) {
-                // Invalid crypto type, try offset + 12
-                file->ReadBytes(&test_sec, sizeof(NCZSection), offset + 12);
-                if (test_sec.crypto_type <= 4) {
-                    sections_start = offset + 12;
-                }
+
+        if (section_count > 64) {
+            u32 count_32 = static_cast<u32>(section_count & 0xFFFFFFFF);
+            if (count_32 > 0 && count_32 <= 64) {
+                section_count = count_32;
+                sections_start = offset + 12;
             }
         }
 
@@ -219,58 +232,65 @@ NCZVirtualFile::NCZVirtualFile(VirtualFile file_)
                 current_solid_offset += sec.size;
             }
         }
+        total_section_zstd_size = current_solid_offset;
         
         offset = sections_start + section_count * sizeof(NCZSection);
         
-        // Dynamically find NCZBLOCK magic in next 4096 bytes
-        std::vector<u8> search_buffer(4096);
-        file->ReadBytes(search_buffer.data(), search_buffer.size(), offset);
+        u64 next_magic = 0;
+        file->ReadObject(&next_magic, offset);
         
-        bool found = false;
-        for (size_t i = 0; i < search_buffer.size() - 8; i++) {
-            u64 m;
-            std::memcpy(&m, search_buffer.data() + i, sizeof(u64));
-            if (m == MAGIC_NCZBLOCK) {
-                offset += i;
-                found = true;
-                break;
-            }
-        }
-        
-        if (!found) {
-            // It's a Solid ZSTD stream without NCZBLOCK
-            is_solid_stream = true;
+        if (next_magic == MAGIC_NCZBLOCK) {
+            // Block compressed NCZ stream
+        } else {
+            u32 zstd_magic = 0;
+            file->ReadObject(&zstd_magic, offset);
             
-            u32 zstd_magic = 0xFD2FB528;
-            bool zstd_found = false;
-            for (size_t i = 0; i < search_buffer.size() - 4; i++) {
-                u32 m;
-                std::memcpy(&m, search_buffer.data() + i, sizeof(u32));
-                if (m == zstd_magic) {
-                    offset += i;
-                    zstd_found = true;
-                    break;
+            bool zstd_found = (zstd_magic == 0xFD2FB528);
+            if (!zstd_found) {
+                // Check if aligned or small padding
+                std::vector<u8> search_buffer(256);
+                file->ReadBytes(search_buffer.data(), search_buffer.size(), offset);
+                for (size_t i = 0; i < search_buffer.size() - 8; i++) {
+                    u64 m = 0;
+                    std::memcpy(&m, search_buffer.data() + i, sizeof(u64));
+                    if (m == MAGIC_NCZBLOCK) {
+                        offset += i;
+                        next_magic = MAGIC_NCZBLOCK;
+                        break;
+                    }
+                    u32 zm = 0;
+                    std::memcpy(&zm, search_buffer.data() + i, sizeof(u32));
+                    if (zm == 0xFD2FB528) {
+                        offset += i;
+                        zstd_found = true;
+                        break;
+                    }
                 }
             }
             
-            if (!zstd_found) {
-                LOG_ERROR(Service_FS, "Failed to find Zstd magic in file {}", file->GetName());
+            if (next_magic != MAGIC_NCZBLOCK) {
+                if (!zstd_found) {
+                    LOG_ERROR(Service_FS, "Failed to find Zstd or Block magic in file {}", file->GetName());
+                    return;
+                }
+                
+                // It's a Solid ZSTD stream without NCZBLOCK
+                is_solid_stream = true;
+                
+                decompressed_size = 0;
+                for (const auto& sec : sections) {
+                    u64 end = static_cast<u64>(sec.offset) + static_cast<u64>(sec.size);
+                    if (end > decompressed_size) decompressed_size = end;
+                }
+                
+                std::size_t compressed_size = file->GetSize() - offset;
+                
+                solid_compressed_offset = offset;
+                solid_compressed_size = compressed_size;
+                is_valid = true;
+                LOG_INFO(Service_FS, "Successfully mapped Solid NCZSECTN stream. Virtual NCA Size: {}", decompressed_size);
                 return;
             }
-            
-            decompressed_size = 0;
-            for (const auto& sec : sections) {
-                u64 end = static_cast<u64>(sec.offset) + static_cast<u64>(sec.size);
-                if (end > decompressed_size) decompressed_size = end;
-            }
-            
-            std::size_t compressed_size = file->GetSize() - offset;
-            
-            solid_compressed_offset = offset;
-            solid_compressed_size = compressed_size;
-            is_valid = true;
-            LOG_INFO(Service_FS, "Successfully mapped Solid NCZSECTN stream. Virtual NCA Size: {}", decompressed_size);
-            return;
         }
     }
 
@@ -286,6 +306,9 @@ NCZVirtualFile::NCZVirtualFile(VirtualFile file_)
         for (const auto& sec : sections) {
             u64 end = static_cast<u64>(sec.offset) + static_cast<u64>(sec.size);
             if (end > decompressed_size) decompressed_size = end;
+        }
+        if (packed_size == 0 && total_section_zstd_size > 0) {
+            packed_size = total_section_zstd_size;
         }
     } else {
         decompressed_size = packed_size;
@@ -365,8 +388,9 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
         return 0;
     }
 
-    auto SafeRead = [](const VirtualFile& vfs_file, u8* buffer, std::size_t size, std::size_t off) -> std::size_t {
+    auto SafeRead = [this](const VirtualFile& vfs_file, u8* buffer, std::size_t size, std::size_t off) -> std::size_t {
         try {
+            std::lock_guard<std::mutex> lock(raw_io_mutex);
             std::size_t b_read = vfs_file->Read(buffer, size, off);
             if (b_read == 0 && size > 0) {
                 LOG_ERROR(Service_FS, "SafeRead: Failed to read {} bytes at {} (Disk disconnected?)", size, off);
@@ -387,8 +411,8 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
     std::size_t remaining = std::min<std::size_t>(length, decompressed_size - offset);
     std::size_t current_offset = offset;
 
-    LOG_INFO(Service_FS, "NCZ::ReadImpl: file='{}' offset={:#x} length={} decomp_size={} is_solid={}",
-             GetName(), offset, length, decompressed_size, is_solid_stream);
+    LOG_TRACE(Service_FS, "NCZ::ReadImpl: file='{}' offset={:#x} length={} decomp_size={} is_solid={}",
+              GetName(), offset, length, decompressed_size, is_solid_stream);
 
     while (remaining > 0) {
         if (current_offset < 0x4000) {
@@ -449,7 +473,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
         u64 virtual_offset_in_nca = current_offset;
         std::size_t active_section_idx = 0;
-        
+
         if (!sections.empty()) {
             bool found = false;
             for (std::size_t i = 0; i < sections.size(); ++i) {
@@ -491,6 +515,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 continue;
             }
         } else {
+            // For NCZ streams without NCZSECTN sections
             mapped_offset = is_header_uncompressed
                 ? (virtual_offset_in_nca >= 0x4000 ? (virtual_offset_in_nca - 0x4000) : 0)
                 : virtual_offset_in_nca;
@@ -502,7 +527,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 std::filesystem::path temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
                 std::error_code ec;
                 std::filesystem::create_directories(temp_dir, ec);
-                std::filesystem::path cache_path = temp_dir / (GetName() + ".v2.decompressed_cache");
+                std::filesystem::path cache_path = temp_dir / (GetName() + ".v3.decompressed_cache");
                 std::filesystem::path completed_path = cache_path.string() + ".completed";
                 
                 bool cache_valid = std::filesystem::exists(cache_path, ec) && 
@@ -524,6 +549,7 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                 
                 if (cache_valid) {
                     disk_cache_file = std::make_shared<DiskVfsFile>(cache_path, GetName());
+                    solid_decompressed = true;
                 }
             }
 
@@ -579,17 +605,13 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
                     std::memset(data + bytes_read + read, 0, copy_size - read);
                 }
             } else {
+                constexpr std::size_t CACHE_SLOTS = 512;
+                std::size_t slot = block_index % CACHE_SLOTS;
                 bool hit = false;
                 {
                     std::unique_lock<std::mutex> cache_lock(cache_mutex);
-                    auto cache_it = std::find_if(block_cache.begin(), block_cache.end(),
-                        [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
-
-                    if (cache_it != block_cache.end()) {
-                        if (cache_it != block_cache.begin()) {
-                            std::rotate(block_cache.begin(), cache_it, cache_it + 1);
-                        }
-                        const auto& cached_entry = block_cache.front();
+                    if (slot < block_cache.size() && block_cache[slot].index == block_index && !block_cache[slot].data.empty()) {
+                        const auto& cached_entry = block_cache[slot];
                         std::size_t available = (cached_entry.data.size() > block_offset) ? (cached_entry.data.size() - block_offset) : 0;
                         copy_size = std::min<std::size_t>(copy_size, available);
                         if (copy_size > 0) {
@@ -628,14 +650,10 @@ std::size_t NCZVirtualFile::Read(u8* data, std::size_t length, std::size_t offse
 
                     {
                         std::unique_lock<std::mutex> cache_lock(cache_mutex);
-                        auto it = std::find_if(block_cache.begin(), block_cache.end(),
-                            [block_index](const BlockCacheEntry& entry) { return entry.index == block_index; });
-                        if (it == block_cache.end()) {
-                            if (block_cache.size() >= 256) {
-                                block_cache.pop_back();
-                            }
-                            block_cache.insert(block_cache.begin(), {block_index, std::move(decomp)});
+                        if (block_cache.size() < CACHE_SLOTS) {
+                            block_cache.resize(CACHE_SLOTS, {SIZE_MAX, {}});
                         }
+                        block_cache[slot] = {block_index, std::move(decomp)};
                         last_accessed_block = block_index;
                     }
                 }
@@ -711,25 +729,60 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
     u64 total_decompressed_so_far = 0;
     u64 last_log_progress = 0;
 
-    // Write decrypted header or uncompressed header
+    // Read and write original NCA header (0x4000)
+    std::vector<u8> header_data(0x4000);
     if (!decrypted_header.empty()) {
-        if (out_file.Seek(0)) {
-            (void)out_file.WriteSpan(std::span<const u8>(decrypted_header.data(), decrypted_header.size()));
-            total_decompressed_so_far += decrypted_header.size();
-        }
+        std::memcpy(header_data.data(), decrypted_header.data(), std::min(header_data.size(), decrypted_header.size()));
     } else {
-        std::vector<u8> header_temp(0x4000);
-        std::size_t r = SafeRead(file, header_temp.data(), 0x4000, 0);
-        if (r > 0) {
-            if (out_file.Seek(0)) {
-                (void)out_file.WriteSpan(std::span<const u8>(header_temp.data(), r));
-                total_decompressed_so_far += r;
-            }
-        }
+        SafeRead(file, header_data.data(), 0x4000, 0);
+    }
+    if (out_file.Seek(0)) {
+        (void)out_file.WriteSpan(std::span<const u8>(header_data.data(), header_data.size()));
+        total_decompressed_so_far += header_data.size();
     }
 
+    NcaHeader nca_hdr{};
+    std::memcpy(&nca_hdr, header_data.data(), sizeof(NcaHeader));
+
+    auto GetSectionKey = [&](const NCZSection& sec) -> Core::Crypto::Key128 {
+        // 1. Direct key stored in NCZSection
+        bool has_direct_key = false;
+        for (u8 b : sec.crypto_key) {
+            if (b != 0) {
+                has_direct_key = true;
+                break;
+            }
+        }
+        if (has_direct_key) {
+            Core::Crypto::Key128 key{};
+            std::memcpy(key.data(), sec.crypto_key.data(), 16);
+            return key;
+        }
+
+        // 2. Derive from NCA header and KeyManager
+        constexpr std::array<u8, NcaHeader::RightsIdSize> ZeroRightsId{};
+        if (std::memcmp(ZeroRightsId.data(), nca_hdr.rights_id.data(), NcaHeader::RightsIdSize) != 0) {
+            u128 rights_id_u128{};
+            std::memcpy(rights_id_u128.data(), nca_hdr.rights_id.data(), 16);
+            auto titlekey = Core::Crypto::KeyManager::Instance().GetKey(Core::Crypto::S128KeyType::Titlekey, rights_id_u128[1], rights_id_u128[0]);
+            if (titlekey == Core::Crypto::Key128{}) {
+                std::memcpy(titlekey.data(), nca_hdr.rights_id.data(), 16);
+            }
+            return titlekey;
+        } else {
+            u8 key_gen = nca_hdr.GetProperKeyGeneration();
+            u8 key_idx = nca_hdr.key_index;
+            auto kak = Core::Crypto::KeyManager::Instance().GetKey(Core::Crypto::S128KeyType::KeyArea, key_idx, key_gen);
+            Core::Crypto::Key128 key{};
+            Core::Crypto::AESCipher<Core::Crypto::Key128> cipher(kak, Core::Crypto::Mode::ECB);
+            cipher.Transcode(nca_hdr.encrypted_key_area.data() + NcaHeader::DecryptionKey_AesCtr * 16, 16, key.data(), Core::Crypto::Op::Decrypt);
+            return key;
+        }
+    };
+
     // Decompress each section sequentially
-    for (const auto& sec : sections) {
+    for (std::size_t i = 0; i < sections.size(); i++) {
+        const auto& sec = sections[i];
         u64 sec_offset = static_cast<u64>(sec.offset);
         u64 sec_size = static_cast<u64>(sec.size);
 
@@ -748,6 +801,19 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
                 return false;
             }
         }
+
+        const bool needs_re_encrypt = (sec.crypto_type == 3 || sec.crypto_type == 4);
+        Core::Crypto::Key128 sec_key{};
+        if (needs_re_encrypt) {
+            sec_key = GetSectionKey(sec);
+            LOG_INFO(Service_FS, "DecompressSolidTo: Section [{}] (offset=0x{:X}, size=0x{:X}, crypto_type={}) will be AES-CTR re-encrypted",
+                     i, sec.offset, sec.size, sec.crypto_type);
+        } else {
+            LOG_INFO(Service_FS, "DecompressSolidTo: Section [{}] (offset=0x{:X}, size=0x{:X}, crypto_type={}) will be written as plaintext",
+                     i, sec.offset, sec.size, sec.crypto_type);
+        }
+
+        u64 current_nca_pos = zstd_sec_start;
 
         while (remaining_in_sec > 0) {
             // Fill input buffer if needed
@@ -774,10 +840,28 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
             std::size_t produced = output.pos;
 
             if (produced > 0) {
+                if (needs_re_encrypt) {
+                    // Calculate AES-CTR counter block index = absolute_nca_offset / 16
+                    u64 block_index = current_nca_pos / 16;
+                    std::array<u8, 16> iv{};
+                    // Upper 8 bytes = nonce from NCZSECTN
+                    std::memcpy(iv.data(), sec.crypto_counter.data(), 8);
+                    // Lower 8 bytes = block_index in big-endian
+                    for (std::size_t b = 0; b < 8; ++b) {
+                        iv[16 - b - 1] = block_index & 0xFF;
+                        block_index >>= 8;
+                    }
+
+                    Core::Crypto::AESCipher<Core::Crypto::Key128> cipher(sec_key, Core::Crypto::Mode::CTR);
+                    cipher.SetIV(iv);
+                    cipher.Transcode(decomp_buffer.data(), produced, decomp_buffer.data(), Core::Crypto::Op::Encrypt);
+                }
+
                 (void)out_file.WriteSpan(std::span<const u8>(decomp_buffer.data(), produced));
                 remaining_in_sec -= produced;
+                current_nca_pos += produced;
                 total_decompressed_so_far += produced;
-                
+
                 if (total_decompressed_so_far - last_log_progress >= 512ULL * 1024 * 1024 || total_decompressed_so_far == total_decompressed_size) {
                     double progress_pct = total_decompressed_size > 0 ? ((double)total_decompressed_so_far / total_decompressed_size * 100.0) : 100.0;
                     LOG_INFO(Service_FS, "DecompressSolidTo: Decompressed {:.1f}% ({:.2f} / {:.2f} GB)...",
@@ -806,7 +890,7 @@ bool NCZVirtualFile::DecompressSolidTo(const std::filesystem::path& dest_path) c
     if (decompressed_size > 0) {
         std::filesystem::resize_file(dest_path, decompressed_size, ec);
     }
-    LOG_INFO(Service_FS, "DecompressSolidTo: Successfully finished decompression to {} ({} bytes)", dest_path.string(), decompressed_size);
+    LOG_INFO(Service_FS, "DecompressSolidTo: Successfully finished decompression and re-encryption to {} ({} bytes)", dest_path.string(), decompressed_size);
     return true;
 }
 

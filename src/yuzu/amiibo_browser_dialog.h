@@ -50,6 +50,7 @@ public:
 
 signals:
     void AmiiboSelectedForLoading(const QString& file_path);
+    void AmiiboRemoveRequested();
 
 private slots:
     void OnListLoaded();
@@ -57,6 +58,7 @@ private slots:
     void OnItemSelected(QListWidgetItem* current, QListWidgetItem* previous);
     void OnSaveAmiiboClicked();
     void OnLoadAmiiboClicked();
+    void OnDisconnectAmiiboClicked();
     void OnOpenAmiiboFolderClicked();
     void OnRefreshClicked();
 
@@ -95,6 +97,7 @@ private:
     QTextEdit* m_games_text{nullptr};
     QPushButton* m_save_btn{nullptr};
     QPushButton* m_load_btn{nullptr};
+    QPushButton* m_disconnect_btn{nullptr};
     QPushButton* m_open_folder_btn{nullptr};
     QPushButton* m_refresh_btn{nullptr};
 };

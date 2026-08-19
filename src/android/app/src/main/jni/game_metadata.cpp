@@ -58,6 +58,13 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
             }
         }
 
+        // Check if filename contains paired display version and internal version (e.g. "(1.5.1 - 262144 - ...)")
+        std::regex pair_ver_regex(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))");
+        std::smatch pair_match;
+        if (std::regex_search(path, pair_match, pair_ver_regex) && pair_match.size() > 2) {
+            entry.version = pair_match[1].str();
+        }
+
         // Clean version string: remove leading 'v' / 'V'
         while (entry.version.starts_with('v') || entry.version.starts_with('V')) {
             entry.version = entry.version.substr(1);

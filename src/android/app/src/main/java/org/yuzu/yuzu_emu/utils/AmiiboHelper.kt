@@ -66,11 +66,11 @@ object AmiiboHelper {
                 }
             }
 
-            val urls = listOf(
-                "https://www.amiiboapi.com/api/amiibo/",
-                "https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/database/amiibo.json",
-                "https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/database/amiibo.json"
-            )
+        val urls = listOf(
+            "https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master/database/amiibo.json",
+            "https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/database/amiibo.json",
+            "https://www.amiiboapi.com/api/amiibo/"
+        )
 
             for (url in urls) {
                 try {
@@ -341,7 +341,7 @@ object AmiiboHelper {
         return targetFile
     }
 
-    fun getAmiibosForGame(allAmiibos: List<AmiiboEntry>, titleId: Long, gameTitle: String): List<AmiiboEntry> {
+    fun getAmiibosForGame(allAmiibos: List<AmiiboEntry>, titleId: String, gameTitle: String): List<AmiiboEntry> {
         val gameLower = gameTitle.lowercase()
         return allAmiibos.filter { a ->
             when {
@@ -372,5 +372,62 @@ object AmiiboHelper {
         val bytes = generateAmiiboBin(entry)
         val result = NativeLibrary.loadAmiibo(bytes)
         return result == 0
+    }
+
+    val imageMemoryCache = androidx.collection.LruCache<String, android.graphics.Bitmap>(300)
+    private val fastImageClient = OkHttpClient.Builder()
+        .connectTimeout(2, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(3, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
+
+    suspend fun getAmiiboImage(url: String): android.graphics.Bitmap? = withContext(Dispatchers.IO) {
+        if (url.isEmpty()) return@withContext null
+
+        imageMemoryCache.get(url)?.let { return@withContext it }
+
+        val cacheDir = File(YuzuApplication.appContext.cacheDir, "amiibo_images")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+        val filename = url.substringAfterLast("/", "img.png").ifEmpty { "img.png" }
+        val localFile = File(cacheDir, filename)
+
+        if (localFile.exists() && localFile.length() > 0) {
+            try {
+                val bmp = android.graphics.BitmapFactory.decodeFile(localFile.absolutePath)
+                if (bmp != null) {
+                    imageMemoryCache.put(url, bmp)
+                    return@withContext bmp
+                }
+            } catch (_: Exception) {}
+        }
+
+        val mirrorUrls = listOf(
+            url,
+            url.replace("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master", "fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master"),
+            url.replace("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master", "raw.githubusercontent.com/N3evin/AmiiboAPI/master"),
+            url.replace("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master", "ghproxy.net/https://raw.githubusercontent.com/N3evin/AmiiboAPI/master"),
+            url.replace("raw.githubusercontent.com/N3evin/AmiiboAPI/master", "fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master")
+        ).distinct()
+
+        for (mirror in mirrorUrls) {
+            try {
+                val req = Request.Builder()
+                    .url(mirror)
+                    .header("User-Agent", USER_AGENT)
+                    .build()
+                val resp = fastImageClient.newCall(req).execute()
+                if (resp.isSuccessful) {
+                    val bytes = resp.body?.bytes()
+                    if (bytes != null && bytes.isNotEmpty()) {
+                        try { localFile.writeBytes(bytes) } catch (_: Exception) {}
+                        val bmp = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        if (bmp != null) {
+                            imageMemoryCache.put(url, bmp)
+                            return@withContext bmp
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+        null
     }
 }

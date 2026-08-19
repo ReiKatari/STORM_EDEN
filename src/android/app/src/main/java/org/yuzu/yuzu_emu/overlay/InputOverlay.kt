@@ -808,7 +808,7 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
         if (gamelessMode || BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean()) {
             addOverlayControls(layout)
         }
-        invalidate()
+        postInvalidate()
     }
 
     private fun saveControlPosition(
@@ -1017,19 +1017,42 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
         )
 
         /**
-         * Resizes a [Bitmap] by a given scale factor
+         * Generates a volumetric 3D styled bitmap with theme-specific coloring.
          *
-         * @param context       Context for getting the vector drawable
-         * @param drawableId    The ID of the drawable to scale.
-         * @param scale         The scale factor for the bitmap.
+         * @param context Context for getting the drawable.
+         * @param drawableId The ID of the drawable to get the Bitmap of.
+         * @param scale The scale of the bitmap.
+         * @param isPressed Whether button is in pressed state.
+         * @param isRightSide Whether button belongs to right-hand Joy-Con.
          * @return The scaled [Bitmap]
          */
-        private fun getBitmap(context: Context, drawableId: Int, scale: Float): Bitmap {
-            val vectorDrawable = ContextCompat.getDrawable(context, drawableId) as VectorDrawable
+        private fun getBitmap(
+            context: Context,
+            drawableId: Int,
+            scale: Float,
+            isPressed: Boolean = false,
+            isRightSide: Boolean = false
+        ): Bitmap {
+            val rawDrawable = ContextCompat.getDrawable(context, drawableId) ?: return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            val vectorDrawable = (rawDrawable.constantState?.newDrawable()?.mutate() ?: rawDrawable) as VectorDrawable
+
+            val currentTheme = org.yuzu.yuzu_emu.overlay.model.OverlayTheme.fromId(IntSetting.OVERLAY_SKIN_THEME.getInt())
+            val targetColor = if (currentTheme == org.yuzu.yuzu_emu.overlay.model.OverlayTheme.CLASSIC_SWITCH) {
+                if (isPressed) {
+                    if (isRightSide) 0xFFFF6B5B.toInt() else 0xFF4DE8FF.toInt()
+                } else if (isRightSide) {
+                    0xFFFF3C28.toInt() // Authentic Joy-Con Neon Red
+                } else {
+                    0xFF00C3E3.toInt() // Authentic Joy-Con Neon Blue
+                }
+            } else {
+                if (isPressed) currentTheme.colorPressed else currentTheme.colorDefault
+            }
+            vectorDrawable.setTint(targetColor)
 
             val bitmap = Bitmap.createBitmap(
-                (vectorDrawable.intrinsicWidth * scale).toInt(),
-                (vectorDrawable.intrinsicHeight * scale).toInt(),
+                (vectorDrawable.intrinsicWidth * scale).toInt().coerceAtLeast(1),
+                (vectorDrawable.intrinsicHeight * scale).toInt().coerceAtLeast(1),
                 Bitmap.Config.ARGB_8888
             )
 
@@ -1041,14 +1064,191 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
 
             val scaledBitmap = Bitmap.createScaledBitmap(
                 bitmap,
-                (bitmap.width * bitmapScale).toInt(),
-                (bitmap.height * bitmapScale).toInt(),
+                (bitmap.width * bitmapScale).toInt().coerceAtLeast(1),
+                (bitmap.height * bitmapScale).toInt().coerceAtLeast(1),
                 true
             )
 
             val canvas = Canvas(scaledBitmap)
-            vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
+            val w = canvas.width.toFloat()
+            val h = canvas.height.toFloat()
+            val radius = min(w, h) / 2f
+            val cx = w / 2f
+            val cy = h / 2f
+
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+            when (currentTheme.renderStyle) {
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.ARCADE_CANDY_3D -> {
+                    // Deep 3D drop shadow
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x55000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.12f, radius * 0.95f, paint)
+
+                    // Bold convex candy dome
+                    val candyTop = if (isPressed) ((0xEE shl 24) or (targetColor and 0x00FFFFFF)) else ((0xCC shl 24) or (targetColor and 0x00FFFFFF))
+                    val candyBottom = if (isPressed) 0xFF180A10.toInt() else 0xDD200814.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx - radius * 0.25f, cy - radius * 0.35f, radius * 1.1f,
+                        intArrayOf(0xFFFFFFFF.toInt(), candyTop, candyBottom),
+                        floatArrayOf(0.0f, 0.35f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.90f, paint)
+                    paint.shader = null
+
+                    // Shiny glossy bezel
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.5f, radius * 0.08f)
+                    paint.color = if (isPressed) 0xFFFFFFFF.toInt() else ((0xAA shl 24) or (targetColor and 0x00FFFFFF))
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+
+                    // Top-left specular glint
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x66FFFFFF
+                    canvas.drawOval(cx - radius * 0.55f, cy - radius * 0.65f, cx + radius * 0.15f, cy - radius * 0.35f, paint)
+                }
+
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.FROST_GLASS_3D -> {
+                    // Translucent glass base
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x30000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.05f, radius * 0.94f, paint)
+
+                    // Frosted glass refraction dome
+                    val glassTop = if (isPressed) 0x60FFFFFF else 0x35FFFFFF
+                    val glassBottom = if (isPressed) 0x900B101E.toInt() else 0x550B101E.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx, cy - radius * 0.30f, radius * 1.15f,
+                        intArrayOf(glassTop, ((0x40 shl 24) or (targetColor and 0x00FFFFFF)), glassBottom),
+                        floatArrayOf(0.0f, 0.55f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.90f, paint)
+                    paint.shader = null
+
+                    // Delicate specular perimeter halo
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.0f, radius * 0.055f)
+                    paint.color = if (isPressed) targetColor else ((0x80 shl 24) or (targetColor and 0x00FFFFFF))
+                    canvas.drawCircle(cx, cy, radius * 0.89f, paint)
+                }
+
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.TITANIUM_MECHA -> {
+                    // Heavy industrial drop shadow
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x45000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.08f, radius * 0.94f, paint)
+
+                    // Brushed Gunmetal Steel
+                    val metalTop = if (isPressed) 0xE0334155.toInt() else 0xC01E293B.toInt()
+                    val metalBottom = if (isPressed) 0xF00F172A.toInt() else 0xD00B0F19.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx - radius * 0.2f, cy - radius * 0.3f, radius * 1.2f,
+                        intArrayOf(metalTop, 0xD01E293B.toInt(), metalBottom),
+                        floatArrayOf(0.0f, 0.6f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.91f, paint)
+                    paint.shader = null
+
+                    // Machined Chamfered Bevel
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.8f, radius * 0.075f)
+                    paint.color = if (isPressed) targetColor else ((0x99 shl 24) or (targetColor and 0x00FFFFFF))
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+                }
+
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.FLAT_MINIMAL -> {
+                    // Ultra clean flat minimalist ring
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = if (isPressed) 0x60000000.toInt() else 0x30000000.toInt()
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(1.8f, radius * 0.045f)
+                    paint.color = if (isPressed) targetColor else ((0x66 shl 24) or (targetColor and 0x00FFFFFF))
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+                }
+
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.GOLDEN_ORNATE -> {
+                    // Warm golden drop shadow
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x40000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.08f, radius * 0.94f, paint)
+
+                    // Burnished gold disc
+                    val goldTop = if (isPressed) 0xF0D97706.toInt() else 0xD0B45309.toInt()
+                    val goldBottom = if (isPressed) 0xF0451A03.toInt() else 0xD0291000.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx, cy - radius * 0.35f, radius * 1.15f,
+                        intArrayOf(0xFFFDE68A.toInt(), goldTop, goldBottom),
+                        floatArrayOf(0.0f, 0.45f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.90f, paint)
+                    paint.shader = null
+
+                    // Radiant golden bevel rim
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.5f, radius * 0.07f)
+                    paint.color = if (isPressed) 0xFFFCD34D.toInt() else 0xCCF59E0B.toInt()
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+                }
+
+                org.yuzu.yuzu_emu.overlay.model.OverlayRenderStyle.RETRO_CLASSIC -> {
+                    // GameBoy DMG 1989 textured matte button
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x35000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.08f, radius * 0.94f, paint)
+
+                    val retroTop = if (isPressed) 0xE0881337.toInt() else 0xD06B1028.toInt()
+                    val retroBottom = if (isPressed) 0xF04C0519.toInt() else 0xD0380312.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx, cy - radius * 0.35f, radius * 1.15f,
+                        intArrayOf(retroTop, retroBottom, 0xE01F020A.toInt()),
+                        floatArrayOf(0.0f, 0.7f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.90f, paint)
+                    paint.shader = null
+
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.2f, radius * 0.06f)
+                    paint.color = if (isPressed) 0xFFE11D48.toInt() else 0x88BE123C.toInt()
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+                }
+
+                else -> {
+                    // Default / CYBERPUNK_NEON / SWITCH_JOYCON: Volumetric Switch Concave Disc
+                    paint.style = android.graphics.Paint.Style.FILL
+                    paint.color = 0x30000000.toInt()
+                    canvas.drawCircle(cx, cy + radius * 0.08f, radius * 0.94f, paint)
+
+                    val discTop = if (isPressed) 0xD0252D3D.toInt() else 0x901E2638.toInt()
+                    val discBottom = if (isPressed) 0xF0101520.toInt() else 0xB00D121C.toInt()
+                    paint.shader = android.graphics.RadialGradient(
+                        cx, cy - radius * 0.35f, radius * 1.15f,
+                        intArrayOf(discTop, discBottom, 0xE0080B10.toInt()),
+                        floatArrayOf(0.0f, 0.65f, 1.0f),
+                        android.graphics.Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(cx, cy, radius * 0.90f, paint)
+                    paint.shader = null
+
+                    paint.style = android.graphics.Paint.Style.STROKE
+                    paint.strokeWidth = max(2.5f, radius * 0.065f)
+                    paint.color = if (isPressed) targetColor else ((0x99 shl 24) or (targetColor and 0x00FFFFFF))
+                    canvas.drawCircle(cx, cy, radius * 0.88f, paint)
+                }
+            }
+
+            // Center icon / letter with high-contrast emboss
+            val iconInset = (radius * 0.17f).toInt()
+            vectorDrawable.setBounds(iconInset, iconInset, (w - iconInset).toInt(), (h - iconInset).toInt())
+            vectorDrawable.alpha = if (isPressed) 255 else 215
             vectorDrawable.draw(canvas)
+
             return scaledBitmap
         }
 
@@ -1177,9 +1377,22 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
             // Apply individual scale
             scale *= overlayControlData.individualScale.let { if (it > 0f) it else 1f }
 
+            val isRightSide = when (overlayControlData.id) {
+                OverlayControl.BUTTON_A.id,
+                OverlayControl.BUTTON_B.id,
+                OverlayControl.BUTTON_X.id,
+                OverlayControl.BUTTON_Y.id,
+                OverlayControl.BUTTON_R.id,
+                OverlayControl.BUTTON_ZR.id,
+                OverlayControl.BUTTON_PLUS.id,
+                OverlayControl.BUTTON_HOME.id,
+                OverlayControl.BUTTON_STICK_R.id -> true
+                else -> false
+            }
+
             // Initialize the InputOverlayDrawableButton.
-            val defaultStateBitmap = getBitmap(context, defaultResId, scale)
-            val pressedStateBitmap = getBitmap(context, pressedResId, scale)
+            val defaultStateBitmap = getBitmap(context, defaultResId, scale, isPressed = false, isRightSide = isRightSide)
+            val pressedStateBitmap = getBitmap(context, pressedResId, scale, isPressed = true, isRightSide = isRightSide)
             val overlayDrawable = InputOverlayDrawableButton(
                 res,
                 defaultStateBitmap,
@@ -1253,12 +1466,12 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
                 scale *= dpadData.individualScale.let { if (it > 0f) it else 1f }
             }
 
-            // Initialize the InputOverlayDrawableDpad.
+            // Initialize the InputOverlayDrawableDpad (Left Side).
             val defaultStateBitmap =
-                getBitmap(context, defaultResId, scale)
-            val pressedOneDirectionStateBitmap = getBitmap(context, pressedOneDirectionResId, scale)
+                getBitmap(context, defaultResId, scale, isPressed = false, isRightSide = false)
+            val pressedOneDirectionStateBitmap = getBitmap(context, pressedOneDirectionResId, scale, isPressed = true, isRightSide = false)
             val pressedTwoDirectionsStateBitmap =
-                getBitmap(context, pressedTwoDirectionsResId, scale)
+                getBitmap(context, pressedTwoDirectionsResId, scale, isPressed = true, isRightSide = false)
 
             val overlayDrawable = InputOverlayDrawableDpad(
                 res,
@@ -1329,10 +1542,12 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
             // Apply individual scale
             scale *= overlayControlData.individualScale.let { if (it > 0f) it else 1f }
 
+            val isRightSide = (joystick == NativeAnalog.RStick || overlayControlData.id == OverlayControl.STICK_R.id)
+
             // Initialize the InputOverlayDrawableJoystick.
-            val bitmapOuter = getBitmap(context, resOuter, scale)
-            val bitmapInnerDefault = getBitmap(context, defaultResInner, 1.0f)
-            val bitmapInnerPressed = getBitmap(context, pressedResInner, 1.0f)
+            val bitmapOuter = getBitmap(context, resOuter, scale, isPressed = false, isRightSide = isRightSide)
+            val bitmapInnerDefault = getBitmap(context, defaultResInner, 1.0f, isPressed = false, isRightSide = isRightSide)
+            val bitmapInnerPressed = getBitmap(context, pressedResInner, 1.0f, isPressed = true, isRightSide = isRightSide)
 
             // Get the minimum and maximum coordinates of the screen where the button can be placed.
             val min = windowSize.first

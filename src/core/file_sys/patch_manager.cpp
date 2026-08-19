@@ -57,9 +57,9 @@ std::string FormatTitleVersion(u32 version,
     }
 
     if (format == TitleVersionFormat::FourElements) {
-        return fmt::format("v{}.{}.{}.{}", bytes[3], bytes[2], bytes[1], bytes[0]);
+        return fmt::format("{}.{}.{}.{}", bytes[3], bytes[2], bytes[1], bytes[0]);
     }
-    return fmt::format("v{}.{}.{}", bytes[3], bytes[2], bytes[1]);
+    return fmt::format("{}.{}.{}", bytes[3], bytes[2], bytes[1]);
 }
 
 // Returns a directory with name matching name case-insensitive. Returns nullptr if directory
@@ -859,6 +859,23 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
 
             out.push_back(update_patch);
         }
+
+        const bool has_update = std::any_of(out.begin(), out.end(), [](const Patch& p) {
+            return p.type == PatchType::Update;
+        });
+        if (!has_update && update_raw != nullptr) {
+            bool update_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update") != disabled.cend();
+            out.push_back({
+                .enabled = !update_disabled,
+                .name = "Update",
+                .version = "PACKED",
+                .type = PatchType::Update,
+                .program_id = title_id,
+                .title_id = update_tid,
+                .source = PatchSource::Packed,
+                .numeric_version = 0,
+            });
+        }
     } else {
         PatchManager update{update_tid, fs_controller, content_provider};
         const auto metadata = update.GetControlMetadata();
@@ -1096,16 +1113,21 @@ std::optional<u32> PatchManager::GetGameVersion() const {
 }
 
 PatchManager::Metadata PatchManager::GetControlMetadata() const {
-    auto base_control_nca = content_provider.GetEntry(title_id, ContentRecordType::Control);
-    if (base_control_nca == nullptr) {
-        const u64 update_id = GetUpdateTitleID(title_id);
-        base_control_nca = content_provider.GetEntry(update_id, ContentRecordType::Control);
-    }
-    if (base_control_nca == nullptr) {
-        return {};
+    const u64 update_id = GetUpdateTitleID(title_id);
+    auto update_control_nca = content_provider.GetEntry(update_id, ContentRecordType::Control);
+    if (update_control_nca != nullptr) {
+        auto res = ParseControlNCA(*update_control_nca);
+        if (res.first != nullptr) {
+            return res;
+        }
     }
 
-    return ParseControlNCA(*base_control_nca);
+    auto base_control_nca = content_provider.GetEntry(title_id, ContentRecordType::Control);
+    if (base_control_nca != nullptr) {
+        return ParseControlNCA(*base_control_nca);
+    }
+
+    return {};
 }
 
 PatchManager::Metadata PatchManager::ParseControlNCA(const NCA& nca) const {

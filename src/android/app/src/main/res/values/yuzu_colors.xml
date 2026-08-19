@@ -271,8 +271,9 @@
     <color name="eden_button_secondary_border">#60D1F6</color> <!-- Electric cyan -->
 
     <!-- Synthwave Card Colors -->
-    <color name="eden_card_background">#F0F0F0</color> <!-- Almost white -->
-    <color name="eden_card_background_elevated">#D8D8D8</color> <!-- Elevated white -->
+    <color name="eden_card_background">#131927</color>
+    <color name="eden_card_background_elevated">#1E293B</color>
+    <color name="eden_card_stroke">#1E293B</color>
 
     <!-- Transparent versions for gradients -->
     <color name="eden_transparent">#00000000</color>

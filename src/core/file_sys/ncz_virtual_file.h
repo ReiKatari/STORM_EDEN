@@ -46,7 +46,7 @@ public:
     bool partitions_registered = false;
     void RegisterPartition(s32 fs_index, s64 virtual_offset, s64 virtual_size, s64 physical_offset, s64 physical_size);
     void SetDecryptedHeader(const u8* data, std::size_t size);
-    bool HasDecryptedSections() const;
+    bool HasDecryptedSections() const override;
 
 
 #pragma pack(push, 1)
@@ -63,12 +63,12 @@ public:
     struct NCZSection {
         u64 offset; // little-endian 64-bit virtual offset
         u64 size;   // little-endian 64-bit section size
-        u8 crypto_type;
-        std::array<u8, 7> padding1;
-        u64 padding2; // reserved
+        u64 crypto_type;
+        u64 padding;
         std::array<u8, 16> crypto_key;
         std::array<u8, 16> crypto_counter;
     };
+    static_assert(sizeof(NCZSection) == 64, "NCZSection size must be 64 bytes");
 #pragma pack(pop)
 
     const std::vector<NCZSection>& GetSections() const { return sections; }
@@ -119,6 +119,7 @@ public:
     mutable std::mutex cache_mutex;
     mutable std::mutex solid_mutex;
     mutable std::mutex header_mutex;
+    mutable std::mutex raw_io_mutex;
     mutable std::size_t last_accessed_block = SIZE_MAX;
     mutable std::shared_future<void> prefetch_future;
     mutable std::size_t prefetching_block_index = SIZE_MAX;

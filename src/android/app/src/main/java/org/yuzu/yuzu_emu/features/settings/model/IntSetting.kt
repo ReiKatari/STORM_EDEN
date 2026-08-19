@@ -37,6 +37,7 @@ enum class IntSetting(override val key: String) : AbstractIntSetting {
     APP_LANGUAGE("app_language"),
     OVERLAY_SCALE("control_scale"),
     OVERLAY_OPACITY("control_opacity"),
+    OVERLAY_SKIN_THEME("overlay_skin_theme"),
     LOCK_DRAWER("lock_drawer"),
     VERTICAL_ALIGNMENT("vertical_alignment"),
     PERF_OVERLAY_POSITION("perf_overlay_position"),

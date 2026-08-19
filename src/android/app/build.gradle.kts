@@ -347,6 +347,13 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics-android:1.7.8")
     implementation("androidx.compose.ui:ui-text-android:1.7.8")
     implementation("net.swiftzer.semver:semver:2.0.0")
+
+    // Google ML Kit Text Recognition (OCR) for Auto-Translator
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
 }
 
 fun runGitCommand(command: List<String>): String {
@@ -366,20 +373,7 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    val gitVersion = runGitCommand(
-        listOf(
-            "git",
-            "describe",
-            "--always",
-            "--long"
-        )
-    ).replace(Regex("(-0)?-[^-]+$"), "")
-    val versionName = if (System.getenv("GITHUB_ACTIONS") != null) {
-        System.getenv("GIT_TAG_NAME") ?: gitVersion
-    } else {
-        gitVersion
-    }
-    return versionName.ifEmpty { "4.0.1" }
+    return "4.1.7"
 }
 
 afterEvaluate {

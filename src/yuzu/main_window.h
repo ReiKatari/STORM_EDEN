@@ -56,6 +56,9 @@ class QSlider;
 class QHBoxLayout;
 class WaitTreeWidget;
 class PerformanceOverlay;
+class FloatingTranslateButton;
+class GameTranslator;
+class InGameNotificationOverlay;
 enum class GameListOpenTarget;
 enum class DumpRomFSTarget;
 class GameListPlaceholder;
@@ -421,6 +424,8 @@ private slots:
     void OnCreateHomeMenuDesktopShortcut();
     void OnCreateHomeMenuApplicationMenuShortcut();
     void OnCaptureScreenshot();
+    void OnTranslateScreen();
+    void OnOpenTranslatorSettings();
     void OnCheckFirmwareDecryption();
 #ifdef __unix__
     void OnCheckGraphicsBackend();
@@ -437,6 +442,7 @@ private slots:
 #endif
 
 private:
+    void SetupMenuIcons();
     void RemovePlayTimeData(u64 program_id);
     bool SelectRomFSDumpTarget(const FileSys::ContentProvider&, u64 program_id,
                                u64* selected_title_id, u8* selected_content_record_type);
@@ -639,6 +645,10 @@ private:
     void CreateShortcut(const std::string& game_path, const u64 program_id,
                         const std::string& game_title, QtCommon::Game::ShortcutTarget target,
                         std::string arguments, const bool needs_title);
+
+    FloatingTranslateButton* floating_translate_button{nullptr};
+    GameTranslator* m_game_translator{nullptr};
+    InGameNotificationOverlay* in_game_notification{nullptr};
 
 protected:
     void dropEvent(QDropEvent* event) override;

@@ -140,6 +140,8 @@
                     android:shadowDx="1"
                     android:shadowDy="1"
                     android:shadowRadius="2"
+                    android:lines="3"
+                    android:minLines="3"
                     android:maxLines="3"
                     android:ellipsize="end"
                     tools:text="The Legend of Zelda: Skyward Sword" />

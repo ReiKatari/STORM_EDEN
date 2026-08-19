@@ -65,6 +65,13 @@ object ThemeHelper {
         )
     }
 
+    @ColorInt
+    fun getColorFromAttr(context: android.content.Context, @androidx.annotation.AttrRes attrRes: Int): Int {
+        val typedValue = android.util.TypedValue()
+        context.theme.resolveAttribute(attrRes, typedValue, true)
+        return typedValue.data
+    }
+
     fun setCorrectTheme(activity: AppCompatActivity) {
         val currentTheme = (activity as ThemeProvider).themeId
         setTheme(activity)

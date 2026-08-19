@@ -82,11 +82,25 @@ class GamesFragment : Fragment() {
         }
 
     private fun getCurrentViewType(): Int {
-        return preferences.getInt(PREF_GLOBAL_GAME_VIEW_TYPE, GameAdapter.VIEW_TYPE_GRID)
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val viewType = preferences.getInt(PREF_GLOBAL_GAME_VIEW_TYPE, GameAdapter.VIEW_TYPE_GRID)
+        if (!isLandscape && viewType == GameAdapter.VIEW_TYPE_CAROUSEL) {
+            return GameAdapter.VIEW_TYPE_GRID
+        }
+        return viewType
     }
 
     private fun setCurrentViewType(type: Int) {
         preferences.edit { putInt(PREF_GLOBAL_GAME_VIEW_TYPE, type) }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (!isLandscape && lastViewType == GameAdapter.VIEW_TYPE_CAROUSEL) {
+            setCurrentViewType(GameAdapter.VIEW_TYPE_GRID)
+            applyGridGamesBinding()
+        }
     }
     override fun onCreateView(
         inflater: LayoutInflater,

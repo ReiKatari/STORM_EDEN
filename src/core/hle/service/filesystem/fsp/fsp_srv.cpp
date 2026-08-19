@@ -112,7 +112,7 @@ FSP_SRV::FSP_SRV(Core::System& system_)
         {120, nullptr, "OpenCloudBackupWorkStorageFileSystem"},
         {130, nullptr, "OpenCustomStorageFileSystem"},
         {200, D<&FSP_SRV::OpenDataStorageByCurrentProcess>, "OpenDataStorageByCurrentProcess"},
-        {201, nullptr, "OpenDataStorageByProgramId"},
+        {201, D<&FSP_SRV::OpenDataStorageByProgramId>, "OpenDataStorageByProgramId"},
         {202, D<&FSP_SRV::OpenDataStorageByDataId>, "OpenDataStorageByDataId"},
         {203, D<&FSP_SRV::OpenPatchDataStorageByCurrentProcess>, "OpenPatchDataStorageByCurrentProcess"},
         {204, nullptr, "OpenDataFileSystemByProgramIndex"},
@@ -479,6 +479,13 @@ Result FSP_SRV::OpenDataStorageByCurrentProcess(OutInterface<IStorage> out_inter
     R_SUCCEED();
 }
 
+Result FSP_SRV::OpenDataStorageByProgramId(OutInterface<IStorage> out_interface,
+                                           FileSys::StorageId storage_id, u64 title_id) {
+    LOG_INFO(Service_FS, "OpenDataStorageByProgramId: called with storage_id={:02X}, title_id={:016X}",
+             static_cast<u8>(storage_id), title_id);
+    return OpenDataStorageByDataId(out_interface, storage_id, 0, title_id);
+}
+
 Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
                                         FileSys::StorageId storage_id, u32 unknown, u64 title_id) {
     LOG_INFO(Service_FS, "OpenDataStorageByDataId: called with storage_id={:02X}, unknown={:08X}, title_id={:016X}",
@@ -520,10 +527,26 @@ Result FSP_SRV::OpenDataStorageByDataId(OutInterface<IStorage> out_interface,
 
 Result FSP_SRV::OpenPatchDataStorageByCurrentProcess(OutInterface<IStorage> out_interface,
                                                      FileSys::StorageId storage_id, u64 title_id) {
-    LOG_WARNING(Service_FS, "(STUBBED) called with storage_id={:02X}, title_id={:016X}", storage_id,
-                title_id);
+    LOG_INFO(Service_FS, "OpenPatchDataStorageByCurrentProcess: called with storage_id={:02X}, title_id={:016X}",
+             static_cast<u8>(storage_id), title_id);
 
-    R_RETURN(FileSys::ResultTargetNotFound);
+    const auto target_title_id = title_id != 0 ? title_id : program_id;
+    auto data = romfs_controller->OpenPatchedRomFS(target_title_id, FileSys::ContentRecordType::Program);
+    if (!data) {
+        data = romfs_controller->OpenPatchedRomFS(target_title_id, FileSys::ContentRecordType::Data);
+    }
+    if (!data) {
+        data = romfs_controller->OpenRomFS(target_title_id, storage_id, FileSys::ContentRecordType::Data);
+    }
+
+    if (!data) {
+        LOG_WARNING(Service_FS, "Patch data storage for title_id={:016X}, storage_id={:02X} not found.",
+                    target_title_id, static_cast<u8>(storage_id));
+        R_RETURN(FileSys::ResultTargetNotFound);
+    }
+
+    *out_interface = std::make_shared<IStorage>(system, std::move(data));
+    R_SUCCEED();
 }
 
 Result FSP_SRV::OpenDataStorageWithProgramIndex(OutInterface<IStorage> out_interface,

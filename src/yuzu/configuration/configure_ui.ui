@@ -228,6 +228,22 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="TranslatorGroupBox">
+     <property name="title">
+      <string>STORM TRANSLATOR (Eden Lens)</string>
+     </property>
+     <layout class="QVBoxLayout" name="TranslatorVerticalLayout">
+      <item>
+       <widget class="QCheckBox" name="enable_floating_translate_button">
+        <property name="text">
+         <string>Show floating translate button during gameplay</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Orientation::Vertical</enum>

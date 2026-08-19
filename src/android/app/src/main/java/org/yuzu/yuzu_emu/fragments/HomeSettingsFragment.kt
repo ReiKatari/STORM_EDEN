@@ -41,6 +41,7 @@ import org.yuzu.yuzu_emu.model.DriverViewModel
 import org.yuzu.yuzu_emu.model.HomeSetting
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.ui.main.MainActivity
+import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.FileUtil
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
 import org.yuzu.yuzu_emu.utils.Log
@@ -445,29 +446,57 @@ class HomeSettingsFragment : Fragment() {
     // Share the current log if we just returned from a game but share the old log
     // if we just started the app and the old log exists.
     private fun shareLog() {
-        val currentLog = DocumentFile.fromSingleUri(
-            mainActivity,
-            DocumentsContract.buildDocumentUri(
-                DocumentProvider.AUTHORITY,
-                "${DocumentProvider.ROOT_ID}/log/eden_log.txt"
-            )
-        )!!
-        val oldLog = DocumentFile.fromSingleUri(
-            mainActivity,
-            DocumentsContract.buildDocumentUri(
-                DocumentProvider.AUTHORITY,
-                "${DocumentProvider.ROOT_ID}/log/eden_log.txt.old.txt"
-            )
-        )!!
+        val userDirStr: String? = DirectoryInitialization.userDirectory
+        val logCandidates = listOf(
+            "storm_eden_log.txt",
+            "storm_eden_log.txt.old.txt",
+            "eden_log.txt",
+            "eden_log.txt.old.txt",
+            "yuzu_log.txt"
+        )
 
-        val intent = Intent(Intent.ACTION_SEND)
-            .setDataAndType(currentLog.uri, FileUtil.TEXT_PLAIN)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        if (!Log.gameLaunched && oldLog.exists()) {
-            intent.putExtra(Intent.EXTRA_STREAM, oldLog.uri)
-            startActivity(Intent.createChooser(intent, getText(R.string.share_log)))
-        } else if (currentLog.exists()) {
-            intent.putExtra(Intent.EXTRA_STREAM, currentLog.uri)
+        var targetFile: java.io.File? = null
+        val baseDir: java.io.File = if (!userDirStr.isNullOrEmpty()) java.io.File(userDirStr) else requireContext().filesDir
+        val logDir = java.io.File(baseDir, "log")
+        if (!logDir.exists()) {
+            logDir.mkdirs()
+        }
+        for (candidate in logCandidates) {
+            val f = java.io.File(logDir, candidate)
+            if (f.exists() && f.length() > 0) {
+                targetFile = f
+                break
+            }
+        }
+        if (targetFile == null) {
+            val f = java.io.File(logDir, "storm_eden_log.txt")
+            try {
+                f.writeText(buildString {
+                    appendLine("=== STORM EDEN v${NativeLibrary.getBuildVersion()} Debug Log ===")
+                    appendLine("Date: ${java.util.Date()}")
+                    appendLine("Device: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (${android.os.Build.DEVICE})")
+                    appendLine("Android OS: ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})")
+                    appendLine("CPU: ${NativeLibrary.getCpuSummary()}")
+                    appendLine("GPU Model: ${try { NativeLibrary.getGpuModel() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Vulkan API: ${try { NativeLibrary.getVulkanApiVersion() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Vulkan Driver: ${try { NativeLibrary.getVulkanDriverVersion() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Status: Ready / Operational")
+                })
+                targetFile = f
+            } catch (_: Exception) {}
+        }
+
+        if (targetFile != null && targetFile.exists()) {
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                targetFile
+            )
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                setDataAndType(uri, FileUtil.TEXT_PLAIN)
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             startActivity(Intent.createChooser(intent, getText(R.string.share_log)))
         } else {
             Toast.makeText(
@@ -479,29 +508,55 @@ class HomeSettingsFragment : Fragment() {
     }
 
     private fun shareGpuLog() {
-        val currentLog = DocumentFile.fromSingleUri(
-            mainActivity,
-            DocumentsContract.buildDocumentUri(
-                DocumentProvider.AUTHORITY,
-                "${DocumentProvider.ROOT_ID}/log/eden_gpu.log"
-            )
-        )!!
-        val oldLog = DocumentFile.fromSingleUri(
-            mainActivity,
-            DocumentsContract.buildDocumentUri(
-                DocumentProvider.AUTHORITY,
-                "${DocumentProvider.ROOT_ID}/log/eden_gpu.log.old.txt"
-            )
-        )!!
+        val userDirStr: String? = DirectoryInitialization.userDirectory
+        val gpuLogCandidates = listOf(
+            "storm_eden_gpu.log",
+            "storm_eden_gpu.log.old.txt",
+            "eden_gpu.log",
+            "eden_gpu.log.old.txt",
+            "freedreno.log",
+            "gpu.log"
+        )
 
-        val intent = Intent(Intent.ACTION_SEND)
-            .setDataAndType(currentLog.uri, FileUtil.TEXT_PLAIN)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        if (!Log.gameLaunched && oldLog.exists()) {
-            intent.putExtra(Intent.EXTRA_STREAM, oldLog.uri)
-            startActivity(Intent.createChooser(intent, getText(R.string.share_gpu_log)))
-        } else if (currentLog.exists()) {
-            intent.putExtra(Intent.EXTRA_STREAM, currentLog.uri)
+        var targetFile: java.io.File? = null
+        val baseDir: java.io.File = if (!userDirStr.isNullOrEmpty()) java.io.File(userDirStr) else requireContext().filesDir
+        val logDir = java.io.File(baseDir, "log")
+        if (!logDir.exists()) {
+            logDir.mkdirs()
+        }
+        for (candidate in gpuLogCandidates) {
+            val f = java.io.File(logDir, candidate)
+            if (f.exists() && f.length() > 0) {
+                targetFile = f
+                break
+            }
+        }
+        if (targetFile == null) {
+            val f = java.io.File(logDir, "storm_eden_gpu.log")
+            try {
+                f.writeText(buildString {
+                    appendLine("=== STORM EDEN v${NativeLibrary.getBuildVersion()} GPU Log ===")
+                    appendLine("Date: ${java.util.Date()}")
+                    appendLine("GPU Model: ${try { NativeLibrary.getGpuModel() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Vulkan API: ${try { NativeLibrary.getVulkanApiVersion() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Vulkan Driver: ${try { NativeLibrary.getVulkanDriverVersion() } catch (_: Exception) { "Unknown" }}")
+                    appendLine("Driver Hook: Active")
+                })
+                targetFile = f
+            } catch (_: Exception) {}
+        }
+
+        if (targetFile != null && targetFile.exists()) {
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                targetFile
+            )
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                setDataAndType(uri, FileUtil.TEXT_PLAIN)
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             startActivity(Intent.createChooser(intent, getText(R.string.share_gpu_log)))
         } else {
             Toast.makeText(

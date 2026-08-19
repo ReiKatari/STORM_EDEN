@@ -22,6 +22,28 @@ class SwitchSettingViewHolder(val binding: ListItemSettingSwitchBinding, adapter
         binding.textSettingDescription.setVisible(setting.description.isNotEmpty())
         binding.textSettingDescription.text = setting.description
 
+        val context = binding.root.context
+        val primaryColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(context, com.google.android.material.R.attr.colorPrimary)
+        val outlineColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(context, com.google.android.material.R.attr.colorOutline)
+        val surfaceVariantColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(context, com.google.android.material.R.attr.colorSurfaceVariant)
+
+        val thumbStates = arrayOf(
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_checked)
+        )
+        val thumbColors = intArrayOf(primaryColor, outlineColor)
+        binding.switchWidget.thumbTintList = android.content.res.ColorStateList(thumbStates, thumbColors)
+
+        val trackStates = arrayOf(
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_checked)
+        )
+        val trackColors = intArrayOf(
+            org.yuzu.yuzu_emu.utils.ThemeHelper.getColorWithOpacity(primaryColor, 0.45f),
+            surfaceVariantColor
+        )
+        binding.switchWidget.trackTintList = android.content.res.ColorStateList(trackStates, trackColors)
+
         // TODO(alekpop): A race condition occurs here if the button is clicked too fast
         binding.switchWidget.setOnCheckedChangeListener(null)
         binding.switchWidget.isChecked = setting.getIsChecked(setting.needsRuntimeGlobal)

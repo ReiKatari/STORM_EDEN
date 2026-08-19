@@ -189,13 +189,13 @@ void OpenLogFolder() {
 static QString GetGameListErrorRemoving(QtCommon::Game::InstalledEntryType type) {
     switch (type) {
     case QtCommon::Game::InstalledEntryType::Game:
-        return tr("Error Removing Contents");
+        return tr("Ошибка удаления контента");
     case QtCommon::Game::InstalledEntryType::Update:
-        return tr("Error Removing Update");
+        return tr("Ошибка удаления обновления");
     case QtCommon::Game::InstalledEntryType::AddOnContent:
-        return tr("Error Removing DLC");
+        return tr("Ошибка удаления DLC");
     default:
-        return QStringLiteral("Error Removing <Invalid Type>");
+        return tr("Ошибка удаления");
     }
 }
 
@@ -204,24 +204,23 @@ void RemoveBaseContent(u64 program_id, InstalledEntryType type) {
     const auto res =
         ContentManager::RemoveBaseContent(system->GetFileSystemController(), program_id);
     if (res) {
-        QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                        tr("Successfully removed the installed base game."));
+        QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                        tr("Установленная базовая игра успешно удалена."));
     } else {
         QtCommon::Frontend::Warning(
-
             GetGameListErrorRemoving(type),
-            tr("The base game is not installed in the NAND and cannot be removed."));
+            tr("Базовая игра не установлена в NAND и не может быть удалена."));
     }
 }
 
 void RemoveUpdateContent(u64 program_id, InstalledEntryType type) {
     const auto res = ContentManager::RemoveUpdate(system->GetFileSystemController(), program_id);
     if (res) {
-        QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                        tr("Successfully removed the installed update."));
+        QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                        tr("Установленное обновление успешно удалено."));
     } else {
         QtCommon::Frontend::Warning(GetGameListErrorRemoving(type),
-                                    tr("There is no update installed for this title."));
+                                    tr("Для этой игры не установлено обновление."));
     }
 }
 
@@ -229,12 +228,12 @@ void RemoveAddOnContent(u64 program_id, InstalledEntryType type) {
     const size_t count = ContentManager::RemoveAllDLC(*system, program_id);
     if (count == 0) {
         QtCommon::Frontend::Warning(GetGameListErrorRemoving(type),
-                                    tr("There are no DLCs installed for this title."));
+                                    tr("Для этой игры не установлены DLC."));
         return;
     }
 
-    QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                    tr("Successfully removed %1 installed DLC.").arg(count));
+    QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                    tr("Успешно удалено установленных DLC: %1.").arg(count));
 }
 
 // Global Content //
@@ -255,16 +254,16 @@ void RemoveTransferableShaderCache(u64 program_id, GameListRemoveTarget target) 
     const auto target_file = shader_cache_folder_path / target_file_name;
 
     if (!Common::FS::Exists(target_file)) {
-        QtCommon::Frontend::Warning(tr("Error Removing Transferable Shader Cache"),
-                                    tr("A shader cache for this title does not exist."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления кэша шейдеров"),
+                                    tr("Кэш шейдеров для этой игры не существует."));
         return;
     }
     if (Common::FS::RemoveFile(target_file)) {
-        QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                        tr("Successfully removed the transferable shader cache."));
+        QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                        tr("Кэш шейдеров успешно удален."));
     } else {
-        QtCommon::Frontend::Warning(tr("Error Removing Transferable Shader Cache"),
-                                    tr("Failed to remove the transferable shader cache."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления кэша шейдеров"),
+                                    tr("Не удалось удалить кэш шейдеров."));
     }
 }
 
@@ -279,8 +278,8 @@ void RemoveVulkanDriverPipelineCache(u64 program_id) {
         return;
     }
     if (!Common::FS::RemoveFile(target_file)) {
-        QtCommon::Frontend::Warning(tr("Error Removing Vulkan Driver Pipeline Cache"),
-                                    tr("Failed to remove the driver pipeline cache."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления кэша пайплайнов Vulkan"),
+                                    tr("Не удалось удалить кэш пайплайнов драйвера Vulkan."));
     }
 }
 
@@ -289,18 +288,17 @@ void RemoveAllTransferableShaderCaches(u64 program_id) {
     const auto program_shader_cache_dir = shader_cache_dir / fmt::format("{:016x}", program_id);
 
     if (!Common::FS::Exists(program_shader_cache_dir)) {
-        QtCommon::Frontend::Warning(tr("Error Removing Transferable Shader Caches"),
-                                    tr("A shader cache for this title does not exist."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления кэшей шейдеров"),
+                                    tr("Кэш шейдеров для этой игры не существует."));
         return;
     }
     if (Common::FS::RemoveDirRecursively(program_shader_cache_dir)) {
-        QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                        tr("Successfully removed the transferable shader caches."));
+        QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                        tr("Кэши шейдеров успешно удалены."));
     } else {
         QtCommon::Frontend::Warning(
-
-            tr("Error Removing Transferable Shader Caches"),
-            tr("Failed to remove the transferable shader cache directory."));
+            tr("Ошибка удаления кэшей шейдеров"),
+            tr("Не удалось удалить директорию кэшей шейдеров."));
     }
 }
 
@@ -313,17 +311,17 @@ void RemoveCustomConfiguration(u64 program_id, const std::string& game_path) {
         Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir) / "custom" / config_file_name;
 
     if (!Common::FS::Exists(custom_config_file_path)) {
-        QtCommon::Frontend::Warning(tr("Error Removing Custom Configuration"),
-                                    tr("A custom configuration for this title does not exist."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления конфигурации"),
+                                    tr("Пользовательская конфигурация для этой игры не существует."));
         return;
     }
 
     if (Common::FS::RemoveFile(custom_config_file_path)) {
-        QtCommon::Frontend::Information(tr("Successfully Removed"),
-                                        tr("Successfully removed the custom game configuration."));
+        QtCommon::Frontend::Information(tr("Успешно удалено"),
+                                        tr("Пользовательская конфигурация игры успешно удалена."));
     } else {
-        QtCommon::Frontend::Warning(tr("Error Removing Custom Configuration"),
-                                    tr("Failed to remove the custom game configuration."));
+        QtCommon::Frontend::Warning(tr("Ошибка удаления конфигурации"),
+                                    tr("Не удалось удалить пользовательскую конфигурацию игры."));
     }
 }
 

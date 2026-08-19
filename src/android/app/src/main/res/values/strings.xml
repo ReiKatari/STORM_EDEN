@@ -13,6 +13,7 @@
     <string name="app_notification_channel_description">STORM EDEN Switch emulator notifications</string>
     <string name="app_notification_running">STORM EDEN is Running</string>
     <string name="seconds">Seconds</string>
+    <string name="copy_to_clipboard">Copy Info</string>
 
     <!-- Spinbox strings -->
     <string name="increment">Increment</string>
@@ -324,10 +325,10 @@
     <string name="firmware_installed_failure_description">Make sure the firmware nca files are at the root of the zip and try again.</string>
     <string name="firmware_uninstalled_failure">Firmware uninstallation failed</string>
     <string name="share_log">Share debug logs</string>
-    <string name="share_log_description">Share Eden\'s log file to debug issues</string>
+    <string name="share_log_description">Share STORM EDEN\'s log file to debug issues</string>
     <string name="share_log_missing">No log file found</string>
     <string name="share_gpu_log">Share GPU logs</string>
-    <string name="share_gpu_log_description">Share Eden\'s GPU log file to debug graphics issues</string>
+    <string name="share_gpu_log_description">Share STORM EDEN\'s GPU log file to debug graphics issues</string>
     <string name="share_gpu_log_missing">No GPU log file found</string>
     <string name="install_game_content">Install game content</string>
     <string name="install_game_content_description">Install game updates or DLC</string>
@@ -1843,6 +1844,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <!-- Amiibo Manager -->
     <string name="amiibo">Amiibo</string>
     <string name="amiibo_database_title">Online Amiibo Database</string>
+    <string name="amiibo_for_game_title">Amiibo: %1$s</string>
     <string name="amiibo_database_description">Browse, generate, and quickly inject virtual Amiibos into games</string>
     <string name="search_amiibo_hint">Search by Amiibo name, character, or ID...</string>
     <string name="all_series">All Series</string>
@@ -1874,4 +1876,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="show_filename_as_title">Game Title from Filename</string>
     <string name="show_filename_as_title_description">Display clean game title parsed from filename instead of internal ROM name</string>
 
+    <!-- Auto-Translator (OCR + TTS) -->
+    <string name="translator_title">STORM TRANSLATOR</string>
+    <string name="translator_translate_screen">Translate Screen (OCR + TTS)</string>
+    <string name="translator_engine">Translation Engine</string>
+    <string name="translator_source_lang">Source Language</string>
+    <string name="translator_target_lang">Target Language</string>
+    <string name="translator_auto_tts">Auto Text-to-Speech</string>
+
+    <!-- Overlay Skin Themes -->
+    <string name="overlay_skin_theme">Touch Controller Skin Theme</string>
+    <string name="overlay_skin_theme_description">Choose color scheme and animations for virtual buttons and joysticks</string>
+    <string name="skin_cyberpunk_neon">Eden Cyberpunk Neon (Cyan / Hot Pink)</string>
+    <string name="skin_classic_switch">Classic Switch (Joy-Con Blue / Red)</string>
+    <string name="skin_frost_glass_3d">Frosted Glass 3D (Translucent / Specular Glow)</string>
+    <string name="skin_titanium_mecha">Titanium Mecha (Brushed Steel / Cyan Bevel)</string>
+    <string name="skin_arcade_candy_3d">Arcade Candy 3D (Convex Gloss / Amber Highlight)</string>
+    <string name="skin_flat_minimal">Flat Minimalist (Crisp Vector / Outline Accent)</string>
+    <string name="skin_storm_ds_classic">STORM Classic (Platinum / Cyan)</string>
+    <string name="skin_ds_lite_white">DS Lite Pearl White (White / Sky Blue)</string>
+    <string name="skin_dsi_xl_blue">DSi XL Midnight Blue (Navy / Bright Aqua)</string>
+    <string name="skin_crimson_red">Ruby Crimson Red (Deep Red / Amber)</string>
+    <string name="skin_n3ds_aqua">Nintendo 3DS Aqua Blue (Teal / Lime)</string>
+    <string name="skin_oled_stealth">OLED Stealth Dark (Slate / Pure White)</string>
+    <string name="skin_golden_zelda">Golden Zelda Triforce (Gold / Solar Orange)</string>
+    <string name="skin_gameboy_color_purple">GameBoy Color Atomic Purple (Purple / Magenta)</string>
+    <string name="skin_gameboy_dmg_retro">GameBoy DMG 1989 Retro (Olive / Maroon)</string>
+
+    <string name="amiibo_disconnect_button">Disconnect Current Amiibo</string>
+    <string name="amiibo_currently_attached">Active Amiibo: %1$s</string>
+    <string name="amiibo_no_attached">No Amiibo currently active on controller</string>
+    <string name="amiibo_removed_toast">Amiibo removed from controller</string>
+
+    <string name="translator_floating_btn_title">Floating Translate Button</string>
+    <string name="translator_floating_btn_description">Show floating Eden Lens screen translation button during gameplay</string>
+    <string name="hotkey_quick_actions">Hotkeys &amp; Quick Actions</string>
+    <string name="hotkey_quick_actions_desc">Configure on-screen hotkeys and fast action overlays</string>
+
 </resources>
+

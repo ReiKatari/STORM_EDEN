@@ -39,17 +39,29 @@ class AmiiboDialogFragment : DialogFragment() {
     private var displayedAmiibos = mutableListOf<AmiiboEntry>()
     private var selectedSeries: String = ""
     private var isEmulating: Boolean = false
+    private var gameTitle: String = ""
+    private var titleId: String = ""
 
     companion object {
         const val TAG = "AmiiboDialogFragment"
         private const val ARG_IS_EMULATING = "arg_is_emulating"
+        private const val ARG_GAME_TITLE = "arg_game_title"
+        private const val ARG_TITLE_ID = "arg_title_id"
 
-        fun newInstance(isEmulating: Boolean = false): AmiiboDialogFragment {
+        fun newInstance(
+            isEmulating: Boolean = false,
+            gameTitle: String = "",
+            titleId: String = ""
+        ): AmiiboDialogFragment {
             return AmiiboDialogFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(ARG_IS_EMULATING, isEmulating)
+                    putString(ARG_GAME_TITLE, gameTitle)
+                    putString(ARG_TITLE_ID, titleId)
                 }
                 this.isEmulating = isEmulating
+                this.gameTitle = gameTitle
+                this.titleId = titleId
             }
         }
     }
@@ -57,6 +69,8 @@ class AmiiboDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isEmulating = arguments?.getBoolean(ARG_IS_EMULATING, false) ?: false
+        gameTitle = arguments?.getString(ARG_GAME_TITLE, "") ?: ""
+        titleId = arguments?.getString(ARG_TITLE_ID, "") ?: ""
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -65,20 +79,52 @@ class AmiiboDialogFragment : DialogFragment() {
         setupUI()
         loadDatabase(false)
 
+        val dialogTitle = if (gameTitle.isNotBlank()) {
+            getString(R.string.amiibo_for_game_title, gameTitle)
+        } else {
+            getString(R.string.amiibo_database_title)
+        }
+
         return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.amiibo_database_title)
+            .setTitle(dialogTitle)
             .setView(binding.root)
             .setNegativeButton(R.string.close, null)
             .create()
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.let { window ->
+            val dm = resources.displayMetrics
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val width = if (isLandscape) (dm.widthPixels * 0.92).toInt() else (dm.widthPixels * 0.95).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.92).toInt() else (dm.heightPixels * 0.85).toInt()
+            window.setLayout(width, height)
+            window.setBackgroundDrawableResource(R.drawable.eden_dialog_background)
+        }
+    }
+
     private fun setupUI() {
-        binding.listAmiibo.layoutManager = LinearLayoutManager(requireContext())
+        val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val spanCount = if (isLandscape) 2 else 1
+        binding.listAmiibo.layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), spanCount)
         binding.listAmiibo.adapter = AmiiboAdapter()
 
         binding.buttonRefresh.setOnClickListener {
             loadDatabase(true)
         }
+
+        binding.buttonDisconnectAmiibo.setOnClickListener {
+            NativeLibrary.closeAmiibo()
+            Toast.makeText(
+                requireContext(),
+                R.string.amiibo_removed_toast,
+                Toast.LENGTH_SHORT
+            ).show()
+            updateActiveAmiiboStatus()
+        }
+
+        updateActiveAmiiboStatus()
 
         binding.inputSearch.setOnEditorActionListener { _, _, _ ->
             applyFilters()
@@ -94,13 +140,32 @@ class AmiiboDialogFragment : DialogFragment() {
         })
     }
 
+    private fun updateActiveAmiiboStatus() {
+        if (!isEmulating) {
+            binding.cardActiveAmiibo.isVisible = false
+            return
+        }
+        val state = NativeLibrary.getVirtualAmiiboState()
+        // State 2 = TagNearby
+        if (state == 2) {
+            binding.cardActiveAmiibo.isVisible = true
+            binding.textActiveAmiiboStatus.text = getString(R.string.amiibo_currently_attached, "NFC Active")
+        } else {
+            binding.cardActiveAmiibo.isVisible = false
+        }
+    }
+
     private fun loadDatabase(forceRefresh: Boolean) {
         binding.progressLoading.isVisible = true
         binding.textEmptyAmiibo.isVisible = false
 
         lifecycleScope.launch {
             val list = AmiiboHelper.getAmiiboDatabase(forceRefresh)
-            allAmiibos = list
+            allAmiibos = if (gameTitle.isNotBlank()) {
+                AmiiboHelper.getAmiibosForGame(list, titleId, gameTitle)
+            } else {
+                list
+            }
             binding.progressLoading.isVisible = false
 
             populateSeriesChips()
@@ -187,32 +252,11 @@ class AmiiboDialogFragment : DialogFragment() {
             b.imageAmiibo.setImageResource(R.drawable.ic_amiibo)
             if (entry.imageUrl.isNotEmpty()) {
                 val imgUrl = entry.imageUrl
-                lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        val client = OkHttpClient()
-                        var req = Request.Builder()
-                            .url(imgUrl)
-                            .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 STORM-EDEN/4.0.1")
-                            .build()
-                        var resp = client.newCall(req).execute()
-                        if (!resp.isSuccessful && imgUrl.contains("jsdelivr.net")) {
-                            val fallbackUrl = imgUrl.replace("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master", "https://raw.githubusercontent.com/N3evin/AmiiboAPI/master")
-                            req = Request.Builder()
-                                .url(fallbackUrl)
-                                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 STORM-EDEN/4.0.1")
-                                .build()
-                            resp = client.newCall(req).execute()
-                        }
-                        if (resp.isSuccessful && resp.body != null) {
-                            val stream: InputStream = resp.body!!.byteStream()
-                            val bitmap = BitmapFactory.decodeStream(stream)
-                            withContext(Dispatchers.Main) {
-                                if (holder.bindingAdapterPosition == position) {
-                                    b.imageAmiibo.setImageBitmap(bitmap)
-                                }
-                            }
-                        }
-                    } catch (_: Exception) {}
+                lifecycleScope.launch {
+                    val bitmap = AmiiboHelper.getAmiiboImage(imgUrl)
+                    if (bitmap != null && holder.bindingAdapterPosition == position) {
+                        b.imageAmiibo.setImageBitmap(bitmap)
+                    }
                 }
             }
 

@@ -1589,6 +1589,21 @@ jint Java_org_yuzu_yuzu_1emu_NativeLibrary_loadAmiibo(JNIEnv* env, jobject jobj,
     return static_cast<jint>(info);
 }
 
+jint Java_org_yuzu_yuzu_1emu_NativeLibrary_closeAmiibo(JNIEnv* env, jobject jobj) {
+    if (!EmulationSession::GetInstance().IsRunning()) {
+        return static_cast<jint>(InputCommon::VirtualAmiibo::Info::WrongDeviceState);
+    }
+
+    auto* virtual_amiibo =
+        EmulationSession::GetInstance().GetInputSubsystem().GetVirtualAmiibo();
+    if (virtual_amiibo == nullptr) {
+        return static_cast<jint>(InputCommon::VirtualAmiibo::Info::Unknown);
+    }
+
+    const auto info = virtual_amiibo->CloseAmiibo();
+    return static_cast<jint>(info);
+}
+
 JNIEXPORT void JNICALL
 Java_org_yuzu_yuzu_1emu_NativeLibrary_initMultiplayer(
         JNIEnv* env, [[maybe_unused]] jobject obj) {

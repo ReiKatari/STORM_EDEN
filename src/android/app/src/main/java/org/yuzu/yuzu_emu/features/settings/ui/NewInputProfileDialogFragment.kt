@@ -29,7 +29,7 @@ class NewInputProfileDialogFragment : DialogFragment() {
         binding = DialogEditTextBinding.inflate(layoutInflater)
 
         val setting = settingsViewModel.clickedItem as InputProfileSetting
-        return MaterialAlertDialogBuilder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
             .setTitle(R.string.enter_profile_name)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val profileName = binding.editText.text.toString()

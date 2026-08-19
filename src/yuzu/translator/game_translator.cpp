@@ -619,7 +619,7 @@ GameTranslator::GameTranslator(Core::System& system, QWidget* parent)
     auto* hud_layout = new QFormLayout(hud_box);
 
     m_show_hud_check = new QCheckBox(tr("Показывать плавающие субтитры (HUD)"), tab_hud);
-    m_enable_floating_btn_check = new QCheckBox(tr("Отображать плавающую кнопку Eden Lens поверх игры"), tab_hud);
+    m_enable_floating_btn_check = new QCheckBox(tr("Отображать плавающую кнопку перевода поверх игры"), tab_hud);
     m_enable_floating_btn_check->setChecked(true);
     m_hud_opacity_slider = new QSlider(Qt::Horizontal, tab_hud);
     m_hud_opacity_slider->setRange(10, 100);

@@ -475,23 +475,31 @@ void QtConfig::SavePathValues() {
 void QtConfig::SaveShortcutValues() {
     BeginGroup(Settings::TranslateCategory(Settings::Category::Shortcuts));
 
-    // Lengths of UISettings::values.shortcuts & default_hotkeys are same.
-    // However, their ordering must also be the same.
-    for (std::size_t i = 0; i < UISettings::default_hotkeys.size(); i++) {
-        const auto& [name, group, shortcut] = UISettings::values.shortcuts[i];
-        const auto& default_hotkey = UISettings::default_hotkeys[i].shortcut;
+    for (const auto& [name, group, shortcut] : UISettings::values.shortcuts) {
+        if (group.empty() || name.empty()) {
+            continue;
+        }
+
+        auto it = std::find_if(UISettings::default_hotkeys.begin(), UISettings::default_hotkeys.end(),
+                               [&](const auto& d) { return d.name == name && d.group == group; });
+        std::optional<std::string> def_keyseq;
+        std::optional<std::string> def_ctrl_keyseq;
+        std::optional<int> def_context;
+        std::optional<bool> def_repeat;
+        if (it != UISettings::default_hotkeys.end()) {
+            def_keyseq = it->shortcut.keyseq;
+            def_ctrl_keyseq = it->shortcut.controller_keyseq;
+            def_context = it->shortcut.context;
+            def_repeat = it->shortcut.repeat;
+        }
 
         BeginGroup(group);
         BeginGroup(name);
 
-        WriteStringSetting(std::string("KeySeq"), shortcut.keyseq,
-                           std::make_optional(default_hotkey.keyseq));
-        WriteStringSetting(std::string("Controller_KeySeq"), shortcut.controller_keyseq,
-                           std::make_optional(default_hotkey.controller_keyseq));
-        WriteIntegerSetting(std::string("Context"), shortcut.context,
-                            std::make_optional(default_hotkey.context));
-        WriteBooleanSetting(std::string("Repeat"), shortcut.repeat,
-                            std::make_optional(default_hotkey.repeat));
+        WriteStringSetting(std::string("KeySeq"), shortcut.keyseq, def_keyseq);
+        WriteStringSetting(std::string("Controller_KeySeq"), shortcut.controller_keyseq, def_ctrl_keyseq);
+        WriteIntegerSetting(std::string("Context"), shortcut.context, def_context);
+        WriteBooleanSetting(std::string("Repeat"), shortcut.repeat, def_repeat);
 
         EndGroup(); // name
         EndGroup(); // group

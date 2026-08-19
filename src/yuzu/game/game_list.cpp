@@ -512,11 +512,13 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
         shortcut_menu->addAction(tr("В меню приложений"));
 #endif
     context_menu.addSeparator();
+    QAction* cheats_action = context_menu.addAction(tr("⚡ Чит-коды..."));
     QAction* properties = context_menu.addAction(tr("⚙️ Свойства / Настройки игры..."));
 
     favorite->setVisible(program_id != 0);
     favorite->setCheckable(true);
     favorite->setChecked(UISettings::values.favorited_ids.contains(program_id));
+    cheats_action->setVisible(program_id != 0);
     open_save_location->setVisible(program_id != 0);
     open_mod_location->setVisible(program_id != 0);
     open_transferable_shader_cache->setVisible(program_id != 0);
@@ -527,6 +529,9 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
     remove_shader_cache->setVisible(program_id != 0);
     remove_all_content->setVisible(program_id != 0);
 
+    connect(cheats_action, &QAction::triggered, this, [this, program_id, path]() {
+        emit OpenCheatsRequested(program_id, QString::fromStdString(path));
+    });
     connect(favorite, &QAction::triggered, this,
             [this, program_id]() { ToggleFavorite(program_id); });
     connect(open_save_location, &QAction::triggered, this, [this, program_id, path]() {

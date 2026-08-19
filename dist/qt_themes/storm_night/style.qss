@@ -528,12 +528,12 @@ QMenu {
     color: #ffffff;
     border: 1px solid #1e283d;
     border-radius: 8px;
-    padding: 6px;
-    min-width: 280px;
+    padding: 4px;
+    min-width: 130px;
 }
 
 QMenu::item {
-    padding: 7px 32px 7px 32px;
+    padding: 6px 20px 6px 20px;
     border-radius: 5px;
     margin: 2px 4px;
     font-weight: 600;

@@ -289,7 +289,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Принудительно отключает вызов всплывающего системного апплета настройки контроллеров."));
     INSERT(UISettings, check_for_updates, tr("Проверять наличие обновлений"),
            tr("Проверять наличие свежих версий программы при запуске."));
-    INSERT(UISettings, enable_floating_translate_button, tr("Плаварщая кнопка переводчика (STORM TRANSLATOR)"),
+    INSERT(UISettings, enable_floating_translate_button, tr("Плавающая кнопка переводчика (STORM TRANSLATOR)"),
            tr("Отображать плавающую кнопку авто-переводчика поверх экрана во время игры."));
 
     // Linux

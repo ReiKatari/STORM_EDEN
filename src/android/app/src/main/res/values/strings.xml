@@ -1909,9 +1909,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="amiibo_removed_toast">Amiibo removed from controller</string>
 
     <string name="translator_floating_btn_title">Floating Translate Button</string>
-    <string name="translator_floating_btn_description">Show floating Eden Lens screen translation button during gameplay</string>
+    <string name="translator_floating_btn_description">Show floating screen translation button during gameplay</string>
     <string name="hotkey_quick_actions">Hotkeys &amp; Quick Actions</string>
     <string name="hotkey_quick_actions_desc">Configure on-screen hotkeys and fast action overlays</string>
+
+    <string name="cheats">Cheat Codes</string>
+    <string name="cheats_description">Manage Atmosphere cheat codes, toggle active cheats, download online database</string>
+    <string name="cheats_manager_title">Cheat Codes Manager</string>
+    <string name="download_cheats">Download Online Cheats</string>
+    <string name="downloading_cheats">Downloading online cheats database…</string>
+    <string name="cheats_download_success">Cheats database downloaded successfully! Found %1$d cheat codes.</string>
+    <string name="cheats_not_found">No cheats found for this game in the database. You can add your own cheat code.</string>
+    <string name="add_cheat">Add Cheat</string>
+    <string name="cheat_name">Cheat Name</string>
+    <string name="cheat_code">Atmosphere Cheat Code</string>
+    <string name="cheat_status_active">⚡ Active in Game</string>
+    <string name="cheat_status_enabled">✅ Enabled</string>
+    <string name="cheat_status_disabled">⚪ Disabled</string>
+    <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="cheats_count_summary">Total cheats: %1$d | Enabled: %2$d</string>
 
 </resources>
 

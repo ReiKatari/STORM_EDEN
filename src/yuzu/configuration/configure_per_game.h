@@ -32,6 +32,7 @@ class InputSubsystem;
 class ConfigurePerGameAddons;
 class ConfigureGameBananaMods;
 class ConfigurePerGameAmiibo;
+class ConfigurePerGameCheats;
 class ConfigureAudio;
 class ConfigureCpu;
 class ConfigureGraphics;
@@ -90,6 +91,7 @@ private:
     std::unique_ptr<ConfigurePerGameAddons> addons_tab;
     std::unique_ptr<ConfigureGameBananaMods> gamebanana_tab;
     std::unique_ptr<ConfigurePerGameAmiibo> amiibo_tab;
+    std::unique_ptr<ConfigurePerGameCheats> cheats_tab;
     std::unique_ptr<ConfigureAudio> audio_tab;
     std::unique_ptr<ConfigureCpu> cpu_tab;
     std::unique_ptr<ConfigureGraphicsAdvanced> graphics_advanced_tab;

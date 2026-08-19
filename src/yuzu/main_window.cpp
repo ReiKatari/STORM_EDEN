@@ -41,6 +41,7 @@
 
 #include "about_dialog.h"
 #include "amiibo_browser_dialog.h"
+#include "cheats_dialog.h"
 #include "data_dialog.h"
 #include "deps_dialog.h"
 #include "install_dialog.h"
@@ -470,6 +471,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
         Core::Crypto::KeyManager::Instance().ReloadKeys();
     }
     game_list->PopulateAsync(UISettings::values.game_dirs);
+    QTimer::singleShot(2500, this, &MainWindow::StartSilentCheatsSync);
 
     // Set up game list mode checkboxes.
     SetGameListMode(UISettings::values.game_list_mode.GetValue());
@@ -2385,6 +2387,7 @@ void MainWindow::SetupMenuIcons() {
     apply_action(ui->action_Application_Menu, QStringLiteral("list"), col_indigo);
     apply_action(ui->action_Capture_Screenshot, QStringLiteral("screenshot"), col_pink);
     apply_action(ui->action_Translate_Screen, QStringLiteral("translate"), col_cyan);
+    apply_action(ui->action_Cheats, QStringLiteral("lightning"), col_cyan);
     apply_menu(ui->menuTAS, QStringLiteral("tas"), col_lime);
     apply_action(ui->action_TAS_Start, QStringLiteral("play"), col_green);
     apply_action(ui->action_TAS_Record, QStringLiteral("record"), col_red);
@@ -2610,6 +2613,11 @@ void MainWindow::ConnectWidgetEvents() {
     });
     connect(game_list, &GameList::OpenDirectory, this, &MainWindow::OnGameListOpenDirectory);
     connect(game_list, &GameList::OpenFolderRequested, this, &MainWindow::OnGameListOpenFolder);
+    connect(game_list, &GameList::OpenCheatsRequested, this,
+            [this](u64 program_id, const QString& game_path) {
+                CheatsDialog dialog(this, *QtCommon::system, program_id, game_path);
+                dialog.exec();
+            });
     connect(game_list, &GameList::OpenTransferableShaderCacheRequested, this,
             [this](u64 program_id) { QtCommon::Path::OpenShaderCache(program_id, this); });
     connect(game_list, &GameList::RemoveInstalledEntryRequested, this,
@@ -2672,6 +2680,7 @@ void MainWindow::ConnectMenuEvents() {
     connect_menu(ui->action_Restart, &MainWindow::OnRestartGame);
     connect_menu(ui->action_Configure, &MainWindow::OnConfigure);
     connect_menu(ui->action_Configure_Current_Game, &MainWindow::OnConfigurePerGame);
+    connect_menu(ui->action_Cheats, &MainWindow::OnCheatsDialog);
 
     // View
     connect_menu(ui->action_Fullscreen, &MainWindow::ToggleFullscreen);
@@ -3198,7 +3207,34 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
                 .filename());
     }
     const auto full_file_info_name = QFileInfo(filename).fileName();
+    QString resolved_display_version = QString::fromStdString(title_version);
+
     u32 raw_internal_version = pm.GetGameVersion().value_or(0);
+    static const QRegularExpression fn_pair_ver_regex{QStringLiteral(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))")};
+    const auto fm = fn_pair_ver_regex.match(full_file_info_name);
+    if (fm.hasMatch() && !fm.captured(1).isEmpty()) {
+        resolved_display_version = fm.captured(1);
+        if (raw_internal_version == 0 && !fm.captured(2).isEmpty()) {
+            raw_internal_version = fm.captured(2).toUInt();
+        }
+    } else {
+        static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+        const auto m = fn_ver_regex.match(full_file_info_name);
+        if (m.hasMatch() && m.hasCaptured(1)) {
+            if (resolved_display_version.isEmpty() || resolved_display_version == QStringLiteral("1.0.0") || resolved_display_version == QStringLiteral("0")) {
+                resolved_display_version = m.captured(1);
+            }
+        }
+    }
+
+    while (resolved_display_version.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+        resolved_display_version.remove(0, 1);
+    }
+    resolved_display_version = resolved_display_version.trimmed();
+    if (resolved_display_version.isEmpty() || resolved_display_version == QStringLiteral("0") || resolved_display_version == QStringLiteral("PACKED")) {
+        resolved_display_version = QStringLiteral("1.0.0");
+    }
+
     if (raw_internal_version == 0) {
         static const QRegularExpression ver_regex(QStringLiteral(R"([\[\(_]v(\d+)[\]\)]|[-_\s](\d{5,8})[-_\s\)])"), QRegularExpression::CaseInsensitiveOption);
         const auto match = ver_regex.match(full_file_info_name);
@@ -3212,7 +3248,8 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
             }
         }
     }
-    const std::string display_version_str = title_version.empty() ? "1.0.0" : title_version;
+
+    const std::string display_version_str = resolved_display_version.toStdString();
     if (raw_internal_version == 0 && !display_version_str.empty() && display_version_str != "1.0.0" && display_version_str != "1.0") {
         int major = 1, minor = 0, patch = 0;
         if (std::sscanf(display_version_str.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {
@@ -3221,6 +3258,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
             }
         }
     }
+    title_version = display_version_str;
     const std::string internal_version_str = std::to_string(raw_internal_version);
     const auto raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
     const auto gpu_vendor = QString::fromStdString(raw_gpu_vendor).toUpper().toStdString();
@@ -4225,36 +4263,21 @@ void MainWindow::OnStartGame() {
     discord_rpc->Update();
     Common::FeralGamemode::Start();
 
-    bool enable_floating = true;
-    try {
-        std::filesystem::path config_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir);
-        std::filesystem::path config_path = config_dir / "translator.json";
-        std::error_code ec;
-        if (std::filesystem::exists(config_path, ec)) {
-            QFile f(QString::fromStdString(config_path.string()));
-            if (f.open(QIODevice::ReadOnly)) {
-                QJsonObject root = QJsonDocument::fromJson(f.readAll()).object();
-                if (root.contains(QStringLiteral("enable_floating_button"))) {
-                    enable_floating = root[QStringLiteral("enable_floating_button")].toBool();
-                }
-                f.close();
-            }
+    const bool enable_floating = UISettings::values.enable_floating_translate_button.GetValue();
+    if (enable_floating) {
+        if (!floating_translate_button) {
+            floating_translate_button = new FloatingTranslateButton(this);
+            connect(floating_translate_button, &FloatingTranslateButton::TranslateRequested, this, &MainWindow::OnTranslateScreen);
+            connect(floating_translate_button, &FloatingTranslateButton::OpenSettingsRequested, this, &MainWindow::OnOpenTranslatorSettings);
         }
-    } catch (...) {}
-
-    if (!floating_translate_button) {
-        floating_translate_button = new FloatingTranslateButton(this);
-        connect(floating_translate_button, &FloatingTranslateButton::TranslateRequested, this, &MainWindow::OnTranslateScreen);
-        connect(floating_translate_button, &FloatingTranslateButton::OpenSettingsRequested, this, &MainWindow::OnOpenTranslatorSettings);
+        if (render_window) {
+            QPoint p = render_window->mapToGlobal(QPoint(std::max(10, render_window->width() - 80), std::max(10, render_window->height() - 120)));
+            floating_translate_button->move(p);
+        }
+        floating_translate_button->SetVisibleState(true);
+    } else if (floating_translate_button) {
+        floating_translate_button->SetVisibleState(false);
     }
-    if (!in_game_notification) {
-        in_game_notification = new InGameNotificationOverlay(render_window ? static_cast<QWidget*>(render_window) : this);
-    }
-    if (render_window) {
-        QPoint p = render_window->mapToGlobal(QPoint(std::max(10, render_window->width() - 80), std::max(10, render_window->height() - 120)));
-        floating_translate_button->move(p);
-    }
-    floating_translate_button->SetVisibleState(enable_floating);
 }
 
 void MainWindow::OnRestartGame() {
@@ -4659,6 +4682,7 @@ void MainWindow::OnConfigure() {
         // This is here to avoid applying changes if the user hit Apply, made some changes, then hit
         // Cancel
         configure_dialog.ApplyConfiguration();
+        config->SaveAllValues();
     } else if (UISettings::values.reset_to_defaults) {
         LOG_INFO(Frontend, "Resetting all settings to defaults");
         if (!Common::FS::RemoveFile(config->GetConfigFilePath())) {
@@ -4935,6 +4959,114 @@ void MainWindow::OnConfigurePerGame() {
     OpenPerGameConfiguration(title_id, current_game_path.toStdString());
 }
 
+void MainWindow::OnCheatsDialog() {
+    u64 title_id = 0;
+    QString game_path;
+
+    if (QtCommon::system->IsPoweredOn()) {
+        title_id = QtCommon::system->GetApplicationProcessProgramID();
+        game_path = current_game_path;
+    } else if (m_current_addons_title_id != 0) {
+        title_id = m_current_addons_title_id;
+        game_path = QString::fromStdString(m_current_addons_game_path);
+    }
+
+    if (title_id == 0) {
+        QMessageBox::information(this, tr("Чит-коды"),
+                                 tr("Выберите игру из списка или запустите эмуляцию для настройки чит-кодов."));
+        return;
+    }
+
+    CheatsDialog dialog(this, *QtCommon::system, title_id, game_path);
+    dialog.exec();
+}
+
+void MainWindow::StartSilentCheatsSync() {
+    // Non-blocking silent background cheats sync for games in library
+    const QString cheats_root = QString::fromStdString(Common::FS::PathToUTF8String(
+        Common::FS::GetEdenPath(Common::FS::EdenPath::EdenDir) / "cheats"));
+    QDir().mkpath(cheats_root);
+
+    const auto& content_provider = QtCommon::system->GetContentProvider();
+    const auto entries = content_provider.ListEntriesFilter(FileSys::TitleType::Application,
+                                                           FileSys::ContentRecordType::Program);
+
+    for (const auto& entry : entries) {
+        const u64 tid = entry.title_id;
+        if (tid == 0) continue;
+
+        const QString tid_hex = QString(QStringLiteral("%1")).arg(tid, 16, 16, QLatin1Char('0')).toUpper();
+        const QString game_cheats_dir = QDir(cheats_root).filePath(tid_hex);
+
+        bool has_cheats = false;
+        QDir dir(game_cheats_dir);
+        if (dir.exists()) {
+            const auto files = dir.entryInfoList(QStringList() << QStringLiteral("*.txt"), QDir::Files);
+            for (const auto& file : files) {
+                if (file.size() > 0) {
+                    has_cheats = true;
+                    break;
+                }
+            }
+        }
+
+        if (!has_cheats) {
+            auto* nam = new QNetworkAccessManager(this);
+            const QString url_str = QString(QStringLiteral("https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/cheats/%1.json"))
+                                        .arg(tid_hex);
+            QNetworkRequest request{QUrl(url_str)};
+            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_EDEN_Emulator/4.2.9"));
+            request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+            auto* reply = nam->get(request);
+            connect(reply, &QNetworkReply::finished, this, [reply, nam, game_cheats_dir, tid_hex]() {
+                reply->deleteLater();
+                nam->deleteLater();
+
+                if (reply->error() == QNetworkReply::NoError &&
+                    reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 200) {
+                    const QByteArray data = reply->readAll();
+                    QJsonDocument doc = QJsonDocument::fromJson(data);
+                    if (doc.isObject()) {
+                        const QJsonObject root = doc.object();
+                        QString combined_cheats;
+                        for (auto it = root.begin(); it != root.end(); ++it) {
+                            const QString bid_key = it.key();
+                            const QJsonObject bid_cheats = it.value().toObject();
+                            QString bid_file_content;
+                            for (auto c_it = bid_cheats.begin(); c_it != bid_cheats.end(); ++c_it) {
+                                const QString cheat_body = c_it.value().toString();
+                                if (!cheat_body.trimmed().isEmpty()) {
+                                    bid_file_content += cheat_body.trimmed() + QStringLiteral("\n\n");
+                                    combined_cheats += cheat_body.trimmed() + QStringLiteral("\n\n");
+                                }
+                            }
+                            if (!bid_file_content.isEmpty()) {
+                                QDir().mkpath(game_cheats_dir);
+                                QFile bid_file(QDir(game_cheats_dir).filePath(QString(QStringLiteral("%1.txt")).arg(bid_key.toUpper())));
+                                if (bid_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                                    QTextStream stream(&bid_file);
+                                    stream << bid_file_content;
+                                    bid_file.close();
+                                }
+                            }
+                        }
+                        if (!combined_cheats.isEmpty()) {
+                            QDir().mkpath(game_cheats_dir);
+                            QFile all_file(QDir(game_cheats_dir).filePath(QStringLiteral("cheats.txt")));
+                            if (all_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                                QTextStream stream(&all_file);
+                                stream << combined_cheats;
+                                all_file.close();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+}
+
 void MainWindow::OpenPerGameConfiguration(u64 title_id, const std::string& file_name) {
     const auto v_file = Core::GetGameFileFromPath(QtCommon::vfs, file_name);
 
@@ -5054,22 +5186,7 @@ void MainWindow::OnOpenTranslatorSettings() {
     if (floating_translate_button) {
         connect(m_game_translator, &QDialog::finished, this, [this](int) {
             if (floating_translate_button) {
-                bool enable_floating = true;
-                try {
-                    std::filesystem::path config_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir);
-                    std::filesystem::path config_path = config_dir / "translator.json";
-                    std::error_code ec;
-                    if (std::filesystem::exists(config_path, ec)) {
-                        QFile f(QString::fromStdString(config_path.string()));
-                        if (f.open(QIODevice::ReadOnly)) {
-                            QJsonObject root = QJsonDocument::fromJson(f.readAll()).object();
-                            if (root.contains(QStringLiteral("enable_floating_button"))) {
-                                enable_floating = root[QStringLiteral("enable_floating_button")].toBool();
-                            }
-                            f.close();
-                        }
-                    }
-                } catch (...) {}
+                const bool enable_floating = UISettings::values.enable_floating_translate_button.GetValue();
                 floating_translate_button->SetVisibleState(enable_floating && emulation_running);
             }
         }, Qt::UniqueConnection);

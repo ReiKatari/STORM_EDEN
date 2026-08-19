@@ -382,6 +382,8 @@ private slots:
     void OnToggleGpuAccuracy();
     void OnToggleAdaptingFilter();
     void OnConfigurePerGame();
+    void OnCheatsDialog();
+    void StartSilentCheatsSync();
     void OnLoadAmiibo();
     void OnAmiiboOnlineDatabase();
     void OnOpenRootDataFolder();

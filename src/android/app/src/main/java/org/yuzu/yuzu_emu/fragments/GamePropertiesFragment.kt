@@ -351,6 +351,17 @@ class GamePropertiesFragment : Fragment() {
                 )
                 add(
                     SubmenuProperty(
+                        R.string.cheats,
+                        R.string.cheats_description,
+                        R.drawable.ic_code,
+                        action = {
+                            CheatsDialogFragment.newInstance(args.game)
+                                .show(childFragmentManager, CheatsDialogFragment.TAG)
+                        }
+                    )
+                )
+                add(
+                    SubmenuProperty(
                         R.string.gamebanana_mods,
                         R.string.gamebanana_mods_description,
                         R.drawable.ic_install,

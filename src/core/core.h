@@ -339,6 +339,10 @@ public:
                            const std::array<u8, 0x20>& build_id, u64 main_region_begin,
                            u64 main_region_size);
 
+    void ReloadCheatList(const std::vector<Memory::CheatEntry>& list);
+
+    [[nodiscard]] bool HasCheatEngine() const;
+
     void SetFrontendAppletSet(Service::AM::Frontend::FrontendAppletSet&& set);
 
     [[nodiscard]] Service::AM::Frontend::FrontendAppletHolder& GetFrontendAppletHolder();

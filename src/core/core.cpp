@@ -764,6 +764,16 @@ void System::RegisterCheatList(const std::vector<Memory::CheatEntry>& list,
     impl->cheat_engine->SetMainMemoryParameters(main_region_begin, main_region_size);
 }
 
+void System::ReloadCheatList(const std::vector<Memory::CheatEntry>& list) {
+    if (impl->cheat_engine) {
+        impl->cheat_engine->Reload(list);
+    }
+}
+
+bool System::HasCheatEngine() const {
+    return impl->cheat_engine.has_value();
+}
+
 void System::SetFrontendAppletSet(Service::AM::Frontend::FrontendAppletSet&& set) {
     impl->frontend_applets.SetFrontendAppletSet(std::move(set));
 }

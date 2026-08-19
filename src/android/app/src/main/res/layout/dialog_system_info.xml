@@ -52,7 +52,7 @@
                     style="@style/SynthwaveText.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="STORM EDEN 4.2.5"
+                    android:text="STORM EDEN 4.2.9"
                     android:textSize="12sp"
                     android:alpha="0.75" />
 

@@ -27,6 +27,7 @@ GameTree::GameTree(QWidget* parent) : QTreeView{parent} {
     setIndentation(16);
     header()->setDefaultAlignment(Qt::AlignCenter);
     header()->setSectionResizeMode(QHeaderView::Interactive);
+    header()->setStretchLastSection(true);
 
     connect(this, &QTreeView::expanded, this, &GameTree::OnItemExpanded);
     connect(this, &QTreeView::collapsed, this, &GameTree::OnItemExpanded);
@@ -40,6 +41,7 @@ void GameTree::SetModel(GameListModel* model) {
     header()->resizeSection(GameListModel::COLUMN_SIZE, 200);
     header()->resizeSection(GameListModel::COLUMN_PLAY_TIME, 200);
     header()->resizeSection(GameListModel::COLUMN_ADD_ONS, 300);
+    header()->setStretchLastSection(true);
     UpdateColumnVisibility(model);
     sortByColumn(GameListModel::COLUMN_NAME, Qt::AscendingOrder);
 }
@@ -69,7 +71,7 @@ void GameTree::SaveInterfaceLayout() {
 void GameTree::LoadInterfaceLayout() {
     auto* hdr = header();
     hdr->setDefaultAlignment(Qt::AlignCenter);
-    hdr->setStretchLastSection(false);
+    hdr->setStretchLastSection(true);
 
     if (UISettings::values.gamelist_header_state.isEmpty() ||
         !hdr->restoreState(UISettings::values.gamelist_header_state)) {
@@ -96,6 +98,7 @@ void GameTree::LoadInterfaceLayout() {
         }
     }
     hdr->setDefaultAlignment(Qt::AlignCenter);
+    hdr->setStretchLastSection(true);
 }
 
 void GameTree::UpdateColumnVisibility(GameListModel* model) {
@@ -104,6 +107,7 @@ void GameTree::UpdateColumnVisibility(GameListModel* model) {
     setColumnHidden(GameListModel::COLUMN_FILE_TYPE, !UISettings::values.show_types);
     setColumnHidden(GameListModel::COLUMN_SIZE, !UISettings::values.show_size);
     setColumnHidden(GameListModel::COLUMN_PLAY_TIME, !UISettings::values.show_play_time);
+    header()->setStretchLastSection(true);
 }
 
 QString GameTree::GetLastFilterResultItem() const {

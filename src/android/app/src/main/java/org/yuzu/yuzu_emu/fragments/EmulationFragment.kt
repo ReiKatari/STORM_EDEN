@@ -831,6 +831,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
                 R.id.menu_load_amiibo -> handleLoadAmiiboSelection()
 
+                R.id.menu_cheats -> {
+                    binding.drawerLayout.close()
+                    val currentGame = game ?: args.game
+                    if (currentGame != null) {
+                        CheatsDialogFragment.newInstance(currentGame)
+                            .show(childFragmentManager, CheatsDialogFragment.TAG)
+                    }
+                    true
+                }
+
                 R.id.menu_translate_screen -> {
                     binding.drawerLayout.close()
                     gameTranslatorManager?.triggerTranslation(binding.surfaceEmulation)

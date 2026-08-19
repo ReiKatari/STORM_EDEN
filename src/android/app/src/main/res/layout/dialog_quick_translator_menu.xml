@@ -440,7 +440,7 @@
                             android:id="@+id/textFloatingBtnStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Отображать кнопку Eden Lens на экране"
+                            android:text="Отображать плавающую кнопку перевода на экране"
                             android:textColor="@color/synthwave_text_secondary"
                             android:textSize="11sp" />
 

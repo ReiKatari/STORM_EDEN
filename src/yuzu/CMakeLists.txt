@@ -202,6 +202,8 @@ add_executable(yuzu
     multiplayer/validation.h
     startup_checks.cpp
     startup_checks.h
+    in_game_notification.cpp
+    in_game_notification.h
     set_play_time_dialog.cpp
     set_play_time_dialog.h
     util/clickable_label.cpp
@@ -243,6 +245,8 @@ add_executable(yuzu
     updater/update_dialog.h updater/update_dialog.cpp updater/update_dialog.ui
     game/common.h
     game/carousel.h game/carousel.cpp
+    translator/game_translator.h translator/game_translator.cpp
+    translator/floating_translate_button.h translator/floating_translate_button.cpp
 )
 
 set_target_properties(yuzu PROPERTIES OUTPUT_NAME "storm_eden")

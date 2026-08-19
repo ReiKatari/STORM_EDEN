@@ -5,14 +5,69 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:background="@android:color/transparent"
+    android:padding="6dp">
+
+    <!-- Active Amiibo Status Card (visible during emulation) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_active_amiibo"
+        style="@style/EdenCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/eden_primary"
+        app:strokeWidth="1dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_amiibo"
+                app:tint="@color/eden_primary"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_active_amiibo_status"
+                style="@style/SynthwaveText.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/eden_primary"
+                tools:text="🟢 Активен: Mario (Super Smash Bros.)" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_disconnect_amiibo"
+                style="@style/EdenButton.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:textSize="11sp"
+                android:text="@string/amiibo_disconnect_button"
+                android:textColor="#FF4D4D"
+                app:strokeColor="#FF4D4D"
+                android:paddingHorizontal="8dp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="6dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_search"
@@ -21,10 +76,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp">
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="?attr/colorPrimary"
+            app:hintTextColor="?attr/colorPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/input_search"
@@ -34,17 +91,19 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
+                android:paddingVertical="10dp"
                 android:textSize="13sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_refresh"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/EdenButton.Outlined"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:text="@string/refresh"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:paddingHorizontal="12dp" />
 
     </LinearLayout>
 
@@ -52,7 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="6dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_series"
@@ -71,6 +130,7 @@
             android:id="@+id/list_amiibo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
             tools:listitem="@layout/list_item_amiibo" />
 
         <ProgressBar
@@ -98,7 +158,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="11sp"
-        android:alpha="0.7"
+        android:alpha="0.75"
         android:gravity="center"
         tools:text="Всего доступно: 850 Amiibo" />
 

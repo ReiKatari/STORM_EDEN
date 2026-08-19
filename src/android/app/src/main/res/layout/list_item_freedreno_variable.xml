@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/EdenCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="0dp"
     android:layout_marginEnd="0dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="?attr/colorOutline">
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/eden_card_background"
+    app:strokeWidth="1.5dp"
+    app:strokeColor="?attr/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="14dp"
         android:gravity="center_vertical">
 
         <LinearLayout
@@ -26,20 +29,22 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/variable_name"
+                style="@style/SynthwaveText.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="VARIABLE_NAME"
-                android:textAppearance="?attr/textAppearanceTitleSmall"
-                android:textColor="?attr/colorOnSurface" />
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/variable_value"
+                style="@style/SynthwaveText.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="variable_value"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.8"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
@@ -47,15 +52,15 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_delete"
+            style="@style/EdenButton.Outlined"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@string/delete"
             android:minWidth="0dp"
             android:minHeight="36dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            style="?attr/materialButtonOutlinedStyle" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
 
     </LinearLayout>
 

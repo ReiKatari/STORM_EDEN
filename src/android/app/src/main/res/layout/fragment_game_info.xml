@@ -5,10 +5,11 @@
     android:id="@+id/coordinator_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@color/synthwave_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_info"
+        style="@style/Widget.Eden.TransparentTopAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:touchscreenBlocksFocus="false"
@@ -16,6 +17,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_info"
+            style="@style/Widget.Eden.TransparentTopToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:touchscreenBlocksFocus="false"
@@ -115,7 +117,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_copy"
-                style="@style/Widget.Material3.Button"
+                style="@style/EdenButton.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -123,7 +125,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_verify_integrity"
-                style="@style/Widget.Material3.Button"
+                style="@style/EdenButton.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

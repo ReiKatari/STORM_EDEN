@@ -194,13 +194,27 @@
                 android:shadowRadius="3"
                 tools:ignore="RtlHardcoded" />
 
+            <org.yuzu.yuzu_emu.translator.ui.GameTranslationOverlayView
+                android:id="@+id/translation_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <org.yuzu.yuzu_emu.translator.ui.FloatingTranslateButtonView
+                android:id="@+id/button_floating_translate"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="16dp"
+                android:visibility="gone" />
+
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.navigation.NavigationView
+    <FrameLayout
         android:id="@+id/quick_settings_sheet"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:focusedByDefault="true"
@@ -209,17 +223,21 @@
 
         <include layout="@layout/layout_quick_settings" />
 
-    </com.google.android.material.navigation.NavigationView>
+    </FrameLayout>
 
     <com.google.android.material.navigation.NavigationView
-    android:id="@+id/in_game_menu"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    android:focusedByDefault="true"
-    app:headerLayout="@layout/header_in_game"
-    app:menu="@menu/menu_in_game"
-    android:background="?attr/colorSurface"
-    tools:visibility="gone" />
+        android:id="@+id/in_game_menu"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:focusedByDefault="true"
+        app:headerLayout="@layout/header_in_game"
+        app:menu="@menu/menu_in_game"
+        android:background="?attr/colorSurface"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorPrimary"
+        app:itemShapeInsetStart="12dp"
+        app:itemShapeInsetEnd="12dp"
+        tools:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -66,22 +66,32 @@ namespace AndroidSettings {
                                                   Settings::Category::Android};
         Settings::Setting<bool> enable_qlaunch_button{linkage, false, "enable_qlaunch_button",
                                                   Settings::Category::Android};
+        Settings::Setting<bool> show_filename_as_title{linkage, true, "show_filename_as_title",
+                                                  Settings::Category::Android};
         Settings::Setting<bool> invert_confirm_back_controller_buttons{
             linkage, false, "invert_confirm_back_controller_buttons", Settings::Category::Android};
 
         // Input/performance overlay settings
         std::vector<OverlayControlData> overlay_control_data;
         Settings::Setting<s32> overlay_scale{linkage, 50, "control_scale",
-                                             Settings::Category::Overlay};
-        Settings::Setting<s32> overlay_opacity{linkage, 100, "control_opacity",
-                                               Settings::Category::Overlay};
+                                             Settings::Category::Overlay,
+                                             Settings::Specialization::Default, true, true};
+        Settings::Setting<s32> overlay_opacity{linkage, 60, "control_opacity",
+                                               Settings::Category::Overlay,
+                                               Settings::Specialization::Default, true, true};
+        Settings::Setting<s32> overlay_skin_theme{linkage, 1, "overlay_skin_theme",
+                                                  Settings::Category::Overlay,
+                                                  Settings::Specialization::Default, true, true};
 
         Settings::Setting<bool> joystick_rel_center{linkage, true, "joystick_rel_center",
-                                                    Settings::Category::Overlay};
+                                                    Settings::Category::Overlay,
+                                                    Settings::Specialization::Default, true, true};
         Settings::Setting<bool> dpad_slide{linkage, true, "dpad_slide",
-                                           Settings::Category::Overlay};
+                                           Settings::Category::Overlay,
+                                           Settings::Specialization::Default, true, true};
         Settings::Setting<bool> haptic_feedback{linkage, true, "haptic_feedback",
-                                                Settings::Category::Overlay};
+                                                Settings::Category::Overlay,
+                                                Settings::Specialization::Default, true, true};
         Settings::Setting<bool> show_performance_overlay{linkage, true, "show_performance_overlay",
                                                          Settings::Category::Overlay,
                                                          Settings::Specialization::Paired, true,

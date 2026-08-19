@@ -22,6 +22,9 @@
         <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="popupMenuStyle">@style/EdenPopupMenu</item>
+        <item name="alertDialogTheme">@style/EdenMaterialDialog</item>
+        <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
     </style>
 
     <!-- STORM NIGHT (Default) -->

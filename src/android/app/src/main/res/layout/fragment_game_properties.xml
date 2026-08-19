@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@color/synthwave_background">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/list_all"
@@ -59,13 +59,14 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.card.MaterialCardView
-                style="?attr/materialCardViewElevatedStyle"
+                style="@style/EdenCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="?attr/colorOutline"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/eden_card_background"
+                app:strokeColor="@color/eden_card_stroke"
                 app:strokeWidth="1dp">
 
                 <ImageView

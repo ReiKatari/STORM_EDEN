@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="?attr/colorSurface">
+    android:background="@drawable/theme_dialog_background">
 
     <TextView
         android:id="@+id/text_title"

@@ -423,7 +423,80 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
             notifyControllerInput()
         }
 
+        if (event.action == KeyEvent.ACTION_DOWN && checkAndTriggerHotkey(event)) {
+            return true
+        }
+
         return InputHandler.dispatchKeyEvent(event)
+    }
+
+    private fun checkAndTriggerHotkey(event: KeyEvent): Boolean {
+        val buttonId = InputHandler.getButtonIdFromEvent(event)
+        if (buttonId == 0) return false
+
+        val controllerData = InputHandler.androidControllers[event.device?.controllerNumber ?: 0]
+        val guid = controllerData?.getGUID() ?: ""
+        val port = controllerData?.getPort() ?: 0
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        for (hotkey in org.yuzu.yuzu_emu.features.input.model.NativeHotkey.values()) {
+            for (playerIdx in 0..7) {
+                val prefKey = "player_${playerIdx}_${hotkey.configKey}"
+                val raw = prefs.getString(prefKey, null) ?: continue
+                if (raw.isEmpty()) continue
+                val params = org.yuzu.yuzu_emu.utils.ParamPackage(raw)
+                val paramButton = params.get("button", -1)
+                val paramGuid = params.get("guid", "")
+                val paramPort = params.get("port", -1)
+
+                val buttonMatches = (paramButton == buttonId)
+                val guidMatches = paramGuid.isEmpty() || guid.isEmpty() || paramGuid == guid
+                val portMatches = (paramPort == -1 || paramPort == port || port == 0)
+
+                if (buttonMatches && guidMatches && portMatches) {
+                    executeHotkey(hotkey)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun executeHotkey(hotkey: org.yuzu.yuzu_emu.features.input.model.NativeHotkey) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
+        val emulationFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is EmulationFragment } as? EmulationFragment
+
+        when (hotkey) {
+            org.yuzu.yuzu_emu.features.input.model.NativeHotkey.TranslateScreen -> {
+                emulationFragment?.triggerScreenTranslation()
+            }
+            org.yuzu.yuzu_emu.features.input.model.NativeHotkey.PauseEmulation -> {
+                emulationFragment?.togglePauseEmulation()
+            }
+            org.yuzu.yuzu_emu.features.input.model.NativeHotkey.ToggleFastForward -> {
+                emulationFragment?.toggleFastForward()
+            }
+            org.yuzu.yuzu_emu.features.input.model.NativeHotkey.Screenshot -> {
+                emulationFragment?.captureScreenshotToGallery()
+            }
+        }
+    }
+
+    fun restartEmulation() {
+        val currentIntent = Intent(intent)
+        runOnUiThread {
+            try {
+                val navHostFragment =
+                    supportFragmentManager.findFragmentById(R.id.fragment_container) as? androidx.navigation.fragment.NavHostFragment
+                val emulationFrag =
+                    navHostFragment?.childFragmentManager?.primaryNavigationFragment as? EmulationFragment
+                emulationFrag?.closeDrawers()
+            } catch (_: Exception) {}
+
+            startActivity(currentIntent)
+            finish()
+            overridePendingTransition(0, 0)
+        }
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {

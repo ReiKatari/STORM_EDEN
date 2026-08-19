@@ -27,6 +27,7 @@ import org.yuzu.yuzu_emu.features.input.model.NativeAnalog
 import org.yuzu.yuzu_emu.features.input.model.NativeButton
 import org.yuzu.yuzu_emu.features.settings.model.view.AnalogInputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.ButtonInputSetting
+import org.yuzu.yuzu_emu.features.settings.model.view.HotkeyInputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.InputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.ModifierInputSetting
 import org.yuzu.yuzu_emu.utils.InputHandler
@@ -56,7 +57,7 @@ class InputDialogFragment : DialogFragment() {
         inputSetting = settingsViewModel.clickedItem as InputSetting
         binding = DialogMappingBinding.inflate(layoutInflater)
 
-        val builder = MaterialAlertDialogBuilder(requireContext())
+        val builder = MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
             .setPositiveButton(android.R.string.cancel) { _, _ ->
                 NativeInput.stopMapping()
                 dismiss()
@@ -125,6 +126,12 @@ class InputDialogFragment : DialogFragment() {
                 } else {
                     builder.setTitle(getString(R.string.map_control, setting.title))
                 }
+                builder.setMessage(R.string.button_map_description)
+                playButtonMapAnimation.invoke(false)
+            }
+
+            is HotkeyInputSetting -> {
+                builder.setTitle(getString(R.string.map_control, setting.title))
                 builder.setMessage(R.string.button_map_description)
                 playButtonMapAnimation.invoke(false)
             }
@@ -240,6 +247,11 @@ class InputDialogFragment : DialogFragment() {
 
                 item.setSelectedValue(analogParam)
                 settingsViewModel.setReloadListAndNotifyDataset(true)
+            }
+
+            is HotkeyInputSetting -> {
+                item.setSelectedValue(params)
+                settingsViewModel.setAdapterItemChanged(position)
             }
         }
         dismiss()

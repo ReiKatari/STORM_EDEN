@@ -74,17 +74,18 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_fork_info"
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/eden_card_background"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -97,6 +98,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
                         android:text="@string/about_fork_title" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -112,17 +115,18 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_special_thanks"
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 android:clickable="false"
                 android:focusable="false"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/eden_card_background"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -135,6 +139,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
                         android:text="@string/special_thanks_title" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -150,17 +156,18 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_contributors"
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/eden_card_background"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -173,6 +180,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
                         android:text="@string/contributors" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -188,17 +197,18 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_licenses"
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/eden_card_background"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -211,6 +221,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
                         android:text="@string/licenses" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -226,6 +238,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_version_name"
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
@@ -233,9 +246,9 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@color/eden_card_background"
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp"
                 app:cardElevation="0dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -249,6 +262,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
                         android:text="@string/build" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -283,8 +298,8 @@
                     app:iconSize="24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp" />
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="1.5dp" />
 
                 <com.google.android.material.button.MaterialButton
                     style="@style/EdenButton.Secondary"
@@ -297,8 +312,8 @@
                     app:iconSize="24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp" />
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="1.5dp" />
 
                 <com.google.android.material.button.MaterialButton
                     style="@style/EdenButton.Secondary"
@@ -311,8 +326,8 @@
                     app:iconSize="24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp" />
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="1.5dp" />
 
                 <com.google.android.material.button.MaterialButton
                     style="@style/EdenButton.Secondary"
@@ -325,8 +340,8 @@
                     app:iconSize="24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp" />
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="1.5dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_github"
@@ -339,8 +354,8 @@
                     app:iconSize="24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp" />
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="1.5dp" />
 
             </LinearLayout>
 

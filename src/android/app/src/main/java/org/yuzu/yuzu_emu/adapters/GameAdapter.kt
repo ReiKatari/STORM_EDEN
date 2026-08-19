@@ -242,6 +242,11 @@ class GameAdapter(private val activity: AppCompatActivity) :
             carouselBinding.imageGameScreen.scaleType = ImageView.ScaleType.CENTER_CROP
             GameIconUtils.loadGameIcon(model, carouselBinding.imageGameScreen)
 
+            carouselBinding.badgeGameExtension?.text = model.extension
+            carouselBinding.badgeGameVersion?.text = model.version
+            carouselBinding.badgeGameInternalVersion?.text = formatInternalVersion(model)
+            carouselBinding.textGameAddons?.text = formatAddons(model)
+
             carouselBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
             carouselBinding.textGameTitle.marquee()
             carouselBinding.cardGameCarousel.setOnClickListener { onClick(model) }

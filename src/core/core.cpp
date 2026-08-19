@@ -731,6 +731,9 @@ const Core::SpeedLimiter& System::SpeedLimiter() const {
 }
 
 u64 System::GetApplicationProcessProgramID() const {
+    if (!IsPoweredOn() || !impl || !impl->kernel.ApplicationProcess()) {
+        return 0;
+    }
     return impl->kernel.ApplicationProcess()->GetProgramId();
 }
 

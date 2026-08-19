@@ -104,11 +104,19 @@ class InputOverlayDrawableButton(
     }
 
     fun draw(canvas: Canvas?) {
-        currentStateBitmapDrawable.draw(canvas!!)
+        if (canvas == null) return
+        if (pressedState) {
+            val b = bounds
+            val centerX = b.exactCenterX()
+            val centerY = b.exactCenterY()
+            canvas.save()
+            canvas.scale(0.92f, 0.92f, centerX, centerY)
+            pressedStateBitmap.draw(canvas)
+            canvas.restore()
+        } else {
+            defaultStateBitmap.draw(canvas)
+        }
     }
-
-    private val currentStateBitmapDrawable: BitmapDrawable
-        get() = if (pressedState) pressedStateBitmap else defaultStateBitmap
 
     fun onConfigureTouch(event: MotionEvent): Boolean {
         val pointerIndex = event.actionIndex

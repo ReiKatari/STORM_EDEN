@@ -41,12 +41,14 @@
 
             <!-- Presets Section -->
             <com.google.android.material.textview.MaterialTextView
+                style="@style/SynthwaveText.Header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/freedreno_presets"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_freedreno_presets"
@@ -62,12 +64,14 @@
 
             <!-- Current Settings Section -->
             <com.google.android.material.textview.MaterialTextView
+                style="@style/SynthwaveText.Header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/freedreno_current_settings"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary" />
 
             <!-- Settings List -->
             <androidx.recyclerview.widget.RecyclerView
@@ -79,106 +83,147 @@
 
             <!-- Debug Section -->
             <com.google.android.material.textview.MaterialTextView
+                style="@style/SynthwaveText.Header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/freedreno_debug"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary" />
 
-            <!-- Manual Variable Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/variable_name_input_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/freedreno_var_name">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/variable_name_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/variable_value_input_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/freedreno_var_value">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/variable_value_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <Button
-                android:id="@+id/button_add_variable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/freedreno_add_variable" />
-
-            <!-- Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/button_clear_all"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:text="@string/freedreno_clear_all" />
-
-                <Button
-                    android:id="@+id/button_save"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:text="@string/save" />
-
-            </LinearLayout>
-
-            <!-- Info Section -->
+            <!-- Manual Variable Input Card -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/EdenCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:cardBackgroundColor="@android:color/transparent"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline">
+                app:cardBackgroundColor="@color/eden_card_background"
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="14dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/variable_name_input_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/freedreno_var_name"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/variable_name_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/variable_value_input_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:hint="@string/freedreno_var_value"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/variable_value_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_add_variable"
+                        style="@style/EdenButton.Filled"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/freedreno_add_variable"
+                        app:cornerRadius="12dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_clear_all"
+                    style="@style/EdenButton.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/freedreno_clear_all"
+                    app:cornerRadius="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_save"
+                    style="@style/EdenButton.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/save"
+                    app:cornerRadius="14dp" />
+
+            </LinearLayout>
+
+            <!-- Info Section -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/eden_card_background"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="?attr/colorPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
                     <com.google.android.material.textview.MaterialTextView
+                        style="@style/SynthwaveText.Body"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/freedreno_info_title"
-                        android:textAppearance="?attr/textAppearanceTitleSmall" />
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorPrimary" />
 
                     <com.google.android.material.textview.MaterialTextView
+                        style="@style/SynthwaveText.Body"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/freedreno_info_description"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.8"
+                        android:textSize="12sp" />
 
                 </LinearLayout>
 

@@ -147,13 +147,17 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
     Settings::values.disabled_addons[title_id] = disabled_addons;
 }
 
+void ConfigurePerGameAddons::SetTitleId(u64 id) {
+    this->title_id = id;
+}
+
+void ConfigurePerGameAddons::SetGameVersion(const QString& version) {
+    this->game_version_str = version;
+}
+
 void ConfigurePerGameAddons::LoadFromFile(FileSys::VirtualFile file_) {
     file = std::move(file_);
     LoadConfiguration();
-}
-
-void ConfigurePerGameAddons::SetTitleId(u64 id) {
-    this->title_id = id;
 }
 
 void ConfigurePerGameAddons::InstallMods(const QStringList& mods) {
@@ -278,22 +282,19 @@ void ConfigurePerGameAddons::showContextMenu(const QPoint& pos) {
     if (selected.empty())
         return;
 
-    QMenu menu(this);
-
-    QAction* remove = menu.addAction(tr("&Delete"));
-    connect(remove, &QAction::triggered, this,
-            [this, selected]() { AddonDeleteRequested(selected); });
+    QMenu context_menu(this);
+    context_menu.addAction(tr("Delete Selected"),
+                           [this, selected] { AddonDeleteRequested(selected); });
 
     if (selected.length() == 1) {
         auto loc = selected.at(0).data(PATCH_LOCATION).toString();
         if (QFileInfo::exists(loc)) {
-            QAction* open = menu.addAction(tr("&Open in File Manager"));
-            connect(open, &QAction::triggered, this,
-                    [selected, loc]() { QDesktopServices::openUrl(QUrl::fromLocalFile(loc)); });
+            context_menu.addAction(tr("&Open in File Manager"),
+                                   [loc]() { QDesktopServices::openUrl(QUrl::fromLocalFile(loc)); });
         }
     }
 
-    menu.exec(tree_view->viewport()->mapToGlobal(pos));
+    context_menu.exec(tree_view->viewport()->mapToGlobal(pos));
 }
 
 void ConfigurePerGameAddons::changeEvent(QEvent* event) {
@@ -328,7 +329,7 @@ void ConfigurePerGameAddons::LoadConfiguration() {
 
     std::vector<FileSys::Patch> patches = pm.GetPatches(update_raw);
 
-    bool has_enabled_update = false;
+    bool update_added = false;
     int mod_counter = 1;
 
     // Ensure TitleDB is loaded
@@ -391,21 +392,41 @@ void ConfigurePerGameAddons::LoadConfiguration() {
         QString version_display = QString::fromStdString(patch.version);
 
         if (patch.type == FileSys::PatchType::Update || patch.name == "Update") {
+            if (update_added) {
+                continue;
+            }
+
             name = tr("Обновление");
-            FileSys::NACP file_nacp;
-            if (loader != nullptr && loader->ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
-                const auto nacp_ver = file_nacp.GetVersionString();
-                if (!nacp_ver.empty() && nacp_ver != "0") {
-                    version_display = QString::fromStdString(nacp_ver);
+
+            if (!game_version_str.isEmpty() && game_version_str != QStringLiteral("1.0.0") && game_version_str != QStringLiteral("0")) {
+                version_display = game_version_str;
+            } else if (file != nullptr) {
+                static const QRegularExpression fn_pair_ver_regex{QStringLiteral(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))")};
+                const auto fm = fn_pair_ver_regex.match(QString::fromStdString(file->GetName()));
+                if (fm.hasMatch() && !fm.captured(1).isEmpty()) {
+                    version_display = fm.captured(1);
+                } else {
+                    static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+                    const auto m = fn_ver_regex.match(QString::fromStdString(file->GetName()));
+                    if (m.hasMatch() && m.hasCaptured(1)) {
+                        version_display = m.captured(1);
+                    }
                 }
             }
-            if ((version_display.isEmpty() || version_display == QStringLiteral("0") || version_display == QStringLiteral("PACKED") || version_display == QStringLiteral("1.0.0")) && file != nullptr) {
-                static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
-                const auto m = fn_ver_regex.match(QString::fromStdString(file->GetName()));
-                if (m.hasMatch() && m.hasCaptured(1)) {
-                    version_display = m.captured(1);
+
+            if (version_display.isEmpty() || version_display == QStringLiteral("1.0.0") || version_display == QStringLiteral("0") || version_display == QStringLiteral("PACKED")) {
+                if (const auto nacp = pm.GetControlMetadata().first; nacp != nullptr) {
+                    const auto nacp_ver = nacp->GetVersionString();
+                    if (!nacp_ver.empty() && nacp_ver != "0") {
+                        version_display = QString::fromStdString(nacp_ver);
+                    }
                 }
             }
+
+            while (version_display.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+                version_display.remove(0, 1);
+            }
+            version_display = version_display.trimmed();
             if (version_display.isEmpty() || version_display == QStringLiteral("0") || version_display == QStringLiteral("PACKED")) {
                 version_display = QStringLiteral("1.0.0");
             }
@@ -456,14 +477,8 @@ void ConfigurePerGameAddons::LoadConfiguration() {
         bool should_enable = !patch_disabled;
 
         if (patch.type == FileSys::PatchType::Update) {
-            if (should_enable) {
-                if (has_enabled_update) {
-                    should_enable = false;
-                } else {
-                    has_enabled_update = true;
-                }
-            }
             update_items.push_back(first_item);
+            update_added = true;
         }
 
         first_item->setCheckState(should_enable ? Qt::Checked : Qt::Unchecked);
@@ -471,6 +486,21 @@ void ConfigurePerGameAddons::LoadConfiguration() {
         list_items.push_back(QList<QStandardItem*>{
             first_item, new QStandardItem{version_display}});
         item_model->appendRow(list_items.back());
+    }
+
+    if (!update_added && (!game_version_str.isEmpty() && game_version_str != QStringLiteral("1.0.0") && game_version_str != QStringLiteral("0"))) {
+        auto* const first_item = new QStandardItem;
+        first_item->setText(tr("Обновление"));
+        first_item->setCheckable(true);
+
+        bool patch_disabled = std::find(disabled.begin(), disabled.end(), "Update") != disabled.end();
+        first_item->setCheckState(patch_disabled ? Qt::Unchecked : Qt::Checked);
+
+        auto* const name_item = new QStandardItem{game_version_str};
+        list_items.push_back(QList<QStandardItem*>{first_item, name_item});
+        item_model->appendRow(list_items.back());
+        update_items.push_back(first_item);
+        update_added = true;
     }
 
     tree_view->resizeColumnToContents(0);

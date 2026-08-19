@@ -344,8 +344,21 @@ class SettingsFragmentPresenter(
     }
 
     private fun addInputOverlaySettings(sl: ArrayList<SettingsItem>) {
+        val overlayThemes = org.yuzu.yuzu_emu.overlay.model.OverlayTheme.values()
+        val overlayThemeNames = overlayThemes.map { context.getString(it.titleResId) }.toTypedArray()
+        val overlayThemeValues = overlayThemes.map { it.id }.toTypedArray()
+
         sl.apply {
             add(BooleanSetting.SHOW_INPUT_OVERLAY.key)
+            add(
+                IntSingleChoiceSetting(
+                    IntSetting.OVERLAY_SKIN_THEME,
+                    titleId = R.string.overlay_skin_theme,
+                    descriptionId = R.string.overlay_skin_theme_description,
+                    choices = overlayThemeNames,
+                    values = overlayThemeValues
+                )
+            )
             add(BooleanSetting.OVERLAY_SNAP_TO_GRID.key)
             add(IntSetting.OVERLAY_GRID_SIZE.key)
             add(
@@ -427,6 +440,7 @@ class SettingsFragmentPresenter(
         }
 
         val inputSettings = NativeConfig.getInputSettings(true)
+
         sl.apply {
             add(
                 SubmenuSetting(
@@ -985,6 +999,11 @@ class SettingsFragmentPresenter(
             addAbstract(
                 SliderSetting(vibrationStrengthSetting, R.string.vibration_strength, units = "%")
             )
+
+            add(HeaderSetting(R.string.hotkey_quick_actions))
+            org.yuzu.yuzu_emu.features.input.model.NativeHotkey.values().forEach { hotkey ->
+                add(org.yuzu.yuzu_emu.features.settings.model.view.HotkeyInputSetting(playerIndex, hotkey))
+            }
         }
     }
 
@@ -1083,6 +1102,31 @@ class SettingsFragmentPresenter(
             add(BooleanSetting.ENABLE_QUICK_SETTINGS.key)
             add(BooleanSetting.INVERT_CONFIRM_BACK_CONTROLLER_BUTTONS.key)
 
+            val floatingTranslateBtnSetting = object : AbstractBooleanSetting {
+                override val key = "translator_enable_floating_button"
+                override fun getBoolean(needsGlobal: Boolean): Boolean {
+                    val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                    return prefs.getBoolean("translator_enable_floating_button", true)
+                }
+                override fun setBoolean(value: Boolean) {
+                    val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                    prefs.edit().putBoolean("translator_enable_floating_button", value).apply()
+                }
+                override val defaultValue = true
+                override fun getValueAsString(needsGlobal: Boolean): String = getBoolean().toString()
+                override fun reset() = setBoolean(defaultValue)
+                override var global = true
+                override val isRuntimeModifiable = true
+                override val isSaveable = true
+            }
+            add(
+                SwitchSetting(
+                    floatingTranslateBtnSetting,
+                    titleId = R.string.translator_floating_btn_title,
+                    descriptionId = R.string.translator_floating_btn_description
+                )
+            )
+
             add(HeaderSetting(R.string.theme_and_color))
 
             val themeMode: AbstractIntSetting = object : AbstractIntSetting {
@@ -1115,38 +1159,6 @@ class SettingsFragmentPresenter(
                     titleId = R.string.change_theme_mode,
                     choicesId = R.array.staticThemeNames,
                     valuesId = R.array.staticThemeValues
-                )
-            )
-
-            val blackBackgrounds: AbstractBooleanSetting = object : AbstractBooleanSetting {
-                override fun getBoolean(needsGlobal: Boolean): Boolean =
-                    BooleanSetting.BLACK_BACKGROUNDS.getBoolean()
-
-                override fun setBoolean(value: Boolean) {
-                    BooleanSetting.BLACK_BACKGROUNDS.setBoolean(value)
-                    settingsViewModel.setShouldRecreate(true)
-                }
-
-                override val key: String = BooleanSetting.BLACK_BACKGROUNDS.key
-                override val isRuntimeModifiable: Boolean =
-                    BooleanSetting.BLACK_BACKGROUNDS.isRuntimeModifiable
-
-                override fun getValueAsString(needsGlobal: Boolean): String =
-                    BooleanSetting.BLACK_BACKGROUNDS.getValueAsString()
-
-                override val defaultValue: Boolean = BooleanSetting.BLACK_BACKGROUNDS.defaultValue
-                override fun reset() {
-                    BooleanSetting.BLACK_BACKGROUNDS
-                        .setBoolean(BooleanSetting.BLACK_BACKGROUNDS.defaultValue)
-                    settingsViewModel.setShouldRecreate(true)
-                }
-            }
-
-            add(
-                SwitchSetting(
-                    blackBackgrounds,
-                    titleId = R.string.use_black_backgrounds,
-                    descriptionId = R.string.use_black_backgrounds_description
                 )
             )
 

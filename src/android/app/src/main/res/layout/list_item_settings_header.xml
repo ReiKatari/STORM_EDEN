@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.textview.MaterialTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/text_header_name"
-    style="@style/TextAppearance.Material3.TitleSmall"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="start|center_vertical"
-    android:paddingHorizontal="@dimen/spacing_large"
-    android:paddingTop="16dp"
-    android:paddingBottom="8dp"
-    android:textAlignment="viewStart"
-    android:textColor="?attr/colorPrimary"
-    android:textStyle="bold"
-    android:focusable="false"
-    tools:text="CPU Settings" />
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="6dp">
+
+    <View
+        android:layout_width="4dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/theme_card_background"
+        android:backgroundTint="?attr/colorPrimary" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_header_name"
+        style="@style/SynthwaveText.Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08"
+        android:focusable="false"
+        tools:text="CPU SETTINGS" />
+
+</LinearLayout>

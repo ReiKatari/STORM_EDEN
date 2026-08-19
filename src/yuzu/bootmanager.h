@@ -117,6 +117,8 @@ public:
     bool IsLoadingComplete() const;
 
     void CaptureScreenshot(const QString& screenshot_path);
+    void CaptureFrame(std::function<void(const QImage&)> callback);
+    QImage GetLastFrame() const { return screenshot_image; }
 
     /**
      * Instructs the window to re-launch the application using the specified program_index.

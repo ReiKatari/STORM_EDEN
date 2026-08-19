@@ -286,6 +286,22 @@ void RealVfsFilesystem::RemoveReferenceFromListLocked(FileReference& reference) 
     }
 }
 
+void RealVfsFilesystem::InvalidateCache() {
+    std::scoped_lock lk{list_lock};
+    for (auto& ref : open_references) {
+        if (ref.file) {
+            ref.file.reset();
+        }
+    }
+    num_open_files = 0;
+    while (!open_references.empty()) {
+        auto& ref = open_references.front();
+        open_references.erase(open_references.begin());
+        closed_references.push_front(ref);
+    }
+    cache.clear();
+}
+
 RealVfsFile::RealVfsFile(RealVfsFilesystem& base_, std::unique_ptr<FileReference> reference_,
                          const std::string& path_, OpenMode perms_, std::optional<u64> size_,
                          std::optional<std::string> parent_path_)

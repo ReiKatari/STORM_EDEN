@@ -40,7 +40,7 @@ class ProgressDialogFragment : DialogFragment() {
 
         binding = DialogProgressBarBinding.inflate(layoutInflater)
         binding.progressBar.isIndeterminate = true
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
             .setTitle(titleId)
             .setView(binding.root)
 
@@ -55,6 +55,25 @@ class ProgressDialogFragment : DialogFragment() {
             taskViewModel.runTask()
         }
         return alertDialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val ctx = context ?: return
+        val primaryColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val surfaceColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(ctx, com.google.android.material.R.attr.colorSurface)
+        val surfaceVariantColor = org.yuzu.yuzu_emu.utils.ThemeHelper.getColorFromAttr(ctx, com.google.android.material.R.attr.colorSurfaceVariant)
+
+        val bg = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = resources.displayMetrics.density * 22f
+            setColor(surfaceColor)
+            setStroke((resources.displayMetrics.density * 1.5f).toInt(), primaryColor)
+        }
+        dialog?.window?.setBackgroundDrawable(bg)
+
+        binding.progressBar.setIndicatorColor(primaryColor)
+        binding.progressBar.trackColor = surfaceVariantColor
     }
 
     override fun onCreateView(

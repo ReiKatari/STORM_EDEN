@@ -81,8 +81,22 @@ class GameBananaDialogFragment : DialogFragment() {
             .create()
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.let { window ->
+            val dm = resources.displayMetrics
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val width = if (isLandscape) (dm.widthPixels * 0.92).toInt() else (dm.widthPixels * 0.95).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.92).toInt() else (dm.heightPixels * 0.85).toInt()
+            window.setLayout(width, height)
+            window.setBackgroundDrawableResource(R.drawable.eden_dialog_background)
+        }
+    }
+
     private fun setupUI() {
-        binding.listMods.layoutManager = LinearLayoutManager(requireContext())
+        val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val spanCount = if (isLandscape) 2 else 1
+        binding.listMods.layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), spanCount)
         binding.listMods.adapter = GameBananaModAdapter()
 
         // Sort spinner
@@ -175,20 +189,106 @@ class GameBananaDialogFragment : DialogFragment() {
                 return@launch
             }
 
-            val fileNames = files.map {
-                val sizeMb = if (it.filesize > 0) " (${it.filesize / 1024 / 1024} MB)" else ""
-                "${it.filename}$sizeMb\n${it.description.ifEmpty { mod.submitter }}"
-            }.toTypedArray()
+            val context = requireContext()
+            val layout = android.widget.LinearLayout(context).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(48, 24, 48, 24)
+            }
 
-            var selectedFileIndex = 0
+            // Info header
+            val headerText = android.widget.TextView(context).apply {
+                text = "${mod.category} • ${getString(R.string.gamebanana_author, mod.submitter)}\n" +
+                       "📥 ${mod.downloads}  ❤️ ${mod.likes}  👁️ ${mod.views}"
+                setTextColor(0xFF38BDF8.toInt())
+                textSize = 13f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(0, 0, 0, 16)
+            }
+            layout.addView(headerText)
 
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(mod.name)
-                .setSingleChoiceItems(fileNames, 0) { _, which ->
-                    selectedFileIndex = which
+            // Description ScrollView
+            val cleanDesc = if (desc.isNotBlank()) {
+                desc
+            } else if (mod.description.isNotBlank()) {
+                mod.description
+            } else {
+                "Описание мода отсутствует."
+            }
+
+            val descHeightPx = (150 * context.resources.displayMetrics.density).toInt()
+            val bgDrawable = android.graphics.drawable.GradientDrawable().apply {
+                setColor(0xFF131927.toInt())
+                cornerRadius = 10 * context.resources.displayMetrics.density
+                setStroke((1 * context.resources.displayMetrics.density).toInt(), 0xFF1E293B.toInt())
+            }
+            val scrollView = android.widget.ScrollView(context).apply {
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    descHeightPx
+                )
+                background = bgDrawable
+                setPadding(28, 20, 28, 20)
+            }
+
+            val descTextView = android.widget.TextView(context).apply {
+                val formattedText = try {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        android.text.Html.fromHtml(cleanDesc, android.text.Html.FROM_HTML_MODE_COMPACT)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        android.text.Html.fromHtml(cleanDesc)
+                    }
+                } catch (_: Exception) {
+                    cleanDesc
                 }
+                text = formattedText
+                setTextColor(0xFFE2E8F0.toInt())
+                textSize = 13f
+                movementMethod = android.text.method.LinkMovementMethod.getInstance()
+            }
+            scrollView.addView(descTextView)
+            layout.addView(scrollView)
+
+            // Files Header
+            val filesHeader = android.widget.TextView(context).apply {
+                text = "\n📦 Доступные файлы для скачивания:"
+                setTextColor(0xFFFFCA28.toInt())
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(0, 8, 0, 8)
+            }
+            layout.addView(filesHeader)
+
+            // Files RadioGroup
+            val radioGroup = android.widget.RadioGroup(context).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+            }
+
+            files.forEachIndexed { index, file ->
+                val sizeMb = if (file.filesize > 0) " (${file.filesize / 1024 / 1024} MB)" else ""
+                val rb = android.widget.RadioButton(context).apply {
+                    id = index
+                    text = "${file.filename}$sizeMb\n${file.description.ifEmpty { mod.name }}"
+                    setTextColor(0xFFF1F5F9.toInt())
+                    textSize = 13f
+                    isChecked = (index == 0)
+                }
+                radioGroup.addView(rb)
+            }
+            layout.addView(radioGroup)
+
+            val outerScrollView = android.widget.ScrollView(context).apply {
+                isFillViewport = true
+            }
+            outerScrollView.addView(layout)
+
+            MaterialAlertDialogBuilder(context)
+                .setTitle(mod.name)
+                .setView(outerScrollView)
                 .setPositiveButton(R.string.gamebanana_download_button) { _, _ ->
-                    val fileToDownload = files[selectedFileIndex]
+                    val selectedId = radioGroup.checkedRadioButtonId
+                    val chosenIndex = if (selectedId in files.indices) selectedId else 0
+                    val fileToDownload = files[chosenIndex]
                     startDownloadFile(mod, fileToDownload)
                 }
                 .setNegativeButton(R.string.close, null)

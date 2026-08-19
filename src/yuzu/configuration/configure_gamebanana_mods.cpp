@@ -220,8 +220,48 @@ ConfigureGameBananaMods::ConfigureGameBananaMods(Core::System& system_, u64 titl
     details_layout->addLayout(details_top_bar);
 
     detail_browser = new QTextBrowser(this);
-    detail_browser->setOpenExternalLinks(true);
+    detail_browser->setOpenLinks(false);
+    detail_browser->setOpenExternalLinks(false);
     detail_browser->setPlaceholderText(tr("Выберите мод из списка слева для просмотра описания и файлов для установки."));
+    connect(detail_browser, &QTextBrowser::anchorClicked, this, [this](const QUrl& url) {
+        QString url_str = url.toString();
+        static const QRegularExpression mod_regex(
+            QStringLiteral(R"((?:gamebanana\.com/(?:mods|gamefiles|skins|guis|sounds|wips)/|/mods/|mods/|#)(\d+))"),
+            QRegularExpression::CaseInsensitiveOption);
+        auto match = mod_regex.match(url_str);
+        int target_mod_id = 0;
+        if (match.hasMatch()) {
+            target_mod_id = match.captured(1).toInt();
+        } else {
+            static const QRegularExpression digits_regex(QStringLiteral(R"(^\D*(\d{3,8})\D*$)"));
+            auto digit_match = digits_regex.match(url_str);
+            if (digit_match.hasMatch()) {
+                target_mod_id = digit_match.captured(1).toInt();
+            }
+        }
+
+        if (target_mod_id > 0) {
+            for (int i = 0; i < mod_tree->topLevelItemCount(); ++i) {
+                auto* item = mod_tree->topLevelItem(i);
+                if (item && item->data(0, Qt::UserRole).toInt() == target_mod_id) {
+                    mod_tree->setCurrentItem(item);
+                    return;
+                }
+            }
+            if (search_input) {
+                search_input->setText(QString::number(target_mod_id));
+                OnSearchClicked();
+            }
+        } else if (url_str.contains(QStringLiteral("gamebanana.com"), Qt::CaseInsensitive)) {
+            QString path_query = url.path().section(QLatin1Char('/'), -1);
+            if (!path_query.isEmpty() && search_input) {
+                search_input->setText(path_query);
+                OnSearchClicked();
+            }
+        } else if (url_str.startsWith(QStringLiteral("http://")) || url_str.startsWith(QStringLiteral("https://"))) {
+            QDesktopServices::openUrl(url);
+        }
+    });
     details_layout->addWidget(detail_browser, 1);
 
     auto* files_label = new QLabel(tr("📦 Доступные файлы мода:"), this);

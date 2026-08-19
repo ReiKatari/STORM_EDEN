@@ -204,12 +204,7 @@ bool ConfigurePerGameAmiibo::IsAmiiboInstalled(const AmiiboEntry& entry) const {
     clean_name.replace(QRegularExpression(QStringLiteral(R"([\\/:*?"<>|])")), QStringLiteral("_"));
     QString path1 = folder + QStringLiteral("/") + clean_name + QStringLiteral(".bin");
 
-    const auto amiibo_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::AmiiboDir);
-    QString clean_series = entry.amiibo_series;
-    clean_series.replace(QRegularExpression(QStringLiteral(R"([\\/:*?"<>|])")), QStringLiteral("_"));
-    auto path2 = amiibo_dir / clean_series.toStdString() / (clean_name.toStdString() + ".bin");
-
-    return QFile::exists(path1) || std::filesystem::exists(path2);
+    return QFile::exists(path1);
 }
 
 void ConfigurePerGameAmiibo::LoadAmiiboDatabase() {
@@ -652,14 +647,35 @@ void ConfigurePerGameAmiibo::FetchImage(const QString& image_url, QLabel* target
 
     target_label->setText(tr("Загрузка артворка..."));
 
-    auto downloadWithFallback = [this, target_label, local_img_path, image_url](const QString& current_url, auto&& self, int attempt) -> void {
-        QUrl url(current_url);
+    QStringList mirror_urls;
+    mirror_urls << image_url;
+    QString fastly_url = image_url;
+    fastly_url.replace(QStringLiteral("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"), QStringLiteral("fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master"));
+    fastly_url.replace(QStringLiteral("raw.githubusercontent.com/N3evin/AmiiboAPI/master"), QStringLiteral("fastly.jsdelivr.net/gh/N3evin/AmiiboAPI@master"));
+    mirror_urls << fastly_url;
+
+    QString gh_url = image_url;
+    gh_url.replace(QStringLiteral("cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"), QStringLiteral("raw.githubusercontent.com/N3evin/AmiiboAPI/master"));
+    mirror_urls << gh_url;
+
+    QString proxy_url = QStringLiteral("https://ghproxy.net/") + gh_url;
+    mirror_urls << proxy_url;
+    mirror_urls.removeDuplicates();
+
+    auto downloadWithFallback = [this, target_label, local_img_path, image_url, mirror_urls](int mirror_index, auto&& self) -> void {
+        if (mirror_index >= mirror_urls.size()) {
+            target_label->setText(tr("Изображение отсутствует"));
+            return;
+        }
+
+        QUrl url(mirror_urls[mirror_index]);
         QNetworkRequest req(url);
-        req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 STORM-EDEN/4.0.1"));
+        req.setTransferTimeout(2500);
+        req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 STORM-EDEN/4.0.2"));
         req.setRawHeader("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
 
         auto* reply = m_network_mgr->get(req);
-        connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, current_url, local_img_path, target_label, attempt, self]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, image_url, local_img_path, target_label, mirror_index, mirror_urls, self]() {
             if (reply->error() == QNetworkReply::NoError) {
                 QByteArray img_data = reply->readAll();
                 QPixmap pixmap;
@@ -671,24 +687,16 @@ void ConfigurePerGameAmiibo::FetchImage(const QString& image_url, QLabel* target
                     }
                     m_image_cache[image_url] = pixmap;
                     target_label->setPixmap(pixmap.scaled(target_label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-                } else {
-                    target_label->setText(tr("Ошибка формата"));
-                }
-            } else {
-                if (attempt == 0 && current_url.contains(QStringLiteral("jsdelivr.net"))) {
-                    QString fallback_url = current_url;
-                    fallback_url.replace(QStringLiteral("https://cdn.jsdelivr.net/gh/N3evin/AmiiboAPI@master"),
-                                         QStringLiteral("https://raw.githubusercontent.com/N3evin/AmiiboAPI/master"));
-                    self(fallback_url, self, 1);
-                } else {
-                    target_label->setText(tr("Изображение отсутствует"));
+                    reply->deleteLater();
+                    return;
                 }
             }
             reply->deleteLater();
+            self(mirror_index + 1, self);
         });
     };
 
-    downloadWithFallback(image_url, downloadWithFallback, 0);
+    downloadWithFallback(0, downloadWithFallback);
 }
 
 QString ConfigurePerGameAmiibo::GenerateAndSaveAmiiboBin(const AmiiboEntry& entry) {
@@ -745,19 +753,6 @@ QString ConfigurePerGameAmiibo::GenerateAndSaveAmiiboBin(const AmiiboEntry& entr
         out.close();
     }
 
-    // Also save in general Amiibo series folder
-    const auto amiibo_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::AmiiboDir);
-    QString clean_series = entry.amiibo_series.isEmpty() ? QStringLiteral("General") : entry.amiibo_series;
-    clean_series.replace(QRegularExpression(QStringLiteral(R"([\\/:*?"<>|])")), QStringLiteral("_"));
-    auto series_folder = amiibo_dir / clean_series.toStdString();
-    Common::FS::CreateDirs(series_folder);
-    auto global_path = series_folder / (clean_name.toStdString() + ".bin");
-    std::ofstream out_global(global_path, std::ios::binary);
-    if (out_global.is_open()) {
-        out_global.write(reinterpret_cast<const char*>(bin_data.data()), bin_data.size());
-        out_global.close();
-    }
-
     return bin_path_str;
 }
 
@@ -767,5 +762,28 @@ void ConfigurePerGameAmiibo::OnOpenAmiiboFolderClicked() {
 }
 
 void ConfigurePerGameAmiibo::ApplyConfiguration() {
-    // Config values saved automatically when checkboxes change
+    // Explicitly synchronize current checkbox states with game folder
+    QString folder = GetGameAmiiboFolder();
+    for (int i = 0; i < m_amiibo_list->count(); ++i) {
+        auto* item = m_amiibo_list->item(i);
+        if (!item) continue;
+        int idx = item->data(Qt::UserRole).toInt();
+        if (idx < 0 || idx >= static_cast<int>(m_all_amiibos.size())) continue;
+        const auto& entry = m_all_amiibos[idx];
+
+        QString clean_name = entry.name;
+        if (clean_name.isEmpty()) clean_name = QStringLiteral("Amiibo");
+        clean_name.replace(QRegularExpression(QStringLiteral(R"([\\/:*?"<>|])")), QStringLiteral("_"));
+        QString bin_path = folder + QStringLiteral("/") + clean_name + QStringLiteral(".bin");
+
+        if (item->checkState() == Qt::Checked) {
+            if (!QFile::exists(bin_path)) {
+                GenerateAndSaveAmiiboBin(entry);
+            }
+        } else {
+            if (QFile::exists(bin_path)) {
+                QFile::remove(bin_path);
+            }
+        }
+    }
 }

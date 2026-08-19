@@ -367,7 +367,11 @@ class GamePropertiesFragment : Fragment() {
                         R.string.amiibo_database_description,
                         R.drawable.ic_amiibo,
                         action = {
-                            AmiiboDialogFragment.newInstance(false).show(
+                            AmiiboDialogFragment.newInstance(
+                                isEmulating = false,
+                                gameTitle = args.game.title,
+                                titleId = args.game.programId
+                            ).show(
                                 childFragmentManager,
                                 AmiiboDialogFragment.TAG
                             )

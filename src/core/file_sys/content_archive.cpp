@@ -52,8 +52,8 @@ public:
     bool IsWritable() const override { return false; }
     bool IsReadable() const override { return file.IsOpen(); }
     bool Rename(std::string_view name_) override { return false; }
-    bool IsNczFile() const override { return true; }
-    bool HasDecryptedSections() const override { return true; }
+    bool IsNczFile() const override { return false; }
+    bool HasDecryptedSections() const override { return false; }
 
     std::size_t Read(u8* data, std::size_t length, std::size_t offset) const override {
         if (!file.IsOpen()) return 0;
@@ -80,7 +80,7 @@ static VirtualFile DecompressIfNCZ(VirtualFile file) {
         std::filesystem::path temp_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
         std::error_code ec;
         std::filesystem::create_directories(temp_dir, ec);
-        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".v2.decompressed_cache");
+        std::filesystem::path cache_path = temp_dir / (file->GetName() + ".v3.decompressed_cache");
 
         bool cache_valid = false;
         if (std::filesystem::exists(cache_path, ec)) {

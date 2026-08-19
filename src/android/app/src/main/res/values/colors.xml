@@ -2,6 +2,16 @@
 <resources>
     <color name="ic_launcher_background">#1F143C</color>
 
+    <!-- Synthwave / Eden Theme Base -->
+    <color name="synthwave_background">#0C101A</color>
+    <color name="synthwave_surface">#161B26</color>
+    <color name="synthwave_text_primary">#F1F5F9</color>
+    <color name="synthwave_text_secondary">#94A3B8</color>
+    <color name="synthwave_neon_cyan">#00F0FF</color>
+    <color name="synthwave_neon_pink">#FF2A85</color>
+    <color name="synthwave_neon_red">#F43F5E</color>
+    <color name="synthwave_neon_green">#10B981</color>
+
     <!-- STORM NIGHT -->
     <color name="storm_night_primary">#00F0FF</color>
     <color name="storm_night_primary_container">#0A2540</color>

@@ -43,6 +43,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
@@ -138,6 +139,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private lateinit var driverInUse: String
 
     private var intentGame: Game? = null
+    private var gameTranslatorManager: org.yuzu.yuzu_emu.translator.GameTranslatorManager? = null
     private var isCustomSettingsIntent = false
     private var isStoppingForRomSwap = false
     private var deferGameSetupUntilStopCompletes = false
@@ -733,6 +735,26 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         binding.inGameMenu.menu.findItem(R.id.menu_quick_settings)?.isVisible =
             BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean()
 
+        gameTranslatorManager = org.yuzu.yuzu_emu.translator.GameTranslatorManager(
+            requireContext(),
+            viewLifecycleOwner.lifecycleScope
+        ).apply {
+            overlayView = binding.translationOverlay
+        }
+
+        binding.translationOverlay.onOpenSettingsRequested = {
+            val dialog = org.yuzu.yuzu_emu.translator.ui.TranslationSettingsDialogFragment.newInstance()
+            dialog.onSettingsChanged = {
+                setupFloatingTranslateButton()
+            }
+            dialog.onConfigureRegionsRequested = {
+                binding.translationOverlay.enterRegionEditMode()
+            }
+            dialog.show(childFragmentManager, org.yuzu.yuzu_emu.translator.ui.TranslationSettingsDialogFragment.TAG)
+        }
+
+        setupFloatingTranslateButton()
+
         binding.pausedIcon.setOnClickListener {
             if (this::emulationState.isInitialized && emulationState.isPaused) {
                 resumeEmulationFromUi()
@@ -791,11 +813,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     true
                 }
 
-            if (BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean())
-                R.id.menu_quick_settings else 0 -> {
-                openQuickSettingsMenu()
-                true
-            }
+                R.id.menu_quick_settings -> {
+                    openQuickSettingsMenu()
+                    true
+                }
 
                 R.id.menu_settings_per_game -> {
                     val action = HomeNavigationDirections.actionGlobalSettingsActivity(
@@ -808,12 +829,13 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     true
                 }
 
-                R.id.menu_multiplayer -> {
-                    emulationActivity?.displayMultiplayerDialog()
+                R.id.menu_load_amiibo -> handleLoadAmiiboSelection()
+
+                R.id.menu_translate_screen -> {
+                    binding.drawerLayout.close()
+                    gameTranslatorManager?.triggerTranslation(binding.surfaceEmulation)
                     true
                 }
-
-                R.id.menu_load_amiibo -> handleLoadAmiiboSelection()
 
                 R.id.menu_controls -> {
                     val action = HomeNavigationDirections.actionGlobalSettingsActivity(
@@ -1222,6 +1244,13 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         binding.drawerLayout.openDrawer(binding.quickSettingsSheet)
     }
 
+    fun closeDrawers() {
+        val b = _binding ?: return
+        try {
+            b.drawerLayout.closeDrawers()
+        } catch (_: Exception) {}
+    }
+
     private fun updateQuickOverlayMenuEntry(isVisible: Boolean) {
         val b = _binding ?: return
         val item = b.inGameMenu.menu.findItem(R.id.menu_quick_overlay) ?: return
@@ -1326,6 +1355,241 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         b?.pausedFrameImage?.setImageDrawable(null)
         pausedFrameBitmap?.recycle()
         pausedFrameBitmap = null
+    }
+
+    private fun setupFloatingTranslateButton() {
+        val b = _binding ?: return
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val enabled = prefs.getBoolean("translator_enable_floating_button", true)
+        b.buttonFloatingTranslate.isVisible = enabled
+        if (enabled) {
+            b.buttonFloatingTranslate.invalidate()
+            b.buttonFloatingTranslate.onSingleTap = {
+                if (b.translationOverlay.isVisible) {
+                    b.translationOverlay.clear()
+                } else {
+                    gameTranslatorManager?.triggerTranslation(b.surfaceEmulation)
+                }
+            }
+            b.buttonFloatingTranslate.onLongPress = {
+                showQuickTranslatorMenu()
+            }
+        }
+    }
+
+    private fun showQuickTranslatorMenu() {
+        val b = _binding ?: return
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val curEngine = prefs.getString("translator_engine", "google") ?: "google"
+        val curTriggerMode = prefs.getString("translator_trigger_mode", "on_demand") ?: "on_demand"
+        var isAutoTranslate = curTriggerMode == "auto_screen_change"
+        var autoSpeak = prefs.getBoolean("translator_auto_speak", false)
+
+        val menuBinding = org.yuzu.yuzu_emu.databinding.DialogQuickTranslatorMenuBinding.inflate(layoutInflater)
+
+        val engineNames = mapOf(
+            "google" to "Google Translate",
+            "yandex" to "Яндекс Переводчик",
+            "lingva" to "Lingva Neural",
+            "deepl" to "DeepL Neural",
+            "libre" to "LibreTranslate",
+            "mymemory" to "MyMemory",
+            "custom_ai" to "Нейросеть / Custom AI"
+        )
+        menuBinding.textCurrentEngine.text = engineNames[curEngine] ?: curEngine
+
+        menuBinding.switchAutoTranslate.isChecked = isAutoTranslate
+        menuBinding.textAutoTranslateStatus.text = if (isAutoTranslate) "Статус: [ Включен — автоскан ]" else "Статус: Отключен (по нажатию)"
+
+        menuBinding.switchTts.isChecked = autoSpeak
+        menuBinding.textTtsStatus.text = if (autoSpeak) "Озвучка: [ Включена ]" else "Озвучка: Отключена"
+
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
+            .setView(menuBinding.root)
+            .create()
+
+        menuBinding.itemTranslateNow.setOnClickListener {
+            dialog.dismiss()
+            gameTranslatorManager?.triggerTranslation(b.surfaceEmulation)
+        }
+
+        val toggleAutoTranslate = {
+            isAutoTranslate = !isAutoTranslate
+            val newMode = if (isAutoTranslate) "auto_screen_change" else "on_demand"
+            prefs.edit().putString("translator_trigger_mode", newMode).apply()
+            menuBinding.switchAutoTranslate.isChecked = isAutoTranslate
+            menuBinding.textAutoTranslateStatus.text = if (isAutoTranslate) "Статус: [ Включен — автоскан ]" else "Статус: Отключен (по нажатию)"
+            if (isAutoTranslate) {
+                gameTranslatorManager?.startAutoTranslateLoop(b.surfaceEmulation)
+                showEdenSnackbar("⚡ Авто-перевод активирован", true)
+            } else {
+                gameTranslatorManager?.stopAutoTranslateLoop()
+                showEdenSnackbar("⚡ Авто-перевод отключен", true)
+            }
+        }
+        menuBinding.itemAutoTranslate.setOnClickListener { toggleAutoTranslate() }
+
+        menuBinding.itemEnginePicker.setOnClickListener {
+            dialog.dismiss()
+            showQuickEnginePicker()
+        }
+
+        menuBinding.itemEditRegions.setOnClickListener {
+            dialog.dismiss()
+            b.translationOverlay.enterRegionEditMode()
+        }
+
+        val toggleTts = {
+            autoSpeak = !autoSpeak
+            prefs.edit().putBoolean("translator_auto_speak", autoSpeak).apply()
+            menuBinding.switchTts.isChecked = autoSpeak
+            menuBinding.textTtsStatus.text = if (autoSpeak) "Озвучка: [ Включена ]" else "Озвучка: Отключена"
+            showEdenSnackbar(if (autoSpeak) "🔊 Озвучка TTS включена" else "🔇 Озвучка TTS выключена", true)
+        }
+        menuBinding.itemTtsVoice.setOnClickListener { toggleTts() }
+
+        var enableFloating = prefs.getBoolean("translator_enable_floating_button", true)
+        menuBinding.switchFloatingBtn.isChecked = enableFloating
+        menuBinding.textFloatingBtnStatus.text = if (enableFloating) "Кнопка: [ Отображается ]" else "Кнопка: Скрыта"
+        val toggleFloating = {
+            enableFloating = !enableFloating
+            prefs.edit().putBoolean("translator_enable_floating_button", enableFloating).apply()
+            menuBinding.switchFloatingBtn.isChecked = enableFloating
+            menuBinding.textFloatingBtnStatus.text = if (enableFloating) "Кнопка: [ Отображается ]" else "Кнопка: Скрыта"
+            setupFloatingTranslateButton()
+            showEdenSnackbar(if (enableFloating) "👁️ Плавающая кнопка показана" else "🙈 Плавающая кнопка скрыта", true)
+        }
+        menuBinding.itemFloatingBtn.setOnClickListener { toggleFloating() }
+
+        menuBinding.buttonAllSettings.setOnClickListener {
+            dialog.dismiss()
+            val settingsDlg = org.yuzu.yuzu_emu.translator.ui.TranslationSettingsDialogFragment.newInstance()
+            settingsDlg.onSettingsChanged = { setupFloatingTranslateButton() }
+            settingsDlg.onConfigureRegionsRequested = { b.translationOverlay.enterRegionEditMode() }
+            settingsDlg.show(childFragmentManager, org.yuzu.yuzu_emu.translator.ui.TranslationSettingsDialogFragment.TAG)
+        }
+
+        dialog.show()
+        dialog.window?.let { window ->
+            val dm = resources.displayMetrics
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val width = if (isLandscape) (dm.widthPixels * 0.65).toInt() else (dm.widthPixels * 0.92).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.90).toInt() else (dm.heightPixels * 0.85).toInt()
+            window.setLayout(width, height)
+            window.setBackgroundDrawableResource(android.R.color.transparent)
+        }
+    }
+
+    private fun showQuickEnginePicker() {
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val engines = listOf(
+            "google" to "Google Translate (Бесплатно / Быстрый)",
+            "yandex" to "Яндекс Переводчик (Идеальный русский)",
+            "lingva" to "Lingva Neural (Бесплатно)",
+            "deepl" to "DeepL Neural API",
+            "libre" to "LibreTranslate (Open-Source)",
+            "mymemory" to "MyMemory Translated",
+            "custom_ai" to "Нейросеть (OpenAI / Claude / Gemini / DeepSeek)"
+        )
+        val curEngine = prefs.getString("translator_engine", "google") ?: "google"
+        val selectedIdx = engines.indexOfFirst { it.first == curEngine }.coerceAtLeast(0)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("🤖 Выберите модель перевода")
+            .setSingleChoiceItems(engines.map { it.second }.toTypedArray(), selectedIdx) { dialog, which ->
+                val chosen = engines[which].first
+                prefs.edit().putString("translator_engine", chosen).apply()
+                android.widget.Toast.makeText(requireContext(), "Модель перевода: ${engines[which].second}", android.widget.Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showEdenSnackbar(text: String, isSuccess: Boolean = true) {
+        val surface = _binding?.surfaceEmulation ?: return
+        try {
+            com.google.android.material.snackbar.Snackbar.make(surface, text, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).apply {
+                view.setBackgroundResource(R.drawable.theme_card_background)
+                view.backgroundTintList = android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.eden_card_background)
+                )
+                val textView = view.findViewById<android.widget.TextView>(com.google.android.material.R.id.snackbar_text)
+                textView?.setTextColor(
+                    if (isSuccess) androidx.core.content.ContextCompat.getColor(requireContext(), R.color.synthwave_neon_cyan)
+                    else androidx.core.content.ContextCompat.getColor(requireContext(), R.color.synthwave_neon_red)
+                )
+                textView?.setTypeface(null, android.graphics.Typeface.BOLD)
+                show()
+            }
+        } catch (_: Exception) {}
+    }
+
+    fun triggerScreenTranslation() {
+        val binding = _binding ?: return
+        gameTranslatorManager?.triggerTranslation(binding.surfaceEmulation)
+    }
+
+    fun togglePauseEmulation() {
+        if (emulationState.isPaused) {
+            resumeEmulationFromUi()
+        } else {
+            pauseEmulationAndCaptureFrame()
+        }
+    }
+
+    fun toggleFastForward() {
+        val isTurbo = NativeLibrary.isTurboMode()
+        NativeLibrary.setTurboSpeedLimit(!isTurbo)
+        showEdenSnackbar(if (!isTurbo) "⚡ Fast Forward (Turbo ON)" else "Normal Speed", true)
+    }
+
+    fun captureScreenshotToGallery() {
+        val frameData = NativeLibrary.getAppletCaptureBuffer()
+        val width = NativeLibrary.getAppletCaptureWidth()
+        val height = NativeLibrary.getAppletCaptureHeight()
+        if (frameData.isNotEmpty() && width > 0 && height > 0) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+                    bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(frameData))
+                    val picturesDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES)
+                    val edenDir = java.io.File(picturesDir, "STORM_EDEN")
+                    edenDir.mkdirs()
+                    val fileName = "Screenshot_${System.currentTimeMillis()}.png"
+                    val outFile = java.io.File(edenDir, fileName)
+                    java.io.FileOutputStream(outFile).use { out ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                    }
+                    bitmap.recycle()
+                    withContext(Dispatchers.Main) {
+                        showEdenSnackbar("📸 Скриншот сохранён в Галерею: $fileName", true)
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        showEdenSnackbar("Ошибка создания скриншота: ${e.localizedMessage}", false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getGameProgramIdHex(): String {
+        val game = args.game
+        if (game == null) return "DEFAULT"
+        return try {
+            val raw = game.programId.trim()
+            val longVal = if (raw.startsWith("0x", ignoreCase = true)) {
+                raw.substring(2).toULong(16).toLong()
+            } else if (raw.all { it.isDigit() }) {
+                raw.toULong().toLong()
+            } else {
+                raw.toULong(16).toLong()
+            }
+            if (longVal != 0L) java.lang.String.format("%016X", longVal) else "DEFAULT"
+        } catch (_: Exception) {
+            if (game.programId.isNotEmpty()) game.programId.uppercase() else "DEFAULT"
+        }
     }
 
     private fun handleLoadAmiiboSelection(): Boolean {
@@ -1448,6 +1712,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         socRunnable?.let { socUpdateHandler.removeCallbacks(it) }
         handler.removeCallbacksAndMessages(null)
         clearPausedFrame()
+        gameTranslatorManager?.onDestroy()
+        gameTranslatorManager = null
         _binding?.surfaceInputOverlay?.touchEventListener = null
         _binding = null
         isAmiiboPickerOpen = false
@@ -1478,6 +1744,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         // if the overlay auto-hide setting is changed while paused,
         // we need to reinitialize the auto-hide timer
         initializeOverlayAutoHide()
+
+        // Ensure touch overlay skin theme, scale and opacity are refreshed immediately
+        b.surfaceInputOverlay.refreshControls()
 
         addQuickSettings()
     }
@@ -2038,6 +2307,26 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
                 R.id.menu_adjust_overlay -> {
                     adjustOverlay()
+                    true
+                }
+
+                R.id.menu_overlay_theme -> {
+                    val themes = org.yuzu.yuzu_emu.overlay.model.OverlayTheme.values()
+                    val themeNames = themes.map { getString(it.titleResId) }.toTypedArray()
+                    val currentThemeId = IntSetting.OVERLAY_SKIN_THEME.getInt()
+                    val currentIdx = themes.indexOfFirst { it.id == currentThemeId }.let { if (it >= 0) it else 0 }
+
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.overlay_skin_theme)
+                        .setSingleChoiceItems(themeNames, currentIdx) { dialog, which ->
+                            val selected = themes[which]
+                            IntSetting.OVERLAY_SKIN_THEME.setInt(selected.id)
+                            NativeConfig.saveGlobalConfig()
+                            binding.surfaceInputOverlay.refreshControls()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show()
                     true
                 }
 

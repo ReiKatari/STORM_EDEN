@@ -835,6 +835,52 @@ void GRenderWindow::CaptureScreenshot(const QString& screenshot_path) {
         layout);
 }
 
+void GRenderWindow::CaptureFrame(std::function<void(const QImage&)> callback) {
+    if (!QtCommon::system || !QtCommon::system->IsPoweredOn()) {
+        if (callback) {
+            callback(screenshot_image);
+        }
+        return;
+    }
+    auto& renderer = QtCommon::system->Renderer();
+    if (renderer.IsScreenshotPending()) {
+        if (callback) {
+            callback(screenshot_image);
+        }
+        return;
+    }
+
+    const Layout::FramebufferLayout layout{[]() {
+        u32 height = UISettings::values.screenshot_height.GetValue();
+        if (height == 0) {
+            height = Settings::IsDockedMode() ? Layout::ScreenDocked::Height
+                                              : Layout::ScreenUndocked::Height;
+            height *= Settings::values.resolution_info.up_factor;
+        }
+        const u32 width =
+            UISettings::CalculateWidth(height, Settings::values.aspect_ratio.GetValue());
+        return Layout::DefaultFrameLayout(width, height);
+    }()};
+
+    screenshot_image = QImage(QSize(layout.width, layout.height), QImage::Format_RGB32);
+    renderer.RequestScreenshot(
+        screenshot_image.bits(),
+        [callback, this](bool invert_y) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+            QImage img = screenshot_image.flipped(invert_y ? Qt::Vertical : (Qt::Orientations)0);
+#else
+            QImage img = screenshot_image.mirrored(false, invert_y);
+#endif
+            screenshot_image = img;
+            if (callback) {
+                QMetaObject::invokeMethod(qApp, [callback, img]() {
+                    callback(img);
+                }, Qt::QueuedConnection);
+            }
+        },
+        layout);
+}
+
 bool GRenderWindow::IsLoadingComplete() const {
     return first_frame;
 }

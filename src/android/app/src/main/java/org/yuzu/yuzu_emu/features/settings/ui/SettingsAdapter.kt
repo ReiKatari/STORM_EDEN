@@ -47,67 +47,67 @@ class SettingsAdapter(
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             SettingsItem.TYPE_HEADER -> {
-                HeaderViewHolder(ListItemSettingsHeaderBinding.inflate(inflater), this)
+                HeaderViewHolder(ListItemSettingsHeaderBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_SWITCH -> {
-                SwitchSettingViewHolder(ListItemSettingSwitchBinding.inflate(inflater), this)
+                SwitchSettingViewHolder(ListItemSettingSwitchBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_SINGLE_CHOICE, SettingsItem.TYPE_STRING_SINGLE_CHOICE -> {
-                SingleChoiceViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                SingleChoiceViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_SLIDER -> {
-                SliderViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                SliderViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_SPINBOX -> {
-                SpinBoxViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                SpinBoxViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_SUBMENU -> {
-                SubmenuViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                SubmenuViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_DATETIME_SETTING -> {
-                DateTimeViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                DateTimeViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_RUNNABLE -> {
-                RunnableViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                RunnableViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_INPUT -> {
-                InputViewHolder(ListItemSettingInputBinding.inflate(inflater), this)
+                InputViewHolder(ListItemSettingInputBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_INT_SINGLE_CHOICE -> {
-                SingleChoiceViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                SingleChoiceViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_INPUT_PROFILE -> {
-                InputProfileViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                InputProfileViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_STRING_INPUT -> {
-                StringInputViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                StringInputViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_LAUNCHABLE -> {
-                LaunchableViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                LaunchableViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
-			
+
             SettingsItem.TYPE_PATH -> {
-                PathViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                PathViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             SettingsItem.TYPE_GPU_UNSWIZZLE -> {
-                GpuUnswizzleViewHolder(ListItemSettingBinding.inflate(inflater), this)
+                GpuUnswizzleViewHolder(ListItemSettingBinding.inflate(inflater, parent, false), this)
             }
 
             else -> {
-                HeaderViewHolder(ListItemSettingsHeaderBinding.inflate(inflater), this)
+                HeaderViewHolder(ListItemSettingsHeaderBinding.inflate(inflater, parent, false), this)
             }
         }
     }
@@ -427,6 +427,10 @@ class SettingsAdapter(
                         )
                         settingsViewModel.setAdapterItemChanged(position)
                     }
+                }
+
+                is HotkeyInputSetting -> {
+                    // Hotkeys have no extra popup options
                 }
             }
         }

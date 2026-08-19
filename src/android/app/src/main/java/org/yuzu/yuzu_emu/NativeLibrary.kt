@@ -644,6 +644,13 @@ object NativeLibrary {
     external fun loadAmiibo(data: ByteArray): Int
 
     /**
+     * Disconnects and removes any loaded amiibo tag.
+     *
+     * @return Native enum value representing the close result.
+     */
+    external fun closeAmiibo(): Int
+
+    /**
      * Checks if all necessary keys are present for decryption
      */
     external fun areKeysPresent(): Boolean

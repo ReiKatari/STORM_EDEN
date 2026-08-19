@@ -201,12 +201,20 @@ QString FormatPatchNameVersions(const FileSys::PatchManager& patch_manager,
 }
 
 QString FormatAddonsColumnText(const QString& patch_versions, const QString& base_version = QStringLiteral("1.0.0")) {
-    QString version_num = base_version.trimmed().isEmpty() ? QStringLiteral("1.0.0") : base_version.trimmed();
-    int dlc_count = 0;
+    QString version_num = base_version.trimmed();
+    while (version_num.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+        version_num.remove(0, 1);
+    }
+    version_num = version_num.trimmed();
+    if (version_num.isEmpty() || version_num == QStringLiteral("0")) {
+        version_num = QStringLiteral("1.0.0");
+    }
 
+    int dlc_count = 0;
     const QStringList lines = patch_versions.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
     for (const QString& line : lines) {
-        if (!line.contains(QStringLiteral("Update"), Qt::CaseInsensitive)) {
+        if (!line.contains(QStringLiteral("Update"), Qt::CaseInsensitive) &&
+            !line.contains(QStringLiteral("Обновление"), Qt::CaseInsensitive)) {
             QString clean = line.trimmed();
             clean.replace(QStringLiteral("DLC "), QStringLiteral(""), Qt::CaseInsensitive);
             clean.replace(QStringLiteral("DLC"), QStringLiteral(""), Qt::CaseInsensitive);
@@ -252,46 +260,64 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
 
     // Determine the exact version for this specific file
     QString file_version;
-    FileSys::NACP file_nacp;
-    if (loader.ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
-        auto ver = file_nacp.GetVersionString();
-        if (!ver.empty() && ver != "0") {
-            file_version = QString::fromStdString(ver);
-        }
+
+    // 1. Try filename regex for paired version (e.g. "(1.5.1 - 262144 - ...)" or "(1.6.15.13 - 1310720 - ...)")
+    static const QRegularExpression fn_pair_ver_regex{QStringLiteral(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))")};
+    const auto fm = fn_pair_ver_regex.match(QString::fromStdString(path));
+    if (fm.hasMatch() && !fm.captured(1).isEmpty()) {
+        file_version = fm.captured(1);
     }
 
-    static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
-    const auto m = fn_ver_regex.match(QString::fromStdString(path));
-    if (m.hasMatch() && m.hasCaptured(1)) {
-        const QString parsed_fn_ver = m.captured(1);
-        if (!parsed_fn_ver.isEmpty() && (file_version.isEmpty() || file_version == QStringLiteral("1.0.0"))) {
-            file_version = parsed_fn_ver;
-        }
-    }
-
-    if (file_version.isEmpty()) {
-        static const QRegularExpression fn_vnum_regex{QStringLiteral(R"(\[v([0-9]+)\])")};
-        const auto vm = fn_vnum_regex.match(QString::fromStdString(path));
-        if (vm.hasMatch()) {
-            const u32 vnum = vm.captured(1).toUInt();
-            if (vnum == 0) {
-                file_version = QStringLiteral("1.0.0");
-            } else {
-                file_version = QStringLiteral("v%1").arg(vnum);
-            }
-        }
-    }
-
-    if (file_version.isEmpty()) {
-        auto nacp = patch.GetControlMetadata().first;
-        if (nacp) {
-            auto ver = nacp->GetVersionString();
-            if (!ver.empty()) {
+    // 2. Try PatchManager control metadata (which prioritizes updates)
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        if (const auto nacp = patch.GetControlMetadata().first; nacp != nullptr) {
+            const auto ver = nacp->GetVersionString();
+            if (!ver.empty() && ver != "0") {
                 file_version = QString::fromStdString(ver);
             }
         }
     }
-    if (file_version.isEmpty()) {
+
+    // 3. Try reading control data directly from loader
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        FileSys::NACP file_nacp;
+        if (loader.ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
+            auto ver = file_nacp.GetVersionString();
+            if (!ver.empty() && ver != "0") {
+                file_version = QString::fromStdString(ver);
+            }
+        }
+    }
+
+    // 4. Fallback to general filename version regex
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+        const auto m = fn_ver_regex.match(QString::fromStdString(path));
+        if (m.hasMatch() && m.hasCaptured(1)) {
+            const QString parsed_fn_ver = m.captured(1);
+            if (!parsed_fn_ver.isEmpty()) {
+                file_version = parsed_fn_ver;
+            }
+        }
+    }
+
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        static const QRegularExpression fn_vnum_regex{QStringLiteral(R"(\[v([0-9]+)\])")};
+        const auto vm = fn_vnum_regex.match(QString::fromStdString(path));
+        if (vm.hasMatch()) {
+            const u32 vnum = vm.captured(1).toUInt();
+            if (vnum > 0) {
+                file_version = QString::number(vnum);
+            }
+        }
+    }
+
+    while (file_version.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+        file_version.remove(0, 1);
+    }
+    file_version = file_version.trimmed();
+
+    if (file_version.isEmpty() || file_version == QStringLiteral("0")) {
         file_version = QStringLiteral("1.0.0");
     }
 

@@ -8,6 +8,7 @@ import org.yuzu.yuzu_emu.databinding.ListItemSettingInputBinding
 import org.yuzu.yuzu_emu.features.input.NativeInput
 import org.yuzu.yuzu_emu.features.settings.model.view.AnalogInputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.ButtonInputSetting
+import org.yuzu.yuzu_emu.features.settings.model.view.HotkeyInputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.InputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.ModifierInputSetting
 import org.yuzu.yuzu_emu.features.settings.model.view.SettingsItem
@@ -43,6 +44,10 @@ class InputViewHolder(val binding: ListItemSettingInputBinding, adapter: Setting
             is ModifierInputSetting -> {
                 val params = NativeInput.getStickParam(item.playerIndex, item.nativeAnalog)
                 binding.buttonOptions.setVisible(params.has("modifier"))
+            }
+
+            is HotkeyInputSetting -> {
+                binding.buttonOptions.setVisible(false)
             }
         }
 

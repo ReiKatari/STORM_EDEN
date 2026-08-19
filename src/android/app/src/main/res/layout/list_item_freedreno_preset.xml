@@ -9,10 +9,11 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/preset_button"
+        style="@style/EdenButton.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="100dp"
         android:text="Preset"
-        style="?attr/materialButtonOutlinedStyle" />
+        app:cornerRadius="14dp" />
 
 </LinearLayout>

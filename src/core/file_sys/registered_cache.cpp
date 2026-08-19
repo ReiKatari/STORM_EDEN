@@ -1265,7 +1265,15 @@ bool ManualContentProvider::HasEntry(u64 title_id, ContentRecordType type) const
 }
 
 std::optional<u32> ManualContentProvider::GetEntryVersion(u64 title_id) const {
-    return std::nullopt;
+    std::optional<u32> max_version;
+    for (const auto& entry : multi_version_entries) {
+        if (entry.title_id == title_id) {
+            if (!max_version || entry.version > *max_version) {
+                max_version = entry.version;
+            }
+        }
+    }
+    return max_version;
 }
 
 VirtualFile ManualContentProvider::GetEntryUnparsed(u64 title_id, ContentRecordType type) const {
@@ -1444,6 +1452,21 @@ VirtualFile ExternalContentProvider::GetEntryRaw(u64 title_id, ContentRecordType
         const auto it = entries.find({title_id, type, TitleType::Update});
         if (it != entries.end()) {
             return it->second;
+        }
+    }
+
+    // Try to find in Application entries
+    {
+        const auto it = entries.find({title_id, type, TitleType::Application});
+        if (it != entries.end()) {
+            return it->second;
+        }
+    }
+
+    // Fallback: search across all registered TitleTypes for this title_id & type
+    for (const auto& [key, vfile] : entries) {
+        if (std::get<0>(key) == title_id && std::get<1>(key) == type) {
+            return vfile;
         }
     }
 

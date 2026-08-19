@@ -8,6 +8,7 @@
     <string name="app_notification_channel_description">Уведомления эмулятора switch STORM EDEN</string>
     <string name="app_notification_running">STORM EDEN работает</string>
     <string name="seconds">Секунды</string>
+    <string name="copy_to_clipboard">Скопировать</string>
 
     <!-- Spinbox strings -->
     <string name="increment">Прирост</string>
@@ -317,10 +318,10 @@
     <string name="firmware_installed_failure_description">Убедитесь что файлы прошивки nca находятся в корне zip-архива и повторите попытку.</string>
     <string name="firmware_uninstalled_failure">Не удалось удалить прошивку</string>
     <string name="share_log">Поделиться журналом отладки</string>
-    <string name="share_log_description">Поделиться журналом отладки Eden для устранения проблем</string>
+    <string name="share_log_description">Поделиться журналом отладки STORM EDEN для устранения проблем</string>
     <string name="share_log_missing">Файл журнала не найден</string>
     <string name="share_gpu_log">Поделиться журналом ГПУ</string>
-    <string name="share_gpu_log_description">Поделиться журналом ГПУ Eden для отладки графики</string>
+    <string name="share_gpu_log_description">Поделиться журналом ГПУ STORM EDEN для отладки графики</string>
     <string name="share_gpu_log_missing">Журнал ГПУ не найден</string>
     <string name="install_game_content">Установить игровой контент</string>
     <string name="install_game_content_description">Установить обновления игры или дополнений</string>
@@ -1246,4 +1247,42 @@
     <string name="show_filename_as_title">Название из имени файла</string>
     <string name="show_filename_as_title_description">Отображать понятное название игры из файла вместо внутреннего ROM-заголовка</string>
 
+    <!-- Auto-Translator (OCR + TTS) -->
+    <string name="translator_title">STORM TRANSLATOR</string>
+    <string name="translator_translate_screen">Перевести экран (OCR + Озвучка)</string>
+    <string name="translator_engine">Движок перевода</string>
+    <string name="translator_source_lang">Исходный язык</string>
+    <string name="translator_target_lang">Язык перевода</string>
+    <string name="translator_auto_tts">Авто-озвучка голосом</string>
+
+    <!-- Overlay Skin Themes -->
+    <string name="overlay_skin_theme">Стиль сенсорного управления</string>
+    <string name="overlay_skin_theme_description">Выбор цветовой темы и анимаций виртуальных кнопок и джойстиков</string>
+    <string name="skin_cyberpunk_neon">Eden Cyberpunk Neon (Циан / Неон-розовый)</string>
+    <string name="skin_classic_switch">Классический Switch (Joy-Con Синий / Красный)</string>
+    <string name="skin_frost_glass_3d">Матовое стекло 3D (Полупрозрачный / Блик)</string>
+    <string name="skin_titanium_mecha">Титановый меха-стиль (Шлифованная сталь / Фаска)</string>
+    <string name="skin_arcade_candy_3d">Аркадный Candy 3D (Выпуклый глянец / Янтарь)</string>
+    <string name="skin_flat_minimal">Плоский минимализм (Четкий вектор / Тонкий контур)</string>
+    <string name="skin_storm_ds_classic">STORM Классик (Платина / Неон)</string>
+    <string name="skin_ds_lite_white">DS Lite Белоснежный (Белый / Лазурный)</string>
+    <string name="skin_dsi_xl_blue">DSi XL Полночный синий (Синий / Аквамарин)</string>
+    <string name="skin_crimson_red">Рубиновый Crimson Red (Красный / Янтарь)</string>
+    <string name="skin_n3ds_aqua">Nintendo 3DS Бирюзовый Aqua (Бирюза / Лайм)</string>
+    <string name="skin_oled_stealth">OLED Stealth Тёмный (Графит / Белый)</string>
+    <string name="skin_golden_zelda">Золотая Zelda Трифорс (Золото / Оранж)</string>
+    <string name="skin_gameboy_color_purple">GameBoy Color Atomic Purple (Фиолет / Маджента)</string>
+    <string name="skin_gameboy_dmg_retro">Ретро GameBoy DMG 1989 (Олива / Бордо)</string>
+
+    <string name="amiibo_disconnect_button">Отключить текущий Amiibo</string>
+    <string name="amiibo_currently_attached">Активный Amiibo: %1$s</string>
+    <string name="amiibo_no_attached">Сейчас Amiibo не подключен к контроллеру</string>
+    <string name="amiibo_removed_toast">Amiibo отключен и убран с контроллера</string>
+
+    <string name="translator_floating_btn_title">Плавающая кнопка перевода</string>
+    <string name="translator_floating_btn_description">Отображать плавающую кнопку перевода экрана (Eden Lens) во время игры</string>
+    <string name="hotkey_quick_actions">Горячие клавиши и действия</string>
+    <string name="hotkey_quick_actions_desc">Настройка экранных кнопок быстрых действий и оверлеев</string>
+
 </resources>
+

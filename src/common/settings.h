@@ -568,6 +568,20 @@ struct Values {
                                                     Specialization::Default,
                                                     true,
                                                     true};
+    SwitchableSetting<bool> enable_hdr10{linkage,
+                                         false,
+                                         "enable_hdr10",
+                                         Category::RendererAdvanced,
+                                         Specialization::Default,
+                                         true,
+                                         true};
+    SwitchableSetting<bool> frame_generation{linkage,
+                                             false,
+                                             "frame_generation",
+                                             Category::RendererAdvanced,
+                                             Specialization::Default,
+                                             true,
+                                             true};
 
     // Renderer Hacks //
     SwitchableSetting<GpuClock> gpu_clock{linkage,

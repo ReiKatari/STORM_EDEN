@@ -125,17 +125,7 @@ vk::DescriptorSets DescriptorAllocator::AllocateDescriptors(size_t count) {
     throw vk::Exception(VK_ERROR_OUT_OF_POOL_MEMORY);
 }
 
-DescriptorPool::DescriptorPool(const Device& device_, Scheduler& scheduler) {
-    // Pre-allocate common baseline descriptor bank to eliminate first-frame allocation pauses
-    try {
-        DescriptorBankInfo default_bank{};
-        default_bank.uniform_buffers = 4;
-        default_bank.storage_buffers = 2;
-        default_bank.textures = 8;
-        default_bank.score = 14;
-        Bank(device_, default_bank);
-    } catch (...) {}
-}
+DescriptorPool::DescriptorPool(const Device& device_, Scheduler& scheduler) {}
 DescriptorPool::~DescriptorPool() = default;
 
 DescriptorAllocator DescriptorPool::Allocator(const Device& device, Scheduler& scheduler, VkDescriptorSetLayout layout, std::span<const Shader::Info> infos) {

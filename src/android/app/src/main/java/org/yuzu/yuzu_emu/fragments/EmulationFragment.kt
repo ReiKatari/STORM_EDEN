@@ -688,19 +688,22 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
         binding.drawerLayout.addDrawerListener(object : DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                binding.surfaceInputOverlay.dispatchTouchEvent(
-                    MotionEvent.obtain(
-                        SystemClock.uptimeMillis(),
-                        SystemClock.uptimeMillis() + 100,
-                        MotionEvent.ACTION_UP,
-                        0f,
-                        0f,
-                        0
-                    )
-                )
+                // Keep slide animation silky smooth without flooding input subsystem
             }
 
             override fun onDrawerOpened(drawerView: View) {
+                try {
+                    binding.surfaceInputOverlay.dispatchTouchEvent(
+                        MotionEvent.obtain(
+                            SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(),
+                            MotionEvent.ACTION_UP,
+                            0f,
+                            0f,
+                            0
+                        )
+                    )
+                } catch (_: Throwable) {}
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                 binding.inGameMenu.requestFocus()
                 emulationViewModel.setDrawerOpen(true)

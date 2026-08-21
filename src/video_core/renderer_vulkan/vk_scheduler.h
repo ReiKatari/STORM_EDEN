@@ -153,9 +153,11 @@ public:
                 while (std::chrono::steady_clock::now() < target_time) {
                     std::this_thread::yield();
                 }
-            } else if (frame_counter > max_frame_count) {
-                frame_counter = 0;
-                start_time = now;
+            } else {
+                if (now - target_time > frame_interval * 2 || frame_counter > max_frame_count) {
+                    frame_counter = 0;
+                    start_time = now;
+                }
             }
         }
     }

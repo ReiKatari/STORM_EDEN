@@ -245,6 +245,12 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
     override fun onResume() {
         super.onResume()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            if (powerManager?.isSustainedPerformanceModeSupported == true) {
+                window.setSustainedPerformanceMode(true)
+            }
+        }
         nfcReader.startScanning()
         startMotionSensorListener()
         InputHandler.updateControllerData()
@@ -254,6 +260,9 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
     }
 
     override fun onPause() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            window.setSustainedPerformanceMode(false)
+        }
         nfcReader.stopScanning()
         stopMotionSensorListener()
         super.onPause()

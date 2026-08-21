@@ -93,7 +93,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Повышает тактовую частоту, о которой эмулятор сообщает гостевой системе, снимая встроенные лимиты FPS.\n"
               "На слабых процессорах может снижать общую производительность."));
 
-    INSERT(Settings, cpu_affinity_pinning, tr("Привязка потоков ЦП (CPU Affinity Pinning)"),
+    INSERT(Settings, cpu_affinity_pinning, tr("Привязка потоков ЦП"),
            tr("Жесткая привязка критических потоков JIT и GPU к производительным ядрам ЦП, а фоновых задач — к энергоэффективным ядрам."));
 
     INSERT(Settings, use_custom_cpu_ticks, QString(), QString());
@@ -208,9 +208,9 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
 
     INSERT(Settings, use_vulkan_driver_pipeline_cache, tr("Использовать кэш пайплайнов драйвера Vulkan"),
            tr("Задействует внутренний кэш драйвера видеокарты для ускорения повторного запуска игр."));
-    INSERT(Settings, vulkan_pipeline_cache, tr("Кэш конвейеров Vulkan (Vulkan Pipeline Cache)"),
+    INSERT(Settings, vulkan_pipeline_cache, tr("Кэш конвейеров Vulkan"),
            tr("Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров и микрофризов при компиляции шейдеров."));
-    INSERT(Settings, vram_garbage_collection, tr("Сборщик мусора видеопамяти (VRAM Garbage Collection)"),
+    INSERT(Settings, vram_garbage_collection, tr("Сборщик мусора видеопамяти"),
            tr("Периодическая фоновая очистка неиспользуемых текстурных буферов и кэша ASTC для предотвращения утечек видеопамяти и лагов."));
     INSERT(Settings, enable_compute_pipelines, tr("Включить вычислительные пайплайны (только Intel Vulkan)"),
            tr("Специальная настройка совместимости для встроенной графики Intel."));

@@ -110,7 +110,13 @@ ConfigurePerGameCheats::ConfigurePerGameCheats(Core::System& system_, u64 title_
 
     // Cheats tree widget
     tree_widget = new QTreeWidget(this);
-    tree_widget->setHeaderLabels({tr("Чит-код / Действие"), tr("Статус"), tr("Версия / Build ID"), tr("Код инструкции")});
+    tree_widget->setHeaderLabels({
+        tr("НАЗВАНИЕ ЧИТ-КОДА"),
+        tr("СТАТУС"),
+        tr("ВЕРСИЯ (BUILD ID)"),
+        tr("КОД ИНСТРУКЦИИ")
+    });
+    tree_widget->header()->setDefaultAlignment(Qt::AlignCenter);
     tree_widget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     tree_widget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     tree_widget->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -264,23 +270,26 @@ void ConfigurePerGameCheats::PopulateCheatTree() {
         }
 
         auto* tree_item = new QTreeWidgetItem(tree_widget);
-        tree_item->setText(0, item.name);
+        tree_item->setText(0, item.name.toUpper());
+        tree_item->setTextAlignment(0, Qt::AlignCenter);
         tree_item->setCheckState(0, item.enabled ? Qt::Checked : Qt::Unchecked);
         tree_item->setData(0, Qt::UserRole, i);
 
         if (is_game_running && item.enabled) {
-            tree_item->setText(1, tr("⚡ Активен в игре"));
+            tree_item->setText(1, tr("⚡ АКТИВЕН В ИГРЕ"));
             tree_item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
         } else if (item.enabled) {
-            tree_item->setText(1, tr("✅ Включен"));
+            tree_item->setText(1, tr("✅ ВКЛЮЧЕН"));
             tree_item->setForeground(1, QColor(QStringLiteral("#00f2fe")));
         } else {
-            tree_item->setText(1, tr("⚪ Выключен"));
+            tree_item->setText(1, tr("⚪ ВЫКЛЮЧЕН"));
             tree_item->setForeground(1, QColor(QStringLiteral("#718096")));
         }
+        tree_item->setTextAlignment(1, Qt::AlignCenter);
 
-        tree_item->setText(2, item.build_id.isEmpty() ? tr("Все версии") : item.build_id);
+        tree_item->setText(2, item.build_id.isEmpty() ? tr("ВСЕ ВЕРСИИ") : item.build_id.toUpper());
         tree_item->setForeground(2, QColor(QStringLiteral("#38bdf8")));
+        tree_item->setTextAlignment(2, Qt::AlignCenter);
 
         QString preview_code = item.code.split(QStringLiteral("\n"), Qt::SkipEmptyParts).value(0, QString{});
         if (item.code.count(QStringLiteral("\n")) > 1) {
@@ -288,6 +297,7 @@ void ConfigurePerGameCheats::PopulateCheatTree() {
         }
         tree_item->setText(3, preview_code);
         tree_item->setForeground(3, QColor(QStringLiteral("#a0aec0")));
+        tree_item->setTextAlignment(3, Qt::AlignCenter);
     }
 
     if (cheat_items.isEmpty()) {

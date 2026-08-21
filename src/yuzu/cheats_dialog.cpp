@@ -10,8 +10,8 @@
 CheatsDialog::CheatsDialog(QWidget* parent, Core::System& system, u64 title_id, const QString& file_name)
     : QDialog(parent) {
     setWindowTitle(tr("⚡ Менеджер чит-кодов"));
-    resize(780, 520);
-    setMinimumSize(600, 400);
+    resize(960, 580);
+    setMinimumSize(780, 460);
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(8, 8, 8, 8);

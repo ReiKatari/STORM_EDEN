@@ -112,11 +112,14 @@ void ArmNce::SaveGuestContext(GuestContext* guest_ctx, void* raw_context) {
 }
 
 bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, void* raw_context) {
+    if (!guest_ctx || !guest_ctx->parent) {
+        return false;
+    }
     auto& host_ctx = static_cast<ucontext_t*>(raw_context)->uc_mcontext;
     auto* info = static_cast<siginfo_t*>(raw_info);
 
     // We can't handle the access, so determine why we crashed.
-    const bool is_prefetch_abort = host_ctx.pc == reinterpret_cast<u64>(info->si_addr);
+    const bool is_prefetch_abort = info && (host_ctx.pc == reinterpret_cast<u64>(info->si_addr));
 
     // For data aborts, skip the instruction and return to guest code.
     // This will allow games to continue in many scenarios where they would otherwise crash.
@@ -128,13 +131,10 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
     // This is a prefetch abort.
     guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
 
-    // Forcibly mark the context as locked. We are still running.
-    // We may race with SignalInterrupt here:
-    // - If we lose the race, then SignalInterrupt will send us a signal we are masking,
-    //   and it will do nothing when it is unmasked, as we have already left guest code.
-    // - If we win the race, then SignalInterrupt will wait for us to unlock first.
-    auto& thread_params = guest_ctx->parent->m_running_thread->GetNativeExecutionParameters();
-    thread_params.lock.store(SpinLockLocked);
+    if (guest_ctx->parent->m_running_thread) {
+        auto& thread_params = guest_ctx->parent->m_running_thread->GetNativeExecutionParameters();
+        thread_params.lock.store(SpinLockLocked);
+    }
 
     // Return to host.
     SaveGuestContext(guest_ctx, raw_context);
@@ -142,9 +142,17 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
 }
 
 bool ArmNce::HandleGuestAlignmentFault(GuestContext* guest_ctx, void* raw_info, void* raw_context) {
+    if (!guest_ctx || !guest_ctx->parent || !guest_ctx->parent->m_running_thread) {
+        return false;
+    }
+    auto* owner_process = guest_ctx->parent->m_running_thread->GetOwnerProcess();
+    if (!owner_process) {
+        return false;
+    }
+
     auto& host_ctx = static_cast<ucontext_t*>(raw_context)->uc_mcontext;
     auto* fpctx = GetFloatingPointState(host_ctx);
-    auto& memory = guest_ctx->parent->m_running_thread->GetOwnerProcess()->GetMemory();
+    auto& memory = owner_process->GetMemory();
 
     // Match and execute an instruction.
     auto next_pc = MatchAndExecuteOneInstruction(memory, &host_ctx, fpctx);
@@ -158,13 +166,23 @@ bool ArmNce::HandleGuestAlignmentFault(GuestContext* guest_ctx, void* raw_info, 
 }
 
 bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, void* raw_context) {
+    if (!guest_ctx || !guest_ctx->parent || !guest_ctx->parent->m_running_thread) {
+        return false;
+    }
+    auto* owner_process = guest_ctx->parent->m_running_thread->GetOwnerProcess();
+    if (!owner_process) {
+        return false;
+    }
+
     auto* info = static_cast<siginfo_t*>(raw_info);
+    if (!info) {
+        return false;
+    }
 
     // Try to handle an invalid access.
-    // TODO: handle accesses which split a page?
     const Common::ProcessAddress addr =
         (reinterpret_cast<u64>(info->si_addr) & ~Memory::YUZU_PAGEMASK);
-    auto& memory = guest_ctx->parent->m_running_thread->GetOwnerProcess()->GetMemory();
+    auto& memory = owner_process->GetMemory();
     if (memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE)) {
         // We handled the access successfully and are returning to guest code.
         return true;
@@ -175,11 +193,15 @@ bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, voi
 }
 
 void ArmNce::HandleHostAlignmentFault(int sig, void* raw_info, void* raw_context) {
-    return g_orig_bus_action.sa_sigaction(sig, static_cast<siginfo_t*>(raw_info), raw_context);
+    if (g_orig_bus_action.sa_sigaction) {
+        return g_orig_bus_action.sa_sigaction(sig, static_cast<siginfo_t*>(raw_info), raw_context);
+    }
 }
 
 void ArmNce::HandleHostAccessFault(int sig, void* raw_info, void* raw_context) {
-    return g_orig_segv_action.sa_sigaction(sig, static_cast<siginfo_t*>(raw_info), raw_context);
+    if (g_orig_segv_action.sa_sigaction) {
+        return g_orig_segv_action.sa_sigaction(sig, static_cast<siginfo_t*>(raw_info), raw_context);
+    }
 }
 
 void ArmNce::LockThread(Kernel::KThread* thread) {

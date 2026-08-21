@@ -31,7 +31,9 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:ellipsize="end"
-                android:maxLines="1"
+                android:maxLines="3"
+                android:singleLine="false"
+                android:breakStrategy="high_quality"
                 tools:text="Game Title" />
 
             <LinearLayout

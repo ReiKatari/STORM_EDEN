@@ -560,8 +560,8 @@
 
     <!-- Debug settings strings -->
     <string name="cpu">ЦП</string>
-    <string name="use_auto_stub">Использовать Auto Stub</string>
-    <string name="use_auto_stub_description">Автоматически заглушает отсутствующие сервисы и функции. Может улучшить совместимость, но вызывать сбои и проблемы стабильности.</string>
+    <string name="use_auto_stub">Автоматические заглушки (Auto Stub)</string>
+    <string name="use_auto_stub_description">Автоматически заглушает нереализованные системные сервисы HLE и функции ядра. Позволяет запускать игры, требующие отсутствующие сервисы, но может вызывать сбои или графические артефакты.</string>
 
     <string name="gpu">ГПУ</string>
     <string name="renderer_api">API</string>
@@ -1303,13 +1303,13 @@
 
     <!-- Оптимизация, нагрев и плавность -->
     <string name="optimization_features">Оптимизация и охлаждение</string>
-    <string name="eco_thermal_mode">Режим «Eco / Thermal Governor»</string>
+    <string name="eco_thermal_mode">Энергосбережение и контроль нагрева (Eco Governor)</string>
     <string name="eco_thermal_mode_description">Контроль пиковых частот, адаптивное управление ресурсами и предотвращение перегрева и термального троттлинга устройства.</string>
-    <string name="cpu_affinity_pinning">CPU Affinity Pinning</string>
+    <string name="cpu_affinity_pinning">Привязка ядер процессора (CPU Affinity)</string>
     <string name="cpu_affinity_pinning_description">Жесткая привязка критических потоков JIT и GPU к производительным ядрам Cortex-X/A7xx, а вспомогательных задач — к энергоэффективным ядрам.</string>
-    <string name="vulkan_pipeline_cache">Vulkan Pipeline Cache</string>
-    <string name="vulkan_pipeline_cache_description">Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров.</string>
-    <string name="vram_garbage_collection">VRAM Garbage Collection</string>
+    <string name="vulkan_pipeline_cache">Кэш конвейеров Vulkan</string>
+    <string name="vulkan_pipeline_cache_description">Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров и микрофризов.</string>
+    <string name="vram_garbage_collection">Сборщик мусора видеопамяти (VRAM GC)</string>
     <string name="vram_garbage_collection_description">Периодическая фоновая очистка неиспользуемых текстурных буферов для предотвращения микрофризов и вылетов от системного LMK Android.</string>
 </resources>
 

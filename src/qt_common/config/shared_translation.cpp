@@ -298,6 +298,10 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(UISettings, gui_hide_backend_warning, QString(), QString());
 #endif
 
+    // Debugging
+    INSERT(Settings, use_auto_stub, tr("Использовать автоматические заглушки (Auto Stub)"),
+           tr("Автоматически заглушает нереализованные системные сервисы HLE и функции ядра. Позволяет запускать игры, требующие отсутствующие сервисы, но может вызывать сбои или графические артефакты."));
+
 #undef INSERT
 
     return translations;

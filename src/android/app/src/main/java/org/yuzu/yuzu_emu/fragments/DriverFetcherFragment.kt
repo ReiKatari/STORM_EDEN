@@ -69,20 +69,20 @@ class DriverFetcherFragment : Fragment() {
         DriverRepo("Mr. Purple Turnip", "MrPurple666/purple-turnip", 0),
         DriverRepo("GameHub Adreno 8xx", "crueter/GameHub-8Elite-Drivers", 1),
         DriverRepo("KIMCHI Turnip", "K11MCH1/AdrenoToolsDrivers", 2, true, SortMode.PublishTime),
-        DriverRepo("Weab-Chan Freedreno", "Weab-chan/freedreno_turnip-CI", 3),
-        DriverRepo("Whitebelyash Turnip", "whitebelyash/freedreno_turnip-CI", sort=4, false, SortMode.PublishTime),
+        DriverRepo("Whitebelyash Turnip", "whitebelyash/freedreno_turnip-CI", 3, false, SortMode.PublishTime),
+        DriverRepo("Weab-Chan Freedreno", "Weab-chan/freedreno_turnip-CI", 4),
     )
 
     private val driverMap = listOf(
-        IntRange(Integer.MIN_VALUE, 9) to "Unsupported",
-        IntRange(10, 99) to "KIMCHI Latest", // Special case for Adreno Axx
-        IntRange(100, 599) to "Unsupported",
+        IntRange(Integer.MIN_VALUE, 9) to "Turnip Mesa Latest",
+        IntRange(10, 99) to "KIMCHI Turnip Latest", // Special case for Adreno Axx / AYANEO
+        IntRange(100, 599) to "Mr. Purple EOL-24.3.4",
         IntRange(600, 639) to "Mr. Purple EOL-24.3.4",
         IntRange(640, 699) to "Mr. Purple T19",
-        IntRange(700, 710) to "KIMCHI 25.2.0_r5",
-        IntRange(711, 799) to "Mr. Purple T23",
+        IntRange(700, 729) to "KIMCHI 25.2.0_r5",
+        IntRange(730, 799) to "Mr. Purple T23",
         IntRange(800, 899) to "GameHub Adreno 8xx",
-        IntRange(900, Int.MAX_VALUE) to "Unsupported"
+        IntRange(900, Int.MAX_VALUE) to "Whitebelyash Turnip"
     )
 
     private lateinit var driverGroupAdapter: DriverGroupAdapter
@@ -90,32 +90,28 @@ class DriverFetcherFragment : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
 
     private fun parseAdrenoModel(): Int {
-        if (gpuModel == null) {
-            return 0
+        val modelStr = (gpuModel ?: "") + " " + (android.os.Build.HARDWARE ?: "") + " " + (if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) android.os.Build.SOC_MODEL else "")
+        if (modelStr.isBlank()) {
+            return 740
         }
 
-        val modelList = gpuModel!!.split(" ")
-
-        // format: Adreno (TM) <ModelNumber>
-        if (modelList.size < 3 || modelList[0] != "Adreno") {
-            return 0
-        }
-
-        val model = modelList[2]
-
-        try {
-            // special case for Axx GPUs (e.g. AYANEO Pocket S2)
-            // driverMap has specific ranges for this
-            if (model.startsWith("A")) {
-                return model.substring(1).toInt()
+        // Try regex match for Adreno 6xx/7xx/8xx or Axx
+        val adrenoMatch = Regex("""Adreno\s*(?:\([^\)]*\)\s*)?([A-Za-z]?\d{2,4})""", RegexOption.IGNORE_CASE).find(modelStr)
+        if (adrenoMatch != null) {
+            val raw = adrenoMatch.groupValues[1]
+            if (raw.startsWith("A", ignoreCase = true)) {
+                return raw.substring(1).toIntOrNull() ?: 740
             }
-
-            return model.toInt()
-        } catch (e: Exception) {
-            // Model parse error, just say unsupported
-            e.printStackTrace()
-            return 0
+            return raw.toIntOrNull() ?: 740
         }
+
+        val directNumberMatch = Regex("""\b(6\d\d|7\d\d|8\d\d)\b""").find(modelStr)
+        if (directNumberMatch != null) {
+            return directNumberMatch.groupValues[1].toIntOrNull() ?: 740
+        }
+
+        // Default to Snapdragon Adreno 7xx profile for modern Qualcomm devices
+        return 740
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

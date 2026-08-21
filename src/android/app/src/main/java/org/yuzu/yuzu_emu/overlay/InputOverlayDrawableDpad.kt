@@ -135,19 +135,24 @@ class InputOverlayDrawableDpad(
     }
 
     fun draw(canvas: Canvas) {
-        val px = controlPositionX + width / 2
-        val py = controlPositionY + height / 2
+        val b = bounds
+        val px = b.exactCenterX()
+        val py = b.exactCenterY()
 
         // Pressed up
         if (upButtonState && !leftButtonState && !rightButtonState) {
+            canvas.save()
+            canvas.scale(0.96f, 0.94f, px, py - b.height() * 0.25f)
             pressedOneDirectionStateBitmap.draw(canvas)
+            canvas.restore()
             return
         }
 
         // Pressed down
         if (downButtonState && !leftButtonState && !rightButtonState) {
             canvas.save()
-            canvas.rotate(180f, px.toFloat(), py.toFloat())
+            canvas.rotate(180f, px, py)
+            canvas.scale(0.96f, 0.94f, px, py - b.height() * 0.25f)
             pressedOneDirectionStateBitmap.draw(canvas)
             canvas.restore()
             return
@@ -156,7 +161,8 @@ class InputOverlayDrawableDpad(
         // Pressed left
         if (leftButtonState && !upButtonState && !downButtonState) {
             canvas.save()
-            canvas.rotate(270f, px.toFloat(), py.toFloat())
+            canvas.rotate(270f, px, py)
+            canvas.scale(0.96f, 0.94f, px, py - b.height() * 0.25f)
             pressedOneDirectionStateBitmap.draw(canvas)
             canvas.restore()
             return
@@ -165,7 +171,8 @@ class InputOverlayDrawableDpad(
         // Pressed right
         if (rightButtonState && !upButtonState && !downButtonState) {
             canvas.save()
-            canvas.rotate(90f, px.toFloat(), py.toFloat())
+            canvas.rotate(90f, px, py)
+            canvas.scale(0.96f, 0.94f, px, py - b.height() * 0.25f)
             pressedOneDirectionStateBitmap.draw(canvas)
             canvas.restore()
             return
@@ -173,14 +180,18 @@ class InputOverlayDrawableDpad(
 
         // Pressed up left
         if (upButtonState && leftButtonState && !rightButtonState) {
+            canvas.save()
+            canvas.scale(0.95f, 0.95f, px - b.width() * 0.2f, py - b.height() * 0.2f)
             pressedTwoDirectionsStateBitmap.draw(canvas)
+            canvas.restore()
             return
         }
 
         // Pressed up right
         if (upButtonState && !leftButtonState && rightButtonState) {
             canvas.save()
-            canvas.rotate(90f, px.toFloat(), py.toFloat())
+            canvas.rotate(90f, px, py)
+            canvas.scale(0.95f, 0.95f, px - b.width() * 0.2f, py - b.height() * 0.2f)
             pressedTwoDirectionsStateBitmap.draw(canvas)
             canvas.restore()
             return
@@ -189,7 +200,8 @@ class InputOverlayDrawableDpad(
         // Pressed down right
         if (downButtonState && !leftButtonState && rightButtonState) {
             canvas.save()
-            canvas.rotate(180f, px.toFloat(), py.toFloat())
+            canvas.rotate(180f, px, py)
+            canvas.scale(0.95f, 0.95f, px - b.width() * 0.2f, py - b.height() * 0.2f)
             pressedTwoDirectionsStateBitmap.draw(canvas)
             canvas.restore()
             return
@@ -198,7 +210,8 @@ class InputOverlayDrawableDpad(
         // Pressed down left
         if (downButtonState && leftButtonState && !rightButtonState) {
             canvas.save()
-            canvas.rotate(270f, px.toFloat(), py.toFloat())
+            canvas.rotate(270f, px, py)
+            canvas.scale(0.95f, 0.95f, px - b.width() * 0.2f, py - b.height() * 0.2f)
             pressedTwoDirectionsStateBitmap.draw(canvas)
             canvas.restore()
             return

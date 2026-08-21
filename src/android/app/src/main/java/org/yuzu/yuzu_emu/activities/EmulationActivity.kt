@@ -634,6 +634,21 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
             accel[1],
             accel[2]
         )
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        if (prefs.getBoolean("gyro_to_right_stick", false)) {
+            val sensitivity = prefs.getFloat("gyro_aiming_sensitivity", 1.2f)
+            val stickX = (gyro[1] * sensitivity).coerceIn(-1.0f, 1.0f)
+            val stickY = (-gyro[0] * sensitivity).coerceIn(-1.0f, 1.0f)
+            if (kotlin.math.abs(stickX) > 0.04f || kotlin.math.abs(stickY) > 0.04f) {
+                org.yuzu.yuzu_emu.features.input.NativeInput.onOverlayJoystickEvent(
+                    org.yuzu.yuzu_emu.features.input.NativeInput.Player1Device,
+                    org.yuzu.yuzu_emu.features.input.model.NativeAnalog.RStick,
+                    stickX,
+                    stickY
+                )
+            }
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor, i: Int) {}

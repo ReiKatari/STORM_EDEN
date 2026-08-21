@@ -34,6 +34,19 @@ VkSurfaceFormatKHR ChooseSwapSurfaceFormat(vk::Span<VkSurfaceFormatKHR> formats)
         format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         return format;
     }
+
+    if (Settings::values.enable_hdr10.GetValue()) {
+        const auto& hdr10 = std::find_if(formats.begin(), formats.end(), [](const auto& format) {
+            return (format.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 ||
+                    format.format == VK_FORMAT_R16G16B16A16_SFLOAT) &&
+                   (format.colorSpace == VK_COLOR_SPACE_HDR10_ST2084_EXT ||
+                    format.colorSpace == VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT);
+        });
+        if (hdr10 != formats.end()) {
+            return *hdr10;
+        }
+    }
+
     const auto& found = std::find_if(formats.begin(), formats.end(), [](const auto& format) {
         return format.format == VK_FORMAT_B8G8R8A8_UNORM &&
                format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;

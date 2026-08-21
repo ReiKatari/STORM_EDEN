@@ -85,9 +85,7 @@ void CoreTiming::Initialize(std::function<void()>&& on_thread_init_) {
                     if (auto const next_time = Advance(); next_time) {
                         // There are more events left in the queue, wait until the next event.
                         auto const wait_time = *next_time - GetGlobalTimeNs().count();
-                        if (wait_time > 100000) {
-                            std::this_thread::sleep_for(std::chrono::nanoseconds(wait_time));
-                        } else if (wait_time > 0) {
+                        if (wait_time > 0) {
                             event.WaitFor(std::chrono::nanoseconds(wait_time));
                         }
                     } else {

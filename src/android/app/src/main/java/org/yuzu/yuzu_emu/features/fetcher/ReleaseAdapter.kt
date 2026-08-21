@@ -286,9 +286,10 @@ class ReleaseAdapter(
 
                                 MaterialAlertDialogBuilder(context)
                                     .setTitle(context.getString(R.string.driver_failed_title))
-                                    .setMessage(e.message)
+                                    .setMessage(e.message ?: context.getString(R.string.driver_fetch_error_msg))
+                                    .setBackground(androidx.core.content.res.ResourcesCompat.getDrawable(context.resources, R.drawable.eden_dialog_background, context.theme))
                                     .setPositiveButton(R.string.ok) { dialog, _ ->
-                                        dialog.cancel()
+                                        dialog.dismiss()
                                     }
                                     .show()
                             }

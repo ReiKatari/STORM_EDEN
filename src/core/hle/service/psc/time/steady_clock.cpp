@@ -37,9 +37,8 @@ Result SteadyClock::GetCurrentTimePoint(Out<SteadyClockTimePoint> out_time_point
         LOG_DEBUG(Service_Time, "called. out_time_point={}", *out_time_point);
     };
 
-    if (!m_clock_core.IsInitialized()) {
-        m_clock_core.SetInitialized();
-    }
+    R_UNLESS(m_clock_core.IsInitialized() || m_can_write_uninitialized_clock,
+             ResultClockUninitialized);
 
     R_RETURN(m_clock_core.GetCurrentTimePoint(*out_time_point));
 }
@@ -49,9 +48,8 @@ Result SteadyClock::GetTestOffset(Out<s64> out_test_offset) {
         LOG_DEBUG(Service_Time, "called. out_test_offset={}", *out_test_offset);
     };
 
-    if (!m_clock_core.IsInitialized()) {
-        m_clock_core.SetInitialized();
-    }
+    R_UNLESS(m_clock_core.IsInitialized() || m_can_write_uninitialized_clock,
+             ResultClockUninitialized);
 
     *out_test_offset = m_clock_core.GetTestOffset();
     R_SUCCEED();
@@ -61,9 +59,8 @@ Result SteadyClock::SetTestOffset(s64 test_offset) {
     LOG_DEBUG(Service_Time, "called. test_offset={}", test_offset);
 
     R_UNLESS(m_can_write_steady_clock, ResultPermissionDenied);
-    if (!m_clock_core.IsInitialized()) {
-        m_clock_core.SetInitialized();
-    }
+    R_UNLESS(m_clock_core.IsInitialized() || m_can_write_uninitialized_clock,
+             ResultClockUninitialized);
 
     m_clock_core.SetTestOffset(test_offset);
     R_SUCCEED();
@@ -74,9 +71,8 @@ Result SteadyClock::GetRtcValue(Out<s64> out_rtc_value) {
         LOG_DEBUG(Service_Time, "called. out_rtc_value={}", *out_rtc_value);
     };
 
-    if (!m_clock_core.IsInitialized()) {
-        m_clock_core.SetInitialized();
-    }
+    R_UNLESS(m_clock_core.IsInitialized() || m_can_write_uninitialized_clock,
+             ResultClockUninitialized);
 
     R_RETURN(m_clock_core.GetRtcValue(*out_rtc_value));
 }
@@ -86,7 +82,7 @@ Result SteadyClock::IsRtcResetDetected(Out<bool> out_is_detected) {
         LOG_DEBUG(Service_Time, "called. out_is_detected={}", *out_is_detected);
     };
 
-    R_UNLESS(m_can_write_uninitialized_clock || m_clock_core.IsInitialized(),
+    R_UNLESS(m_clock_core.IsInitialized() || m_can_write_uninitialized_clock,
              ResultClockUninitialized);
 
     *out_is_detected = m_clock_core.IsResetDetected();

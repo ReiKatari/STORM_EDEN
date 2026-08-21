@@ -114,6 +114,8 @@ class DriverFetcherFragment : Fragment() {
         return 740
     }
 
+    private val allDriverGroups = arrayListOf<DriverGroup>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
@@ -127,8 +129,17 @@ class DriverFetcherFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDriverFetcherBinding.inflate(inflater)
+
+        // Populate top header and status card
+        binding.badgeGpuModel.text = gpuModel ?: "Adreno $adrenoModel"
         binding.badgeRecommendedDriver.text = recommendedDriver
-        binding.badgeGpuModel.text = gpuModel
+
+        val currentDriverName = driverViewModel.selectedDriverTitle.value
+        binding.badgeCurrentDriver.text = if (currentDriverName.isNullOrBlank()) {
+            getString(R.string.system_gpu_driver)
+        } else {
+            currentDriverName
+        }
 
         return binding.root
     }
@@ -144,15 +155,53 @@ class DriverFetcherFragment : Fragment() {
         driverGroupAdapter = DriverGroupAdapter(requireActivity(), driverViewModel)
         binding.listDrivers.adapter = driverGroupAdapter
 
+        binding.buttonRetry.setOnClickListener {
+            binding.cardError.isVisible = false
+            fetchDrivers()
+        }
+
+        setupRepoFilterChips()
+
         setInsets()
 
         fetchDrivers()
     }
 
+    private fun setupRepoFilterChips() {
+        binding.chipGroupRepos.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
+            applyRepoFilter(checkedIds.first())
+        }
+    }
+
+    private fun applyRepoFilter(checkedId: Int) {
+        val filteredList = when (checkedId) {
+            R.id.chip_repo_purple -> allDriverGroups.filter { it.name.contains("Purple", ignoreCase = true) }
+            R.id.chip_repo_kimchi -> allDriverGroups.filter { it.name.contains("KIMCHI", ignoreCase = true) }
+            R.id.chip_repo_gamehub -> allDriverGroups.filter { it.name.contains("GameHub", ignoreCase = true) }
+            R.id.chip_repo_whitebelyash -> allDriverGroups.filter { it.name.contains("Whitebelyash", ignoreCase = true) }
+            R.id.chip_repo_weabchan -> allDriverGroups.filter { it.name.contains("Weab", ignoreCase = true) }
+            else -> allDriverGroups
+        }
+        driverGroupAdapter.updateDriverGroups(filteredList)
+    }
+
+    private fun getCacheFile(repoPath: String): java.io.File? {
+        val context = context ?: return null
+        val cacheDir = java.io.File(context.cacheDir, "driver_repo_cache")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+        return java.io.File(cacheDir, "${repoPath.replace('/', '_')}.json")
+    }
+
     private fun fetchDrivers() {
         binding.loadingIndicator.isVisible = true
+        binding.cardError.isVisible = false
 
-        val driverGroups = arrayListOf<DriverGroup>()
+        synchronized(allDriverGroups) {
+            allDriverGroups.clear()
+        }
+
+        var completedCount = 0
 
         repoList.forEach { driver ->
             val name = driver.name
@@ -162,53 +211,65 @@ class DriverFetcherFragment : Fragment() {
             val sort = driver.sort
 
             CoroutineScope(Dispatchers.Main).launch {
-                val request =
-                    Request.Builder().url("https://api.github.com/repos/$path/releases").build()
+                val request = Request.Builder()
+                    .url("https://api.github.com/repos/$path/releases")
+                    .header("User-Agent", "STORM_EDEN/4.4.2 (Android; Mobile)")
+                    .header("Accept", "application/vnd.github.v3+json")
+                    .build()
 
                 withContext(Dispatchers.IO) {
-                    var releases: ArrayList<Release>
+                    var releases: ArrayList<Release> = ArrayList()
+                    var jsonBody: String? = null
+
+                    // 1. Try online fetch from GitHub API
                     try {
                         client.newCall(request).execute().use { response ->
-                            if (!response.isSuccessful) {
-                                throw IOException(response.body.toString())
+                            if (response.isSuccessful) {
+                                val body = response.body?.string()
+                                if (!body.isNullOrBlank()) {
+                                    jsonBody = body
+                                    // Save to local cache
+                                    try {
+                                        getCacheFile(path)?.writeText(body)
+                                    } catch (_: Exception) {}
+                                }
                             }
-
-                            val body = response.body?.string() ?: return@withContext
-                            releases = Release.fromJsonArray(body, useTagName, sortMode)
                         }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            MaterialAlertDialogBuilder(requireActivity()).setTitle(
-                                getString(R.string.error_during_fetch)
-                            )
-                                .setMessage(
-                                    "${getString(R.string.failed_to_fetch)} $name:\n${e.message}"
-                                )
-                                .setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.cancel() }
-                                .show()
+                    } catch (_: Exception) {}
 
-                            releases = ArrayList()
-                        }
+                    // 2. Fallback to local cache if network request failed or rate-limited
+                    if (jsonBody.isNullOrBlank()) {
+                        try {
+                            val cacheFile = getCacheFile(path)
+                            if (cacheFile != null && cacheFile.exists()) {
+                                jsonBody = cacheFile.readText()
+                            }
+                        } catch (_: Exception) {}
                     }
 
-                    val group = DriverGroup(
-                        name,
-                        releases,
-                        sort
-                    )
+                    if (!jsonBody.isNullOrBlank()) {
+                        try {
+                            releases = Release.fromJsonArray(jsonBody!!, useTagName, sortMode)
+                        } catch (_: Exception) {}
+                    }
 
-                    synchronized(driverGroups) {
-                        driverGroups.add(group)
-                        driverGroups.sortBy {
-                            it.sort
-                        }
+                    val group = DriverGroup(name, releases, sort)
+
+                    synchronized(allDriverGroups) {
+                        allDriverGroups.add(group)
+                        allDriverGroups.sortBy { it.sort }
                     }
 
                     withContext(Dispatchers.Main) {
-                        driverGroupAdapter.updateDriverGroups(driverGroups)
+                        completedCount++
+                        applyRepoFilter(binding.chipGroupRepos.checkedChipId)
 
-                        if (driverGroups.size >= repoList.size) {
+                        if (completedCount >= repoList.size) {
                             binding.loadingIndicator.isVisible = false
+                            val totalReleases = allDriverGroups.sumOf { it.releases.size }
+                            if (totalReleases == 0) {
+                                binding.cardError.isVisible = true
+                            }
                         }
                     }
                 }

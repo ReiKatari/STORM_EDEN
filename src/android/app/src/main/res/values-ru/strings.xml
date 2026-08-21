@@ -738,6 +738,14 @@
     <string name="installing">Установка…</string>
     <string name="latest">Последний</string>
     <string name="recommended_driver">Рекомендуемый драйвер:</string>
+    <string name="current_active_driver">Текущий драйвер:</string>
+    <string name="database_source">База драйверов:</string>
+    <string name="all_databases">Все базы</string>
+    <string name="search_drivers_hint">Поиск драйверов и версий...</string>
+    <string name="driver_fetch_error_title">Сбой подключения к базе драйверов</string>
+    <string name="driver_fetch_error_msg">Не удалось связаться с базой драйверов. Проверьте подключение к сети или переключите источник базы.</string>
+    <string name="retry">Повторить</string>
+    <string name="use_offline_cache">Использовать кэш</string>
     <string name="gpu_model">Модель ГПУ</string>
     <string name="unsupported_gpu">ГПУ не поддерживается</string>
     <string name="unsupported_gpu_warning">Ваш ГПУ не поддерживает замену драйверов. Установка сторонних драйверов не рекомендуется.</string>

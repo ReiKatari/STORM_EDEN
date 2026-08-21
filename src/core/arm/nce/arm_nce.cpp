@@ -121,17 +121,9 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
     // We can't handle the access, so determine why we crashed.
     const bool is_prefetch_abort = info && (host_ctx.pc == reinterpret_cast<u64>(info->si_addr));
 
-    // For data aborts, skip the instruction and return to guest code.
-    // This will allow games to continue in many scenarios where they would otherwise crash.
-    if (!is_prefetch_abort) {
-        host_ctx.pc += 4;
-        return true;
-    }
+    guest_ctx->esr_el1.fetch_or(static_cast<u64>(is_prefetch_abort ? HaltReason::PrefetchAbort : HaltReason::DataAbort));
 
-    // This is a prefetch abort.
-    guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
-
-    if (guest_ctx->parent->m_running_thread) {
+    if (guest_ctx->parent && guest_ctx->parent->m_running_thread) {
         auto& thread_params = guest_ctx->parent->m_running_thread->GetNativeExecutionParameters();
         thread_params.lock.store(SpinLockLocked);
     }

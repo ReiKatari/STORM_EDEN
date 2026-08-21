@@ -1210,7 +1210,9 @@ bool Device::GetSuitability(bool requires_swapchain) {
         LOG_INFO(Render_Vulkan, "ARM Mali detected: applying stability and performance workarounds");
         if (extensions.extended_dynamic_state3) {
             features.extended_dynamic_state3.extendedDynamicState3ColorBlendEquation = false;
+            features.extended_dynamic_state3.extendedDynamicState3ColorBlendEnable = false;
             features.extended_dynamic_state3.extendedDynamicState3ColorWriteMask = false;
+            features.extended_dynamic_state3.extendedDynamicState3LogicOpEnable = false;
         }
         if (extensions.vertex_input_dynamic_state) {
             RemoveExtensionFeature(extensions.vertex_input_dynamic_state, features.vertex_input_dynamic_state, VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);

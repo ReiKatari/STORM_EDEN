@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,6 +42,7 @@
         android:ellipsize="end"
         android:maxLines="3"
         android:textSize="14sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_release_name" />
@@ -51,7 +53,8 @@
         android:layout_height="wrap_content"
         android:text="@string/show_downloads"
         android:textStyle="bold"
-        android:textSize="16sp"
+        android:textSize="15sp"
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_body"
         android:layout_marginTop="8dp"

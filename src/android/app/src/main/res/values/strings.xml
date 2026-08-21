@@ -753,6 +753,14 @@
     <string name="installing">Installing…</string>
     <string name="latest">Latest</string>
     <string name="recommended_driver">Recommended Driver:</string>
+    <string name="current_active_driver">Current Driver:</string>
+    <string name="database_source">Driver Database:</string>
+    <string name="all_databases">All Repositories</string>
+    <string name="search_drivers_hint">Search drivers and releases...</string>
+    <string name="driver_fetch_error_title">Database Connection Failed</string>
+    <string name="driver_fetch_error_msg">Unable to connect to driver repositories. Check your network connection or switch the database source.</string>
+    <string name="retry">Retry</string>
+    <string name="use_offline_cache">Use Offline Cache</string>
     <string name="gpu_model">GPU Model</string>
     <string name="unsupported_gpu">Unsupported GPU</string>
     <string name="unsupported_gpu_warning">Your GPU does not support driver injection. Attempting to set custom drivers is not recommended.</string>

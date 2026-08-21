@@ -92,13 +92,14 @@ Result DisplayLayerManager::CreateManagedDisplaySeparableLayer(u64* out_layer_id
                                                                u64* out_recording_layer_id) {
     R_UNLESS(m_manager_display_service != nullptr, VI::ResultOperationFailed);
 
-    auto res = this->CreateManagedDisplayLayer(out_layer_id);
-    if (res.IsSuccess()) {
-        *out_recording_layer_id = *out_layer_id;
-    } else {
+    R_TRY(this->CreateManagedDisplayLayer(out_layer_id));
+
+    // Allocate distinct recording layer for video capture to avoid layer collisions and double frees
+    auto res = this->CreateManagedDisplayLayer(out_recording_layer_id);
+    if (res.IsError()) {
         *out_recording_layer_id = 0;
     }
-    return res;
+    return ResultSuccess;
 }
 
 Result DisplayLayerManager::IsSystemBufferSharingEnabled() {

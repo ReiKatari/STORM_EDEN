@@ -545,7 +545,7 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
                         if (has_explicit_enabled_tags) {
                             is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
                         } else {
-                            is_active = std::find(disabled.cbegin(), disabled.cend(), cheat_name) == disabled.cend();
+                            is_active = false;
                         }
 
                         if (is_active) {

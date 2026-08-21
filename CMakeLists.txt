@@ -442,6 +442,8 @@ if (lz4_ADDED)
 endif()
 
 # zstd
+set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "Build programs" FORCE)
+set(ZSTD_BUILD_TESTS OFF CACHE BOOL "Build tests" FORCE)
 AddJsonPackage(zstd)
 
 if (zstd_ADDED)
@@ -454,6 +456,8 @@ AddJsonPackage(nlohmann)
 
 if (NOT YUZU_STATIC_ROOM)
     # zlib
+    set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Enable Zlib Examples" FORCE)
+    set(ZLIB_BUILD_TESTING OFF CACHE BOOL "Build Testing" FORCE)
     AddJsonPackage(zlib)
 
     if (ZLIB_ADDED)

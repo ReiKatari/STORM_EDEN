@@ -206,7 +206,7 @@ void ConfigurePerGameCheats::LoadCheats() {
                     if (has_explicit_enabled_tags) {
                         is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
                     } else {
-                        is_enabled = std::find(disabled.cbegin(), disabled.cend(), current_cheat_name.toStdString()) == disabled.cend();
+                        is_enabled = false;
                     }
 
                     // Avoid duplicate cheat names
@@ -230,7 +230,7 @@ void ConfigurePerGameCheats::LoadCheats() {
             if (has_explicit_enabled_tags) {
                 is_enabled = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + current_cheat_name.toStdString()) != disabled.cend();
             } else {
-                is_enabled = std::find(disabled.cbegin(), disabled.cend(), current_cheat_name.toStdString()) == disabled.cend();
+                is_enabled = false;
             }
 
             bool exists = std::any_of(cheat_items.begin(), cheat_items.end(), [&](const CheatItem& ci) {

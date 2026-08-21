@@ -147,8 +147,8 @@ public:
             auto target_time = start_time + frame_interval * frame_counter;
             if (target_time >= now) {
                 auto sleep_time = target_time - now;
-                if (sleep_time > std::chrono::milliseconds(15)) {
-                    std::this_thread::sleep_for(sleep_time - std::chrono::milliseconds(1));
+                if (sleep_time > std::chrono::milliseconds(1)) {
+                    std::this_thread::sleep_for(sleep_time - std::chrono::microseconds(500));
                 }
                 while (std::chrono::steady_clock::now() < target_time) {
                     std::this_thread::yield();

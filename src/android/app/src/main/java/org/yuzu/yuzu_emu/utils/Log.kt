@@ -41,4 +41,76 @@ object Log {
         }
         info("Total System Memory - ${MemoryUtil.getDeviceRAM()}")
     }
+
+    fun exportLogToDownloads(context: android.content.Context?) {
+        try {
+            val ctx = context ?: return
+            val userDir = DirectoryInitialization.userDirectory
+            val candidateLogFiles = listOfNotNull(
+                if (userDir != null) java.io.File(userDir, "log/storm_eden_log.txt") else null,
+                java.io.File(ctx.getExternalFilesDir(null), "log/storm_eden_log.txt"),
+                java.io.File(ctx.filesDir, "log/storm_eden_log.txt"),
+                java.io.File(ctx.filesDir, "storm_eden_log.txt")
+            )
+
+            var logContent = ""
+            for (f in candidateLogFiles) {
+                if (f.exists() && f.length() > 0) {
+                    try {
+                        logContent = f.readText()
+                        if (logContent.isNotBlank()) break
+                    } catch (_: Throwable) {}
+                }
+            }
+
+            if (logContent.isBlank()) {
+                // Read from logcat if file not yet flushed
+                try {
+                    val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d", "-s", "YuzuNative:V", "Frontend:V", "STORM_EDEN_CRASH:V"))
+                    logContent = process.inputStream.bufferedReader().use { it.readText() }
+                } catch (_: Throwable) {}
+            }
+
+            if (logContent.isNotBlank()) {
+                val fileName = "storm_eden_log.txt"
+                // 1. Write to standard direct paths
+                val targetDirs = listOf(
+                    android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
+                    java.io.File("/storage/emulated/0/Download"),
+                    java.io.File("/sdcard/Download")
+                )
+                for (dir in targetDirs) {
+                    try {
+                        if (dir != null) {
+                            if (!dir.exists()) dir.mkdirs()
+                            val dest = java.io.File(dir, fileName)
+                            dest.writeText(logContent)
+                            val altDest = java.io.File(dir, "STORM_EDEN_LOG.txt")
+                            altDest.writeText(logContent)
+                        }
+                    } catch (_: Throwable) {}
+                }
+
+                // 2. MediaStore for Android 10+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    try {
+                        val resolver = ctx.contentResolver
+                        val values = android.content.ContentValues().apply {
+                            put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                            put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                            put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+                            put(android.provider.MediaStore.MediaColumns.IS_PENDING, 1)
+                        }
+                        val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                        if (uri != null) {
+                            resolver.openOutputStream(uri, "wt")?.use { it.write(logContent.toByteArray(Charsets.UTF_8)) }
+                            values.clear()
+                            values.put(android.provider.MediaStore.MediaColumns.IS_PENDING, 0)
+                            resolver.update(uri, values, null, null)
+                        }
+                    } catch (_: Throwable) {}
+                }
+            }
+        } catch (_: Throwable) {}
+    }
 }

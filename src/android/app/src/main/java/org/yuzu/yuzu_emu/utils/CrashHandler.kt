@@ -191,5 +191,9 @@ object CrashHandler {
                 // ignore permission errors on inaccessible paths
             }
         }
+
+        try {
+            org.yuzu.yuzu_emu.utils.Log.exportLogToDownloads(ctx)
+        } catch (_: Throwable) {}
     }
 }

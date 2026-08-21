@@ -6,6 +6,7 @@
 
 #include <regex>
 #include "common/android/android_common.h"
+#include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/fs_filesystem.h"
 #include "core/file_sys/patch_manager.h"
@@ -145,15 +146,32 @@ static RomMetadata GetRomMetadata(const std::string& path, bool reload = false) 
 extern "C" {
 
 jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsValid(JNIEnv* env, jobject obj, jstring jpath) {
-    if (auto const file = EmulationSession::GetInstance().System().GetFilesystem()->OpenFile(Common::Android::GetJString(env, jpath), FileSys::OpenMode::Read); file) {
+    const std::string path_str = Common::Android::GetJString(env, jpath);
+    const auto l_path = Common::ToLower(path_str);
+    if (l_path.ends_with(".part") || l_path.ends_with(".tmp") ||
+        l_path.ends_with(".crdownload") || l_path.ends_with(".downloading") ||
+        l_path.ends_with(".incomplete") || l_path.ends_with(".!ut")) {
+        return false;
+    }
+
+    if (auto const file = EmulationSession::GetInstance().System().GetFilesystem()->OpenFile(path_str, FileSys::OpenMode::Read); file) {
+        if (file->GetSize() == 0) {
+            return false;
+        }
         if (auto loader = Loader::GetLoader(EmulationSession::GetInstance().System(), file); loader) {
             auto const file_type = loader->GetFileType();
             if (file_type == Loader::FileType::Unknown || file_type == Loader::FileType::Error)
                 return false;
-            if ((file_type == Loader::FileType::NSP || file_type == Loader::FileType::XCI) && !Loader::IsBootableGameContainer(file, file_type))
+            if ((file_type == Loader::FileType::NSP || file_type == Loader::FileType::XCI ||
+                 file_type == Loader::FileType::NSZ || file_type == Loader::FileType::XCZ) &&
+                !Loader::IsBootableGameContainer(file, file_type))
                 return false;
             u64 program_id = 0;
-            return loader->ReadProgramId(program_id) == Loader::ResultStatus::Success;
+            if (loader->ReadProgramId(program_id) != Loader::ResultStatus::Success || program_id == 0)
+                return false;
+            if ((program_id & 0xFFF) != 0)
+                return false; // Exclude standalone DLCs and Updates
+            return true;
         }
     }
     return false;

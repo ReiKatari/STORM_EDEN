@@ -30,7 +30,6 @@ import org.yuzu.yuzu_emu.databinding.DialogCheatsBinding
 import org.yuzu.yuzu_emu.databinding.ItemCheatBinding
 import org.yuzu.yuzu_emu.model.Game
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
-import org.yuzu.yuzu_emu.utils.NativeConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -273,23 +272,6 @@ class CheatsDialogFragment : DialogFragment() {
         val enabledNames = allCheats.filter { it.isEnabled }.map { it.name }.toSet()
         prefs.edit().putStringSet("cheats_enabled_${game.programIdHex}", enabledNames).apply()
 
-        try {
-            val currentDisabled = NativeConfig.getDisabledAddons(game.programIdHex).toMutableList()
-            currentDisabled.removeAll { s: String ->
-                s.startsWith("__ENABLED__:") || allCheats.any { it.name == s }
-            }
-            for (cheat in allCheats) {
-                if (cheat.isEnabled) {
-                    currentDisabled.add("__ENABLED__:${cheat.name}")
-                } else {
-                    currentDisabled.add(cheat.name)
-                }
-            }
-            NativeConfig.setDisabledAddons(game.programIdHex, currentDisabled.toTypedArray())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
         // Also write active cheats into cheats.txt
         val cheatsDir = getCheatsDir()
         val cheatsFile = File(cheatsDir, "cheats.txt")
@@ -323,7 +305,11 @@ class CheatsDialogFragment : DialogFragment() {
                 "https://tinfoil.io/api/cheats/$tid",
                 "https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/cheats/$tid.json",
                 "https://cdn.jsdelivr.net/gh/HamletDuFromage/switch-cheats-db@master/cheats/$tid.json",
-                "https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/titles/$tid.txt"
+                "https://fastly.jsdelivr.net/gh/HamletDuFromage/switch-cheats-db@master/cheats/$tid.json",
+                "https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/titles/$tid.txt",
+                "https://raw.githubusercontent.com/ibnux/switch-cheat/master/contents/$tid/cheats.txt",
+                "https://raw.githubusercontent.com/astranvg/Cheats-Atmosphere/master/cheats/$tid.txt",
+                "https://raw.githubusercontent.com/mrdude2478/Breeze/master/cheats/$tid.txt"
             )
 
             var success = false
@@ -336,7 +322,7 @@ class CheatsDialogFragment : DialogFragment() {
                     conn.requestMethod = "GET"
                     conn.connectTimeout = 8000
                     conn.readTimeout = 8000
-                    conn.setRequestProperty("User-Agent", "STORM_EDEN_Emulator/4.3.0")
+                    conn.setRequestProperty("User-Agent", "STORM_EDEN_Emulator/4.3.1")
 
                     if (conn.responseCode == 200) {
                         val reader = BufferedReader(InputStreamReader(conn.inputStream, Charsets.UTF_8))

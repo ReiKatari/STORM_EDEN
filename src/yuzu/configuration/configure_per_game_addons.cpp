@@ -136,12 +136,12 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
         }
     }
 
-    auto current = Settings::values.disabled_addons[title_id];
-    std::sort(disabled_addons.begin(), disabled_addons.end());
-    std::sort(current.begin(), current.end());
-    if (disabled_addons != current) {
-        Common::FS::RemoveFile(Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir) /
-                               "game_list" / fmt::format("{:016X}.pv.txt", title_id));
+    // Preserve existing cheat entries in Settings::values.disabled_addons[title_id]
+    const auto& current_entries = Settings::values.disabled_addons[title_id];
+    for (const auto& entry : current_entries) {
+        if (entry.starts_with("__ENABLED__:")) {
+            disabled_addons.push_back(entry);
+        }
     }
 
     Settings::values.disabled_addons[title_id] = disabled_addons;

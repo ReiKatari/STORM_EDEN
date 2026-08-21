@@ -37,8 +37,9 @@ Result SteadyClock::GetCurrentTimePoint(Out<SteadyClockTimePoint> out_time_point
         LOG_DEBUG(Service_Time, "called. out_time_point={}", *out_time_point);
     };
 
-    R_UNLESS(m_can_write_uninitialized_clock || m_clock_core.IsInitialized(),
-             ResultClockUninitialized);
+    if (!m_clock_core.IsInitialized()) {
+        m_clock_core.SetInitialized();
+    }
 
     R_RETURN(m_clock_core.GetCurrentTimePoint(*out_time_point));
 }
@@ -48,8 +49,9 @@ Result SteadyClock::GetTestOffset(Out<s64> out_test_offset) {
         LOG_DEBUG(Service_Time, "called. out_test_offset={}", *out_test_offset);
     };
 
-    R_UNLESS(m_can_write_uninitialized_clock || m_clock_core.IsInitialized(),
-             ResultClockUninitialized);
+    if (!m_clock_core.IsInitialized()) {
+        m_clock_core.SetInitialized();
+    }
 
     *out_test_offset = m_clock_core.GetTestOffset();
     R_SUCCEED();
@@ -59,8 +61,9 @@ Result SteadyClock::SetTestOffset(s64 test_offset) {
     LOG_DEBUG(Service_Time, "called. test_offset={}", test_offset);
 
     R_UNLESS(m_can_write_steady_clock, ResultPermissionDenied);
-    R_UNLESS(m_can_write_uninitialized_clock || m_clock_core.IsInitialized(),
-             ResultClockUninitialized);
+    if (!m_clock_core.IsInitialized()) {
+        m_clock_core.SetInitialized();
+    }
 
     m_clock_core.SetTestOffset(test_offset);
     R_SUCCEED();
@@ -71,8 +74,9 @@ Result SteadyClock::GetRtcValue(Out<s64> out_rtc_value) {
         LOG_DEBUG(Service_Time, "called. out_rtc_value={}", *out_rtc_value);
     };
 
-    R_UNLESS(m_can_write_uninitialized_clock || m_clock_core.IsInitialized(),
-             ResultClockUninitialized);
+    if (!m_clock_core.IsInitialized()) {
+        m_clock_core.SetInitialized();
+    }
 
     R_RETURN(m_clock_core.GetRtcValue(*out_rtc_value));
 }

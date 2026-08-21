@@ -111,9 +111,8 @@ Result System::Initialize(const AudioRendererParameterInternal& params,
         return Service::Audio::ResultInvalidRevision;
     }
 
-    if (GetWorkBufferSize(params) > transfer_memory_size) {
-        return Service::Audio::ResultInsufficientBuffer;
-    }
+    const u64 required_size = GetWorkBufferSize(params);
+    const u64 alloc_size = std::max(transfer_memory_size, required_size);
 
     if (process_handle_ == 0) {
         return Service::Audio::ResultInvalidHandle;
@@ -134,13 +133,15 @@ Result System::Initialize(const AudioRendererParameterInternal& params,
     render_device = params.rendering_device;
     execution_mode = params.execution_mode;
 
-    process_handle->GetMemory().ZeroBlock(transfer_memory->GetSourceAddress(),
-                                          transfer_memory_size);
+    if (transfer_memory && transfer_memory->GetSourceAddress()) {
+        process_handle->GetMemory().ZeroBlock(transfer_memory->GetSourceAddress(),
+                                              transfer_memory_size);
+    }
 
     // Note: We're not actually using the transfer memory because it's a pain to code for.
     // Allocate the memory normally instead and hope the game doesn't try to read anything back
-    workbuffer = std::make_unique<u8[]>(transfer_memory_size);
-    workbuffer_size = transfer_memory_size;
+    workbuffer = std::make_unique<u8[]>(alloc_size);
+    workbuffer_size = alloc_size;
 
     PoolMapper pool_mapper(process_handle, false);
     pool_mapper.InitializeSystemPool(memory_pool_info, workbuffer.get(), workbuffer_size);

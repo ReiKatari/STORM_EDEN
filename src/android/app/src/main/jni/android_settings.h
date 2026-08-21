@@ -71,6 +71,12 @@ namespace AndroidSettings {
         Settings::Setting<bool> invert_confirm_back_controller_buttons{
             linkage, false, "invert_confirm_back_controller_buttons", Settings::Category::Android};
 
+        // Optimization & Thermal Features
+        Settings::Setting<bool> eco_thermal_mode{linkage, false, "eco_thermal_mode", Settings::Category::Android};
+        Settings::Setting<bool> cpu_affinity_pinning{linkage, true, "cpu_affinity_pinning", Settings::Category::Android};
+        Settings::Setting<bool> vulkan_pipeline_cache{linkage, true, "vulkan_pipeline_cache", Settings::Category::Android};
+        Settings::Setting<bool> vram_garbage_collection{linkage, true, "vram_garbage_collection", Settings::Category::Android};
+
         // Input/performance overlay settings
         std::vector<OverlayControlData> overlay_control_data;
         Settings::Setting<s32> overlay_scale{linkage, 50, "control_scale",

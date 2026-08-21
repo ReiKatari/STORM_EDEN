@@ -91,7 +91,13 @@ enum class BooleanSetting(override val key: String) : AbstractBooleanSetting {
     GPU_LOG_DRIVER_DEBUG("gpu_log_driver_debug"),
 
     ENABLE_QUICK_SETTINGS("enable_quick_settings"),
-    SHOW_FILENAME_AS_TITLE("show_filename_as_title");
+    SHOW_FILENAME_AS_TITLE("show_filename_as_title"),
+
+    // Optimization & Thermal / Memory Features
+    ECO_THERMAL_MODE("eco_thermal_mode"),
+    CPU_AFFINITY_PINNING("cpu_affinity_pinning"),
+    VULKAN_PIPELINE_CACHE("vulkan_pipeline_cache"),
+    VRAM_GARBAGE_COLLECTION("vram_garbage_collection");
 
 //  external fun isFrameSkippingEnabled(): Boolean
     external fun isFrameInterpolationEnabled(): Boolean

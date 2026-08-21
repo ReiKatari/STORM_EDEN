@@ -295,7 +295,11 @@ class SettingsFragmentPresenter(
             add(BooleanSetting.RENDERER_REACTIVE_FLUSHING.key)
             add(BooleanSetting.ENABLE_BUFFER_HISTORY.key)
             add(BooleanSetting.ENABLE_GPU_BUFFER_READBACK.key)
-            add(BooleanSetting.USE_OPTIMIZED_VERTEX_BUFFERS.key)
+            add(HeaderSetting(R.string.optimization_features))
+            add(BooleanSetting.ECO_THERMAL_MODE.key)
+            add(BooleanSetting.CPU_AFFINITY_PINNING.key)
+            add(BooleanSetting.VULKAN_PIPELINE_CACHE.key)
+            add(BooleanSetting.VRAM_GARBAGE_COLLECTION.key)
 
             add(HeaderSetting(R.string.hacks))
 

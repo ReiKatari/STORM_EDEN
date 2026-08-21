@@ -1301,5 +1301,15 @@
     <string name="deselect_all">Отключить все</string>
     <string name="cheats_count_summary">Всего читов: %1$d | Включено: %2$d</string>
 
+    <!-- Оптимизация, нагрев и плавность -->
+    <string name="optimization_features">Оптимизация и охлаждение</string>
+    <string name="eco_thermal_mode">Режим «Eco / Thermal Governor»</string>
+    <string name="eco_thermal_mode_description">Контроль пиковых частот, адаптивное управление ресурсами и предотвращение перегрева и термального троттлинга устройства.</string>
+    <string name="cpu_affinity_pinning">CPU Affinity Pinning</string>
+    <string name="cpu_affinity_pinning_description">Жесткая привязка критических потоков JIT и GPU к производительным ядрам Cortex-X/A7xx, а вспомогательных задач — к энергоэффективным ядрам.</string>
+    <string name="vulkan_pipeline_cache">Vulkan Pipeline Cache</string>
+    <string name="vulkan_pipeline_cache_description">Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров.</string>
+    <string name="vram_garbage_collection">VRAM Garbage Collection</string>
+    <string name="vram_garbage_collection_description">Периодическая фоновая очистка неиспользуемых текстурных буферов для предотвращения микрофризов и вылетов от системного LMK Android.</string>
 </resources>
 

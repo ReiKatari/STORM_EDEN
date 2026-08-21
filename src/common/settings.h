@@ -539,6 +539,36 @@ struct Values {
                                                  true};
 #endif
 
+    // Optimization & Thermal / Memory Features
+    SwitchableSetting<bool> eco_thermal_mode{linkage,
+                                             false,
+                                             "eco_thermal_mode",
+                                             Category::System,
+                                             Specialization::Default,
+                                             true,
+                                             true};
+    SwitchableSetting<bool> cpu_affinity_pinning{linkage,
+                                                 true,
+                                                 "cpu_affinity_pinning",
+                                                 Category::Cpu,
+                                                 Specialization::Default,
+                                                 true,
+                                                 true};
+    SwitchableSetting<bool> vulkan_pipeline_cache{linkage,
+                                                  true,
+                                                  "vulkan_pipeline_cache",
+                                                  Category::RendererAdvanced,
+                                                  Specialization::Default,
+                                                  true,
+                                                  true};
+    SwitchableSetting<bool> vram_garbage_collection{linkage,
+                                                    true,
+                                                    "vram_garbage_collection",
+                                                    Category::RendererAdvanced,
+                                                    Specialization::Default,
+                                                    true,
+                                                    true};
+
     // Renderer Hacks //
     SwitchableSetting<GpuClock> gpu_clock{linkage,
                                           GpuClock::Boost,

@@ -1069,6 +1069,36 @@ abstract class SettingsItem(
                     descriptionId = R.string.show_filename_as_title_description
                 )
             )
+
+            // Optimization & Thermal Features
+            put(
+                SwitchSetting(
+                    BooleanSetting.ECO_THERMAL_MODE,
+                    titleId = R.string.eco_thermal_mode,
+                    descriptionId = R.string.eco_thermal_mode_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.CPU_AFFINITY_PINNING,
+                    titleId = R.string.cpu_affinity_pinning,
+                    descriptionId = R.string.cpu_affinity_pinning_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.VULKAN_PIPELINE_CACHE,
+                    titleId = R.string.vulkan_pipeline_cache,
+                    descriptionId = R.string.vulkan_pipeline_cache_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.VRAM_GARBAGE_COLLECTION,
+                    titleId = R.string.vram_garbage_collection,
+                    descriptionId = R.string.vram_garbage_collection_description
+                )
+            )
         }
     }
 }

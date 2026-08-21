@@ -455,8 +455,15 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
         if (!is_dir &&
             (HasSupportedFileExtension(physical_name) || IsExtractedNCAMain(physical_name))) {
             try {
+                const auto l_phys = Common::ToLower(physical_name);
+                if (l_phys.ends_with(".part") || l_phys.ends_with(".tmp") ||
+                    l_phys.ends_with(".crdownload") || l_phys.ends_with(".downloading") ||
+                    l_phys.ends_with(".incomplete") || l_phys.ends_with(".!ut")) {
+                    return true;
+                }
+
                 const auto file = vfs->OpenFile(physical_name, FileSys::OpenMode::Read);
-                if (!file) {
+                if (!file || file->GetSize() == 0) {
                     return true;
                 }
 
@@ -474,9 +481,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                     (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
                      file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                     if (!Loader::IsBootableGameContainer(file, file_type)) {
-                        if (file->GetSize() < 0x100000) {
-                            return true;
-                        }
+                        return true;
                     }
                 }
 
@@ -490,7 +495,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                                            program_id, file);
                     } else if (Settings::values.ext_content_from_game_dirs.GetValue() &&
                                (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
-                                file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
+                                 file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                         void(provider->AddEntriesFromContainer(file));
                     }
                 } else {
@@ -500,6 +505,10 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                     const auto addEntry = [this, physical_name,
                                            parent_dir](std::unique_ptr<Loader::AppLoader>& app_loader,
                                                        const u64 id) {
+                        if (id == 0 || (id & 0xFFF) != 0) {
+                            return;
+                        }
+
                         const FileSys::PatchManager patch{id, system.GetFileSystemController(),
                                                           system.GetContentProvider()};
 
@@ -538,8 +547,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                         (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
                          file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                         for (const auto id : program_ids) {
-                            // dravee suggested this, only viable way to
-                            // not show sub-games in qlaunch for now.
+                            // Only base games (ending in 000) should appear in the game list
                             if ((id & 0xFFF) != 0) {
                                 continue;
                             }
@@ -550,7 +558,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
 
                             addEntry(loader, id);
                         }
-                    } else {
+                    } else if (res2 == Loader::ResultStatus::Success && (program_id & 0xFFF) == 0 && program_id != 0) {
                         addEntry(loader, program_id);
                     }
                 }

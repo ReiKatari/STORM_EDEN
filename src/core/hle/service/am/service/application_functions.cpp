@@ -140,8 +140,11 @@ Result IApplicationFunctions::EnsureSaveData(Out<u64> out_size, Common::UUID use
     attribute.type = FileSys::SaveDataType::Account;
 
     FileSys::VirtualDir save_data{};
-    R_TRY(system.GetFileSystemController().OpenSaveDataController()->CreateSaveData(
-        &save_data, FileSys::SaveDataSpaceId::User, attribute));
+    auto res = system.GetFileSystemController().OpenSaveDataController()->CreateSaveData(
+        &save_data, FileSys::SaveDataSpaceId::User, attribute);
+    if (res.IsError()) {
+        LOG_INFO(Service_AM, "EnsureSaveData: Save data already exists or created ({:#x})", res.raw);
+    }
 
     *out_size = 0;
     R_SUCCEED();

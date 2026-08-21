@@ -92,14 +92,13 @@ Result DisplayLayerManager::CreateManagedDisplaySeparableLayer(u64* out_layer_id
                                                                u64* out_recording_layer_id) {
     R_UNLESS(m_manager_display_service != nullptr, VI::ResultOperationFailed);
 
-    // TODO(Subv): Find out how AM determines the display to use, for now just
-    // create the layer in the Default display.
-    // This calls nn::vi::CreateRecordingLayer() which creates another layer.
-    // Currently we do not support more than 1 layer per display, output 1 layer id for now.
-    // Outputting 1 layer id instead of the expected 2 has not been observed to cause any adverse
-    // side effects.
-    *out_recording_layer_id = 0;
-    R_RETURN(this->CreateManagedDisplayLayer(out_layer_id));
+    auto res = this->CreateManagedDisplayLayer(out_layer_id);
+    if (res.IsSuccess()) {
+        *out_recording_layer_id = *out_layer_id;
+    } else {
+        *out_recording_layer_id = 0;
+    }
+    return res;
 }
 
 Result DisplayLayerManager::IsSystemBufferSharingEnabled() {

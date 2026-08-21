@@ -159,17 +159,21 @@ class AmiiboDialogFragment : DialogFragment() {
         binding.progressLoading.isVisible = true
         binding.textEmptyAmiibo.isVisible = false
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val list = AmiiboHelper.getAmiiboDatabase(forceRefresh)
-            allAmiibos = if (gameTitle.isNotBlank()) {
+            val filtered = if (gameTitle.isNotBlank()) {
                 AmiiboHelper.getAmiibosForGame(list, titleId, gameTitle)
             } else {
                 list
             }
-            binding.progressLoading.isVisible = false
-
-            populateSeriesChips()
-            applyFilters()
+            withContext(Dispatchers.Main) {
+                if (_binding != null) {
+                    allAmiibos = filtered
+                    binding.progressLoading.isVisible = false
+                    populateSeriesChips()
+                    applyFilters()
+                }
+            }
         }
     }
 

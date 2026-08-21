@@ -126,15 +126,6 @@ Result ServiceManager::GetServicePort(Kernel::KClientPort** out_client_port,
     std::scoped_lock lk{lock};
     auto it = service_ports.find(name);
     if (it == service_ports.end()) {
-        if (Settings::values.use_auto_stub.GetValue()) {
-            LOG_INFO(Service_SM, "Auto-stubbing unregistered service: {}", name);
-            auto* port = Kernel::KPort::Create(kernel);
-            port->Initialize(kernel, ServerSessionCountMax, false, 0);
-            Kernel::KPort::Register(kernel, port);
-            service_ports.emplace(name, std::addressof(port->GetClientPort()));
-            *out_client_port = std::addressof(port->GetClientPort());
-            return ResultSuccess;
-        }
         LOG_WARNING(Service_SM, "Server is not registered! service={}", name);
         return Service::SM::ResultNotRegistered;
     }

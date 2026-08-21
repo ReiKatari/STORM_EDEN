@@ -721,7 +721,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 // No op
             }
         })
-        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
 
         if (!BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean()) {
             binding.drawerLayout.setDrawerLockMode(
@@ -1029,10 +1029,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
         emulationViewModel.drawerOpen.collect(viewLifecycleOwner) {
             if (it) {
-                binding.drawerLayout.open()
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
                 binding.inGameMenu.requestFocus()
             } else {
-                binding.drawerLayout.close()
+                binding.drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START)
             }
         }
         emulationViewModel.programChanged.collect(viewLifecycleOwner) {
@@ -1112,9 +1113,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     private fun updateGameTitle() {
         game?.let {
-            binding.inGameMenu.getHeaderView(0).apply {
-                val titleView = findViewById<TextView>(R.id.text_game_title)
-                titleView.text = it.title
+            if (binding.inGameMenu.headerCount > 0) {
+                binding.inGameMenu.getHeaderView(0)?.findViewById<TextView>(R.id.text_game_title)?.text = it.title
             }
         }
     }

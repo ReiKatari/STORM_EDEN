@@ -1205,6 +1205,18 @@ bool Device::GetSuitability(bool requires_swapchain) {
         }
     }
 
+    // ARM Mali Proprietary workarounds for older and TBDR GPUs
+    if (driver_id == VK_DRIVER_ID_ARM_PROPRIETARY) {
+        LOG_INFO(Render_Vulkan, "ARM Mali detected: applying stability and performance workarounds");
+        if (extensions.extended_dynamic_state3) {
+            features.extended_dynamic_state3.extendedDynamicState3ColorBlendEquation = false;
+            features.extended_dynamic_state3.extendedDynamicState3ColorWriteMask = false;
+        }
+        if (extensions.vertex_input_dynamic_state) {
+            RemoveExtensionFeature(extensions.vertex_input_dynamic_state, features.vertex_input_dynamic_state, VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);
+        }
+    }
+
     if (u32(Settings::values.dyna_state.GetValue()) == 0) {
         LOG_INFO(Render_Vulkan, "Extended Dynamic State disabled by user setting, clearing all EDS features");
         features.extended_dynamic_state.extendedDynamicState = false;

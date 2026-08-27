@@ -209,12 +209,16 @@ std::optional<VAddr> AppLoader_NSO::LoadModule(Kernel::KProcess& process, Core::
 
     // Apply cheats if they exist and this is the main game module (or standalone NSO)
     const std::string module_name = nso_file.GetName();
-    const bool is_main_module = (module_name == "main" || module_name.empty() ||
-                                 module_name.ends_with(".nso") || module_name.ends_with(".NSO"));
-    if (pm && is_main_module) {
-        system.SetApplicationProcessBuildID(nso_header.build_id);
-        const auto cheats = pm->CreateCheatList(nso_header.build_id);
-        if (!cheats.empty()) {
+    const bool is_main_module = (module_name == "main" || module_name == "main.nso" ||
+                                 module_name == "MAIN" || module_name == "MAIN.NSO" ||
+                                 module_name.empty() || module_name.ends_with(".nso") || module_name.ends_with(".NSO"));
+    if (is_main_module || system.GetMainNsoBase() == 0) {
+        system.SetMainNsoParameters(load_base, image_size);
+    }
+    if (pm) {
+        if (is_main_module || system.GetApplicationProcessBuildID() == Core::System::CurrentBuildProcessID{}) {
+            system.SetApplicationProcessBuildID(nso_header.build_id);
+            const auto cheats = pm->CreateCheatList(nso_header.build_id);
             system.RegisterCheatList(cheats, nso_header.build_id, load_base, image_size);
         }
     }

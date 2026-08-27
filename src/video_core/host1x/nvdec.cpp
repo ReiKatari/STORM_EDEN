@@ -48,21 +48,27 @@ void Nvdec::ProcessMethod(u32 method, u32 argument) {
 }
 
 void Nvdec::CreateDecoder(NvdecCommon::VideoCodec codec) {
-    if (std::holds_alternative<std::monostate>(decoder)) {
-        switch (codec) {
-        case NvdecCommon::VideoCodec::H264:
+    switch (codec) {
+    case NvdecCommon::VideoCodec::H264:
+        if (!std::holds_alternative<Decoders::H264>(decoder)) {
             decoder.emplace<Decoders::H264>(host1x, regs, id);
-            break;
-        case NvdecCommon::VideoCodec::VP8:
-            decoder.emplace<Decoders::VP8>(host1x, regs, id);
-            break;
-        case NvdecCommon::VideoCodec::VP9:
-            decoder.emplace<Decoders::VP9>(host1x, regs, id);
-            break;
-        default:
-            break;
+            LOG_INFO(HW_GPU, "Created decoder H264 for id {}", id);
         }
-        LOG_INFO(HW_GPU, "Created decoder {} for id {}", codec, id);
+        break;
+    case NvdecCommon::VideoCodec::VP8:
+        if (!std::holds_alternative<Decoders::VP8>(decoder)) {
+            decoder.emplace<Decoders::VP8>(host1x, regs, id);
+            LOG_INFO(HW_GPU, "Created decoder VP8 for id {}", id);
+        }
+        break;
+    case NvdecCommon::VideoCodec::VP9:
+        if (!std::holds_alternative<Decoders::VP9>(decoder)) {
+            decoder.emplace<Decoders::VP9>(host1x, regs, id);
+            LOG_INFO(HW_GPU, "Created decoder VP9 for id {}", id);
+        }
+        break;
+    default:
+        break;
     }
 }
 

@@ -10,32 +10,31 @@
 
     <org.yuzu.yuzu_emu.views.GradientBorderCardView
         android:id="@+id/card_game_grid_compact"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/eden_card_background"
-        app:strokeWidth="0dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="4dp"
+        android:layout_margin="2dp"
         android:clickable="true"
         android:clipToPadding="true"
         android:focusable="true"
         android:transitionName="card_game_compact"
         app:cardCornerRadius="16dp"
-        android:foreground="@color/eden_border_gradient_start">
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutline"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingBottom="3dp">
+            android:padding="5dp">
 
             <FrameLayout
                 android:id="@+id/image_container"
-                android:layout_width="150dp"
-                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="16:11"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -55,16 +54,16 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/badge_game_extension"
-                    style="@style/SynthwaveText.Accent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|start"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/theme_card_background"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:paddingTop="1dp"
-                    android:paddingBottom="1dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/badge_extension_background"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="9sp"
                     android:textStyle="bold"
                     tools:text="NSZ" />
@@ -74,59 +73,56 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|end"
-                    android:layout_margin="4dp"
+                    android:layout_margin="5dp"
                     android:orientation="vertical"
                     android:gravity="end">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/badge_game_version"
-                        style="@style/SynthwaveText.Accent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/theme_card_background"
+                        android:background="@drawable/badge_pill_background"
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
-                        android:paddingTop="1dp"
-                        android:paddingBottom="1dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="9sp"
                         android:textStyle="bold"
                         tools:text="1.2.0" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/badge_game_internal_version"
-                        style="@style/SynthwaveText.Accent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:background="@drawable/theme_card_background"
+                        android:background="@drawable/badge_pill_background"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
                         android:paddingTop="1dp"
                         android:paddingBottom="1dp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="8sp"
-                        android:alpha="0.85"
                         tools:text="196608" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_game_addons_compact"
-                        style="@style/SynthwaveText.Accent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:background="@drawable/theme_card_background"
+                        android:background="@drawable/badge_pill_background"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
                         android:paddingTop="1dp"
                         android:paddingBottom="1dp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="8sp"
-                        android:alpha="0.85"
                         tools:text="Дополнений: 5" />
 
                 </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_game_title_compact"
-                    style="@style/SynthwaveText.Body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
@@ -136,15 +132,14 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
-                    android:shadowColor="@android:color/black"
+                    android:shadowColor="#CC000000"
                     android:shadowDx="1"
                     android:shadowDy="1"
-                    android:shadowRadius="2"
-                    android:lines="3"
-                    android:minLines="3"
+                    android:shadowRadius="4"
                     android:maxLines="3"
+                    android:minLines="1"
                     android:ellipsize="end"
-                    tools:text="The Legend of Zelda: Skyward Sword" />
+                    tools:text="The Legend of Zelda: Tears of the Kingdom" />
 
             </FrameLayout>
 

@@ -300,6 +300,7 @@ IR::Program TranslateProgram(ObjectPool<IR::Inst>& inst_pool, ObjectPool<IR::Blo
 
     Optimization::GlobalMemoryToStorageBufferPass(program, normalized_host_info);
     Optimization::TexturePass(env, program, normalized_host_info);
+    Optimization::ConstantPropagationPass(env, program);
 
     if (Settings::values.resolution_info.active || Settings::values.rescale_hack.GetValue()) {
         Optimization::RescalingPass(program);

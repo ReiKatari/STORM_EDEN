@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="grid_columns">3</integer>
+    <integer name="game_columns_list">3</integer>
+    <integer name="game_columns_grid">5</integer>
+    <integer name="game_columns_grid_compact">6</integer>
+</resources>

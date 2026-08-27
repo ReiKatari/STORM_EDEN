@@ -39,6 +39,8 @@ import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.databinding.CardGameGridCompactBinding
 import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.Settings
+import org.yuzu.yuzu_emu.fragments.GameFixDialogFragment
+import org.yuzu.yuzu_emu.model.GameFixDatabase
 
 class GameAdapter(private val activity: AppCompatActivity) :
     AbstractDiffAdapter<Game, GameAdapter.GameViewHolder>(exact = false) {
@@ -206,7 +208,7 @@ class GameAdapter(private val activity: AppCompatActivity) :
             gridBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
             gridBinding.badgeGameVersion.text = formatVersion(model)
             gridBinding.badgeGameInternalVersion.text = formatInternalVersion(model)
-            gridBinding.textGameAddons.text = formatAddons(model)
+            gridBinding.badgeGameAddons.text = formatAddons(model)
 
             gridBinding.cardGameGrid.setOnClickListener { onClick(model) }
             gridBinding.cardGameGrid.setOnLongClickListener { onLongClick(model) }
@@ -305,6 +307,19 @@ class GameAdapter(private val activity: AppCompatActivity) :
                 binding.root.findNavController().navigate(action)
             }
 
+            val checkGameFixAndLaunch: () -> Unit = {
+                if (GameFixDatabase.hasFix(game.programId) &&
+                    !GameFixDatabase.isDontAskAgain(activity, game.programId) &&
+                    !GameFixDatabase.isFixApplied(game)) {
+                    val dialog = GameFixDialogFragment.newInstance(game) { _ ->
+                        launch()
+                    }
+                    dialog.show(activity.supportFragmentManager, GameFixDialogFragment.TAG)
+                } else {
+                    launch()
+                }
+            }
+
             if (NativeLibrary.gameRequiresFirmware(game.programId) && !NativeLibrary.isFirmwareAvailable()) {
                 MaterialAlertDialogBuilder(activity)
                     .setTitle(R.string.loader_requires_firmware)
@@ -315,12 +330,12 @@ class GameAdapter(private val activity: AppCompatActivity) :
                         )
                     )
                     .setPositiveButton(android.R.string.ok) { _: DialogInterface?, _: Int ->
-                        launch()
+                        checkGameFixAndLaunch()
                     }
                     .setNegativeButton(android.R.string.cancel) { _, _ -> }
                     .show()
             } else {
-                launch()
+                checkGameFixAndLaunch()
             }
         }
 

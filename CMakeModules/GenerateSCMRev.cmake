@@ -19,7 +19,7 @@ if (DEFINED GIT_RELEASE)
     set(GIT_REFSPEC "${GIT_RELEASE}")
     set(IS_DEV_BUILD false)
 else()
-    set(BUILD_VERSION "4.3.7")
+    set(BUILD_VERSION "4.6.1")
     set(IS_DEV_BUILD false)
 endif()
 
@@ -29,7 +29,10 @@ else()
     set(IS_NIGHTLY_BUILD false)
 endif()
 
-set(GIT_DESC ${BUILD_VERSION})
+set(BUILD_TAG "v${BUILD_VERSION}")
+set(BUILD_ID "${BUILD_VERSION}")
+set(BUILD_FULLNAME "${REPO_NAME} ${BUILD_VERSION}")
+set(GIT_DESC "${BUILD_VERSION}")
 
 # Generate cpp with Git revision from template
 
@@ -44,9 +47,9 @@ set(BUILD_AUTO_UPDATE_REPO "ReiKatari/STORM_EDEN")
 set(REPO_NAME "STORM EDEN")
 
 # Set the custom version string
-set(BUILD_VERSION "4.3.7")
-set(BUILD_TAG "v4.3.7")
-set(BUILD_ID "4.3.7")
+set(BUILD_VERSION "4.6.1")
+set(BUILD_TAG "v4.6.1")
+set(BUILD_ID "4.6.1")
 set(BUILD_FULLNAME "${REPO_NAME} ${BUILD_VERSION}")
 set(TITLE_BAR_FORMAT_IDLE "STORM EDEN ${BUILD_VERSION}")
 set(TITLE_BAR_FORMAT_RUNNING "STORM EDEN ${BUILD_VERSION} | {3}")

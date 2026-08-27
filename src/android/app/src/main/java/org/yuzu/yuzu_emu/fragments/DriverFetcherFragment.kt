@@ -14,6 +14,9 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -42,8 +45,6 @@ class DriverFetcherFragment : Fragment() {
     private var _binding: FragmentDriverFetcherBinding? = null
     private val binding get() = _binding!!
 
-    private val client = OkHttpClient()
-
     private val gpuModel: String?
         get() = GpuDriverHelper.hookLibPath?.let { GpuDriverHelper.getGpuModel(hookLibPath = it) }
 
@@ -52,6 +53,23 @@ class DriverFetcherFragment : Fragment() {
 
     private val recommendedDriver: String
         get() = driverMap.firstOrNull { adrenoModel in it.first }?.second ?: "Unsupported"
+
+    private val activeDriverInfo: String
+        get() {
+            val customData = GpuDriverHelper.customDriverSettingData
+            val path = org.yuzu.yuzu_emu.features.settings.model.StringSetting.DRIVER_PATH.getString()
+            return if (path.isEmpty() || customData == org.yuzu.yuzu_emu.utils.GpuDriverMetadata()) {
+                val sys = GpuDriverHelper.getSystemDriverInfo()
+                val sysVer = org.yuzu.yuzu_emu.NativeLibrary.getVulkanDriverVersion().takeIf { !it.isNullOrEmpty() }
+                    ?: sys?.get(0) ?: getString(R.string.system_gpu_driver)
+                "${getString(R.string.system_gpu_driver)} ($sysVer)"
+            } else {
+                val vendor = customData.vendor?.takeIf { it.isNotBlank() } ?: "Custom"
+                val name = customData.name?.takeIf { it.isNotBlank() } ?: java.io.File(path).name
+                val version = customData.version?.takeIf { it.isNotBlank() } ?: ""
+                "$name $version [$vendor]"
+            }
+        }
 
     enum class SortMode {
         Default, PublishTime,
@@ -66,23 +84,24 @@ class DriverFetcherFragment : Fragment() {
     )
 
     private val repoList: List<DriverRepo> = listOf(
-        DriverRepo("Mr. Purple Turnip", "MrPurple666/purple-turnip", 0),
-        DriverRepo("GameHub Adreno 8xx", "crueter/GameHub-8Elite-Drivers", 1),
-        DriverRepo("KIMCHI Turnip", "K11MCH1/AdrenoToolsDrivers", 2, true, SortMode.PublishTime),
-        DriverRepo("Weab-Chan Freedreno", "Weab-chan/freedreno_turnip-CI", 3),
-        DriverRepo("Whitebelyash Turnip", "whitebelyash/freedreno_turnip-CI", sort=4, false, SortMode.PublishTime),
+        DriverRepo("STORM DRIVER", "ReiKatari/STORM_DRIVER", 0, true, SortMode.PublishTime),
+        DriverRepo("Balemuni Turnip (Apex)", "Balemuni/Balemunis-Aurora", 1),
+        DriverRepo("KIMCHI Turnip Drivers", "K11MCH1/AdrenoToolsDrivers", 2, true, SortMode.PublishTime),
+        DriverRepo("Mr. Purple Turnip", "MrPurple666/purple-turnip", 3),
+        DriverRepo("Weab-Chan Freedreno CI", "Weab-chan/freedreno_turnip-CI", 4),
+        DriverRepo("Whitebelyash Turnip Hub", "whitebelyash/freedreno_turnip-CI", 5, false, SortMode.PublishTime),
+        DriverRepo("GameHub Adreno 8xx", "crueter/GameHub-8Elite-Drivers", 6),
     )
 
     private val driverMap = listOf(
         IntRange(Integer.MIN_VALUE, 9) to "Unsupported",
-        IntRange(10, 99) to "KIMCHI Latest", // Special case for Adreno Axx
+        IntRange(10, 99) to "STORM DRIVER / KIMCHI Turnip", // Special case for Adreno Axx
         IntRange(100, 599) to "Unsupported",
         IntRange(600, 639) to "Mr. Purple EOL-24.3.4",
-        IntRange(640, 699) to "Mr. Purple T19",
-        IntRange(700, 710) to "KIMCHI 25.2.0_r5",
-        IntRange(711, 799) to "Mr. Purple T23",
-        IntRange(800, 899) to "GameHub Adreno 8xx",
-        IntRange(900, Int.MAX_VALUE) to "Unsupported"
+        IntRange(640, 699) to "STORM DRIVER / KIMCHI",
+        IntRange(700, 799) to "STORM DRIVER / Balemuni Apex",
+        IntRange(800, 899) to "STORM DRIVER / Balemuni Apex v2",
+        IntRange(900, Int.MAX_VALUE) to "STORM DRIVER / Turnip Latest"
     )
 
     private lateinit var driverGroupAdapter: DriverGroupAdapter
@@ -132,7 +151,8 @@ class DriverFetcherFragment : Fragment() {
     ): View {
         _binding = FragmentDriverFetcherBinding.inflate(inflater)
         binding.badgeRecommendedDriver.text = recommendedDriver
-        binding.badgeGpuModel.text = gpuModel
+        binding.badgeGpuModel.text = gpuModel ?: "Qualcomm Adreno"
+        binding.badgeActiveDriver.text = activeDriverInfo
 
         return binding.root
     }
@@ -150,8 +170,28 @@ class DriverFetcherFragment : Fragment() {
 
         setInsets()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                driverViewModel.driverList.collect {
+                    binding.badgeActiveDriver.text = activeDriverInfo
+                }
+            }
+        }
+
         fetchDrivers()
     }
+
+    override fun onResume() {
+        super.onResume()
+        binding.badgeActiveDriver.text = activeDriverInfo
+    }
+
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
 
     private fun fetchDrivers() {
         binding.loadingIndicator.isVisible = true
@@ -166,33 +206,40 @@ class DriverFetcherFragment : Fragment() {
             val sort = driver.sort
 
             CoroutineScope(Dispatchers.Main).launch {
-                val request =
-                    Request.Builder().url("https://api.github.com/repos/$path/releases").build()
-
                 withContext(Dispatchers.IO) {
-                    var releases: ArrayList<Release>
-                    try {
-                        client.newCall(request).execute().use { response ->
-                            if (!response.isSuccessful) {
-                                throw IOException(response.body.toString())
+                    var releases = ArrayList<Release>()
+                    
+                    val urlsToTry = listOf(
+                        "https://api.github.com/repos/$path/releases",
+                        "https://api.githubfast.com/repos/$path/releases",
+                        "https://ghproxy.net/https://api.github.com/repos/$path/releases",
+                        "https://gh-proxy.com/https://api.github.com/repos/$path/releases"
+                    )
+
+                    for (url in urlsToTry) {
+                        try {
+                            val request = Request.Builder()
+                                .url(url)
+                                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 StormEden/4.4.3")
+                                .header("Accept", "application/vnd.github.v3+json, application/json, text/plain, */*")
+                                .build()
+
+                            client.newCall(request).execute().use { response ->
+                                if (response.isSuccessful) {
+                                    val body = response.body?.string()
+                                    if (!body.isNullOrBlank()) {
+                                        val parsed = Release.fromJsonArray(body, useTagName, sortMode)
+                                        if (parsed.isNotEmpty()) {
+                                            releases = parsed
+                                            return@use
+                                        }
+                                    }
+                                }
                             }
-
-                            val body = response.body?.string() ?: return@withContext
-                            releases = Release.fromJsonArray(body, useTagName, sortMode)
+                        } catch (e: Exception) {
+                            // Continue to next mirror
                         }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            MaterialAlertDialogBuilder(requireActivity()).setTitle(
-                                getString(R.string.error_during_fetch)
-                            )
-                                .setMessage(
-                                    "${getString(R.string.failed_to_fetch)} $name:\n${e.message}"
-                                )
-                                .setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.cancel() }
-                                .show()
-
-                            releases = ArrayList()
-                        }
+                        if (releases.isNotEmpty()) break
                     }
 
                     val group = DriverGroup(

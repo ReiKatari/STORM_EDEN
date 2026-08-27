@@ -220,7 +220,7 @@ class GamesFragment : Fragment() {
                     GridLayoutManager(context, columns)
                 }
                 GameAdapter.VIEW_TYPE_GRID_COMPACT -> {
-                    val columns = resources.getInteger(R.integer.game_columns_grid)
+                    val columns = resources.getInteger(R.integer.game_columns_grid_compact)
                     GridLayoutManager(context, columns)
                 }
                 GameAdapter.VIEW_TYPE_LIST -> {
@@ -556,8 +556,13 @@ class GamesFragment : Fragment() {
             fallbackBottomInset = bottomInset
             (binding.gridGames as? CarouselRecyclerView)?.notifyInsetsReady(bottomInset)
 
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
             val fabPadding = resources.getDimensionPixelSize(R.dimen.spacing_large)
-            val totalBottomPadding = bottomInset + resources.getDimensionPixelSize(R.dimen.spacing_bottom_list_fab) + fabPadding
+            val totalBottomPadding = if (isLandscape) {
+                bottomInset + fabPadding
+            } else {
+                bottomInset + resources.getDimensionPixelSize(R.dimen.spacing_bottom_list_fab) + fabPadding
+            }
 
             binding.gridGames.updatePadding(
                 top = resources.getDimensionPixelSize(R.dimen.spacing_med),
@@ -565,15 +570,14 @@ class GamesFragment : Fragment() {
             )
 
             val mlpFab = binding.addDirectory.layoutParams as ViewGroup.MarginLayoutParams
-            mlpFab.leftMargin = leftInset + fabPadding
-            mlpFab.bottomMargin = barInsets.bottom + fabPadding
-            mlpFab.rightMargin = rightInset + fabPadding
+            mlpFab.bottomMargin = maxOf(barInsets.bottom, 0) + fabPadding
+            mlpFab.rightMargin = minOf(rightInset, fabPadding) + fabPadding
             binding.addDirectory.layoutParams = mlpFab
 
             binding.launchQlaunch?.let { qlaunchButton ->
                 val mlpQLaunch = qlaunchButton.layoutParams as ViewGroup.MarginLayoutParams
-                mlpQLaunch.leftMargin = leftInset + fabPadding
-                mlpQLaunch.bottomMargin = barInsets.bottom + fabPadding
+                mlpQLaunch.leftMargin = minOf(leftInset, fabPadding) + fabPadding
+                mlpQLaunch.bottomMargin = maxOf(barInsets.bottom, 0) + fabPadding
                 qlaunchButton.layoutParams = mlpQLaunch
             }
 

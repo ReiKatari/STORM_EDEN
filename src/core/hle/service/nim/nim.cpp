@@ -22,16 +22,56 @@ public:
         : ServiceFramework{system_, "IShopServiceAsync"} {
         // clang-format off
         static const FunctionInfo functions[] = {
-            {0, nullptr, "Cancel"},
-            {1, nullptr, "GetSize"},
-            {2, nullptr, "Read"},
-            {3, nullptr, "GetErrorCode"},
-            {4, nullptr, "Request"},
-            {5, nullptr, "Prepare"},
+            {0, &IShopServiceAsync::Cancel, "Cancel"},
+            {1, &IShopServiceAsync::GetSize, "GetSize"},
+            {2, &IShopServiceAsync::Read, "Read"},
+            {3, &IShopServiceAsync::GetErrorCode, "GetErrorCode"},
+            {4, &IShopServiceAsync::Request, "Request"},
+            {5, &IShopServiceAsync::Prepare, "Prepare"},
         };
         // clang-format on
 
         RegisterHandlers(functions);
+    }
+
+private:
+    void Cancel(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 2};
+        rb.Push(ResultSuccess);
+    }
+
+    void GetSize(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 4};
+        rb.Push(ResultSuccess);
+        rb.Push<u64>(0);
+    }
+
+    void Read(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 4};
+        rb.Push(ResultSuccess);
+        rb.Push<u64>(0);
+    }
+
+    void GetErrorCode(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 3};
+        rb.Push(ResultSuccess);
+        rb.Push<u32>(0);
+    }
+
+    void Request(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 2};
+        rb.Push(ResultSuccess);
+    }
+
+    void Prepare(HLERequestContext& ctx) {
+        LOG_WARNING(Service_NIM, "(STUBBED) called");
+        IPC::ResponseBuilder rb{ctx, 2};
+        rb.Push(ResultSuccess);
     }
 };
 

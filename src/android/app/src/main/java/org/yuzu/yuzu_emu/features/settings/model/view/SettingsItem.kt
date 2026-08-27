@@ -344,6 +344,15 @@ abstract class SettingsItem(
             )
             put(
                 SingleChoiceSetting(
+                    IntSetting.ASTC_RECOMPRESSION,
+                    titleId = R.string.astc_recompression,
+                    descriptionId = R.string.astc_recompression_description,
+                    choicesId = R.array.astcRecompressionNames,
+                    valuesId = R.array.astcRecompressionValues
+                )
+            )
+            put(
+                SingleChoiceSetting(
                     IntSetting.RENDERER_VRAM_USAGE_MODE,
                     titleId = R.string.vram_usage_mode,
                     descriptionId = R.string.vram_usage_mode_description,
@@ -504,6 +513,13 @@ abstract class SettingsItem(
                     BooleanSetting.SHOW_SOC_OVERLAY,
                     R.string.enable_soc_overlay,
                     descriptionId = 0
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY,
+                    R.string.show_device_load_overlay,
+                    descriptionId = R.string.show_device_load_overlay_description
                 )
             )
             put(
@@ -1076,6 +1092,20 @@ abstract class SettingsItem(
                     BooleanSetting.ECO_THERMAL_MODE,
                     titleId = R.string.eco_thermal_mode,
                     descriptionId = R.string.eco_thermal_mode_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.ECO_FRAME_PACING,
+                    titleId = R.string.eco_frame_pacing,
+                    descriptionId = R.string.eco_frame_pacing_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.SMART_SHADER_THROTTLE,
+                    titleId = R.string.smart_shader_throttle,
+                    descriptionId = R.string.smart_shader_throttle_description
                 )
             )
             put(

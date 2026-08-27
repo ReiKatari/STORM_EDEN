@@ -299,8 +299,12 @@ Errno TranslateNativeError(int e, CallType call_type = CallType::Other) {
         return Errno::INPROGRESS;
     case EISCONN:
         return Errno::ISCONN;
+#ifdef EDESTADDRREQ
+    case EDESTADDRREQ:
+        return Errno::OTHER;
+#endif
     default:
-        UNIMPLEMENTED_MSG("Unimplemented errno={} ({})", e, strerror(e));
+        LOG_WARNING(Network, "Unimplemented errno={} ({})", e, strerror(e));
         return Errno::OTHER;
     }
 }

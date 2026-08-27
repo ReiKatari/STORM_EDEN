@@ -1192,48 +1192,50 @@ void Module::Interface::StoreSaveDataThumbnail(HLERequestContext& ctx, const Com
 
 void Module::Interface::TrySelectUserWithoutInteractionDeprecated(HLERequestContext& ctx) {
     LOG_DEBUG(Service_ACC, "called");
-    // A u8 is passed into this function which we can safely ignore. It's to determine if we have
-    // access to use the network or not by the looks of it
     IPC::ResponseBuilder rb{ctx, 6};
-    if (profile_manager->GetUserCount() != 1) {
+
+    auto last_user = profile_manager->GetLastOpenedUser();
+    if (last_user.IsValid()) {
         rb.Push(ResultSuccess);
-        rb.PushRaw(Common::InvalidUUID);
+        rb.PushRaw(last_user);
         return;
     }
 
     const auto user_list = profile_manager->GetAllUsers();
-    if (std::ranges::all_of(user_list, [](const auto& user) { return user.IsInvalid(); })) {
-        rb.Push(ResultUnknown); // TODO(ogniK): Find the correct error code
-        rb.PushRaw(Common::InvalidUUID);
-        return;
+    for (const auto& user : user_list) {
+        if (user.IsValid()) {
+            rb.Push(ResultSuccess);
+            rb.PushRaw(user);
+            return;
+        }
     }
 
-    // Select the first user we have
     rb.Push(ResultSuccess);
-    rb.PushRaw(profile_manager->GetUser(0)->uuid);
+    rb.PushRaw(Common::InvalidUUID);
 }
 
 void Module::Interface::TrySelectUserWithoutInteraction(HLERequestContext& ctx) {
     LOG_DEBUG(Service_ACC, "called");
-    // A u8 is passed into this function which we can safely ignore. It's to determine if we have
-    // access to use the network or not by the looks of it
     IPC::ResponseBuilder rb{ctx, 6};
-    if (profile_manager->GetUserCount() != 1) {
+
+    auto last_user = profile_manager->GetLastOpenedUser();
+    if (last_user.IsValid()) {
         rb.Push(ResultSuccess);
-        rb.PushRaw(Common::InvalidUUID);
+        rb.PushRaw(last_user);
         return;
     }
 
     const auto user_list = profile_manager->GetAllUsers();
-    if (std::ranges::all_of(user_list, [](const auto& user) { return user.IsInvalid(); })) {
-        rb.Push(ResultUnknown); // TODO(ogniK): Find the correct error code
-        rb.PushRaw(Common::InvalidUUID);
-        return;
+    for (const auto& user : user_list) {
+        if (user.IsValid()) {
+            rb.Push(ResultSuccess);
+            rb.PushRaw(user);
+            return;
+        }
     }
 
-    // Select the first user we have
     rb.Push(ResultSuccess);
-    rb.PushRaw(profile_manager->GetUser(0)->uuid);
+    rb.PushRaw(Common::InvalidUUID);
 }
 
 Module::Interface::Interface(std::shared_ptr<Module> module_,

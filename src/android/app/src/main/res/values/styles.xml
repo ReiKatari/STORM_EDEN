@@ -209,9 +209,15 @@
 
     <style name="EdenPopupMenu" parent="Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@drawable/popup_menu_background</item>
+        <item name="android:popupElevation">8dp</item>
+        <item name="android:overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">6dp</item>
     </style>
     <style name="YuzuPopupMenu" parent="Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@drawable/popup_menu_background</item>
+        <item name="android:popupElevation">8dp</item>
+        <item name="android:overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">6dp</item>
     </style>
 
     <style name="EdenButton.Primary" parent="Widget.Material3.Button">
@@ -253,9 +259,9 @@
 
     <style name="EdenCard" parent="Widget.Material3.CardView.Outlined">
         <item name="cardCornerRadius">16dp</item>
-        <item name="cardBackgroundColor">@color/eden_card_background</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
         <item name="cardElevation">0dp</item>
-        <item name="strokeColor">@color/eden_card_stroke</item>
+        <item name="strokeColor">?attr/colorOutline</item>
         <item name="strokeWidth">1dp</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
@@ -276,47 +282,31 @@
     </style>
     <!-- Gothic / STORM Text Styles -->
     <style name="SynthwaveText.Title" parent="TextAppearance.Material3.DisplayLarge">
-        <item name="android:textColor">@color/eden_on_background</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.14</item>
+        <item name="android:letterSpacing">0.06</item>
         <item name="android:fontFamily">sans-serif-black</item>
-        <item name="android:shadowColor">#FF1744</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">12</item>
     </style>
     <style name="SynthwaveText.Header" parent="TextAppearance.Material3.DisplaySmall">
-        <item name="android:textColor">@color/eden_primary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.05</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:shadowColor">@color/eden_glow_pink</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">6</item>
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
     <style name="SynthwaveText.Body" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:textColor">@color/eden_on_background</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
     <style name="SynthwaveText.Secondary" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/eden_secondary</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:shadowColor">@color/eden_glow_cyan</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">4</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
     <style name="SynthwaveText.Accent" parent="TextAppearance.Material3.LabelLarge">
-        <item name="android:textColor">@color/eden_accent_orange</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">monospace</item>
-        <item name="android:letterSpacing">0.1</item>
-        <item name="android:shadowColor">@color/eden_glow_orange</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">4</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
     </style>
     <!-- Shape appearance for carousel images -->
     <style name="ShapeAppearance.Eden.CarouselImage" parent="">

@@ -561,8 +561,6 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                     ncas[cnmt.GetTitleID()][{cnmt.GetType(), rec.type}] = std::move(next_nca);
                 }
             }
-
-            break;
         }
     }
 }

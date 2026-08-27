@@ -114,13 +114,15 @@
     <!-- VRAM USAGE MODE CHOICES -->
     <string-array name="vramUsageMethodNames">
         <item>@string/vram_usage_conservative</item>
+        <item>@string/vram_usage_normal</item>
         <item>@string/vram_usage_aggressive</item>
     </string-array>
 
     <!-- VRAM USAGE MODE VALUES -->
     <integer-array name="vramUsageMethodValues">
         <item>0</item> <!-- Conservative -->
-        <item>1</item> <!-- Aggressive -->
+        <item>1</item> <!-- Normal -->
+        <item>2</item> <!-- Aggressive -->
     </integer-array>
 
     <!-- ASTC Decoding Method Choices -->
@@ -135,6 +137,22 @@
         <item>0</item> <!-- CPU -->
         <item>1</item> <!-- GPU -->
         <item>2</item> <!-- CPU Asynchronously -->
+    </integer-array>
+
+    <!-- ASTC Recompression Choices -->
+    <string-array name="astcRecompressionNames">
+        <item>@string/astc_recompression_uncompressed</item>
+        <item>@string/astc_recompression_bc1</item>
+        <item>@string/astc_recompression_bc3</item>
+        <item>@string/astc_recompression_bc5</item>
+    </string-array>
+
+    <!-- ASTC Recompression Values -->
+    <integer-array name="astcRecompressionValues">
+        <item>0</item> <!-- Uncompressed -->
+        <item>1</item> <!-- BC1 -->
+        <item>2</item> <!-- BC3 -->
+        <item>3</item> <!-- BC5 -->
     </integer-array>
     <!-- NVDEC Emulation Choices -->
     <string-array name="rendererNvdecNames">
@@ -290,13 +308,13 @@
     </integer-array>
 
     <string-array name="cpuBackendArm64Names">
-        <item>@string/cpu_backend_dynarmic</item>
         <item>@string/cpu_backend_nce</item>
+        <item>@string/cpu_backend_dynarmic</item>
     </string-array>
 
     <integer-array name="cpuBackendArm64Values">
-        <item>0</item>
         <item>1</item>
+        <item>0</item>
     </integer-array>
 
     <string-array name="cpuBackendX86Names">
@@ -424,6 +442,7 @@
         <item>22</item>
         <item>23</item>
         <item>24</item>
+        <item>25</item>
     </integer-array>
 
     <string-array name="outputEngineEntries">
@@ -511,6 +530,7 @@
 
     <string-array name="dmaAccuracyNames">
         <item>@string/dma_accuracy_default</item>
+        <item>@string/dma_accuracy_normal</item>
         <item>@string/dma_accuracy_unsafe</item>
         <item>@string/dma_accuracy_safe</item>
     </string-array>
@@ -518,6 +538,7 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+        <item>3</item>
     </integer-array>
 
     <string-array name="gpuFenceBehaviorNames">

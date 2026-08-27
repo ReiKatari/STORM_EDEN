@@ -112,6 +112,12 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     private var perfStatsUpdater: (() -> Unit)? = null
     private var socUpdater: (() -> Unit)? = null
+    private var loadStatsUpdater: (() -> Unit)? = null
+    private var loadStatsRunnable: Runnable? = null
+    private var prevCpuTotal = 0L
+    private var prevCpuIdle = 0L
+    private var prevCpuProcessTime = 0L
+    private var prevCpuWallTime = 0L
 
     val handler = Handler(Looper.getMainLooper())
 
@@ -841,9 +847,39 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     true
                 }
 
+                R.id.menu_multiplayer -> {
+                    binding.drawerLayout.close()
+                    (activity as? EmulationActivity)?.displayMultiplayerDialog()
+                    true
+                }
+
+                R.id.menu_view_logs -> {
+                    binding.drawerLayout.close()
+                    LogViewerDialogFragment.newInstance(game ?: args.game)
+                        .show(childFragmentManager, LogViewerDialogFragment.TAG)
+                    true
+                }
+
                 R.id.menu_translate_screen -> {
                     binding.drawerLayout.close()
                     gameTranslatorManager?.triggerTranslation(binding.surfaceEmulation)
+                    true
+                }
+
+                R.id.menu_toggle_translate_button -> {
+                    val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+                    val currentVisible = binding.buttonFloatingTranslate.isVisible
+                    val newVisible = !currentVisible
+                    prefs.edit().putBoolean("translator_enable_floating_button", newVisible).apply()
+                    binding.buttonFloatingTranslate.isVisible = newVisible
+                    if (newVisible) {
+                        binding.buttonFloatingTranslate.invalidate()
+                    }
+                    it.title = if (newVisible) {
+                        getString(R.string.translator_disable_floating_button)
+                    } else {
+                        getString(R.string.translator_enable_floating_button)
+                    }
                     true
                 }
 
@@ -992,6 +1028,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
                 updateShowStatsOverlay()
                 updateSocOverlay()
+                updateDeviceLoadOverlay()
 
                 initializeOverlayAutoHide()
 
@@ -1197,6 +1234,14 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 R.array.rendererAccuracyValues
             )
 
+            quickSettings.addIntSetting(
+                R.string.astc_recompression,
+                container,
+                IntSetting.ASTC_RECOMPRESSION,
+                R.array.astcRecompressionNames,
+                R.array.astcRecompressionValues
+            )
+
 
             quickSettings.addIntSetting(
                 R.string.renderer_scaling_filter,
@@ -1205,6 +1250,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 R.array.rendererScalingFilterNames,
                 R.array.rendererScalingFilterValues
             ) {
+                if (IntSetting.RENDERER_SCALING_FILTER.getInt(needsGlobal = false) == 6) {
+                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
+                }
                 addQuickSettings()
             }
 
@@ -1370,20 +1418,27 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private fun setupFloatingTranslateButton() {
         val b = _binding ?: return
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val enabled = prefs.getBoolean("translator_enable_floating_button", true)
+        val enabled = prefs.getBoolean("translator_enable_floating_button", false)
         b.buttonFloatingTranslate.isVisible = enabled
         if (enabled) {
             b.buttonFloatingTranslate.invalidate()
-            b.buttonFloatingTranslate.onSingleTap = {
-                if (b.translationOverlay.isVisible) {
-                    b.translationOverlay.clear()
-                } else {
-                    gameTranslatorManager?.triggerTranslation(b.surfaceEmulation)
-                }
+        }
+        b.buttonFloatingTranslate.onSingleTap = {
+            if (b.translationOverlay.isVisible) {
+                b.translationOverlay.clear()
+            } else {
+                gameTranslatorManager?.triggerTranslation(b.surfaceEmulation)
             }
-            b.buttonFloatingTranslate.onLongPress = {
-                showQuickTranslatorMenu()
-            }
+        }
+        b.buttonFloatingTranslate.onLongPress = {
+            showQuickTranslatorMenu()
+        }
+
+        val toggleItem = b.inGameMenu.menu.findItem(R.id.menu_toggle_translate_button)
+        toggleItem?.title = if (enabled) {
+            getString(R.string.translator_disable_floating_button)
+        } else {
+            getString(R.string.translator_enable_floating_button)
         }
     }
 
@@ -1720,6 +1775,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         amiiboLoadJob = null
         perfStatsRunnable?.let { perfStatsUpdateHandler.removeCallbacks(it) }
         socRunnable?.let { socUpdateHandler.removeCallbacks(it) }
+        loadStatsRunnable?.let { loadStatsUpdateHandler.removeCallbacks(it) }
         handler.removeCallbacksAndMessages(null)
         clearPausedFrame()
         gameTranslatorManager?.onDestroy()
@@ -2051,6 +2107,165 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
     }
 
+    private fun updateDeviceLoadOverlay() {
+        val showLoadOverlay = BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY.getBoolean()
+        binding.showLoadOverlayText.apply {
+            setTextColor(
+                MaterialColors.getColor(
+                    this,
+                    com.google.android.material.R.attr.colorPrimary
+                )
+            )
+        }
+        binding.showLoadOverlayText.setVisible(showLoadOverlay)
+
+        if (showLoadOverlay) {
+            val sb = StringBuilder()
+            loadStatsUpdater = {
+                if (emulationViewModel.emulationStarted.value &&
+                    !emulationViewModel.isEmulationStopping.value
+                ) {
+                    sb.setLength(0)
+
+                    // 1. CPU Usage Calculation (Android SELinux Safe: Process.getElapsedCpuTime() + /proc/stat fallback)
+                    var cpuUsagePercent = 0
+                    val curProcessCpuTime = android.os.Process.getElapsedCpuTime()
+                    val curWallTime = android.os.SystemClock.elapsedRealtime()
+                    val numCores = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
+
+                    if (prevCpuWallTime > 0L && curWallTime > prevCpuWallTime) {
+                        val deltaCpu = curProcessCpuTime - prevCpuProcessTime
+                        val deltaWall = curWallTime - prevCpuWallTime
+                        val maxCpu = deltaWall * numCores
+                        if (maxCpu > 0) {
+                            // Process CPU usage scaled across all cores (0-100%)
+                            cpuUsagePercent = ((deltaCpu * 100.0) / maxCpu).toInt().coerceIn(0, 100)
+                        }
+                    }
+                    prevCpuProcessTime = curProcessCpuTime
+                    prevCpuWallTime = curWallTime
+
+                    // Optional fallback: check /proc/stat if accessible for whole-system CPU load
+                    try {
+                        val statFile = File("/proc/stat")
+                        if (statFile.exists() && statFile.canRead()) {
+                            val statLine = statFile.bufferedReader().readLine()
+                            if (statLine != null && statLine.startsWith("cpu ")) {
+                                val parts = statLine.split("\\s+".toRegex()).drop(1).mapNotNull { it.toLongOrNull() }
+                                if (parts.size >= 4) {
+                                    val user = parts[0]
+                                    val nice = parts[1]
+                                    val system = parts[2]
+                                    val idle = parts[3]
+                                    val iowait = if (parts.size > 4) parts[4] else 0L
+                                    val irq = if (parts.size > 5) parts[5] else 0L
+                                    val softirq = if (parts.size > 6) parts[6] else 0L
+                                    val steal = if (parts.size > 7) parts[7] else 0L
+
+                                    val currentIdle = idle + iowait
+                                    val currentTotal = user + nice + system + currentIdle + irq + softirq + steal
+
+                                    val deltaTotal = currentTotal - prevCpuTotal
+                                    val deltaIdle = currentIdle - prevCpuIdle
+
+                                    if (prevCpuTotal > 0 && deltaTotal > 0) {
+                                        val deltaActive = deltaTotal - deltaIdle
+                                        cpuUsagePercent = ((deltaActive * 100.0) / deltaTotal).toInt().coerceIn(0, 100)
+                                    }
+
+                                    prevCpuTotal = currentTotal
+                                    prevCpuIdle = currentIdle
+                                }
+                            }
+                        }
+                    } catch (_: Exception) {}
+
+                    // 2. GPU Usage Calculation
+                    var gpuUsagePercent = -1
+                    try {
+                        val kgslBusy = File("/sys/class/kgsl/kgsl-3d0/gpu_busy_percentage")
+                        if (kgslBusy.exists() && kgslBusy.canRead()) {
+                            val line = kgslBusy.readText().trim().replace("%", "").trim()
+                            gpuUsagePercent = line.toIntOrNull() ?: -1
+                        }
+                        if (gpuUsagePercent < 0) {
+                            val maliBusy = File("/sys/class/misc/mali0/device/utilization")
+                            if (maliBusy.exists() && maliBusy.canRead()) {
+                                gpuUsagePercent = (maliBusy.readText().trim().toIntOrNull() ?: -1).coerceIn(0, 100)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        gpuUsagePercent = -1
+                    }
+
+                    // 3. RAM Usage
+                    var ramText = ""
+                    context?.let { ctx ->
+                        try {
+                            val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                            val memInfo = ActivityManager.MemoryInfo()
+                            am.getMemoryInfo(memInfo)
+                            val usedGb = (memInfo.totalMem - memInfo.availMem) / (1024.0 * 1024.0 * 1024.0)
+                            val totalGb = memInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
+                            ramText = String.format(java.util.Locale.US, "%.1f/%.1f GB", usedGb, totalGb)
+                        } catch (e: Exception) {}
+                    }
+
+                    // 4. Device Temperature & 5 Thermal States
+                    val temp = getBatteryTemperature()
+                    val tempIcon = when {
+                        temp < 35.0f -> "❄️"       // 1. Cold (< 35°C)
+                        temp < 42.0f -> "🟢"       // 2. Normal (35-41.9°C)
+                        temp < 48.0f -> "🟡"       // 3. Warm (42-47.9°C)
+                        temp < 54.0f -> "🟠"       // 4. Hot (48-53.9°C)
+                        else -> "🔥"               // 5. Critical (>= 54°C)
+                    }
+
+                    // Build formatted string
+                    sb.append("⚙️ ЦП: $cpuUsagePercent%")
+                    if (gpuUsagePercent >= 0) {
+                        sb.append(" | 🎮 ГПУ: $gpuUsagePercent%")
+                    }
+                    if (ramText.isNotEmpty()) {
+                        sb.append(" | 💾 ОЗУ: $ramText")
+                    }
+                    sb.append(" | $tempIcon ${String.format(java.util.Locale.US, "%.1f°C", temp)}")
+
+                    // Position layout params: under SOC overlay if enabled, else Top-Right
+                    val showSoc = BooleanSetting.SHOW_SOC_OVERLAY.getBoolean()
+                    val params = binding.showLoadOverlayText.layoutParams as FrameLayout.LayoutParams
+                    params.gravity = Gravity.TOP or Gravity.END
+                    val topMargin = if (showSoc) {
+                        resources.getDimensionPixelSize(R.dimen.spacing_large) + 26
+                    } else {
+                        resources.getDimensionPixelSize(R.dimen.spacing_large)
+                    }
+                    params.setMargins(0, topMargin, resources.getDimensionPixelSize(R.dimen.spacing_large), 0)
+                    binding.showLoadOverlayText.layoutParams = params
+
+                    if (BooleanSetting.SOC_OVERLAY_BACKGROUND.getBoolean(
+                            NativeConfig.isPerGameConfigLoaded()
+                        )
+                    ) {
+                        binding.showLoadOverlayText.setBackgroundResource(
+                            R.color.yuzu_transparent_black
+                        )
+                    } else {
+                        binding.showLoadOverlayText.setBackgroundResource(0)
+                    }
+
+                    binding.showLoadOverlayText.text = sb.toString()
+                }
+
+                loadStatsUpdateHandler.postDelayed(loadStatsRunnable!!, 1000)
+            }
+            loadStatsRunnable = Runnable { loadStatsUpdater?.invoke() }
+            loadStatsUpdateHandler.post(loadStatsRunnable!!)
+        } else {
+            loadStatsRunnable?.let { loadStatsUpdateHandler.removeCallbacks(it) }
+        }
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     private fun updateOrientation() {
         emulationActivity?.let {
@@ -2273,6 +2488,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 BooleanSetting.SHOW_PERFORMANCE_OVERLAY.getBoolean()
             findItem(R.id.menu_show_soc_overlay).isChecked =
                 BooleanSetting.SHOW_SOC_OVERLAY.getBoolean()
+            findItem(R.id.menu_show_load_overlay).isChecked =
+                BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY.getBoolean()
             findItem(R.id.menu_rel_stick_center).isChecked =
                 BooleanSetting.JOYSTICK_REL_CENTER.getBoolean()
             findItem(R.id.menu_dpad_slide).isChecked = BooleanSetting.DPAD_SLIDE.getBoolean()
@@ -2298,6 +2515,14 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     it.isChecked = !it.isChecked
                     BooleanSetting.SHOW_SOC_OVERLAY.setBoolean(it.isChecked)
                     updateSocOverlay()
+                    updateDeviceLoadOverlay()
+                    true
+                }
+
+                R.id.menu_show_load_overlay -> {
+                    it.isChecked = !it.isChecked
+                    BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY.setBoolean(it.isChecked)
+                    updateDeviceLoadOverlay()
                     true
                 }
 
@@ -2753,6 +2978,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             arrayOf("application/octet-stream", "application/x-binary", "*/*")
         private val perfStatsUpdateHandler = Handler(Looper.myLooper()!!)
         private val socUpdateHandler = Handler(Looper.myLooper()!!)
+        private val loadStatsUpdateHandler = Handler(Looper.myLooper()!!)
     }
 
     private fun startOverlayAutoHideTimer(seconds: Int) {

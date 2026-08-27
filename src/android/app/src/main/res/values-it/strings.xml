@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Questo software esegue giochi per la console Nintendo Switch. Non sono inclusi titoli di giochi o chiavi.<br /><br /> Prima di iniziare, individua il file <![CDATA[<b>prod.keys</b>]]> nella memoria del tuo dispositivo.<br /><br /> <![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Ulteriori informazioni</a>]]></string>
@@ -877,4 +877,63 @@
     <!-- Licenses screen strings -->
     <string name="licenses">Licenze</string>
     <string name="license_fidelityfx_fsr_description">Upscaling di alta qualità da parte di AMD</string>
-    </resources>
+    <string name="add_cheat">Aggiungi cheat</string>
+    <string name="auto_optimization_apply">Applica modalità</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normale (Consigliato)</string>
+    <string name="downloading_cheats">Download del database cheat in corso…</string>
+    <string name="auto_optimization_mode_normal_desc">Perfetto equilibrio tra qualità visiva, fluidità e stabilità. 1X (720p/1080p), FSR 85%, FXAA, barriere bilanciate.</string>
+    <string name="auto_optimization_mode_accurate">💎 Accurato</string>
+    <string name="auto_optimization_mode_accurate_desc">Massima qualità grafica, risoluzione 1.5X/1X, DMA sicuro, barriere GPU rigorose, SMAA, Anisotropo 16x.</string>
+    <string name="dma_accuracy_high">Alto</string>
+    <string name="vram_usage_mode_aggressive">Aggressivo (Massime prestazioni)</string>
+    <string name="auto_optimization_mode_fast_desc">Massimi FPS, minimo calore e risparmio energetico. Risoluzione 0.75X, VRAM conservativa, barriere GPU veloci, NCE.</string>
+    <string name="app_language_system">Predefinito di sistema</string>
+    <string name="auto_optimization_mode_fast">⚡ Veloce</string>
+    <string name="cheat_status_active">⚡ Attivo in gioco</string>
+    <string name="translator_enable_floating_button">Mostra pulsante mobile</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="eco_frame_pacing_description">Elimina i cicli CPU inattivi negli intervalli di frame, riducendo le temperature a 60 FPS stabili.</string>
+    <string name="vram_usage_mode_normal">Normale (Consigliato)</string>
+    <string name="app_language">Lingua dell\'applicazione</string>
+    <string name="auto_optimization_wizard_title">Configurazione automatica</string>
+    <string name="download_cheats">Scarica cheat online</string>
+    <string name="cpu_affinity_pinning">Affinità dei core CPU</string>
+    <string name="cheats_download_success">Database cheat scaricato con successo! Trovati %1$d codici.</string>
+    <string name="search_amiibo_hint">Cerca per nome, personaggio o ID...</string>
+    <string name="overlay_skin_theme">Tema dei controlli touch</string>
+    <string name="cpu_affinity_pinning_description">Assegna i thread critici di JIT e GPU ai core ad alte prestazioni e le attività secondarie ai core efficienti.</string>
+    <string name="eco_thermal_mode_description">Controlla le frequenze di picco per prevenire surriscaldamento e throttling termico.</string>
+    <string name="auto_optimization_device_info">Informazioni hardware</string>
+    <string name="translator_title">TRADUTTORE STORM</string>
+    <string name="translator_translate_screen">Traduci schermo (OCR + TTS)</string>
+    <string name="amiibo_database_title">Database Amiibo online</string>
+    <string name="optimization_features">Ottimizzazione e raffreddamento</string>
+    <string name="cheat_code">Codice Atmosphere</string>
+    <string name="cheat_status_disabled">⚪ Disabilitato</string>
+    <string name="amiibo_database_description">Sfoglia, genera e inietta rapidamente Amiibo virtuali nei giochi</string>
+    <string name="cheats_not_found">Nessun codice cheat trovato per questo gioco. Puoi aggiungerne uno personalizzato.</string>
+    <string name="overlay_skin_theme_description">Scegli combinazione di colori e grafica per pulsanti e joystick virtuali</string>
+    <string name="cheats_count_summary">Cheat totali: %1$d | Abilitati: %2$d</string>
+    <string name="auto_optimization_applied_toast">⚡ Configurazione automatica applicata: profilo «%1$s»!</string>
+    <string name="eco_thermal_mode">Modalità Eco e termica</string>
+    <string name="dma_accuracy_normal">Normale (Consigliato)</string>
+    <string name="cheats_manager_title">Gestione cheat</string>
+    <string name="auto_optimization_wizard_description">Analizza CPU, GPU e RAM per applicare automaticamente le impostazioni ideali al tuo dispositivo</string>
+    <string name="app_language_description">Cambia la lingua dell\'interfaccia dell\'app</string>
+    <string name="eco_frame_pacing">Frame pacing Eco</string>
+    <string name="cheat_name">Nome del cheat</string>
+    <string name="vram_garbage_collection_description">Libera periodicamente la memoria texture inutilizzata per prevenire blocchi e chiusure da parte di Android LMK.</string>
+    <string name="vulkan_pipeline_cache_description">Salva la cache binaria sulla memoria per eliminare i micro-blocchi in gioco.</string>
+    <string name="translator_disable_floating_button">Nascondi pulsante mobile</string>
+    <string name="cheat_status_enabled">✅ Abilitato</string>
+    <string name="deselect_all">Deseleziona tutto</string>
+    <string name="smart_shader_throttle_description">Bilancia la compilazione degli shader sui core ad alta efficienza per evitare cali di frame e surriscaldamento.</string>
+    <string name="cheats">Codici cheat</string>
+    <string name="vram_garbage_collection">Raccolta rifiuti VRAM</string>
+    <string name="vram_usage_mode_conservative">Conservativo (Bassa memoria)</string>
+    <string name="cheats_description">Gestisci i codici cheat Atmosphere, attiva i trucchi e scarica il database online</string>
+    <string name="auto_optimization_summary_title">Impostazioni applicate</string>
+    <string name="smart_shader_throttle">Controllo intelligente degli shader in background</string>
+    <string name="select_all">Seleziona tutto</string>
+    <string name="vulkan_pipeline_cache">Cache pipeline Vulkan</string>
+</resources>

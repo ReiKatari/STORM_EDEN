@@ -85,7 +85,7 @@ class AmiiboDialogFragment : DialogFragment() {
             getString(R.string.amiibo_database_title)
         }
 
-        return MaterialAlertDialogBuilder(requireContext())
+        return MaterialAlertDialogBuilder(requireActivity())
             .setTitle(dialogTitle)
             .setView(binding.root)
             .setNegativeButton(R.string.close, null)

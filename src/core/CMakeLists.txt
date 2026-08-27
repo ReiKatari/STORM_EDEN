@@ -388,6 +388,8 @@ add_library(core STATIC
     hle/kernel/svc_results.h
     hle/kernel/svc_types.h
     hle/result.h
+    hle/service/game_fix_database.cpp
+    hle/service/game_fix_database.h
     hle/service/acc/acc.cpp
     hle/service/acc/acc.h
     hle/service/acc/acc_aa.cpp

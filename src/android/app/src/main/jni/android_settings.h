@@ -73,6 +73,8 @@ namespace AndroidSettings {
 
         // Optimization & Thermal Features
         Settings::Setting<bool> eco_thermal_mode{linkage, false, "eco_thermal_mode", Settings::Category::Android};
+        Settings::Setting<bool> eco_frame_pacing{linkage, true, "eco_frame_pacing", Settings::Category::Android};
+        Settings::Setting<bool> smart_shader_throttle{linkage, true, "smart_shader_throttle", Settings::Category::Android};
         Settings::Setting<bool> cpu_affinity_pinning{linkage, true, "cpu_affinity_pinning", Settings::Category::Android};
         Settings::Setting<bool> vulkan_pipeline_cache{linkage, true, "vulkan_pipeline_cache", Settings::Category::Android};
         Settings::Setting<bool> vram_garbage_collection{linkage, true, "vram_garbage_collection", Settings::Category::Android};
@@ -225,6 +227,9 @@ namespace AndroidSettings {
                                                     &show_soc_overlay};
 
         // MISC
+        Settings::Setting<bool> show_device_load_overlay{linkage, true,
+                                                        "show_device_load_overlay",
+                                                        Settings::Category::Overlay, Settings::Specialization::Default, true, true};
         Settings::Setting<bool> dont_show_driver_shader_warning{linkage, false,
                                                                 "dont_show_driver_shader_warning",
                                                                 Settings::Category::Android, Settings::Specialization::Default, true, true};

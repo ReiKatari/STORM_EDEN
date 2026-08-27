@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="notice_notification_channel_name">通知とエラー</string>
@@ -691,4 +691,64 @@
     <!-- Licenses screen strings -->
     <string name="licenses">ライセンス</string>
     <string name="license_fidelityfx_fsr_description">AMDの高品質アップスケーリング</string>
-    </resources>
+    <string name="vram_usage_mode_aggressive">積極的（最高パフォーマンス）</string>
+    <string name="auto_optimization_mode_fast_desc">最大 FPS、最小発熱、省バッテリー。0.75X 解像度、控えめ VRAM、高速 GPU バリア、NCE。</string>
+    <string name="cheat_status_disabled">⚪ 無効</string>
+    <string name="search_amiibo_hint">名前、キャラクター、ID で検索...</string>
+    <string name="cheats_download_success">チートデータベースの取得に成功しました！ %1 件のコードが見つかりました。</string>
+    <string name="auto_optimization_wizard_description">CPU、GPU、RAM を分析し、お使いの端末に最適な設定を自動構成します</string>
+    <string name="downloading_cheats">チートデータベースをダウンロード中…</string>
+    <string name="deselect_all">すべての選択を解除</string>
+    <string name="amiibo_database_title">オンライン Amiibo データベース</string>
+    <string name="translator_title">STORM 翻訳</string>
+    <string name="select_all">すべて選択</string>
+    <string name="cheats_description">Atmosphere チートコードの管理、有効化、オンラインデータベースの取得</string>
+    <string name="smart_shader_throttle">スマート背景シェーダー制御</string>
+    <string name="auto_optimization_device_info">端末ハードウェア情報</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="optimization_features">最適化と冷却</string>
+    <string name="cpu_affinity_pinning">CPU アフィニティ固定</string>
+    <string name="eco_frame_pacing">Eco フレームペーシング</string>
+    <string name="smart_shader_throttle_description">シェーダーのコンパイルを高効率コアに動的に分散し、スタッターや発熱を防ぎます。</string>
+    <string name="vram_garbage_collection_description">不要なテクスチャメモリを定期的に解放し、Android LMK による強制終了を防ぎます。</string>
+    <string name="translator_enable_floating_button">フローティングボタンを表示</string>
+    <string name="cheat_code">Atmosphere コード</string>
+    <string name="auto_optimization_mode_normal_desc">画質・滑らかさ・安定性の理想的なバランス。1X (720p/1080p)、FSR 85%、FXAA、標準バリア。</string>
+    <string name="download_cheats">オンラインチートを取得</string>
+    <string name="auto_optimization_mode_accurate_desc">最高の描画品質、1.5X/1X 解像度、安全 DMA、厳密 GPU バリア、SMAA、16x 異方性フィルタリング。</string>
+    <string name="auto_optimization_mode_normal">⚖️ 標準（推奨）</string>
+    <string name="auto_optimization_apply">モードを適用</string>
+    <string name="cheats_not_found">このゲームのチートが見つかりません。独自コードを追加できます。</string>
+    <string name="vram_garbage_collection">VRAM ガベージコレクション</string>
+    <string name="vram_usage_mode_conservative">控えめ（低メモリ）</string>
+    <string name="vram_usage_mode_normal">標準（推奨）</string>
+    <string name="cpu_affinity_pinning_description">重要な JIT / GPU スレッドを高性能コアに割り当て、補助タスクを高効率コアに分散します。</string>
+    <string name="cheats_manager_title">チートマネージャー</string>
+    <string name="amiibo_database_description">仮想 Amiibo をブラウズ・生成し、ゲームへすばやくロードします</string>
+    <string name="auto_optimization_mode_accurate">💎 高画質 / 正確</string>
+    <string name="add_cheat">チートを追加</string>
+    <string name="translator_translate_screen">画面リアルタイム翻訳 (OCR + 音声読み上げ)</string>
+    <string name="overlay_skin_theme_description">仮想ボタンとジョイスティックのカラーと質感を変更します</string>
+    <string name="app_language_description">アプリのインターフェース言語を変更</string>
+    <string name="cheat_status_active">⚡ ゲーム内適用中</string>
+    <string name="translator_disable_floating_button">フローティングボタンを非表示</string>
+    <string name="app_language">アプリ言語</string>
+    <string name="overlay_skin_theme">タッチコントローラーのスキン</string>
+    <string name="eco_frame_pacing_description">フレーム表示待機中の無駄な CPU スピンサイクルを排除し、安定した 60 FPS で発熱を大幅に抑えます。</string>
+    <string name="auto_optimization_applied_toast">⚡ 自動設定を適用しました：「%1」プロファイル！</string>
+    <string name="dma_accuracy_normal">標準（推奨）</string>
+    <string name="cheat_name">チート名</string>
+    <string name="auto_optimization_wizard_title">自動最適化</string>
+    <string name="cheat_status_enabled">✅ 有効</string>
+    <string name="auto_optimization_summary_title">適用された設定</string>
+    <string name="vulkan_pipeline_cache_description">パイプラインキャッシュをストレージに保存し、ゲーム内のスタッターを解消します。</string>
+    <string name="dma_accuracy_high">高</string>
+    <string name="eco_thermal_mode_description">過熱やサーマルスロットリングを防ぐためピーククロックを制御します。</string>
+    <string name="app_language_system">システムデフォルト</string>
+    <string name="cheats">チートコード</string>
+    <string name="auto_optimization_mode_fast">⚡ 高速 / Eco</string>
+    <string name="vulkan_pipeline_cache">Vulkan パイプラインキャッシュ</string>
+    <string name="cheats_count_summary">チート合計: %1 | 有効: %2</string>
+    <string name="dma_accuracy_safe">安全（最高互換性）</string>
+    <string name="eco_thermal_mode">Eco / サーマル制御</string>
+</resources>

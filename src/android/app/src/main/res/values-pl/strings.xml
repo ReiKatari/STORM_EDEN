@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">To oprogramowanie uruchamia gry na konsoli Nintendo Switch. Żadne tytuły gier ani klucze nie są dołączone.<br /><br />Zanim zaczniesz, zlokalizuj plik <![CDATA[<b> prod.keys </b>]]> na swoim urządzeniu.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Więcej informacji</a>]]></string>
@@ -998,4 +998,60 @@
     <!-- Licenses screen strings -->
     <string name="licenses">Licencje</string>
     <string name="license_fidelityfx_fsr_description">Rozciąganie wysokiej jakości od AMD</string>
-    </resources>
+    <string name="add_cheat">Dodaj cheat</string>
+    <string name="auto_optimization_apply">Zastosuj tryb</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normalny (Zalecane)</string>
+    <string name="downloading_cheats">Pobieranie bazy cheatów…</string>
+    <string name="auto_optimization_mode_normal_desc">Idealna równowaga grafiki, płynności i stabilności. 1X (720p/1080p), FSR 85%, FXAA, zbalansowane bariery.</string>
+    <string name="auto_optimization_mode_accurate">💎 Dokładny</string>
+    <string name="auto_optimization_mode_accurate_desc">Najwyższa jakość grafiki, rozdzielczość 1.5X/1X, bezpieczny DMA, SMAA, Anizotropia 16x.</string>
+    <string name="dma_accuracy_high">Wysoka</string>
+    <string name="vram_usage_mode_aggressive">Agresywny (Maks. wydajność)</string>
+    <string name="auto_optimization_mode_fast_desc">Maksymalny FPS, najniższa temperatura i oszczędność baterii. Rozdzielczość 0.75X, VRAM oszczędny, NCE.</string>
+    <string name="auto_optimization_mode_fast">⚡ Szybki</string>
+    <string name="cheat_status_active">⚡ Aktywny w grze</string>
+    <string name="translator_enable_floating_button">Pokaż pływający przycisk</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="eco_frame_pacing_description">Eliminuje bezczynne cykle procesora podczas wyświetlania klatek, obniżając temperaturę przy 60 FPS.</string>
+    <string name="vram_usage_mode_normal">Normalny (Zalecane)</string>
+    <string name="auto_optimization_wizard_title">Automatyczna konfiguracja</string>
+    <string name="download_cheats">Pobierz cheaty online</string>
+    <string name="cpu_affinity_pinning">Przypisanie rdzeni procesora</string>
+    <string name="cheats_download_success">Baza cheatów pobrana pomyślnie! Znaleziono %1$d kodów.</string>
+    <string name="search_amiibo_hint">Szukaj po nazwie, postaci lub ID...</string>
+    <string name="overlay_skin_theme">Motyw przycisków dotykowych</string>
+    <string name="cpu_affinity_pinning_description">Przypisuje wątki JIT i GPU do rdzeni wydajnych, a zadania pomocnicze do rdzeni energooszczędnych.</string>
+    <string name="eco_thermal_mode_description">Kontroluje zegary szczytowe, zapobiegając przegrzaniu i dławieniu termicznemu.</string>
+    <string name="auto_optimization_device_info">Informacje o sprzęcie</string>
+    <string name="translator_title">TŁUMACZ STORM</string>
+    <string name="translator_translate_screen">Tłumacz ekran (OCR + TTS)</string>
+    <string name="amiibo_database_title">Baza Amiibo online</string>
+    <string name="optimization_features">Optymalizacja i chłodzenie</string>
+    <string name="cheat_code">Kod Atmosphere</string>
+    <string name="cheat_status_disabled">⚪ Wyłączony</string>
+    <string name="amiibo_database_description">Przeglądaj, twórz i wstrzykuj wirtualne figurki Amiibo do gier</string>
+    <string name="cheats_not_found">Nie znaleziono cheatów dla tej gry. Możesz dodać własne.</string>
+    <string name="overlay_skin_theme_description">Wybierz schemat kolorów dla wirtualnych przycisków i gałek</string>
+    <string name="cheats_count_summary">Wszystkie cheaty: %1$d | Włączone: %2$d</string>
+    <string name="auto_optimization_applied_toast">⚡ Zastosowano automatyczną konfigurację: profil «%1$s»!</string>
+    <string name="eco_thermal_mode">Tryb Eco i termiczny</string>
+    <string name="dma_accuracy_normal">Normalna (Zalecane)</string>
+    <string name="cheats_manager_title">Menedżer cheatów</string>
+    <string name="auto_optimization_wizard_description">Analizuje CPU, GPU i RAM, aby automatycznie zastosować idealne ustawienia dla urządzenia</string>
+    <string name="eco_frame_pacing">Pacing klatek Eco</string>
+    <string name="cheat_name">Nazwa cheata</string>
+    <string name="vram_garbage_collection_description">Okresowo zwalnia nieużywaną pamięć tekstur, zapobiegając zacięciom i zamykaniu przez Android LMK.</string>
+    <string name="vulkan_pipeline_cache_description">Zapisuje pamięć potoków na dysku, eliminując przycięcia podczas gry.</string>
+    <string name="translator_disable_floating_button">Ukryj pływający przycisk</string>
+    <string name="cheat_status_enabled">✅ Włączony</string>
+    <string name="deselect_all">Odznacz wszystko</string>
+    <string name="smart_shader_throttle_description">Dynamicznie rozkłada kompilację shaderów na rdzenie energooszczędne, zapobiegając zacięciom.</string>
+    <string name="cheats">Kody cheatów</string>
+    <string name="vram_garbage_collection">Czyszczenie pamięci VRAM</string>
+    <string name="vram_usage_mode_conservative">Oszczędny (Mniej pamięci)</string>
+    <string name="cheats_description">Zarządzaj kodami Atmosphere, włączaj kody i pobieraj bazę online</string>
+    <string name="auto_optimization_summary_title">Zastosowane ustawienia</string>
+    <string name="smart_shader_throttle">Inteligentna kontrola shaderów w tle</string>
+    <string name="select_all">Zaznacz wszystko</string>
+    <string name="vulkan_pipeline_cache">Pamięć podręczna potoków Vulkan</string>
+</resources>

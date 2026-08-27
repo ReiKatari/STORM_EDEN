@@ -8,6 +8,8 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <set>
+#include <sstream>
 
 #include "common/fs/file.h"
 #include "common/fs/fs.h"
@@ -517,17 +519,76 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
     const auto build_id_str = Common::HexToString(build_id_, true);
     const auto build_id_16 = (build_id_str.size() >= 16) ? build_id_str.substr(0, 16) : build_id_str;
 
+    const auto load_base_path = Common::FS::GetEdenPath(Common::FS::EdenPath::LoadDir) / title_str / "cheats";
+    const auto sdmc_base_path = Common::FS::GetEdenPath(Common::FS::EdenPath::SDMCDir);
+    const auto atmo_cheats_dir = sdmc_base_path / "atmosphere" / "contents" / title_str / "cheats";
+    const auto atmo_cheats_lower_dir = sdmc_base_path / "atmosphere" / "contents" / Common::ToLower(title_str) / "cheats";
+
     std::vector<std::filesystem::path> cheat_files_to_check;
-    cheat_files_to_check.push_back(title_cheats_dir / (build_id_16 + ".txt"));
-    cheat_files_to_check.push_back(title_cheats_dir / (Common::ToLower(build_id_16) + ".txt"));
-    cheat_files_to_check.push_back(title_cheats_dir / (build_id_str + ".txt"));
-    cheat_files_to_check.push_back(title_cheats_dir / (Common::ToLower(build_id_str) + ".txt"));
-    cheat_files_to_check.push_back(title_cheats_dir / "cheats.txt");
-    cheat_files_to_check.push_back(cheats_base_path / (title_str + ".txt"));
+    std::set<std::string> enabled_from_file;
+    bool has_enabled_file = false;
+
+    auto CheckDirForCheats = [&](const std::filesystem::path& dir_path) {
+        std::error_code ec;
+        if (!std::filesystem::is_directory(dir_path, ec)) {
+            return;
+        }
+        const auto epath = dir_path / "enabled_cheats.txt";
+        if (std::filesystem::is_regular_file(epath, ec)) {
+            Common::FS::IOFile efile(epath, Common::FS::FileAccessMode::Read, Common::FS::FileType::TextFile);
+            if (efile.IsOpen()) {
+                std::vector<u8> edata(efile.GetSize());
+                if (efile.Read(edata) == edata.size()) {
+                    std::istringstream iss{std::string(reinterpret_cast<const char*>(edata.data()), edata.size())};
+                    std::string line;
+                    while (std::getline(iss, line)) {
+                        while (!line.empty() && (line.back() == '\r' || line.back() == '\n' || line.back() == ' ')) {
+                            line.pop_back();
+                        }
+                        while (!line.empty() && (line.front() == ' ' || line.front() == '\t')) {
+                            line.erase(line.begin());
+                        }
+                        if (!line.empty()) {
+                            enabled_from_file.insert(line);
+                            has_enabled_file = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        cheat_files_to_check.push_back(dir_path / (build_id_16 + ".txt"));
+        cheat_files_to_check.push_back(dir_path / (Common::ToLower(build_id_16) + ".txt"));
+        cheat_files_to_check.push_back(dir_path / (build_id_str + ".txt"));
+        cheat_files_to_check.push_back(dir_path / (Common::ToLower(build_id_str) + ".txt"));
+        cheat_files_to_check.push_back(dir_path / "cheats.txt");
+    };
+
+    CheckDirForCheats(title_cheats_dir);
+    CheckDirForCheats(load_base_path);
+    CheckDirForCheats(atmo_cheats_dir);
+    CheckDirForCheats(atmo_cheats_lower_dir);
+    if (std::filesystem::exists(cheats_base_path / (title_str + ".txt"))) {
+        cheat_files_to_check.push_back(cheats_base_path / (title_str + ".txt"));
+    }
 
     const bool has_explicit_enabled_tags = std::any_of(disabled.cbegin(), disabled.cend(), [](const std::string& s) {
         return s.starts_with("__ENABLED__:");
     });
+
+    auto MatchEnabled = [&](const std::string& name) -> bool {
+        const std::string lower_name = Common::ToLower(name);
+        for (const auto& ef : enabled_from_file) {
+            std::string lower_ef = Common::ToLower(ef);
+            if (lower_ef.starts_with('[') && lower_ef.ends_with(']')) {
+                lower_ef = lower_ef.substr(1, lower_ef.size() - 2);
+            }
+            if (lower_name == lower_ef || lower_ef.find(lower_name) != std::string::npos || lower_name.find(lower_ef) != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
+    };
 
     for (const auto& c_path : cheat_files_to_check) {
         if (std::filesystem::exists(c_path)) {
@@ -542,10 +603,14 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
                         if (cheat_name.empty()) continue;
 
                         bool is_active = false;
-                        if (has_explicit_enabled_tags) {
+                        if (has_enabled_file) {
+                            is_active = MatchEnabled(cheat_name) ||
+                                        (has_explicit_enabled_tags && std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend());
+                        } else if (has_explicit_enabled_tags) {
                             is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
                         } else {
-                            is_active = false;
+                            // If no enabled_cheats.txt filter exists, activate parsed cheats by default
+                            is_active = true;
                         }
 
                         if (is_active) {

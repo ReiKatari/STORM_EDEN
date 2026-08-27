@@ -9,6 +9,7 @@
     <string name="app_notification_running">STORM EDEN работает</string>
     <string name="seconds">Секунды</string>
     <string name="copy_to_clipboard">Скопировать</string>
+    <string name="view_logs">Журнал работы (Логи)</string>
 
     <!-- Spinbox strings -->
     <string name="increment">Прирост</string>
@@ -431,6 +432,8 @@
     <string name="slow_speed_limit">Замедленный режим</string>
     <string name="slow_speed_limit_description">Когда замедленный режим включён, эмуляция будет работать на этой скорости.</string>
     <string name="cpu_backend">Бэкэнд ЦП</string>
+    <string name="cpu_backend_nce">NCE (Нативное исполнение — Рекомендуется)</string>
+    <string name="cpu_backend_dynarmic">Dynarmic (JIT-трансляция)</string>
     <string name="cpu_accuracy">Точность ЦП</string>
     <string name="value_with_units">%1$s%2$s</string>
 
@@ -450,8 +453,9 @@
     <string name="set_custom_rtc">Установить пользовательский RTC</string>
 
     <!-- CPU -->
+    <string name="clocks">Тактовые частоты</string>
     <string name="fast_cpu_time">Разгон ЦП</string>
-    <string name="fast_cpu_time_description">Принудительно повышает тактовую частоту эмулируемого ЦП, снижая влияние некоторых ограничителей FPS. Используйте Разгон (1700 МГц) для работы на максимальной штатной частоте Switch или Быстрая (2000 МГц) для удвоенной частоты.</string>
+    <string name="fast_cpu_time_description">Принудительно повышает тактовую частоту эмулируемого ЦП, снижая влияние некоторых ограничителей FPS. Используйте Разгон (1 700 МГц) для работы на максимальной штатной частоте Switch или Быстрая (2 000 МГц) для удвоенной частоты.</string>
     <string name="custom_cpu_ticks">Пользовательские такты ЦП</string>
     <string name="custom_cpu_ticks_description">Установите пользовательское значение тактов ЦП. Более высокие значения могут увеличить производительность, но также могут вызвать зависание игры. Рекомендуется диапазон 77–21000.</string>
     <string name="cpu_ticks">Такты</string>
@@ -486,10 +490,16 @@
     <string name="gpu_fence_behavior_description">Управляет поведением синхронизации через барьеры ГПУ. Мгновенный — самый быстрый вариант, но может вызывать некоторые проблемы. Сбалансированный обеспечивает лучшую совместимость и может исправлять проблемы в некоторых играх. Точный ещё больше повышает совместимость ценой некоторого снижения производительности. Строгий — самый медленный вариант, но может исправлять проблемы, требующие более строгой синхронизации. По умолчанию соответствует настройке точности ГПУ.</string>
     <string name="anisotropic_filtering">Анизотропная фильтрация</string>
     <string name="anisotropic_filtering_description">Улучшает качество текстур под углом</string>
-    <string name="vram_usage_mode">Режим VRAM</string>
+    <string name="vram_usage_mode">Режим использования VRAM</string>
     <string name="vram_usage_mode_description">Стратегия управления видеопамятью</string>
     <string name="accelerate_astc">Метод декодирования ASTC</string>
     <string name="accelerate_astc_description">Выберите способ декодирования сжатых текстур ASTC для рендеринга: ЦП (медленно, безопасно), ГПУ (быстро, рекомендуется) или ЦП асинхронно (без заиканий, могут возникнуть проблемы)</string>
+    <string name="astc_recompression">Пересжатие текстур ASTC</string>
+    <string name="astc_recompression_description">Сжимает текстуры ASTC в BC1/BC3/BC5 на лету, снижая потребление оперативной и видеопамяти (RAM/VRAM) на 50–80%.</string>
+    <string name="astc_recompression_uncompressed">Без сжатия (Максимальное качество / Много ОЗУ)</string>
+    <string name="astc_recompression_bc1">BC1 (Низкое качество / Максимальная экономия ОЗУ)</string>
+    <string name="astc_recompression_bc3">BC3 (Среднее качество / Экономия 50% ОЗУ)</string>
+    <string name="astc_recompression_bc5">BC5 (Высокое качество карт нормалей)</string>
 
     <string name="sync_memory_operations">Синхронизация операций с памятью</string>
     <string name="sync_memory_operations_description">Обеспечивает согласованность данных между вычислительными операциями и операциями с памятью. Эта опция должна исправлять проблемы в некоторых играх, но может снижать производительность в некоторых случаях. Наиболее сильно это затрагивает игры на Unreal Engine 4.</string>
@@ -719,6 +729,10 @@
     <string name="select_gpu_driver_error">Выбран неподходящий драйвер</string>
     <string name="driver_already_installed">Драйвер уже установлен</string>
     <string name="installed_label">%1$s (Установлено)</string>
+    <string name="in_use_label">%1$s (Используется)</string>
+    <string name="apply_driver_now">Применить драйвер</string>
+    <string name="apply_driver_confirm">Сделать \"%1$s\" используемым драйвером ГПУ?</string>
+    <string name="active_driver">Используемый драйвер</string>
     <string name="system_gpu_driver">Системный драйвер ГПУ</string>
     <string name="installing_driver">Установка драйвера...</string>
 
@@ -960,10 +974,12 @@
     <string name="memory_8gb">8 ГБ (Небезопасно)</string>
 
     <!--CPU clock speeds-->
-    <string name="clock_boost">Разгон (1700MHz)</string>
-    <string name="clock_fast">Быстрая (2000MHz)</string>
+    <string name="clock_normal">Штатная</string>
+    <string name="clock_boost">Разгон (1 700 МГц)</string>
+    <string name="clock_fast">Быстрая (2 000 МГц)</string>
 
     <!-- GPU overclock factors -->
+    <string name="fast_gpu_normal">Штатная</string>
     <string name="fast_gpu_medium">Среднее (256)</string>
     <string name="fast_gpu_high">Высокое (512)</string>
 
@@ -1009,6 +1025,8 @@
 
     <!-- DMA Accuracy -->
     <string name="dma_accuracy_default">По умолчанию</string>
+    <string name="dma_accuracy_normal">Нормально</string>
+    <string name="dma_accuracy_high">Высокая</string>
     <string name="dma_accuracy_unsafe">Небезопасно</string>
     <string name="dma_accuracy_safe">Безопасный</string>
 
@@ -1019,8 +1037,12 @@
     <string name="gpu_fence_behavior_accurate">Точный</string>
     <string name="gpu_fence_behavior_strict">Строгий</string>
 
-    <string name="vram_usage_conservative">Консервативный</string>
+    <string name="vram_usage_conservative">Экономный</string>
+    <string name="vram_usage_normal">Нормальный</string>
     <string name="vram_usage_aggressive">Агрессивный</string>
+    <string name="vram_usage_mode_conservative">Экономный</string>
+    <string name="vram_usage_mode_normal">Нормальный</string>
+    <string name="vram_usage_mode_aggressive">Агрессивный</string>
 
     <!-- Renderer VSync -->
     <string name="renderer_vsync_immediate">Моментальная (выключена) </string>
@@ -1250,6 +1272,8 @@
     <!-- Auto-Translator (OCR + TTS) -->
     <string name="translator_title">STORM TRANSLATOR</string>
     <string name="translator_translate_screen">Перевести экран (OCR + Озвучка)</string>
+    <string name="translator_enable_floating_button">Включить кнопку перевода</string>
+    <string name="translator_disable_floating_button">Отключить кнопку перевода</string>
     <string name="translator_engine">Движок перевода</string>
     <string name="translator_source_lang">Исходный язык</string>
     <string name="translator_target_lang">Язык перевода</string>
@@ -1287,11 +1311,11 @@
     <string name="cheats">Чит-коды</string>
     <string name="cheats_description">Управление чит-кодами Atmosphere, включение/отключение читов, скачивание онлайн-базы</string>
     <string name="cheats_manager_title">Менеджер чит-кодов</string>
-    <string name="download_cheats">📥 Скачать базу читов</string>
+    <string name="download_cheats">Скачать базу читов</string>
     <string name="downloading_cheats">Загрузка онлайн-базы чит-кодов…</string>
     <string name="cheats_download_success">База читов успешно загружена! Найдено читов: %1$d</string>
     <string name="cheats_not_found">Для данной игры в онлайн-базе пока нет чит-кодов. Вы можете добавить чит вручную.</string>
-    <string name="add_cheat">➕ Добавить чит</string>
+    <string name="add_cheat">Добавить чит</string>
     <string name="cheat_name">Название чита</string>
     <string name="cheat_code">Код чита (Atmosphere)</string>
     <string name="cheat_status_active">⚡ Активен в игре</string>
@@ -1303,13 +1327,42 @@
 
     <!-- Оптимизация, нагрев и плавность -->
     <string name="optimization_features">Оптимизация и охлаждение</string>
-    <string name="eco_thermal_mode">Режим «Eco / Thermal Governor»</string>
+    <string name="eco_thermal_mode">Эко-режим и охлаждение</string>
     <string name="eco_thermal_mode_description">Контроль пиковых частот, адаптивное управление ресурсами и предотвращение перегрева и термального троттлинга устройства.</string>
-    <string name="cpu_affinity_pinning">CPU Affinity Pinning</string>
+    <string name="eco_frame_pacing">Энергоэффективный фреймпейсинг</string>
+    <string name="eco_frame_pacing_description">Устраняет холостую загрузку ядер ЦП в циклах ожидания кадра и снижает нагрев устройства при стабильных 60 FPS.</string>
+    <string name="smart_shader_throttle">Адаптивный контроль фоновой компиляции</string>
+    <string name="smart_shader_throttle_description">Перенаправляет компиляцию шейдеров в фоне на энергоэффективные ядра во время активной игры, предотвращая троттлинг и нагрев.</string>
+    <string name="cpu_affinity_pinning">Привязка потоков ЦП</string>
     <string name="cpu_affinity_pinning_description">Жесткая привязка критических потоков JIT и GPU к производительным ядрам Cortex-X/A7xx, а вспомогательных задач — к энергоэффективным ядрам.</string>
-    <string name="vulkan_pipeline_cache">Vulkan Pipeline Cache</string>
+    <string name="vulkan_pipeline_cache">Кэш конвейеров Vulkan</string>
     <string name="vulkan_pipeline_cache_description">Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров.</string>
-    <string name="vram_garbage_collection">VRAM Garbage Collection</string>
+    <string name="vram_garbage_collection">Сборщик мусора видеопамяти</string>
     <string name="vram_garbage_collection_description">Периодическая фоновая очистка неиспользуемых текстурных буферов для предотвращения микрофризов и вылетов от системного LMK Android.</string>
+
+    <!-- Авто-настройка устройства -->
+    <string name="auto_optimization_wizard_title">Авто-настройка</string>
+    <string name="auto_optimization_wizard_description">Анализ процессора, GPU и ОЗУ с автоматической настройкой всех разделов под ваше устройство</string>
+    <string name="auto_optimization_device_info">Характеристики устройства</string>
+    <string name="auto_optimization_mode_fast">⚡ Быстрый</string>
+    <string name="auto_optimization_mode_fast_desc">Максимальный FPS, минимальный нагрев и экономия батареи. 0.75X разрешение, экономный VRAM, быстрые барьеры GPU, NCE.</string>
+    <string name="auto_optimization_mode_normal">⚖️ Нормальный (Рекомендуется)</string>
+    <string name="auto_optimization_mode_normal_desc">Идеальный баланс между великолепной графикой, плавностью и стабильностью. 1X (720p/1080p), FSR 85%, FXAA, сбалансированные барьеры.</string>
+    <string name="auto_optimization_mode_accurate">💎 Точный</string>
+    <string name="auto_optimization_mode_accurate_desc">Максимальное качество графики, разрешение 1.5X/1X, Безопасный DMA, строгие барьеры GPU, SMAA, анизотропия 16x.</string>
+    <string name="auto_optimization_apply">Применить режим</string>
+    <string name="auto_optimization_applied_toast">⚡ Авто-настройка успешно применена: профиль «%1$s»!</string>
+    <string name="auto_optimization_summary_title">Примененные настройки</string>
+    <string name="auto_optimization_mode_default">🔄 По умолчанию (Сброс)</string>
+    <string name="auto_optimization_mode_default_desc">Отключить авто-настройку и вернуть все параметры эмулятора к стандартным значениям по умолчанию.</string>
+    <string name="auto_optimization_reset_defaults">Сбросить по умолчанию</string>
+    <string name="auto_optimization_defaults_restored_toast">🔄 Стандартные настройки по умолчанию успешно восстановлены!</string>
+    <string name="show_device_load_overlay">Показывать оверлей нагрузки на устройство</string>
+    <string name="show_device_load_overlay_description">Отображает в реальном времени нагрузку на ЦП, ГПУ, ОЗУ и 5-уровневый индикатор температуры устройства.</string>
+    <string name="game_fix_issues_header">⚠️ Известные проблемы и сбои игры</string>
+    <string name="game_fix_recommended_header">⚡ Рекомендуемые настройки STORM EDEN</string>
+    <string name="game_fix_dont_ask_again">Больше не спрашивать для этой игры</string>
+    <string name="game_fix_apply_and_launch">⚡ Применить исправления и запустить</string>
+    <string name="game_fix_skip_and_launch">Запустить без изменений</string>
 </resources>
 

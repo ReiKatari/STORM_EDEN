@@ -74,8 +74,8 @@ public:
 private:
     void FrameCallback(std::chrono::nanoseconds ns_late);
 
+    CheatProcessMetadata metadata{};
     DmntCheatVm vm;
-    CheatProcessMetadata metadata;
 
     std::vector<CheatEntry> cheats;
     std::atomic_bool is_pending_reload{false};

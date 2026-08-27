@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Este software arrancará juegos para la consola Nintendo Switch. No se incluyen títulos ni claves de juego.<br /><br />Antes de continuar, por favor localiza tu archivo <![CDATA[prod.keys ]]> en el almacenamiento de tu dispositivo. <br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Aprender más</a>]]>&lt;b&gt;</string>
@@ -1171,4 +1171,60 @@
     <string name="add_folders">Añadir carpeta</string>
     <string name="percent">%1$d%%</string>
 
+    <string name="vram_usage_mode_aggressive">Agresivo (Rendimiento máximo)</string>
+    <string name="auto_optimization_mode_fast_desc">Máximo FPS, menor temperatura y ahorro de batería. Resolución 0.75X, VRAM conservador, barreras GPU rápidas, NCE.</string>
+    <string name="cheat_status_disabled">⚪ Desactivado</string>
+    <string name="search_amiibo_hint">Buscar por nombre, personaje o ID...</string>
+    <string name="cheats_download_success">¡Base de datos descargada con éxito! Se encontraron %1 trucos.</string>
+    <string name="auto_optimization_wizard_description">Analiza CPU, GPU y RAM para configurar automáticamente los mejores ajustes para tu dispositivo</string>
+    <string name="downloading_cheats">Descargando base de datos de trucos…</string>
+    <string name="deselect_all">Deseleccionar todo</string>
+    <string name="amiibo_database_title">Base de datos Amiibo en línea</string>
+    <string name="translator_title">TRADUCTOR STORM</string>
+    <string name="select_all">Seleccionar todo</string>
+    <string name="cheats_description">Administrar códigos de trucos Atmosphere, activar trucos y descargar base de datos</string>
+    <string name="smart_shader_throttle">Control inteligente de sombreadores en segundo plano</string>
+    <string name="auto_optimization_device_info">Información del hardware</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="optimization_features">Optimización y refrigeración</string>
+    <string name="cpu_affinity_pinning">Asignación de núcleos de CPU</string>
+    <string name="eco_frame_pacing">Sincronización de fotogramas Eco</string>
+    <string name="smart_shader_throttle_description">Equilibra dinámicamente la compilación de sombreadores en núcleos eficientes para evitar tirones y sobrecalentamiento.</string>
+    <string name="vram_garbage_collection_description">Limpia periódicamente la memoria de texturas no utilizada para evitar tirones y cierres por LMK de Android.</string>
+    <string name="translator_enable_floating_button">Mostrar botón flotante</string>
+    <string name="cheat_code">Código de truco Atmosphere</string>
+    <string name="auto_optimization_mode_normal_desc">Equilibrio ideal de calidad visual, fluidez y estabilidad. 1X (720p/1080p), FSR 85%, FXAA, barreras equilibradas.</string>
+    <string name="download_cheats">Descargar trucos en línea</string>
+    <string name="auto_optimization_mode_accurate_desc">Máxima calidad gráfica, resolución 1.5X/1X, DMA seguro, barreras GPU estrictas, SMAA, anisotrópico 16x.</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normal (Recomendado)</string>
+    <string name="auto_optimization_apply">Aplicar modo</string>
+    <string name="cheats_not_found">No se encontraron trucos para este juego. Puedes agregar tus propios códigos.</string>
+    <string name="vram_garbage_collection">Recolección de basura de VRAM</string>
+    <string name="vram_usage_mode_conservative">Conservador (Baja memoria)</string>
+    <string name="vram_usage_mode_normal">Normal (Recomendado)</string>
+    <string name="cpu_affinity_pinning_description">Asigna subprocesos críticos de JIT y GPU a núcleos de alto rendimiento y tareas secundarias a núcleos eficientes.</string>
+    <string name="cheats_manager_title">Administrador de trucos</string>
+    <string name="amiibo_database_description">Explora, genera e inyecta Amiibos virtuales en los juegos</string>
+    <string name="auto_optimization_mode_accurate">💎 Preciso</string>
+    <string name="add_cheat">Agregar truco</string>
+    <string name="translator_translate_screen">Traducir pantalla (OCR + TTS)</string>
+    <string name="overlay_skin_theme_description">Elige el diseño y los colores de los botones táctiles y joysticks virtuales</string>
+    <string name="cheat_status_active">⚡ Activo en el juego</string>
+    <string name="translator_disable_floating_button">Ocultar botón flotante</string>
+    <string name="overlay_skin_theme">Tema de controles táctiles</string>
+    <string name="eco_frame_pacing_description">Elimina ciclos de CPU ociosos durante los intervalos de presentación de fotogramas, reduciendo la temperatura a 60 FPS estables.</string>
+    <string name="auto_optimization_applied_toast">⚡ Configuración automática aplicada: ¡perfil «%1»!</string>
+    <string name="dma_accuracy_normal">Normal (Recomendado)</string>
+    <string name="cheat_name">Nombre del truco</string>
+    <string name="auto_optimization_wizard_title">Configuración automática</string>
+    <string name="cheat_status_enabled">✅ Activado</string>
+    <string name="auto_optimization_summary_title">Ajustes aplicados</string>
+    <string name="vulkan_pipeline_cache_description">Guarda la caché de canalizaciones en el almacenamiento para eliminar los tirones en el juego.</string>
+    <string name="dma_accuracy_high">Alto</string>
+    <string name="eco_thermal_mode_description">Control de frecuencias máximas y prevención de sobrecalentamiento y estrangulamiento térmico.</string>
+    <string name="cheats">Códigos de trucos</string>
+    <string name="auto_optimization_mode_fast">⚡ Rápido</string>
+    <string name="vulkan_pipeline_cache">Caché de canalizaciones Vulkan</string>
+    <string name="cheats_count_summary">Total de trucos: %1 | Activados: %2</string>
+    <string name="eco_thermal_mode">Modo Eco y refrigeración</string>
 </resources>

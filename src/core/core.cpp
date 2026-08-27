@@ -342,14 +342,14 @@ struct System::Impl {
         // Waiting for GPU before initializing CPU
         cpu_manager.Initialize();
 
-        // Initialize cheat engine
-        if (cheat_engine) {
-            cheat_engine->Initialize();
-        }
-
         // Register with applet manager
         // All threads are started, begin main process execution, now that we're in the clear
         applet_manager.CreateAndInsertByFrontendAppletParameters(std::move(process), params);
+
+        // Initialize cheat engine after process is valid and registered
+        if (cheat_engine) {
+            cheat_engine->Initialize();
+        }
 
         if (Settings::values.gamecard_inserted) {
             if (Settings::values.gamecard_current_game) {
@@ -510,6 +510,8 @@ struct System::Impl {
     bool exit_locked : 1 = false;
     bool exit_requested : 1 = false;
     bool nvdec_active : 1 = false;
+    u64 main_nso_begin{};
+    u64 main_nso_size{};
 
     void EnsureGeneralChannelInitialized(System& system) {
         if (!general_channel_event) {
@@ -760,14 +762,52 @@ FileSys::VirtualFilesystem System::GetFilesystem() const {
 void System::RegisterCheatList(const std::vector<Memory::CheatEntry>& list,
                                const std::array<u8, 32>& build_id, u64 main_region_begin,
                                u64 main_region_size) {
-    impl->cheat_engine.emplace(*this, list, build_id);
-    impl->cheat_engine->SetMainMemoryParameters(main_region_begin, main_region_size);
+    if (main_region_begin != 0) {
+        impl->main_nso_begin = main_region_begin;
+        impl->main_nso_size = main_region_size;
+    }
+    const u64 effective_begin = (main_region_begin != 0) ? main_region_begin : impl->main_nso_begin;
+    const u64 effective_size = (main_region_size != 0) ? main_region_size : impl->main_nso_size;
+
+    if (impl->cheat_engine) {
+        if (effective_begin != 0) {
+            impl->cheat_engine->SetMainMemoryParameters(effective_begin, effective_size);
+        }
+        impl->cheat_engine->Reload(list);
+    } else {
+        impl->cheat_engine.emplace(*this, list, build_id);
+        if (effective_begin != 0) {
+            impl->cheat_engine->SetMainMemoryParameters(effective_begin, effective_size);
+        }
+        if (IsPoweredOn() && impl->kernel.ApplicationProcess()) {
+            impl->cheat_engine->Initialize();
+        }
+    }
 }
 
 void System::ReloadCheatList(const std::vector<Memory::CheatEntry>& list) {
     if (impl->cheat_engine) {
+        if (impl->main_nso_begin != 0) {
+            impl->cheat_engine->SetMainMemoryParameters(impl->main_nso_begin, impl->main_nso_size);
+        }
         impl->cheat_engine->Reload(list);
     }
+}
+
+void System::SetMainNsoParameters(u64 main_region_begin, u64 main_region_size) {
+    impl->main_nso_begin = main_region_begin;
+    impl->main_nso_size = main_region_size;
+    if (impl->cheat_engine && main_region_begin != 0) {
+        impl->cheat_engine->SetMainMemoryParameters(main_region_begin, main_region_size);
+    }
+}
+
+u64 System::GetMainNsoBase() const {
+    return impl->main_nso_begin;
+}
+
+u64 System::GetMainNsoSize() const {
+    return impl->main_nso_size;
 }
 
 bool System::HasCheatEngine() const {

@@ -180,6 +180,11 @@ object NativeLibrary {
     external fun unpauseEmulation()
 
     /**
+     * Reloads active cheats in real-time during emulation.
+     */
+    external fun reloadCheats()
+
+    /**
      * Pauses emulation.
      */
     external fun pauseEmulation()

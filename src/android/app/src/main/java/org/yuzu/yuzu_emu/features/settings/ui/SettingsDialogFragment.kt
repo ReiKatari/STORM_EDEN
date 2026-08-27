@@ -24,6 +24,7 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import org.yuzu.yuzu_emu.R
+import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.databinding.DialogEditTextBinding
 import org.yuzu.yuzu_emu.databinding.DialogSliderBinding
 import org.yuzu.yuzu_emu.databinding.DialogSpinboxBinding
@@ -383,13 +384,19 @@ class SettingsDialogFragment : DialogFragment(), DialogInterface.OnClickListener
                 scSetting.setSelectedValue(value)
 
                 if (scSetting.setting.key == IntSetting.RENDERER_SCALING_FILTER.key) {
+                    if (value == 6) {
+                        IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
+                    }
                     settingsViewModel.setShouldReloadSettingsList(true)
                 }
 
                 if (scSetting.setting.key == "app_language") {
+                    YuzuApplication.setAppLocale(value)
                     settingsViewModel.setShouldRecreateForLanguageChange(true)
-                    // recreate page apply language change instantly
-                    requireActivity().recreate()
+                    val act = requireActivity()
+                    val intent = act.intent
+                    act.finish()
+                    act.startActivity(intent)
                 }
             }
 

@@ -637,9 +637,10 @@ VkCompareOp ComparisonOp(Maxwell::ComparisonOp comparison) {
     case Maxwell::ComparisonOp::Always_D3D:
     case Maxwell::ComparisonOp::Always_GL:
         return VK_COMPARE_OP_ALWAYS;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell comparison op={}, defaulting to ALWAYS", comparison);
+        return VK_COMPARE_OP_ALWAYS;
     }
-    UNIMPLEMENTED_MSG("Unimplemented comparison op={}", comparison);
-    return {};
 }
 
 VkIndexType IndexFormat(Maxwell::IndexFormat index_format) {
@@ -650,9 +651,10 @@ VkIndexType IndexFormat(Maxwell::IndexFormat index_format) {
         return VK_INDEX_TYPE_UINT16;
     case Maxwell::IndexFormat::UnsignedInt:
         return VK_INDEX_TYPE_UINT32;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell index_format={}, defaulting to UINT16", index_format);
+        return VK_INDEX_TYPE_UINT16;
     }
-    UNIMPLEMENTED_MSG("Unimplemented index_format={}", index_format);
-    return {};
 }
 
 VkStencilOp StencilOp(Maxwell::StencilOp::Op stencil_op) {
@@ -681,9 +683,10 @@ VkStencilOp StencilOp(Maxwell::StencilOp::Op stencil_op) {
     case Maxwell::StencilOp::Op::Decr_D3D:
     case Maxwell::StencilOp::Op::Decr_GL:
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell stencil op={}, defaulting to KEEP", stencil_op);
+        return VK_STENCIL_OP_KEEP;
     }
-    UNIMPLEMENTED_MSG("Unimplemented stencil op={}", stencil_op);
-    return {};
 }
 
 VkBlendOp BlendEquation(Maxwell::Blend::Equation equation) {
@@ -703,9 +706,10 @@ VkBlendOp BlendEquation(Maxwell::Blend::Equation equation) {
     case Maxwell::Blend::Equation::Max_D3D:
     case Maxwell::Blend::Equation::Max_GL:
         return VK_BLEND_OP_MAX;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell blend equation={}, defaulting to ADD", equation);
+        return VK_BLEND_OP_ADD;
     }
-    UNIMPLEMENTED_MSG("Unimplemented blend equation={}", equation);
-    return {};
 }
 
 VkBlendFactor BlendFactor(Maxwell::Blend::Factor factor) {
@@ -767,9 +771,10 @@ VkBlendFactor BlendFactor(Maxwell::Blend::Factor factor) {
     case Maxwell::Blend::Factor::OneMinusBothSourceAlpha_D3D:
     case Maxwell::Blend::Factor::OneMinusConstantAlpha_GL:
         return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell blend factor={}, defaulting to ONE", factor);
+        return VK_BLEND_FACTOR_ONE;
     }
-    UNIMPLEMENTED_MSG("Unimplemented blend factor={}", factor);
-    return {};
 }
 
 VkFrontFace FrontFace(Maxwell::FrontFace front_face) {
@@ -778,9 +783,10 @@ VkFrontFace FrontFace(Maxwell::FrontFace front_face) {
         return VK_FRONT_FACE_CLOCKWISE;
     case Maxwell::FrontFace::CounterClockWise:
         return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell front face={}, defaulting to COUNTER_CLOCKWISE", front_face);
+        return VK_FRONT_FACE_COUNTER_CLOCKWISE;
     }
-    UNIMPLEMENTED_MSG("Unimplemented front face={}", front_face);
-    return {};
 }
 
 VkCullModeFlagBits CullFace(Maxwell::CullFace cull_face) {
@@ -791,9 +797,10 @@ VkCullModeFlagBits CullFace(Maxwell::CullFace cull_face) {
         return VK_CULL_MODE_BACK_BIT;
     case Maxwell::CullFace::FrontAndBack:
         return VK_CULL_MODE_FRONT_AND_BACK;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell cull face={}, defaulting to BACK", cull_face);
+        return VK_CULL_MODE_BACK_BIT;
     }
-    UNIMPLEMENTED_MSG("Unimplemented cull face={}", cull_face);
-    return {};
 }
 
 VkPolygonMode PolygonMode(Maxwell::PolygonMode polygon_mode) {
@@ -804,9 +811,10 @@ VkPolygonMode PolygonMode(Maxwell::PolygonMode polygon_mode) {
         return VK_POLYGON_MODE_LINE;
     case Maxwell::PolygonMode::Fill:
         return VK_POLYGON_MODE_FILL;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell polygon mode={}, defaulting to FILL", polygon_mode);
+        return VK_POLYGON_MODE_FILL;
     }
-    UNIMPLEMENTED_MSG("Unimplemented polygon mode={}", polygon_mode);
-    return {};
 }
 
 VkComponentSwizzle SwizzleSource(Tegra::Texture::SwizzleSource swizzle) {
@@ -824,9 +832,10 @@ VkComponentSwizzle SwizzleSource(Tegra::Texture::SwizzleSource swizzle) {
     case Tegra::Texture::SwizzleSource::OneInt:
     case Tegra::Texture::SwizzleSource::OneFloat:
         return VK_COMPONENT_SWIZZLE_ONE;
+    default:
+        LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell swizzle source={}, defaulting to IDENTITY", swizzle);
+        return VK_COMPONENT_SWIZZLE_IDENTITY;
     }
-    UNIMPLEMENTED_MSG("Unimplemented swizzle source={}", swizzle);
-    return {};
 }
 
 VkViewportCoordinateSwizzleNV ViewportSwizzle(Maxwell::ViewportSwizzle swizzle) {

@@ -12,6 +12,11 @@
         android:checkable="true" />
 
     <item
+        android:id="@+id/menu_show_load_overlay"
+        android:title="@string/show_device_load_overlay"
+        android:checkable="true" />
+
+    <item
         android:id="@+id/menu_edit_overlay"
         android:title="@string/emulation_touch_overlay_edit" />
 

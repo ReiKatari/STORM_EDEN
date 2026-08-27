@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Este programa serve para rodar jogos do Nintendo Switch. Nenhum jogo ou chaves do sistema são inclusos<br /><br />Antes de começar, localize o seu <![CDATA[<b> prod.keys </b>]]> salvo no seu sistema.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Saiba mais</a>]]></string>
@@ -947,4 +947,60 @@
     <!-- Licenses screen strings -->
     <string name="licenses">Licenças</string>
     <string name="license_fidelityfx_fsr_description">Upscaling de alta qualidade da AMD</string>
-    </resources>
+    <string name="vram_usage_mode_aggressive">Agressivo (Desempenho máximo)</string>
+    <string name="auto_optimization_mode_fast_desc">FPS máximo, menor aquecimento e economia de bateria. Resolução 0.75X, VRAM conservadora, barreiras GPU rápidas, NCE.</string>
+    <string name="cheat_status_disabled">⚪ Desativado</string>
+    <string name="search_amiibo_hint">Buscar por nome, personagem ou ID...</string>
+    <string name="cheats_download_success">Banco de dados baixado com sucesso! %1 trapaças encontradas.</string>
+    <string name="auto_optimization_wizard_description">Analisa CPU, GPU e RAM para aplicar automaticamente as melhores configurações para o seu dispositivo</string>
+    <string name="downloading_cheats">Baixando banco de dados de trapaças…</string>
+    <string name="deselect_all">Desmarcar tudo</string>
+    <string name="amiibo_database_title">Banco de dados Amiibo online</string>
+    <string name="translator_title">TRADUTOR STORM</string>
+    <string name="select_all">Selecionar tudo</string>
+    <string name="cheats_description">Gerenciar códigos de trapaça Atmosphere, ativar trapaças e baixar banco de dados</string>
+    <string name="smart_shader_throttle">Controle inteligente de shaders em segundo plano</string>
+    <string name="auto_optimization_device_info">Informações do hardware</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="optimization_features">Otimização e resfriamento</string>
+    <string name="cpu_affinity_pinning">Fixação de núcleos de CPU</string>
+    <string name="eco_frame_pacing">Ritmo de quadros Eco</string>
+    <string name="smart_shader_throttle_description">Equilibra dinamicamente a compilação de shaders em núcleos eficientes para evitar engasgos e calor.</string>
+    <string name="vram_garbage_collection_description">Libera periodicamente memória de texturas não utilizadas para evitar travamentos e fechamentos pelo LMK do Android.</string>
+    <string name="translator_enable_floating_button">Mostrar botão flutuante</string>
+    <string name="cheat_code">Código de trapaça Atmosphere</string>
+    <string name="auto_optimization_mode_normal_desc">Equilíbrio ideal entre fidelidade visual, fluidez e estabilidade. 1X (720p/1080p), FSR 85%, FXAA, barreiras equilibradas.</string>
+    <string name="download_cheats">Baixar trapaças online</string>
+    <string name="auto_optimization_mode_accurate_desc">Qualidade gráfica máxima, resolução 1.5X/1X, DMA seguro, barreiras GPU estritas, SMAA, Anisotropia 16x.</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normal (Recomendado)</string>
+    <string name="auto_optimization_apply">Aplicar modo</string>
+    <string name="cheats_not_found">Nenhuma trapaça encontrada para este jogo. Você pode adicionar seus próprios códigos.</string>
+    <string name="vram_garbage_collection">Coleta de lixo de VRAM</string>
+    <string name="vram_usage_mode_conservative">Conservador (Pouca memória)</string>
+    <string name="vram_usage_mode_normal">Normal (Recomendado)</string>
+    <string name="cpu_affinity_pinning_description">Fixa threads críticas de JIT e GPU nos núcleos de alto desempenho e tarefas auxiliares nos eficientes.</string>
+    <string name="cheats_manager_title">Gerenciador de trapaças</string>
+    <string name="amiibo_database_description">Explore, gere e injete Amiibos virtuais rapidamente nos jogos</string>
+    <string name="auto_optimization_mode_accurate">💎 Preciso</string>
+    <string name="add_cheat">Adicionar trapaça</string>
+    <string name="translator_translate_screen">Traduzir tela (OCR + TTS)</string>
+    <string name="overlay_skin_theme_description">Escolha o esquema de cores e animações para botões e joysticks virtuais</string>
+    <string name="cheat_status_active">⚡ Ativo no jogo</string>
+    <string name="translator_disable_floating_button">Ocultar botão flutuante</string>
+    <string name="overlay_skin_theme">Tema dos controles de toque</string>
+    <string name="eco_frame_pacing_description">Elimina ciclos ociosos de CPU nos intervalos de apresentação, reduzindo a temperatura a 60 FPS estáveis.</string>
+    <string name="auto_optimization_applied_toast">⚡ Configuração automática aplicada: perfil «%1»!</string>
+    <string name="dma_accuracy_normal">Normal (Recomendado)</string>
+    <string name="cheat_name">Nome da trapaça</string>
+    <string name="auto_optimization_wizard_title">Configuração automática</string>
+    <string name="cheat_status_enabled">✅ Ativado</string>
+    <string name="auto_optimization_summary_title">Configurações aplicadas</string>
+    <string name="vulkan_pipeline_cache_description">Salva o cache de pipelines no armazenamento para eliminar travamentos durante o jogo.</string>
+    <string name="dma_accuracy_high">Alto</string>
+    <string name="eco_thermal_mode_description">Controla frequências máximas para evitar superaquecimento e estrangulamento térmico.</string>
+    <string name="cheats">Códigos de trapaça</string>
+    <string name="auto_optimization_mode_fast">⚡ Rápido</string>
+    <string name="vulkan_pipeline_cache">Cache de pipelines Vulkan</string>
+    <string name="cheats_count_summary">Total de trapaças: %1 | Ativadas: %2</string>
+    <string name="eco_thermal_mode">Modo Eco e térmico</string>
+</resources>

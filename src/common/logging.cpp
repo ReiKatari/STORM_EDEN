@@ -247,6 +247,7 @@ struct ColorConsoleBackend final : public Backend {
 /// @brief Backend that writes to a file passed into the constructor
 struct FileBackend final : public Backend {
     explicit FileBackend(const std::filesystem::path& filename) noexcept {
+        enabled = true;
         auto old_filename = filename;
         old_filename += ".old.txt";
         // Existence checks are done within the functions themselves.
@@ -301,6 +302,9 @@ struct FileBackend final : public Backend {
 
     void Flush() noexcept override {
         file->Flush();
+    }
+    void SetEnabled(bool enable) noexcept {
+        enabled = enable;
     }
 private:
     std::optional<FS::IOFile> file;
@@ -414,6 +418,11 @@ void SetGlobalFilter(const Filter& filter) {
 void SetColorConsoleBackendEnabled(bool enabled) {
     if (logging_instance)
         logging_instance->color_console_backend.enabled = enabled;
+}
+
+void SetFileBackendEnabled(bool enabled) {
+    if (logging_instance && logging_instance->file_backend)
+        logging_instance->file_backend->SetEnabled(enabled);
 }
 
 void FmtLogMessageImpl(Class log_class, Level log_level, const char* filename, unsigned int line_num, const char* function, fmt::string_view format, const fmt::format_args& args) {

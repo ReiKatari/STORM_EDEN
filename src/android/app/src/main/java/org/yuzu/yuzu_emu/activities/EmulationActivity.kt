@@ -29,6 +29,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.navigation.NavOptions
 import org.yuzu.yuzu_emu.fragments.EmulationFragment
+import org.yuzu.yuzu_emu.utils.CrashHandler
 import org.yuzu.yuzu_emu.utils.CustomSettingsHandler
 import android.util.Rational
 import android.view.InputDevice
@@ -121,6 +122,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.gameLaunched = true
+        CrashHandler.exportLiveLog(this)
         ThemeHelper.setTheme(this)
 
         super.onCreate(savedInstanceState)
@@ -274,6 +276,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         inputManager.unregisterInputDeviceListener(this)
         stopForegroundService(this)
         NativeLibrary.playTimeManagerStop()
+        CrashHandler.exportLiveLog(this)
     }
 
     override fun onUserLeaveHint() {

@@ -44,7 +44,7 @@ Errno Translate(Network::Errno value) {
     case Network::Errno::ISCONN:
         return Errno::ISCONN;
     default:
-        UNIMPLEMENTED_MSG("Unimplemented errno={}", value);
+        LOG_WARNING(Service, "Unimplemented errno={}", static_cast<u32>(value));
         return Errno::SUCCESS;
     }
 }

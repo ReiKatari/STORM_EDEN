@@ -91,6 +91,10 @@ Result IAudioRenderer::RequestUpdateAuto(
         LOG_ERROR(Service_Audio, "RequestUpdate failed error {:#02x}!", result.GetDescription());
     }
 
+    if (rendered_event) {
+        rendered_event->Signal(system.Kernel());
+    }
+
     R_RETURN(result);
 }
 

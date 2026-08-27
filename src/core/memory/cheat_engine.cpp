@@ -297,7 +297,7 @@ void CheatEngine::Reload(std::vector<CheatEntry> reload_cheats) {
 }
 
 void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
-    if (is_pending_reload.load()) {
+    if (cheats.empty() || is_pending_reload.load()) {
         return;
     }
 

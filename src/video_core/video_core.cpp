@@ -58,9 +58,13 @@ void CreateGPU(std::optional<Tegra::GPU>& gpu, Core::Frontend::EmuWindow& emu_wi
     try {
         auto renderer = CreateRenderer(system, emu_window, *gpu, std::move(context));
         gpu->BindRenderer(std::move(renderer));
-    } catch (const std::runtime_error& exception) {
+    } catch (const std::exception& exception) {
         scope.Cancel();
         LOG_ERROR(HW_GPU, "Failed to initialize GPU: {}", exception.what());
+        gpu.reset();
+    } catch (...) {
+        scope.Cancel();
+        LOG_ERROR(HW_GPU, "Failed to initialize GPU with unknown exception");
         gpu.reset();
     }
 }

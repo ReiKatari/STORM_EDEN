@@ -329,8 +329,10 @@ GraphicsEnvironment::GraphicsEnvironment(Tegra::Engines::Maxwell3D& maxwell3d_,
         break;
     }
     const u64 local_size{sph.LocalMemorySize()};
-    ASSERT(local_size <= (std::numeric_limits<u32>::max)());
-    local_memory_size = static_cast<u32>(local_size) + sph.common3.shader_local_memory_crs_size;
+    const u64 crs_size{sph.common3.shader_local_memory_crs_size};
+    const u64 max_allowed_local = static_cast<u64>((std::numeric_limits<u32>::max)()) - crs_size;
+    const u64 clamped_local_size = std::min<u64>(local_size, max_allowed_local);
+    local_memory_size = static_cast<u32>(clamped_local_size) + static_cast<u32>(crs_size);
     texture_bound = maxwell3d->regs.bindless_texture_const_buffer_slot;
     is_proprietary_driver = texture_bound == 2;
     has_hle_engine_state =

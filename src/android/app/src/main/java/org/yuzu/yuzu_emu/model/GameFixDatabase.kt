@@ -24,14 +24,31 @@ object GameFixDatabase {
 
     private val profiles = listOf(
         GameFixProfile(
+            0x01007EF00011E000L,
+            "The Legend of Zelda: Breath of the Wild",
+            "• Белая непрозрачная вода из-за рассинхронизации буфера глубины и рефракций\n• Желтые/ослепляющие вспышки частиц и тумана в Святилищах (Shrines)\n• Мерцание текстур травы и теней",
+            "• White opaque water caused by depth buffer and refraction desync\n• Yellow/blinding particle flashes and fog in Shrines\n• Grass and shadow texture flickering",
+            "✓ Точность GPU: Высокая (High — идеальная прозрачная вода)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Сжатие ASTC: Отключено (Uncompressed — решает проблемы воды и Святилищ)\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (Crystal clear water transparency)\n✓ Reactive Flushing: Enabled\n✓ ASTC Recompression: Uncompressed (Fixes water & Shrines)\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_reactive_flushing" to "true",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Core\\memory_layout_mode" to "2"
+            )
+        ),
+        GameFixProfile(
             0x0100F2C0115B6000L,
             "The Legend of Zelda: Tears of the Kingdom",
             "• Черный экран при смене оружия и способностей (Fuse/Ultrahand)\n• Утечки VRAM в кавернах и святилищах\n• Мерцание текстур скверны (Gloom) и теней облаков",
             "• Black screen during weapon/ability switching (Fuse menu)\n• VRAM leaks in Depths and Shrines\n• Gloom texture flickering and cloud shadow artifacts",
-            "✓ Разрешение: Handheld 0.75X - 1.0X\n✓ Сжатие ASTC: BC1/BC3 (экономия 4 ГБ VRAM)\n✓ Анизотропная фильтрация: 16x\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ Resolution: Handheld 0.75X - 1.0X\n✓ ASTC Recompression: BC1/BC3 (saves 4GB VRAM)\n✓ Anisotropic Filtering: 16x\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Анизотропная фильтрация: 16x\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ ASTC Recompression: Uncompressed\n✓ Anisotropic Filtering: 16x\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_reactive_flushing" to "true",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\max_anisotropy" to "5",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Core\\memory_layout_mode" to "2"
@@ -418,6 +435,7 @@ object GameFixDatabase {
         return profiles.firstOrNull { profile ->
             val nameLower = profile.gameName.lowercase(java.util.Locale.ROOT)
             val keywords = when {
+                nameLower.contains("breath of the wild") -> listOf("breath of the wild", "botw", "01007ef00011e000")
                 nameLower.contains("tears of the kingdom") -> listOf("tears of the kingdom", "totk", "0100f2c0115b6000")
                 nameLower.contains("paper mario") -> listOf("paper mario", "thousand-year", "01004d701742a000")
                 nameLower.contains("hogwarts legacy") -> listOf("hogwarts", "0100b5b0112f8000")

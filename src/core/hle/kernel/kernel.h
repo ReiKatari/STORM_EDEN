@@ -172,6 +172,8 @@ public:
     /// Stops execution of 'id' core, in order to reschedule a new thread.
     void PrepareReschedule(std::size_t id);
 
+    [[nodiscard]] bool HasObjectListContainer() const;
+
     KAutoObjectWithListContainer& ObjectListContainer();
 
     const KAutoObjectWithListContainer& ObjectListContainer() const;

@@ -20,7 +20,7 @@ bool ShouldSaveDataBeAutomaticallyCreated(SaveDataSpaceId space, const SaveDataA
     return attr.type == SaveDataType::Cache || attr.type == SaveDataType::Temporary ||
            (space == SaveDataSpaceId::User && ///< Normal Save Data -- Current Title & User
             (attr.type == SaveDataType::Account || attr.type == SaveDataType::Device) &&
-            attr.program_id == 0 && attr.system_save_data_id == 0);
+            attr.system_save_data_id == 0);
 }
 
 std::string GetFutureSaveDataPath(SaveDataSpaceId space_id, SaveDataType type, u64 title_id,

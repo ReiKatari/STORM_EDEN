@@ -23,6 +23,7 @@
 #include "core/file_sys/sdmc_factory.h"
 #include "core/file_sys/vfs/vfs.h"
 #include "core/file_sys/vfs/vfs_offset.h"
+#include "core/file_sys/vfs/vfs_real.h"
 #include "core/hle/service/filesystem/filesystem.h"
 #include "core/hle/service/filesystem/fsp/fsp_ldr.h"
 #include "core/hle/service/filesystem/fsp/fsp_pr.h"
@@ -227,25 +228,41 @@ Result VfsDirectoryServiceWrapper::RenameDirectory(const std::string& src_path_,
     std::string src_path(Common::FS::SanitizePath(src_path_));
     std::string dest_path(Common::FS::SanitizePath(dest_path_));
     auto src = GetDirectoryRelativeWrapped(backing, src_path);
+    if (src == nullptr) {
+        return FileSys::ResultPathNotFound;
+    }
     if (Common::FS::GetParentPath(src_path) == Common::FS::GetParentPath(dest_path)) {
         // Use more-optimized vfs implementation rename.
-        if (src == nullptr)
-            return FileSys::ResultPathNotFound;
         if (!src->Rename(Common::FS::GetFilename(dest_path))) {
-            // TODO(DarkLordZach): Find a better error code for this
-            return ResultUnknown;
+            return FileSys::ResultPathAlreadyExists;
         }
         return ResultSuccess;
     }
 
-    // TODO(DarkLordZach): Implement renaming across the tree (move).
-    ASSERT_MSG(false,
-               "Could not rename directory with path \"{}\" to new path \"{}\" because parent dirs "
-               "don't match -- UNIMPLEMENTED",
-               src_path, dest_path);
+    // Moving directory across paths
+    auto dest_parent_str = Common::FS::GetParentPath(dest_path);
+    auto dest_parent = GetDirectoryRelativeWrapped(backing, dest_parent_str);
+    if (dest_parent == nullptr) {
+        dest_parent = backing->CreateDirectoryRelative(dest_parent_str);
+    }
+    if (dest_parent == nullptr) {
+        return FileSys::ResultPathNotFound;
+    }
 
-    // TODO(DarkLordZach): Find a better error code for this
-    return ResultUnknown;
+    std::string src_full = src->GetFullPath();
+    std::string dest_parent_full = dest_parent->GetFullPath();
+    if (!src_full.empty() && !dest_parent_full.empty()) {
+        std::string new_full_path = dest_parent_full + "/" + std::string(Common::FS::GetFilename(dest_path));
+        if (Common::FS::RenameDir(src_full, new_full_path)) {
+            return ResultSuccess;
+        }
+    }
+
+    if (src->Rename(Common::FS::GetFilename(dest_path))) {
+        return ResultSuccess;
+    }
+
+    return FileSys::ResultPathAlreadyExists;
 }
 
 Result VfsDirectoryServiceWrapper::OpenFile(FileSys::VirtualFile* out_file,

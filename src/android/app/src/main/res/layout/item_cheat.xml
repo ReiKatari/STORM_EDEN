@@ -5,8 +5,8 @@
     style="@style/EdenCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="3dp"
-    app:cardCornerRadius="12dp"
+    android:layout_marginVertical="1.5dp"
+    app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
     app:cardBackgroundColor="@color/eden_card_background"
     app:strokeColor="?attr/colorOutline"
@@ -17,7 +17,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="8dp">
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="3dp">
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/checkbox_cheat"
@@ -25,7 +26,8 @@
             android:layout_height="wrap_content"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:layout_marginEnd="6dp" />
+            android:padding="0dp"
+            android:layout_marginEnd="4dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -46,9 +48,10 @@
                     android:layout_weight="1"
                     android:text="Infinite Health"
                     android:textColor="?attr/colorOnBackground"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
                     android:ellipsize="end"
+                    android:singleLine="true"
                     android:maxLines="1" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -56,10 +59,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Build: A1B2C3"
-                    android:textSize="9sp"
+                    android:textSize="8sp"
                     android:textColor="#38bdf8"
-                    android:paddingHorizontal="4dp"
-                    android:paddingVertical="1dp"
+                    android:paddingHorizontal="3dp"
+                    android:paddingVertical="0dp"
                     android:background="@drawable/theme_card_background"
                     android:layout_marginStart="4dp" />
 
@@ -67,8 +70,8 @@
                     android:id="@+id/text_cheat_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="⚡ Активен"
-                    android:textSize="10sp"
+                    android:text="⚡ В игре"
+                    android:textSize="9sp"
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
                     android:layout_marginStart="4dp" />
@@ -76,29 +79,43 @@
             </LinearLayout>
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_cheat_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Описание"
+                android:textSize="10sp"
+                android:textColor="#38BDF8"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_code_preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="04000000 01234567 00000001 (+2 строк)"
+                android:text="04000000 01234567 00000001"
                 android:fontFamily="monospace"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="@color/synthwave_text_secondary"
-                android:layout_marginTop="2dp"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/btn_delete_cheat"
-            android:layout_width="28dp"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_edit_value"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
             android:layout_height="28dp"
-            android:padding="5dp"
-            android:src="@drawable/ic_delete"
-            app:tint="@color/synthwave_neon_red"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:visibility="gone"
-            android:layout_marginStart="4dp" />
+            android:minHeight="0dp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="0dp"
+            android:text="✏️ Кол-во"
+            android:textSize="10sp"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginStart="4dp"
+            android:visibility="visible" />
 
     </LinearLayout>
 

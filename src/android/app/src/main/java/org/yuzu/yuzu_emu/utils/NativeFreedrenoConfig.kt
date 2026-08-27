@@ -160,7 +160,17 @@ object FreedrenoPresets {
         variables = emptyMap()  // Clears all when applied
     )
 
+    val ZELDA_WATER_SYSMEM_FIX = FreedrenoPreset(
+        name = "Zelda BOTW / TOTK (Sysmem Water Fix)",
+        description = "TU_DEBUG=sysmem (Устраняет баги с текстурами и делает воду прозрачной)",
+        icon = "ic_debug_cpu",
+        variables = mapOf(
+            "TU_DEBUG" to "sysmem"
+        )
+    )
+
     val ALL_PRESETS = listOf(
+        ZELDA_WATER_SYSMEM_FIX,
         DEBUG_CPU_MEMORY,
         DEBUG_UBWC_DISABLED,
         DEBUG_NO_BINNING,

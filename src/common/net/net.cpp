@@ -186,7 +186,7 @@ std::vector<Release> Release::ListFromJson(const std::string_view& json, const s
 
 std::optional<std::string> MakeRequest(const std::string& url, const std::string& path) {
     try {
-        constexpr std::size_t timeout_seconds = 15;
+        constexpr std::size_t timeout_seconds = 2;
 
         std::unique_ptr<httplib::Client> client = std::make_unique<httplib::Client>(url);
         client->set_connection_timeout(timeout_seconds);

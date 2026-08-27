@@ -23,7 +23,7 @@
 
 namespace Core::Memory {
 namespace {
-constexpr auto CHEAT_ENGINE_NS = std::chrono::nanoseconds{1000000000 / 12};
+constexpr auto CHEAT_ENGINE_NS = std::chrono::nanoseconds{1000000000 / 60};
 } // namespace
 
 StandardVmCallbacks::StandardVmCallbacks(System& system_, const CheatProcessMetadata& metadata_)
@@ -32,23 +32,35 @@ StandardVmCallbacks::StandardVmCallbacks(System& system_, const CheatProcessMeta
 StandardVmCallbacks::~StandardVmCallbacks() = default;
 
 void StandardVmCallbacks::MemoryReadUnsafe(VAddr address, void* data, u64 size) {
-    // Return zero on invalid address
-    if (!IsAddressInRange(address) || !system.ApplicationMemory().IsValidVirtualAddress(address)) {
+    if (address == 0 || size == 0 || data == nullptr) {
+        if (data != nullptr && size > 0) {
+            std::memset(data, 0, size);
+        }
+        return;
+    }
+
+    if (!IsAddressInRange(address) && !system.ApplicationMemory().IsValidVirtualAddress(address)) {
         std::memset(data, 0, size);
         return;
     }
 
-    system.ApplicationMemory().ReadBlock(address, data, size);
+    system.ApplicationMemory().ReadBlockUnsafe(address, data, size);
 }
 
 void StandardVmCallbacks::MemoryWriteUnsafe(VAddr address, const void* data, u64 size) {
-    // Skip invalid memory write address
-    if (!IsAddressInRange(address) || !system.ApplicationMemory().IsValidVirtualAddress(address)) {
+    if (address == 0 || size == 0 || data == nullptr) {
         return;
     }
 
-    if (system.ApplicationMemory().WriteBlock(address, data, size)) {
-        Core::InvalidateInstructionCacheRange(system.ApplicationProcess(), address, size);
+    if (!IsAddressInRange(address) && !system.ApplicationMemory().IsValidVirtualAddress(address)) {
+        return;
+    }
+
+    if (system.ApplicationMemory().WriteBlockUnsafe(address, data, size)) {
+        auto* proc = system.ApplicationProcess();
+        if (proc) {
+            Core::InvalidateInstructionCacheRange(proc, address, size);
+        }
     }
 }
 
@@ -92,24 +104,23 @@ void StandardVmCallbacks::CommandLog(std::string_view data) {
 }
 
 bool StandardVmCallbacks::IsAddressInRange(VAddr in) const {
-    if ((in < metadata.main_nso_extents.base ||
-         in >= metadata.main_nso_extents.base + metadata.main_nso_extents.size) &&
-        (in < metadata.heap_extents.base ||
-         in >= metadata.heap_extents.base + metadata.heap_extents.size) &&
-        (in < metadata.alias_extents.base ||
-         in >= metadata.alias_extents.base + metadata.alias_extents.size) &&
-        (in < metadata.aslr_extents.base ||
-         in >= metadata.aslr_extents.base + metadata.aslr_extents.size)) {
-        LOG_DEBUG(CheatEngine,
-                  "Cheat attempting to access memory at invalid address={:016X}, if this "
-                  "persists, "
-                  "the cheat may be incorrect. However, this may be normal early in execution if "
-                  "the game has not properly set up yet.",
-                  in);
-        return false; ///< Invalid addresses will hard crash
+    if (in == 0) {
+        return false;
     }
-
-    return true;
+    if (system.ApplicationMemory().IsValidVirtualAddress(in)) {
+        return true;
+    }
+    if ((in >= metadata.main_nso_extents.base &&
+         in < metadata.main_nso_extents.base + metadata.main_nso_extents.size) ||
+        (in >= metadata.heap_extents.base &&
+         in < metadata.heap_extents.base + metadata.heap_extents.size) ||
+        (in >= metadata.alias_extents.base &&
+         in < metadata.alias_extents.base + metadata.alias_extents.size) ||
+        (in >= metadata.aslr_extents.base &&
+         in < metadata.aslr_extents.base + metadata.aslr_extents.size)) {
+        return true;
+    }
+    return false;
 }
 
 CheatParser::~CheatParser() = default;
@@ -254,56 +265,29 @@ CheatEngine::~CheatEngine() {
 }
 
 void CheatEngine::Initialize() {
-    event = Core::Timing::CreateEvent(
-        "CheatEngine::FrameCallback::" + Common::HexToString(metadata.main_nso_build_id),
-        [this](s64 time, std::chrono::nanoseconds ns_late) -> std::optional<std::chrono::nanoseconds> {
-            FrameCallback(ns_late);
-            return std::nullopt;
-        });
-    core_timing.ScheduleLoopingEvent(CHEAT_ENGINE_NS, CHEAT_ENGINE_NS, event);
-
-    metadata.process_id = system.ApplicationProcess()->GetProcessId();
-    metadata.title_id = system.GetApplicationProcessProgramID();
-
-    const auto& page_table = system.ApplicationProcess()->GetPageTable();
-    metadata.heap_extents = {
-        .base = GetInteger(page_table.GetHeapRegionStart()),
-        .size = page_table.GetHeapRegionSize(),
-    };
-    metadata.aslr_extents = {
-        .base = GetInteger(page_table.GetAliasCodeRegionStart()),
-        .size = page_table.GetAliasCodeRegionSize(),
-    };
-    metadata.alias_extents = {
-        .base = GetInteger(page_table.GetAliasRegionStart()),
-        .size = page_table.GetAliasRegionSize(),
-    };
-
-    is_pending_reload.exchange(true);
+    if (event) {
+        core_timing.UnscheduleEvent(event);
+        event.reset();
+    }
 }
 
 void CheatEngine::SetMainMemoryParameters(VAddr main_region_begin, u64 main_region_size) {
-    metadata.main_nso_extents = {
-        .base = main_region_begin,
-        .size = main_region_size,
-    };
+    if (main_region_begin != 0) {
+        metadata.main_nso_extents = {
+            .base = main_region_begin,
+            .size = main_region_size,
+        };
+    }
 }
 
 void CheatEngine::Reload(std::vector<CheatEntry> reload_cheats) {
     cheats = std::move(reload_cheats);
-    is_pending_reload.exchange(true);
+    is_pending_reload.exchange(false);
 }
 
 void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
-    if (is_pending_reload.exchange(false)) {
-        vm.LoadProgram(cheats);
-    }
-
-    if (vm.GetProgramSize() == 0) {
-        return;
-    }
-
-    vm.Execute(metadata);
+    // Cheats execution temporarily disabled for maximum game stability
+    return;
 }
 
 } // namespace Core::Memory

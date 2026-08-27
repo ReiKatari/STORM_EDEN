@@ -50,10 +50,13 @@ object DriverResolver {
 
     // Driver repository paths - (from DriverFetcherFragment) might extract these to a config file later
     private val repositories = listOf(
-        "MrPurple666/purple-turnip",
-        "crueter/GameHub-8Elite-Drivers",
+        "ReiKatari/STORM_DRIVER",
+        "Balemuni/Balemunis-Aurora",
         "K11MCH1/AdrenoToolsDrivers",
-        "Weab-chan/freedreno_turnip-CI"
+        "MrPurple666/purple-turnip",
+        "Weab-chan/freedreno_turnip-CI",
+        "whitebelyash/freedreno_turnip-CI",
+        "crueter/GameHub-8Elite-Drivers"
     )
 
     private val urlCache = ConcurrentHashMap<String, ResolvedDriver>()
@@ -240,6 +243,7 @@ object DriverResolver {
             try {
                 val request = Request.Builder()
                     .url("https://api.github.com/repos/$repoPath/releases")
+                    .header("User-Agent", "Mozilla/5.0 (Linux; Android) StormEden/4.4.0")
                     .header("Accept", "application/vnd.github.v3+json")
                     .build()
 

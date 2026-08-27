@@ -26,15 +26,15 @@
             android:orientation="horizontal"
             android:layout_gravity="center"
             android:paddingVertical="16dp"
-            android:paddingHorizontal="24dp">
+            android:paddingHorizontal="20dp">
 
             <ImageView
                 android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="20dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
                 android:layout_gravity="center_vertical"
-                app:tint="?attr/colorOnSurface" />
+                app:tint="?attr/colorPrimary" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -45,18 +45,23 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/title"
-                    style="@style/TextAppearance.Material3.TitleMedium"
+                    style="@style/SynthwaveText.Body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
                     android:textAlignment="viewStart"
                     tools:text="@string/applets" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/description"
-                    style="@style/TextAppearance.Material3.BodyMedium"
+                    style="@style/SynthwaveText.Body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="13sp"
                     android:textAlignment="viewStart"
                     tools:text="@string/applets_description" />
 

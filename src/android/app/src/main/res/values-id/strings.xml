@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Perangkat lunak ini akan menjalankan permainan dari konsol Nintendo Switch. Permainan maupun keys tidak disediakan.<br /><br />Sebelum memulai, tolong temukan berkas <![CDATA[<b> prod.keys </b>]]> didalam tempat penyimpanan mu.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Pelajari lebih lanjut</a>]]></string>

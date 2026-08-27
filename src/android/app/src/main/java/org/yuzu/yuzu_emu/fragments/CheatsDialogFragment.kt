@@ -72,11 +72,15 @@ class CheatsDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         game = requireArguments().getParcelable(ARG_GAME)!!
+        setStyle(STYLE_NO_TITLE, 0)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
         return dialog
     }
 
@@ -93,26 +97,34 @@ class CheatsDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val isRunning = NativeLibrary.isRunning()
-        val buildIdStr = if (isRunning) {
-            NativeLibrary.getBuildVersion().split("-").getOrNull(0) ?: ""
-        } else {
-            ""
-        }
+        val versionStr = game.version.ifEmpty { "" }
 
         binding.textGameInfo.text = buildString {
             append("ID: ")
             append(game.programIdHex)
-            if (buildIdStr.isNotEmpty()) {
-                append(" | Build: ")
-                append(buildIdStr.take(16).uppercase())
+            if (versionStr.isNotEmpty()) {
+                append(" | Версия: ")
+                append(versionStr)
             }
             append(if (isRunning) " | ⚡ В игре" else " | ⚪ Оффлайн")
+            append("\n⚠️ Применение читов временно отключено разработчиком для стабильности игр")
         }
 
-        adapter = CheatsAdapter(displayedCheats, isRunning) { cheat, isChecked ->
-            cheat.isEnabled = isChecked
-            updateSummary()
-        }
+        adapter = CheatsAdapter(
+            displayedCheats,
+            isRunning,
+            onCheckChanged = { cheat, isChecked ->
+                cheat.isEnabled = isChecked
+                updateSummary()
+                saveCheatsSilently()
+            },
+            onEditValueClicked = { cheat ->
+                showEditCheatValueDialog(cheat)
+            },
+            onLongClicked = { cheat ->
+                showCheatActionMenu(cheat)
+            }
+        )
 
         binding.recyclerCheats.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerCheats.adapter = adapter
@@ -158,9 +170,17 @@ class CheatsDialogFragment : DialogFragment() {
         dialog?.window?.let { window ->
             val dm = resources.displayMetrics
             val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-            val width = if (isLandscape) (dm.widthPixels * 0.70).toInt() else (dm.widthPixels * 0.94).toInt()
-            val height = if (isLandscape) (dm.heightPixels * 0.88).toInt() else (dm.heightPixels * 0.85).toInt()
+            val width = if (isLandscape) (dm.widthPixels * 0.94).toInt().coerceIn(600, 1600) else (dm.widthPixels * 0.96).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.94).toInt().coerceIn(360, 950) else (dm.heightPixels * 0.92).toInt()
             window.setLayout(width, height)
+            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            window.setGravity(android.view.Gravity.CENTER)
+
+            val lp = window.attributes
+            lp.width = width
+            lp.height = height
+            lp.gravity = android.view.Gravity.CENTER
+            window.attributes = lp
         }
     }
 
@@ -175,11 +195,25 @@ class CheatsDialogFragment : DialogFragment() {
         allCheats.clear()
         val cheatsDir = getCheatsDir()
         val prefs = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
-        val enabledSet = prefs.getStringSet("cheats_enabled_${game.programIdHex}", null)
+        
+        val enabledFile = File(cheatsDir, "enabled_cheats.txt")
+        val enabledSet = if (enabledFile.exists()) {
+            try {
+                enabledFile.readLines(Charsets.UTF_8).map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            } catch (_: Exception) {
+                prefs.getStringSet("cheats_enabled_${game.programIdHex}", null)
+            }
+        } else {
+            prefs.getStringSet("cheats_enabled_${game.programIdHex}", null)
+        }
 
         val filesToRead = mutableListOf<File>()
-        cheatsDir.listFiles()?.filter { it.isFile && it.name.endsWith(".txt", ignoreCase = true) }?.let {
-            filesToRead.addAll(it)
+        cheatsDir.listFiles()?.filter { it.isFile && it.name.endsWith(".txt", ignoreCase = true) && !it.name.equals("enabled_cheats.txt", ignoreCase = true) }?.let { list ->
+            // Sort so specific Build ID files come before generic cheats.txt
+            val sorted = list.sortedBy { f ->
+                if (f.name.equals("cheats.txt", ignoreCase = true) || f.name.equals("custom.txt", ignoreCase = true)) 1 else 0
+            }
+            filesToRead.addAll(sorted)
         }
 
         val legacyFile = File(cheatsDir.parentFile, "${game.programIdHex}.txt")
@@ -267,30 +301,80 @@ class CheatsDialogFragment : DialogFragment() {
         binding.btnToggleAll.text = if (allCheats.any { !it.isEnabled }) getString(R.string.select_all) else getString(R.string.deselect_all)
     }
 
-    private fun saveCheats() {
+    private fun saveCheatsSilently() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
         val enabledNames = allCheats.filter { it.isEnabled }.map { it.name }.toSet()
         prefs.edit().putStringSet("cheats_enabled_${game.programIdHex}", enabledNames).apply()
 
-        // Also write active cheats into cheats.txt
+        val rootDir = DirectoryInitialization.userDirectory ?: YuzuApplication.appContext.filesDir.absolutePath
         val cheatsDir = getCheatsDir()
-        val cheatsFile = File(cheatsDir, "cheats.txt")
+        val loadCheatsDir = File(rootDir, "load/${game.programIdHex}/cheats")
+        val atmoCheatsDir = File(rootDir, "sdmc/atmosphere/contents/${game.programIdHex}/cheats")
+        val atmoCheatsLowerDir = File(rootDir, "sdmc/atmosphere/contents/${game.programIdHex.lowercase()}/cheats")
+
+        val targetDirs = listOf(cheatsDir, loadCheatsDir, atmoCheatsDir, atmoCheatsLowerDir)
+        for (d in targetDirs) {
+            if (!d.exists()) d.mkdirs()
+        }
+
+        // 1. Write enabled_cheats.txt for direct C++ PatchManager synchronization
         try {
-            val content = StringBuilder()
-            for (cheat in allCheats) {
-                content.append("[${cheat.name}]\n")
-                content.append(cheat.code.trim()).append("\n\n")
+            val enabledLines = mutableListOf<String>()
+            for (name in enabledNames) {
+                enabledLines.add(name)
+                enabledLines.add("[$name]")
             }
-            cheatsFile.writeText(content.toString(), Charsets.UTF_8)
+            val textToWrite = enabledLines.joinToString("\n")
+            for (d in targetDirs) {
+                File(d, "enabled_cheats.txt").writeText(textToWrite, Charsets.UTF_8)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+        // 2. Also write full list into cheats.txt and per-buildId files
+        try {
+            val content = StringBuilder()
+            val buildMap = mutableMapOf<String, StringBuilder>()
+
+            for (cheat in allCheats) {
+                content.append("[${cheat.name}]\n")
+                content.append(cheat.code.trim()).append("\n\n")
+
+                if (cheat.buildId.isNotBlank()) {
+                    val bsb = buildMap.getOrPut(cheat.buildId) { StringBuilder() }
+                    bsb.append("[${cheat.name}]\n").append(cheat.code.trim()).append("\n\n")
+                }
+            }
+
+            for (d in targetDirs) {
+                File(d, "cheats.txt").writeText(content.toString(), Charsets.UTF_8)
+                for ((bId, bContent) in buildMap) {
+                    File(d, "$bId.txt").writeText(bContent.toString(), Charsets.UTF_8)
+                    File(d, "${bId.lowercase()}.txt").writeText(bContent.toString(), Charsets.UTF_8)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 3. Reload in-game memory cheats in real-time if emulation is running
         if (NativeLibrary.isRunning()) {
-            NativeLibrary.reloadProfiles()
-            Toast.makeText(requireContext(), "⚡ Чит-коды обновлены в реальном времени!", Toast.LENGTH_SHORT).show()
+            try {
+                NativeLibrary.reloadCheats()
+                NativeLibrary.reloadProfiles()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun saveCheats() {
+        saveCheatsSilently()
+        if (NativeLibrary.isRunning()) {
+            Toast.makeText(requireContext(), "⚡ Чит-коды активированы в игре!", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(requireContext(), "✅ Настройки чит-кодов сохранены", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "✅ Чит-коды успешно сохранены", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -330,7 +414,16 @@ class CheatsDialogFragment : DialogFragment() {
                         reader.close()
 
                         if (text.isNotEmpty() && text != "[]" && text != "{}") {
+                            val rootDir = DirectoryInitialization.userDirectory ?: YuzuApplication.appContext.filesDir.absolutePath
                             val dir = getCheatsDir()
+                            val loadCheatsDir = File(rootDir, "load/$tid/cheats")
+                            val atmoCheatsDir = File(rootDir, "sdmc/atmosphere/contents/$tid/cheats")
+                            val atmoCheatsLowerDir = File(rootDir, "sdmc/atmosphere/contents/${tid.lowercase()}/cheats")
+                            val allDirs = listOf(dir, loadCheatsDir, atmoCheatsDir, atmoCheatsLowerDir)
+                            for (d in allDirs) {
+                                if (!d.exists()) d.mkdirs()
+                            }
+
                             if (text.startsWith("[")) {
                                 // Tinfoil API format: [ { "name": "...", "build_id": "...", "source": "..." } ]
                                 val jsonArr = org.json.JSONArray(text)
@@ -354,10 +447,15 @@ class CheatsDialogFragment : DialogFragment() {
                                     }
 
                                     for ((bidKey, content) in bidMap) {
-                                        File(dir, "$bidKey.txt").writeText(content.toString(), Charsets.UTF_8)
+                                        for (d in allDirs) {
+                                            File(d, "$bidKey.txt").writeText(content.toString(), Charsets.UTF_8)
+                                            File(d, "${bidKey.lowercase()}.txt").writeText(content.toString(), Charsets.UTF_8)
+                                        }
                                     }
                                     if (combined.isNotEmpty()) {
-                                        File(dir, "cheats.txt").writeText(combined.toString(), Charsets.UTF_8)
+                                        for (d in allDirs) {
+                                            File(d, "cheats.txt").writeText(combined.toString(), Charsets.UTF_8)
+                                        }
                                     }
                                     success = true
                                     break
@@ -382,17 +480,24 @@ class CheatsDialogFragment : DialogFragment() {
                                             }
                                         }
                                         if (bidContent.isNotEmpty()) {
-                                            File(dir, "$bidKey.txt").writeText(bidContent.toString(), Charsets.UTF_8)
+                                            for (d in allDirs) {
+                                                File(d, "$bidKey.txt").writeText(bidContent.toString(), Charsets.UTF_8)
+                                                File(d, "${bidKey.lowercase()}.txt").writeText(bidContent.toString(), Charsets.UTF_8)
+                                            }
                                         }
                                     }
                                 }
                                 if (combined.isNotEmpty()) {
-                                    File(dir, "cheats.txt").writeText(combined.toString(), Charsets.UTF_8)
+                                    for (d in allDirs) {
+                                        File(d, "cheats.txt").writeText(combined.toString(), Charsets.UTF_8)
+                                    }
                                 }
                                 success = true
                                 break
                             } else {
-                                File(dir, "cheats.txt").writeText(text, Charsets.UTF_8)
+                                for (d in allDirs) {
+                                    File(d, "cheats.txt").writeText(text, Charsets.UTF_8)
+                                }
                                 success = true
                                 break
                             }
@@ -469,6 +574,189 @@ class CheatsDialogFragment : DialogFragment() {
             .show()
     }
 
+    private fun showEditCheatValueDialog(item: CheatModel) {
+        val context = requireContext()
+        val layout = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 12)
+        }
+
+        val lines = item.code.lines().filter { it.isNotBlank() }
+        var targetLineIdx = -1
+        var existingHex = ""
+
+        for (i in lines.indices) {
+            val tokens = lines[i].trim().split("\\s+".toRegex())
+            if (tokens.size >= 3 && (tokens[0].startsWith("04") || tokens[0].startsWith("08") || tokens[0].startsWith("02") || tokens[0].startsWith("01") || tokens[0].startsWith("58") || tokens[0].startsWith("78"))) {
+                targetLineIdx = i
+                existingHex = tokens.last()
+                break
+            } else if (tokens.size == 2) {
+                targetLineIdx = i
+                existingHex = tokens.last()
+                break
+            }
+        }
+
+        val existingDec = try {
+            existingHex.toLong(16)
+        } catch (_: Exception) {
+            0L
+        }
+
+        val titleTv = com.google.android.material.textview.MaterialTextView(context).apply {
+            text = "Текущее значение: $existingDec (0x$existingHex)"
+            textSize = 13f
+            setTextColor(0xFF38BDF8.toInt())
+            setPadding(0, 0, 0, 16)
+        }
+        layout.addView(titleTv)
+
+        val inputLayout = com.google.android.material.textfield.TextInputLayout(context).apply {
+            hint = "Количество / Новое значение"
+            boxBackgroundMode = com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+        }
+        val inputEdit = com.google.android.material.textfield.TextInputEditText(context).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            setText(if (existingDec > 0) existingDec.toString() else "999999")
+            textSize = 15f
+        }
+        inputLayout.addView(inputEdit)
+        layout.addView(inputLayout)
+
+        val presetsLayout = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            setPadding(0, 16, 0, 0)
+        }
+        val presets = listOf("1000", "99999", "999999", "99999999")
+        for (p in presets) {
+            val btn = com.google.android.material.button.MaterialButton(context, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+                text = p
+                textSize = 10f
+                setPadding(12, 0, 12, 0)
+                layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    setMargins(4, 0, 4, 0)
+                }
+                setOnClickListener {
+                    inputEdit.setText(p)
+                }
+            }
+            presetsLayout.addView(btn)
+        }
+        layout.addView(presetsLayout)
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle("✏️ Изменить кол-во: ${item.name}")
+            .setView(layout)
+            .setPositiveButton(R.string.apply_driver_now) { _, _ ->
+                val entered = inputEdit.text.toString().trim().toLongOrNull() ?: 0L
+                val hexLen = if (existingHex.isNotEmpty()) existingHex.length else 8
+                val newHex = java.lang.Long.toHexString(entered).uppercase().padStart(hexLen, '0')
+
+                val updatedLines = lines.toMutableList()
+                if (targetLineIdx in updatedLines.indices) {
+                    val tokens = updatedLines[targetLineIdx].trim().split("\\s+".toRegex()).toMutableList()
+                    if (tokens.isNotEmpty()) {
+                        tokens[tokens.size - 1] = newHex
+                        updatedLines[targetLineIdx] = tokens.joinToString(" ")
+                    }
+                } else if (updatedLines.isNotEmpty()) {
+                    val tokens = updatedLines[0].trim().split("\\s+".toRegex()).toMutableList()
+                    tokens[tokens.size - 1] = newHex
+                    updatedLines[0] = tokens.joinToString(" ")
+                }
+
+                val newCode = updatedLines.joinToString("\n")
+                item.code = newCode
+
+                updateCheatInFile(item)
+                saveCheats()
+                adapter.notifyDataSetChanged()
+                Toast.makeText(context, "Значение обновлено: $entered (0x$newHex)", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateCheatInFile(item: CheatModel) {
+        try {
+            val file = item.sourceFile
+            if (file != null && file.exists()) {
+                val lines = file.readLines(Charsets.UTF_8)
+                val out = StringBuilder()
+                var inTarget = false
+                for (line in lines) {
+                    val trimmed = line.trim()
+                    if (trimmed.startsWith("[") && trimmed.contains("]")) {
+                        val name = trimmed.substring(1, trimmed.indexOf(']')).trim()
+                        if (name == item.name) {
+                            inTarget = true
+                            out.append("[$name]\n").append(item.code).append("\n\n")
+                            continue
+                        } else {
+                            inTarget = false
+                        }
+                    }
+                    if (!inTarget) {
+                        out.append(line).append("\n")
+                    }
+                }
+                file.writeText(out.toString().trim() + "\n", Charsets.UTF_8)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun showCheatActionMenu(item: CheatModel) {
+        val options = arrayOf("✏️ Изменить кол-во / значение", "📋 Копировать код", "🗑️ Удалить чит")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(item.name)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showEditCheatValueDialog(item)
+                    1 -> {
+                        val cm = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("Cheat", "[${item.name}]\n${item.code}"))
+                        Toast.makeText(requireContext(), "Код скопирован", Toast.LENGTH_SHORT).show()
+                    }
+                    2 -> {
+                        deleteCheat(item)
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun deleteCheat(item: CheatModel) {
+        allCheats.remove(item)
+        displayedCheats.remove(item)
+        try {
+            val file = item.sourceFile
+            if (file != null && file.exists()) {
+                val lines = file.readLines(Charsets.UTF_8)
+                val out = StringBuilder()
+                var inTarget = false
+                for (line in lines) {
+                    val trimmed = line.trim()
+                    if (trimmed.startsWith("[") && trimmed.contains("]")) {
+                        val name = trimmed.substring(1, trimmed.indexOf(']')).trim()
+                        inTarget = (name == item.name)
+                    }
+                    if (!inTarget) {
+                        out.append(line).append("\n")
+                    }
+                }
+                file.writeText(out.toString().trim() + "\n", Charsets.UTF_8)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        saveCheats()
+        adapter.notifyDataSetChanged()
+        updateSummary()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -477,7 +765,9 @@ class CheatsDialogFragment : DialogFragment() {
     private class CheatsAdapter(
         private val items: List<CheatModel>,
         private val isRunning: Boolean,
-        private val onCheckChanged: (CheatModel, Boolean) -> Unit
+        private val onCheckChanged: (CheatModel, Boolean) -> Unit,
+        private val onEditValueClicked: (CheatModel) -> Unit,
+        private val onLongClicked: (CheatModel) -> Unit
     ) : RecyclerView.Adapter<CheatsAdapter.CheatViewHolder>() {
 
         inner class CheatViewHolder(val binding: ItemCheatBinding) : RecyclerView.ViewHolder(binding.root)
@@ -509,9 +799,20 @@ class CheatsDialogFragment : DialogFragment() {
                 b.textCheatStatus.setTextColor(0xFF718096.toInt())
             }
 
+            val localizedDesc = getLocalizedCheatDescription(item.name, item.code)
+            b.textCheatDescription.text = localizedDesc
+            b.textCheatDescription.visibility = if (localizedDesc.isNotEmpty()) View.VISIBLE else View.GONE
+
             val lines = item.code.lines().filter { it.isNotBlank() }
             val firstLine = lines.firstOrNull() ?: ""
             b.textCodePreview.text = if (lines.size > 1) "$firstLine (+${lines.size - 1} строк)" else firstLine
+
+            // Show value editor button ONLY for numeric quantity cheats (money, items, ammo, stats, etc.)
+            val isEditable = isNumericQuantityCheat(item.name, item.code)
+            b.btnEditValue.visibility = if (isEditable && lines.isNotEmpty()) View.VISIBLE else View.GONE
+            b.btnEditValue.setOnClickListener {
+                onEditValueClicked(item)
+            }
 
             b.checkboxCheat.setOnCheckedChangeListener { _, isChecked ->
                 onCheckChanged(item, isChecked)
@@ -530,8 +831,117 @@ class CheatsDialogFragment : DialogFragment() {
             b.root.setOnClickListener {
                 b.checkboxCheat.isChecked = !b.checkboxCheat.isChecked
             }
+
+            b.root.setOnLongClickListener {
+                onLongClicked(item)
+                true
+            }
         }
 
         override fun getItemCount(): Int = items.size
+
+        private fun getLocalizedCheatDescription(name: String, code: String): String {
+            val lower = name.lowercase().trim()
+            val baseDesc = when {
+                lower.contains("60fps") || lower.contains("60 fps") -> "Режим 60 кадров в секунду (60 FPS)"
+                lower.contains("30fps") || lower.contains("30 fps") -> "Фиксация 30 кадров в секунду (30 FPS)"
+                lower.contains("120fps") || lower.contains("120 fps") -> "Режим 120 кадров в секунду (120 FPS)"
+                lower.contains("unlock fps") || lower.contains("uncap fps") || lower.contains("no vsync") -> "Разблокировка частоты кадров"
+                lower.contains("dynamic res") || lower.contains("dynamic resolution") || lower.contains("drs") -> "Отключение динамического разрешения"
+                lower.contains("lod") || lower.contains("draw distance") || lower.contains("render distance") -> "Увеличенная дальность прорисовки (LOD)"
+                lower.contains("god mode") || lower.contains("godmode") || lower.contains("invincib") || lower.contains("no damage") -> "Бессмертие (Режим Бога)"
+                lower.contains("inf health") || lower.contains("inf hp") || lower.contains("infinite health") || lower.contains("infinite hp") || lower.contains("max hp") -> "Бесконечное здоровье (HP)"
+                lower.contains("inf stam") || lower.contains("infinite stam") || lower.contains("max stam") || lower.contains("stamina") -> "Бесконечная выносливость"
+                lower.contains("inf mana") || lower.contains("infinite mana") || lower.contains("inf mp") || lower.contains("infinite mp") || lower.contains("max mp") -> "Бесконечная мана (MP)"
+                lower.contains("shield") || lower.contains("armor") || lower.contains("defense") || lower.contains("def") -> "Максимальная броня / Защита"
+                lower.contains("money") || lower.contains("gold") || lower.contains("cash") || lower.contains("coins") || lower.contains("rupees") || lower.contains("zenny") || lower.contains("credits") || lower.contains("currency") -> "Деньги / Золото"
+                lower.contains("ammo") || lower.contains("bullet") || lower.contains("arrows") || lower.contains("shots") -> "Патроны / Боеприпасы"
+                lower.contains("all items") || lower.contains("inf item") || lower.contains("item x99") || lower.contains("material") || lower.contains("crafting") -> "Бесконечные предметы и ресурсы"
+                lower.contains("durability") || lower.contains("inf weapon") || lower.contains("never break") -> "Неразрушимое оружие (Бесконечная прочность)"
+                lower.contains("moon jump") || lower.contains("super jump") || lower.contains("high jump") || lower.contains("inf jump") -> "Лунный / Супер прыжок"
+                lower.contains("no clip") || lower.contains("noclip") || lower.contains("walk through") || lower.contains("fly") || lower.contains("flight") -> "Прохождение сквозь стены / Полет"
+                lower.contains("speed") || lower.contains("fast move") || lower.contains("movement") || lower.contains("fast run") -> "Увеличенная скорость движения"
+                lower.contains("one hit") || lower.contains("1 hit") || lower.contains("instant kill") || lower.contains("one shot") -> "Убийство с одного удара"
+                lower.contains("attack") || lower.contains("damage") || lower.contains("dmg") || lower.contains("power") || lower.contains("strength") -> "Увеличенный урон / Сила атаки"
+                lower.contains("cooldown") || lower.contains("no cd") || lower.contains("instant skill") -> "Без перезарядки способностей (No Cooldown)"
+                lower.contains("skill point") || lower.contains("sp") || lower.contains("ap") || lower.contains("talent") -> "Очки навыков / Способности (SP/AP)"
+                lower.contains("level") || lower.contains("lvl") || lower.contains("max level") || lower.contains("exp") || lower.contains("experience") -> "Уровень / Опыт"
+                lower.contains("fog") || lower.contains("disable fog") || lower.contains("remove fog") || lower.contains("no fog") -> "Отключение тумана и дымки"
+                lower.contains("widescreen") || lower.contains("21:9") || lower.contains("ultrawide") -> "Поддержка широкого экрана 21:9"
+                lower.contains("fov") || lower.contains("camera") || lower.contains("zoom") -> "Настройка угла обзора и камеры (FOV)"
+                lower.contains("drop rate") || lower.contains("100% drop") || lower.contains("max drop") || lower.contains("lucky") -> "100% шанс выпадения редких предметов"
+                lower.contains("unlock") || lower.contains("all characters") || lower.contains("costumes") || lower.contains("gallery") -> "Разблокировка всего контента"
+                lower.contains("timer") || lower.contains("freeze time") || lower.contains("inf time") -> "Заморозка таймера (Бесконечное время)"
+                lower.contains("master") || lower.contains("main code") -> "Главный мастер-код (Master Code)"
+                else -> {
+                    val firstLine = code.lines().firstOrNull { it.isNotBlank() }?.trim() ?: ""
+                    when {
+                        firstLine.startsWith("04") -> "Патч памяти: прямая запись 32-бит"
+                        firstLine.startsWith("08") -> "Патч памяти: прямая запись 64-бит"
+                        firstLine.startsWith("01") || firstLine.startsWith("02") -> "Патч регистров памяти"
+                        firstLine.startsWith("58") -> "Патч указателя / смещения памяти"
+                        else -> "Пользовательский чит-код Atmosphere"
+                    }
+                }
+            }
+
+            if (isNumericQuantityCheat(name, code)) {
+                val value = extractNumericValue(code)
+                if (value > 0) {
+                    val prefix = if (baseDesc.isNotEmpty()) baseDesc else name
+                    return "$prefix (Кол-во: $value)"
+                }
+            }
+
+            return baseDesc
+        }
+
+        private fun extractNumericValue(code: String): Long {
+            val lines = code.lines().filter { it.isNotBlank() }
+            for (line in lines) {
+                val tokens = line.trim().split("\\s+".toRegex())
+                if (tokens.size >= 2) {
+                    val lastToken = tokens.last()
+                    val dec = try { lastToken.toLong(16) } catch (_: Exception) { 0L }
+                    if (dec > 0) return dec
+                }
+            }
+            return 0L
+        }
+
+        private fun isNumericQuantityCheat(name: String, code: String): Boolean {
+            val lowerName = name.lowercase()
+
+            val toggleKeywords = listOf(
+                "fps", "framerate", "frame rate", "60fps", "30fps", "120fps", "uncap", "speed limit",
+                "resolution", "dynamic res", "widescreen", "aspect", "hdr", "bloom", "fog", "vsync",
+                "invincible", "god mode", "godmode", "no damage", "infinite", "unlimited",
+                "moon jump", "noclip", "no clip", "freeze", "unlock all", "all items", "100%", "skip"
+            )
+            if (toggleKeywords.any { lowerName.contains(it) }) {
+                return false
+            }
+
+            val quantityKeywords = listOf(
+                "money", "gold", "cash", "coin", "rupee", "dollar", "zenny", "gil", "bell", "credit",
+                "token", "point", "gem", "shard", "cap", "currency", "деньги", "золото", "монет",
+                "hp", "health", "mp", "sp", "mana", "stamina", "exp", "level", "lvl", "stat",
+                "atk", "def", "speed", "опыт", "здоровье", "мана", "уровен",
+                "item", "amount", "quantity", "count", "ammo", "bullet", "arrow", "bomb", "potion",
+                "предмет", "патрон", "стрел", "количеств", "score", "life", "lives"
+            )
+            if (quantityKeywords.any { lowerName.contains(it) }) {
+                return true
+            }
+
+            val lines = code.lines().filter { it.isNotBlank() }
+            if (lines.size == 1) {
+                val tokens = lines[0].trim().split("\\s+".toRegex())
+                if (tokens.size >= 3 && (tokens[0].startsWith("04") || tokens[0].startsWith("02") || tokens[0].startsWith("01"))) {
+                    return true
+                }
+            }
+            return false
+        }
     }
 }

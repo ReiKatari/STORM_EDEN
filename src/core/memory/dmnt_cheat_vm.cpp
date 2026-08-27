@@ -641,13 +641,6 @@ void DmntCheatVm::SkipConditionalBlock(bool is_if) {
 
         CheatVmOpcode skip_opcode{};
         while (condition_depth > desired_depth && DecodeNextOpcode(skip_opcode)) {
-            // Decode instructions until we see end of the current conditional block.
-            // NOTE: This is broken in gateway's implementation.
-            // Gateway currently checks for "0x2" instead of "0x20000000"
-            // In addition, they do a linear scan instead of correctly decoding opcodes.
-            // This causes issues if "0x2" appears as an immediate in the conditional block...
-
-            // We also support nesting of conditional blocks, and Gateway does not.
             if (skip_opcode.begin_conditional_block) {
                 condition_depth++;
             } else if (auto end_cond = std::get_if<EndConditionalOpcode>(&skip_opcode.opcode)) {
@@ -658,13 +651,6 @@ void DmntCheatVm::SkipConditionalBlock(bool is_if) {
                 }
             }
         }
-    } else {
-        // Skipping, but condition_depth = 0.
-        // This is an error condition.
-        // However, I don't actually believe it is possible for this to happen.
-        // I guess we'll throw a fatal error here, so as to encourage me to fix the VM
-        // in the event that someone triggers it? I don't know how you'd do that.
-        UNREACHABLE_MSG("Invalid condition depth in DMNT Cheat VM");
     }
 }
 
@@ -679,13 +665,12 @@ u64 DmntCheatVm::GetVmInt(VmInt value, u32 bit_width) {
     case 8:
         return value.bit64;
     default:
-        // Invalid bit width -> return 0.
         return 0;
     }
 }
 
 u64 DmntCheatVm::GetCheatProcessAddress(const CheatProcessMetadata& metadata,
-                                        MemoryAccessType mem_type, u64 rel_address) {
+                                      MemoryAccessType mem_type, u64 rel_address) {
     switch (mem_type) {
     case MemoryAccessType::MainNso:
     default:
@@ -716,8 +701,7 @@ bool DmntCheatVm::LoadProgram(const std::vector<CheatEntry>& entries) {
         if (entries[i].enabled) {
             // Bounds check.
             if (entries[i].definition.num_opcodes + num_opcodes > MaximumProgramOpcodeCount) {
-                num_opcodes = 0;
-                return false;
+                break;
             }
 
             for (std::size_t n = 0; n < entries[i].definition.num_opcodes; n++) {
@@ -735,28 +719,11 @@ void DmntCheatVm::Execute(const CheatProcessMetadata& metadata) {
     // Get Keys down.
     u64 kDown = callbacks->HidKeysDown();
 
-    callbacks->CommandLog("Started VM execution.");
-    callbacks->CommandLog(fmt::format("Main NSO:  {:012X}", metadata.main_nso_extents.base));
-    callbacks->CommandLog(fmt::format("Heap:      {:012X}", metadata.main_nso_extents.base));
-    callbacks->CommandLog(fmt::format("Keys Down: {:08X}", static_cast<u32>(kDown & 0x0FFFFFFF)));
-
     // Clear VM state.
     ResetState();
 
     // Loop until program finishes.
     while (DecodeNextOpcode(cur_opcode)) {
-        callbacks->CommandLog(
-            fmt::format("Instruction Ptr: {:04X}", static_cast<u32>(instruction_ptr)));
-
-        for (std::size_t i = 0; i < NumRegisters; i++) {
-            callbacks->CommandLog(fmt::format("Registers[{:02X}]: {:016X}", i, registers[i]));
-        }
-
-        for (std::size_t i = 0; i < NumRegisters; i++) {
-            callbacks->CommandLog(fmt::format("SavedRegs[{:02X}]: {:016X}", i, saved_values[i]));
-        }
-        LogOpcode(cur_opcode);
-
         // Increment conditional depth, if relevant.
         if (cur_opcode.begin_conditional_block) {
             condition_depth++;

@@ -32,6 +32,7 @@ import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.FullscreenHelper
 import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
+import org.yuzu.yuzu_emu.fragments.AutoOptimizationDialogFragment
 import org.yuzu.yuzu_emu.fragments.MessageDialogFragment
 
 class SettingsFragmentPresenter(
@@ -149,6 +150,20 @@ class SettingsFragmentPresenter(
 
     private fun addConfigSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
+            if (!NativeConfig.isPerGameConfigLoaded() && !NativeLibrary.isRunning()) {
+                add(
+                    RunnableSetting(
+                        titleId = R.string.auto_optimization_wizard_title,
+                        descriptionId = R.string.auto_optimization_wizard_description,
+                        isRunnable = true,
+                        iconId = R.drawable.ic_settings
+                    ) {
+                        activity?.supportFragmentManager?.let { fm ->
+                            AutoOptimizationDialogFragment.newInstance().show(fm, AutoOptimizationDialogFragment.TAG)
+                        }
+                    }
+                )
+            }
             add(
                 SubmenuSetting(
                     titleId = R.string.preferences_system,
@@ -270,8 +285,6 @@ class SettingsFragmentPresenter(
     // TODO(crueter): sub-submenus?
     private fun addGraphicsSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
-            // add(IntSetting.RENDERER_NVDEC_EMULATION.key)
-
             add(IntSetting.RENDERER_RESOLUTION.key)
             add(IntSetting.RENDERER_VSYNC.key)
             add(IntSetting.RENDERER_SCALING_FILTER.key)
@@ -279,6 +292,7 @@ class SettingsFragmentPresenter(
                 add(IntSetting.FSR_SHARPENING_SLIDER.key)
             }
             add(IntSetting.RENDERER_ANTI_ALIASING.key)
+            add(IntSetting.RENDERER_NVDEC_EMULATION.key)
 
             add(HeaderSetting(R.string.advanced))
 
@@ -288,6 +302,7 @@ class SettingsFragmentPresenter(
             add(IntSetting.MAX_ANISOTROPY.key)
             add(IntSetting.RENDERER_VRAM_USAGE_MODE.key)
             add(IntSetting.RENDERER_ASTC_DECODE_METHOD.key)
+            add(IntSetting.ASTC_RECOMPRESSION.key)
 
             add(BooleanSetting.SYNC_MEMORY_OPERATIONS.key)
             add(BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.key)
@@ -297,6 +312,8 @@ class SettingsFragmentPresenter(
             add(BooleanSetting.ENABLE_GPU_BUFFER_READBACK.key)
             add(HeaderSetting(R.string.optimization_features))
             add(BooleanSetting.ECO_THERMAL_MODE.key)
+            add(BooleanSetting.ECO_FRAME_PACING.key)
+            add(BooleanSetting.SMART_SHADER_THROTTLE.key)
             add(BooleanSetting.CPU_AFFINITY_PINNING.key)
             add(BooleanSetting.VULKAN_PIPELINE_CACHE.key)
             add(BooleanSetting.VRAM_GARBAGE_COLLECTION.key)
@@ -385,6 +402,7 @@ class SettingsFragmentPresenter(
         sl.apply {
             add(HeaderSetting(R.string.stats_overlay_customization))
             add(BooleanSetting.SHOW_SOC_OVERLAY.key)
+            add(BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY.key)
             add(BooleanSetting.SOC_OVERLAY_BACKGROUND.key)
             add(IntSetting.SOC_OVERLAY_POSITION.key)
 

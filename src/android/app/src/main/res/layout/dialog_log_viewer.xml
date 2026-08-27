@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/eden_card_background"
+    app:strokeColor="?attr/colorPrimary"
+    app:strokeWidth="1.5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_log"
+                app:tint="?attr/colorPrimary"
+                android:layout_marginEnd="8dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_dialog_title"
+                    style="@style/SynthwaveText.Header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📜 Журнал работы (Логи эмулятора)"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_log_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#A0AEC0"
+                    android:textSize="11sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Diablo II | 0100726014352000 | ⚡ В игре" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_refresh_log"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:icon="@drawable/ic_refresh"
+                app:iconSize="18dp"
+                android:layout_marginEnd="4dp"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#00F2FE" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share_log"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:icon="@drawable/ic_share"
+                app:iconSize="18dp"
+                android:layout_marginEnd="4dp"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#4FD1C5" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_copy_log"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:icon="@drawable/ic_export"
+                app:iconSize="18dp"
+                android:layout_marginEnd="4dp"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#FEB2B2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_close"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                app:icon="@drawable/ic_clear"
+                app:iconSize="18dp"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#FFFFFF" />
+        </LinearLayout>
+
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/eden_card_background"
+            android:paddingHorizontal="10dp"
+            android:layout_marginBottom="6dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_search"
+                app:tint="#A0AEC0"
+                android:layout_marginEnd="6dp" />
+
+            <EditText
+                android:id="@+id/edit_search_log"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="Поиск в логах (Error, Warning, Vulkan, NSO...)"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#718096"
+                android:textSize="12sp"
+                android:inputType="text"
+                android:imeOptions="actionSearch" />
+
+            <ImageView
+                android:id="@+id/btn_clear_search"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_clear"
+                app:tint="#A0AEC0"
+                android:visibility="gone"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+
+        <!-- Filter Category Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="6dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_filters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_all"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Все (All)"
+                    android:textColor="#E2E8F0"
+                    android:textSize="11sp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_errors"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🚨 Ошибки (Errors)"
+                    android:textColor="#FF6B6B"
+                    android:textSize="11sp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_warnings"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚠️ Предупреждения (Warnings)"
+                    android:textColor="#FFD166"
+                    android:textSize="11sp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_info"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ℹ️ Информация (Info)"
+                    android:textColor="#4FD1C5"
+                    android:textSize="11sp" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <!-- Log Content Container -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#0D1117"
+            app:strokeColor="#30363D"
+            app:strokeWidth="1dp">
+
+            <ScrollView
+                android:id="@+id/scroll_log"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:padding="8dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_log_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="#C9D1D9"
+                    android:textSize="10.5sp"
+                    android:lineSpacingExtra="2dp"
+                    android:textIsSelectable="true"
+                    tools:text="[ 0.000000] Frontend [Info] Emulator initialized..." />
+            </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Footer / Action bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_log_stats"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#718096"
+                android:textSize="11sp"
+                tools:text="Строк: 450 | Размер: 32 КБ" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share_messenger"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Отправить в Telegram / MAX"
+                android:textColor="#00F2FE"
+                android:textSize="11sp"
+                app:icon="@drawable/ic_share"
+                app:iconSize="14dp"
+                app:iconTint="#00F2FE"
+                app:backgroundTint="#1A202C" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

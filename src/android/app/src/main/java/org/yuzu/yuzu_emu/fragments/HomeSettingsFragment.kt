@@ -82,6 +82,17 @@ class HomeSettingsFragment : Fragment() {
         val optionsList: MutableList<HomeSetting> = mutableListOf<HomeSetting>().apply {
             add(
                 HomeSetting(
+                    R.string.auto_optimization_wizard_title,
+                    R.string.auto_optimization_wizard_description,
+                    R.drawable.ic_settings,
+                    {
+                        AutoOptimizationDialogFragment.newInstance()
+                            .show(parentFragmentManager, AutoOptimizationDialogFragment.TAG)
+                    }
+                )
+            )
+            add(
+                HomeSetting(
                     R.string.advanced_settings,
                     R.string.settings_description,
                     R.drawable.ic_settings,

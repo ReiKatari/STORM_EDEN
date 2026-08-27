@@ -24,14 +24,17 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_game_title"
-                style="@style/SynthwaveText.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:lineHeight="17sp"
+                android:breakStrategy="simple"
+                android:hyphenationFrequency="none"
+                android:maxLines="3"
                 android:ellipsize="end"
-                android:maxLines="1"
                 tools:text="Game Title" />
 
             <LinearLayout

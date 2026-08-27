@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="notice_notification_channel_name">알림 및 오류</string>
@@ -748,4 +748,64 @@
     <!-- Licenses screen strings -->
     <string name="licenses">라이센스</string>
     <string name="license_fidelityfx_fsr_description">AMD 고품질 업스케일링</string>
-    </resources>
+    <string name="add_cheat">치트 추가</string>
+    <string name="auto_optimization_apply">모드 적용</string>
+    <string name="auto_optimization_mode_normal">⚖️ 보통 (권장)</string>
+    <string name="downloading_cheats">치트 데이터베이스 다운로드 중…</string>
+    <string name="auto_optimization_mode_normal_desc">그래픽 품질, 부드러움 및 안정성의 완벽한 균형. 1X (720p/1080p), FSR 85%, FXAA, 균형 배리어.</string>
+    <string name="auto_optimization_mode_accurate">💎 최고 화질 / 정확</string>
+    <string name="auto_optimization_mode_accurate_desc">최고 그래픽 품질, 1.5X/1X 해상도, 안전한 DMA, 엄격한 GPU 배리어, SMAA, 16x 비등방성.</string>
+    <string name="dma_accuracy_high">높음</string>
+    <string name="vram_usage_mode_aggressive">적극적 (최고 성능)</string>
+    <string name="auto_optimization_mode_fast_desc">최대 FPS, 최소 발열 및 배터리 절약. 0.75X 해상도, 절약형 VRAM, 빠른 GPU 배리어, NCE.</string>
+    <string name="app_language_system">시스템 기본값</string>
+    <string name="auto_optimization_mode_fast">⚡ 고속 / 절약</string>
+    <string name="cheat_status_active">⚡ 게임 내 적용 중</string>
+    <string name="translator_enable_floating_button">플로팅 버튼 표시</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="eco_frame_pacing_description">프레임 대기 중 불필요한 CPU 회전을 제거하여 60 FPS를 유지하며 발열을 낮춥니다.</string>
+    <string name="vram_usage_mode_normal">보통 (권장)</string>
+    <string name="app_language">앱 언어</string>
+    <string name="auto_optimization_wizard_title">자동 최적화</string>
+    <string name="download_cheats">온라인 치트 다운로드</string>
+    <string name="cpu_affinity_pinning">CPU 코어 고정</string>
+    <string name="cheats_download_success">치트 데이터베이스 다운로드 성공! %1$d개의 코드를 찾았습니다.</string>
+    <string name="search_amiibo_hint">이름, 캐릭터 또는 ID로 검색...</string>
+    <string name="overlay_skin_theme">터치 컨트롤러 스킨</string>
+    <string name="cpu_affinity_pinning_description">핵심 JIT 및 GPU 스레드를 고성능 코어에 고정하고 보조 작업을 효율 코어로 분산합니다.</string>
+    <string name="eco_thermal_mode_description">피크 클럭을 제어하여 과열 및 스로틀링을 방지합니다.</string>
+    <string name="auto_optimization_device_info">기기 하드웨어 정보</string>
+    <string name="translator_title">STORM 번역기</string>
+    <string name="translator_translate_screen">화면 실시간 번역 (OCR + 음성 읽기)</string>
+    <string name="amiibo_database_title">온라인 Amiibo 데이터베이스</string>
+    <string name="optimization_features">최적화 및 발열 제어</string>
+    <string name="cheat_code">Atmosphere 코드</string>
+    <string name="cheat_status_disabled">⚪ 비활성화됨</string>
+    <string name="amiibo_database_description">가상 Amiibo를 검색, 생성하고 게임에 빠르게 로드합니다</string>
+    <string name="cheats_not_found">이 게임의 치트를 찾을 수 없습니다. 직접 코드를 추가할 수 있습니다.</string>
+    <string name="overlay_skin_theme_description">가상 버튼과 조이스틱의 색상 테마 및 스타일을 선택합니다</string>
+    <string name="cheats_count_summary">총 치트: %1$d | 활성화: %2$d</string>
+    <string name="auto_optimization_applied_toast">⚡ 자동 최적화 적용 완료: "%1$s" 프로필!</string>
+    <string name="eco_thermal_mode">에코 / 발열 제어 모드</string>
+    <string name="dma_accuracy_normal">보통 (권장)</string>
+    <string name="cheats_manager_title">치트 관리자</string>
+    <string name="auto_optimization_wizard_description">CPU, GPU 및 RAM을 분석하여 기기에 가장 적합한 설정을 자동으로 적용합니다</string>
+    <string name="app_language_description">앱 인터페이스 언어 변경</string>
+    <string name="eco_frame_pacing">에코 프레임 페이싱</string>
+    <string name="cheat_name">치트 이름</string>
+    <string name="vram_garbage_collection_description">사용하지 않는 텍스처 메모리를 주기적으로 정리하여 멈춤 및 튕김을 방지합니다.</string>
+    <string name="vulkan_pipeline_cache_description">파이프라인 캐시를 저장소에 보관하여 게임 내 끊김을 완전히 제거합니다.</string>
+    <string name="translator_disable_floating_button">플로팅 버튼 숨기기</string>
+    <string name="cheat_status_enabled">✅ 활성화됨</string>
+    <string name="deselect_all">모두 선택 해제</string>
+    <string name="smart_shader_throttle_description">셰이더 컴파일을 효율 코어에 동적으로 분산하여 프레임 드랍과 발열을 방지합니다.</string>
+    <string name="cheats">치트 코드</string>
+    <string name="vram_garbage_collection">VRAM 가비지 컬렉션</string>
+    <string name="vram_usage_mode_conservative">절약 (낮은 메모리)</string>
+    <string name="cheats_description">Atmosphere 치트 코드 관리, 활성화 및 온라인 데이터베이스 다운로드</string>
+    <string name="auto_optimization_summary_title">적용된 설정</string>
+    <string name="smart_shader_throttle">스마트 백그라운드 셰이더 조절</string>
+    <string name="select_all">모두 선택</string>
+    <string name="dma_accuracy_safe">안전 (최대 호환성)</string>
+    <string name="vulkan_pipeline_cache">Vulkan 파이프라인 캐시</string>
+</resources>

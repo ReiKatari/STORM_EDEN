@@ -14,6 +14,7 @@
     <string name="app_notification_running">STORM EDEN is Running</string>
     <string name="seconds">Seconds</string>
     <string name="copy_to_clipboard">Copy Info</string>
+    <string name="view_logs">Журнал работы (Логи)</string>
 
     <!-- Spinbox strings -->
     <string name="increment">Increment</string>
@@ -495,6 +496,12 @@
     <string name="vram_usage_mode_description">Control how aggressively the emulator allocates and frees GPU memory.</string>
     <string name="accelerate_astc">ASTC Decoding Method</string>
     <string name="accelerate_astc_description">Pick how ASTC-compressed textures are decoded for rendering: CPU (slow, safe), GPU (fast, recommended), or CPU Async (no stutters, may cause issues)</string>
+    <string name="astc_recompression">ASTC Texture Recompression</string>
+    <string name="astc_recompression_description">Recompresses ASTC textures to BC1, BC3, or BC5 formats on the fly to reduce RAM and VRAM usage by 50–80%.</string>
+    <string name="astc_recompression_uncompressed">Uncompressed (Highest Quality / Max RAM)</string>
+    <string name="astc_recompression_bc1">BC1 (Low Quality / Max RAM Savings)</string>
+    <string name="astc_recompression_bc3">BC3 (Medium Quality / 50% RAM Savings)</string>
+    <string name="astc_recompression_bc5">BC5 (High Quality for Normals)</string>
 
     <string name="sync_memory_operations">Sync Memory Operations</string>
     <string name="sync_memory_operations_description">Ensures data consistency between compute and memory operations. This option should fix issues in some games, but may also reduce performance in some cases. Unreal Engine 4 games often see the most significant changes thereof.</string>
@@ -734,6 +741,10 @@
     <string name="select_gpu_driver_error">Invalid driver selected</string>
     <string name="driver_already_installed">Driver already installed</string>
     <string name="installed_label">%1$s (Installed)</string>
+    <string name="in_use_label">%1$s (In Use)</string>
+    <string name="apply_driver_now">Apply Driver</string>
+    <string name="apply_driver_confirm">Set \"%1$s\" as your active GPU driver?</string>
+    <string name="active_driver">Active Driver</string>
     <string name="system_gpu_driver">System GPU driver</string>
     <string name="installing_driver">Installing driver…</string>
 
@@ -1050,6 +1061,8 @@
 
     <!-- DMA Accuracy -->
     <string name="dma_accuracy_default">Default</string>
+    <string name="dma_accuracy_normal">Normal</string>
+    <string name="dma_accuracy_high">High</string>
     <string name="dma_accuracy_unsafe">Unsafe</string>
     <string name="dma_accuracy_safe">Safe</string>
 
@@ -1067,7 +1080,11 @@
 
 
     <string name="vram_usage_conservative">Conservative</string>
+    <string name="vram_usage_normal">Normal</string>
     <string name="vram_usage_aggressive">Aggressive</string>
+    <string name="vram_usage_mode_conservative">Conservative</string>
+    <string name="vram_usage_mode_normal">Normal</string>
+    <string name="vram_usage_mode_aggressive">Aggressive</string>
 
     <!-- Resolutions -->
     <string name="resolution_quarter" translatable="false">0.25X (180p/270p)</string>
@@ -1125,8 +1142,8 @@
     <string name="ratio_stretch">Stretch to window</string>
 
     <!-- CPU Backend -->
-    <string name="cpu_backend_dynarmic" translatable="false">Dynarmic (JIT)</string>
-    <string name="cpu_backend_nce" translatable="false">NCE</string>
+    <string name="cpu_backend_nce">NCE (Native Code Execution — Recommended)</string>
+    <string name="cpu_backend_dynarmic">Dynarmic (JIT)</string>
 
     <!-- CPU Accuracy -->
     <string name="cpu_accuracy_accurate">Accurate</string>
@@ -1879,6 +1896,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <!-- Auto-Translator (OCR + TTS) -->
     <string name="translator_title">STORM TRANSLATOR</string>
     <string name="translator_translate_screen">Translate Screen (OCR + TTS)</string>
+    <string name="translator_enable_floating_button">Show Translate Button</string>
+    <string name="translator_disable_floating_button">Hide Translate Button</string>
     <string name="translator_engine">Translation Engine</string>
     <string name="translator_source_lang">Source Language</string>
     <string name="translator_target_lang">Target Language</string>
@@ -1934,11 +1953,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="optimization_features">Optimization &amp; Thermals</string>
     <string name="eco_thermal_mode">Eco / Thermal Governor</string>
     <string name="eco_thermal_mode_description">Controls burst clocks and throttles non-essential background draw calls to prevent device overheating and thermal throttling.</string>
+    <string name="eco_frame_pacing">Eco Frame Pacing</string>
+    <string name="eco_frame_pacing_description">Eliminates wasted CPU spin cycles during frame presentation intervals, significantly lowering device temperature while keeping a solid 60 FPS.</string>
+    <string name="smart_shader_throttle">Smart Background Shader Pacing</string>
+    <string name="smart_shader_throttle_description">Dynamically balances background pipeline compilation across efficiency cores so the main game thread never drops frames or overheats.</string>
     <string name="cpu_affinity_pinning">CPU Affinity Pinning</string>
     <string name="cpu_affinity_pinning_description">Pins critical JIT and GPU emulation threads to high-performance Big/Mid Cortex cores and routes helper tasks to efficiency cores.</string>
     <string name="vulkan_pipeline_cache">Vulkan Pipeline Cache</string>
     <string name="vulkan_pipeline_cache_description">Precompiles and serializes Vulkan binary pipeline caches on storage to eliminate runtime shader compilation stutter.</string>
     <string name="vram_garbage_collection">VRAM Garbage Collection</string>
     <string name="vram_garbage_collection_description">Periodically frees unreferenced texture memory and stale ASTC buffers to prevent Android LMK (Low Memory Killer) stutter.</string>
+
+    <!-- Auto Optimization Wizard -->
+    <string name="auto_optimization_wizard_title">Auto-Configuration</string>
+    <string name="auto_optimization_wizard_description">Analyzes CPU, GPU, and RAM to automatically apply ideal settings for your device</string>
+    <string name="auto_optimization_device_info">Device Hardware Info</string>
+    <string name="auto_optimization_mode_fast">⚡ Fast</string>
+    <string name="auto_optimization_mode_fast_desc">Maximum FPS, lowest heat, and battery saving. 0.75X resolution, conservative VRAM, fast GPU fences, NCE.</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normal (Recommended)</string>
+    <string name="auto_optimization_mode_normal_desc">Optimal balance of visual fidelity, smoothness, and stability. 1X (720p/1080p), FSR 85%, FXAA, balanced fences.</string>
+    <string name="auto_optimization_mode_accurate">💎 Accurate</string>
+    <string name="auto_optimization_mode_accurate_desc">Maximum graphical accuracy, 1.5X/1X resolution, safe DMA, strict GPU fences, SMAA, 16x Anisotropy.</string>
+    <string name="auto_optimization_apply">Apply Mode</string>
+    <string name="auto_optimization_applied_toast">⚡ Auto-Configuration applied: \"%1$s\" profile!</string>
+    <string name="auto_optimization_summary_title">Applied Settings</string>
+    <string name="auto_optimization_mode_default">🔄 Default Settings</string>
+    <string name="auto_optimization_mode_default_desc">Disable auto-optimization profiles and restore all emulator settings to factory defaults.</string>
+    <string name="auto_optimization_reset_defaults">Reset to Defaults</string>
+    <string name="auto_optimization_defaults_restored_toast">🔄 Default settings successfully restored!</string>
+    <string name="show_device_load_overlay">Show Device Load Overlay</string>
+    <string name="show_device_load_overlay_description">Displays real-time CPU, GPU, RAM utilization and 5-stage device temperature indicators.</string>
+    <string name="game_fix_issues_header">⚠️ Known Issues &amp; Bugs</string>
+    <string name="game_fix_recommended_header">⚡ Recommended Fixes &amp; Settings</string>
+    <string name="game_fix_dont_ask_again">Don\'t ask again for this game</string>
+    <string name="game_fix_apply_and_launch">⚡ Apply Fixes &amp; Launch</string>
+    <string name="game_fix_skip_and_launch">Launch Without Changes</string>
 </resources>
 

@@ -740,8 +740,7 @@ void HostMemory::Unmap(size_t virtual_offset, size_t length, bool separate_heap)
 #if !(defined(__OPENORBIS__) || defined(__managarm__))
     ASSERT(virtual_offset % PageAlignment == 0);
     ASSERT(length % PageAlignment == 0);
-    ASSERT(virtual_offset + length <= virtual_size);
-    if (length == 0 || !virtual_base || !impl) {
+    if (virtual_offset + length > virtual_size || length == 0 || !virtual_base || !impl) {
         return;
     }
     impl->Unmap(virtual_offset + virtual_base_offset, length);

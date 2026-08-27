@@ -17,10 +17,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
+import org.yuzu.yuzu_emu.YuzuApplication
 
 object CrashHandler {
     private const val TAG = "STORM_EDEN_CRASH"
-    private const val FILE_NAME = "STORM_EDEN_CRASH.txt"
+    private const val FILE_NAME = "storm_switch_log.txt"
     private val installed = AtomicBoolean(false)
     private var appContext: Context? = null
     private var defaultHandler: Thread.UncaughtExceptionHandler? = null
@@ -127,14 +128,14 @@ object CrashHandler {
 
         val ctx = context ?: appContext
 
-        // 1. Write via MediaStore into Downloads (guaranteed on Android 10-15)
+        // 1. Write via MediaStore into Downloads/STORM SWITCH LOGS
         if (ctx != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
                 val resolver = ctx.contentResolver
                 val values = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, FILE_NAME)
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, "storm_switch_log.txt")
                     put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/STORM SWITCH LOGS")
                     put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
                 val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
@@ -146,50 +147,100 @@ object CrashHandler {
                     values.clear()
                     values.put(MediaStore.MediaColumns.IS_PENDING, 0)
                     resolver.update(uri, values, null, null)
-                    Log.i(TAG, "Crash log successfully exported to MediaStore Downloads: $uri")
+                    Log.i(TAG, "Crash log successfully exported to MediaStore: $uri")
                 }
             } catch (e: Throwable) {
                 Log.w(TAG, "MediaStore export failed: ${e.message}")
             }
         }
 
-        // 2. Direct paths
+        // 2. Direct paths strictly in STORM SWITCH LOGS folder
         val targetDirs = mutableListOf<File>()
         try {
             val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             if (publicDownloads != null) {
-                targetDirs.add(publicDownloads)
+                targetDirs.add(File(publicDownloads, "STORM SWITCH LOGS"))
             }
         } catch (ignored: Throwable) {}
 
-        targetDirs.add(File("/storage/emulated/0/Download"))
-        targetDirs.add(File("/sdcard/Download"))
-
-        if (ctx != null) {
-            try { ctx.getExternalFilesDir(null)?.let { targetDirs.add(it) } } catch (ignored: Throwable) {}
-            try { targetDirs.add(ctx.filesDir) } catch (ignored: Throwable) {}
-            try { ctx.externalCacheDir?.let { targetDirs.add(it) } } catch (ignored: Throwable) {}
-            try { targetDirs.add(ctx.cacheDir) } catch (ignored: Throwable) {}
-        }
-
-        targetDirs.add(File("/data/data/org.yuzu.yuzu_emu/files"))
-        targetDirs.add(File("/data/data/dev.eden.eden_emulator/files"))
-        targetDirs.add(File("/data/user/0/dev.eden.eden_emulator/files"))
+        targetDirs.add(File("/storage/emulated/0/Download/STORM SWITCH LOGS"))
+        targetDirs.add(File("/sdcard/Download/STORM SWITCH LOGS"))
 
         for (dir in targetDirs) {
             try {
                 if (!dir.exists()) {
                     dir.mkdirs()
                 }
-                val crashFile = File(dir, FILE_NAME)
+                val crashFile = File(dir, "storm_switch_log.txt")
                 FileOutputStream(crashFile, false).use { fos ->
                     fos.write(crashReportText.toByteArray(Charsets.UTF_8))
                     fos.flush()
                 }
                 Log.i(TAG, "Crash report written to: ${crashFile.absolutePath}")
             } catch (e: Throwable) {
-                // ignore permission errors on inaccessible paths
+                // ignore permission errors
             }
+        }
+    }
+
+    fun exportLiveLog(context: Context? = null) {
+        try {
+            val ctx = context ?: appContext ?: YuzuApplication.appContext
+            val logFile = File(DirectoryInitialization.userDirectory, "log/yuzu_log.txt")
+            val logContent = if (logFile.exists()) {
+                logFile.readText(Charsets.UTF_8)
+            } else {
+                "STORM EDEN Session Log\nTimestamp: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())}\n"
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    val resolver = ctx.contentResolver
+                    val values = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, FILE_NAME)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/STORM SWITCH LOGS")
+                        put(MediaStore.MediaColumns.IS_PENDING, 1)
+                    }
+                    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                    if (uri != null) {
+                        resolver.openOutputStream(uri, "wt")?.use { os ->
+                            os.write(logContent.toByteArray(Charsets.UTF_8))
+                            os.flush()
+                        }
+                        values.clear()
+                        values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        resolver.update(uri, values, null, null)
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Live log MediaStore export failed: ${e.message}")
+                }
+            }
+
+            val targetDirs = mutableListOf<File>()
+            try {
+                val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (publicDownloads != null) {
+                    targetDirs.add(File(publicDownloads, "STORM SWITCH LOGS"))
+                }
+            } catch (ignored: Throwable) {}
+            targetDirs.add(File("/storage/emulated/0/Download/STORM SWITCH LOGS"))
+            targetDirs.add(File("/sdcard/Download/STORM SWITCH LOGS"))
+
+            for (dir in targetDirs) {
+                try {
+                    if (!dir.exists()) {
+                        dir.mkdirs()
+                    }
+                    val targetFile = File(dir, FILE_NAME)
+                    FileOutputStream(targetFile, false).use { fos ->
+                        fos.write(logContent.toByteArray(Charsets.UTF_8))
+                        fos.flush()
+                    }
+                } catch (ignored: Throwable) {}
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "exportLiveLog error: ${e.message}")
         }
     }
 }

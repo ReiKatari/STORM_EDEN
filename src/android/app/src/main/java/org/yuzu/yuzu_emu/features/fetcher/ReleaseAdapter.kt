@@ -143,20 +143,41 @@ class ReleaseAdapter(
             binding.containerDownloads.removeAllViews()
 
             release.artifacts.forEach { artifact ->
-                val alreadyInstalled = try {
-                    // Prefer fast check via ViewModel list; fallback to helper if needed
-                    driverViewModel.driverData.any {
-                        File(it.first).name.equals(artifact.name, ignoreCase = true)
-                    } || GpuDriverHelper.isDriverZipInstalledByName(artifact.name)
+                val currentDriverPath = org.yuzu.yuzu_emu.features.settings.model.StringSetting.DRIVER_PATH.getString()
+                val customMeta = GpuDriverHelper.customDriverSettingData
+
+                val installedDriverEntry = try {
+                    driverViewModel.driverData.firstOrNull {
+                        File(it.first).name.equals(artifact.name, ignoreCase = true) ||
+                        (!it.second.name.isNullOrEmpty() && artifact.name.contains(it.second.name!!, ignoreCase = true) &&
+                         !it.second.version.isNullOrEmpty() && artifact.name.contains(it.second.version!!, ignoreCase = true))
+                    }
                 } catch (_: Exception) {
+                    null
+                }
+
+                val installedPath = installedDriverEntry?.first ?: if (GpuDriverHelper.isDriverZipInstalledByName(artifact.name)) {
+                    "${GpuDriverHelper.driverStoragePath}${artifact.name}"
+                } else {
+                    null
+                }
+
+                val alreadyInstalled = installedPath != null
+
+                val isCurrentlyActive = if (currentDriverPath.isNotEmpty() && alreadyInstalled) {
+                    currentDriverPath.equals(installedPath, ignoreCase = true) ||
+                    File(currentDriverPath).name.equals(artifact.name, ignoreCase = true) ||
+                    (!customMeta.name.isNullOrEmpty() && artifact.name.contains(customMeta.name!!, ignoreCase = true) &&
+                     !customMeta.version.isNullOrEmpty() && artifact.name.contains(customMeta.version!!, ignoreCase = true))
+                } else {
                     false
                 }
 
                 val button = MaterialButton(binding.root.context).apply {
-                    text = if (alreadyInstalled) {
-                        context.getString(R.string.installed_label, artifact.name)
-                    } else {
-                        artifact.name
+                    text = when {
+                        isCurrentlyActive -> context.getString(R.string.in_use_label, artifact.name)
+                        alreadyInstalled -> context.getString(R.string.installed_label, artifact.name)
+                        else -> artifact.name
                     }
                     setTextAppearance(
                         com.google.android.material.R.style.TextAppearance_Material3_LabelLarge
@@ -167,11 +188,11 @@ class ReleaseAdapter(
                             com.google.android.material.R.color.m3_button_background_color_selector
                         )
                     )
-                    setIconResource(if (alreadyInstalled) R.drawable.ic_check else R.drawable.ic_import)
+                    setIconResource(if (isCurrentlyActive || alreadyInstalled) R.drawable.ic_check else R.drawable.ic_import)
                     iconTint = ColorStateList.valueOf(
                         MaterialColors.getColor(
                             this,
-                            com.google.android.material.R.attr.colorPrimary
+                            if (isCurrentlyActive) com.google.android.material.R.attr.colorPrimary else com.google.android.material.R.attr.colorPrimary
                         )
                     )
 
@@ -180,19 +201,34 @@ class ReleaseAdapter(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
-                    isEnabled = !alreadyInstalled
+                    isEnabled = true
+
                     setOnClickListener {
-                        // Double-check just before starting (race-proof)
-                        if (GpuDriverHelper.isDriverZipInstalledByName(artifact.name)) {
+                        if (isCurrentlyActive) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.driver_already_installed),
+                                "⚡ " + context.getString(R.string.in_use_label, artifact.name),
                                 Toast.LENGTH_SHORT
                             ).show()
-                            // Update UI to reflect installed state
-                            this.isEnabled = false
-                            this.text = context.getString(R.string.installed_label, artifact.name)
-                            this.setIconResource(R.drawable.ic_check)
+                            return@setOnClickListener
+                        }
+
+                        if (alreadyInstalled && installedPath != null) {
+                            MaterialAlertDialogBuilder(context)
+                                .setTitle(context.getString(R.string.active_driver))
+                                .setMessage(context.getString(R.string.apply_driver_confirm, artifact.name))
+                                .setPositiveButton(R.string.apply_driver_now) { _, _ ->
+                                    org.yuzu.yuzu_emu.features.settings.model.StringSetting.DRIVER_PATH.setString(installedPath)
+                                    driverViewModel.updateDriverList()
+                                    Toast.makeText(
+                                        context,
+                                        "⚡ " + context.getString(R.string.in_use_label, artifact.name),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    notifyDataSetChanged()
+                                }
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show()
                             return@setOnClickListener
                         }
 
@@ -211,42 +247,97 @@ class ReleaseAdapter(
 
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
-                                val request = Request.Builder()
-                                    .url(artifact.url)
-                                    .header("Accept", "application/octet-stream")
-                                    .build()
-
-                                val cacheDir = context.externalCacheDir ?: throw IOException(
-                                    context.getString(R.string.failed_cache_dir)
-                                )
-
+                                val cacheDir = context.externalCacheDir ?: context.cacheDir
                                 cacheDir.mkdirs()
-
                                 val file = File(cacheDir, artifact.name)
 
-                                withContext(Dispatchers.IO) {
-                                    client.newBuilder()
-                                        .followRedirects(true)
-                                        .followSslRedirects(true)
-                                        .build()
-                                        .newCall(request).execute().use { response ->
-                                            if (!response.isSuccessful) {
-                                                throw IOException("${response.code}")
-                                            }
-
-                                            response.body?.byteStream()?.use { input ->
-                                                FileOutputStream(file).use { output ->
-                                                    input.copyTo(output)
-                                                }
-                                            }
-                                                ?: throw IOException(
-                                                    context.getString(R.string.empty_response_body)
-                                                )
-                                        }
+                                val originalUrl = artifact.url.toString()
+                                val downloadMirrors = mutableListOf(originalUrl)
+                                if (originalUrl.startsWith("https://github.com/")) {
+                                    downloadMirrors.add("https://ghproxy.net/$originalUrl")
+                                    downloadMirrors.add("https://gh-proxy.com/$originalUrl")
+                                    downloadMirrors.add(originalUrl.replace("https://github.com/", "https://githubfast.com/"))
                                 }
 
-                                if (file.length() == 0L) {
-                                    throw IOException(context.getString(R.string.driver_empty))
+                                var downloadSuccess = false
+                                var lastException: Exception? = null
+
+                                val downloadClient = OkHttpClient.Builder()
+                                    .connectTimeout(45, java.util.concurrent.TimeUnit.SECONDS)
+                                    .readTimeout(180, java.util.concurrent.TimeUnit.SECONDS)
+                                    .followRedirects(true)
+                                    .followSslRedirects(true)
+                                    .retryOnConnectionFailure(true)
+                                    .build()
+
+                                withContext(Dispatchers.IO) {
+                                    for ((index, dlUrl) in downloadMirrors.withIndex()) {
+                                        try {
+                                            withContext(Dispatchers.Main) {
+                                                dialogBinding.status.text = if (index > 0) {
+                                                    "Загрузка через зеркало $index..."
+                                                } else {
+                                                    context.getString(R.string.downloading)
+                                                }
+                                            }
+
+                                            val req = Request.Builder()
+                                                .url(dlUrl)
+                                                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 StormEden/4.4.3")
+                                                .header("Accept", "application/octet-stream, */*")
+                                                .build()
+
+                                            downloadClient.newCall(req).execute().use { response ->
+                                                if (!response.isSuccessful) {
+                                                    throw IOException("HTTP ${response.code}")
+                                                }
+
+                                                val body = response.body ?: throw IOException(context.getString(R.string.empty_response_body))
+                                                val contentLength = body.contentLength()
+                                                var totalBytesRead = 0L
+
+                                                body.byteStream().use { input ->
+                                                    FileOutputStream(file).use { output ->
+                                                        val buffer = ByteArray(64 * 1024)
+                                                        var bytesRead: Int
+                                                        var lastUpdate = System.currentTimeMillis()
+
+                                                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                                                            output.write(buffer, 0, bytesRead)
+                                                            totalBytesRead += bytesRead
+                                                            val now = System.currentTimeMillis()
+                                                            if (now - lastUpdate > 250) {
+                                                                lastUpdate = now
+                                                                withContext(Dispatchers.Main) {
+                                                                    val mbRead = String.format("%.1f", totalBytesRead / (1024.0 * 1024.0))
+                                                                    if (contentLength > 0) {
+                                                                        val mbTotal = String.format("%.1f", contentLength / (1024.0 * 1024.0))
+                                                                        dialogBinding.status.text = "Загрузка: $mbRead / $mbTotal МБ"
+                                                                    } else {
+                                                                        dialogBinding.status.text = "Загружено: $mbRead МБ"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            if (file.exists() && file.length() > 1024L) {
+                                                downloadSuccess = true
+                                                break
+                                            } else {
+                                                file.delete()
+                                            }
+                                        } catch (e: Exception) {
+                                            lastException = e
+                                            file.delete()
+                                        }
+                                    }
+                                }
+
+                                if (!downloadSuccess) {
+                                    throw lastException ?: IOException(context.getString(R.string.driver_empty))
                                 }
 
                                 dialogBinding.status.text = context.getString(R.string.installing)
@@ -259,20 +350,20 @@ class ReleaseAdapter(
 
                                 if (GpuDriverHelper.copyDriverToInternalStorage(file.toUri())) {
                                     driverViewModel.onDriverAdded(Pair(driverPath, driverData))
-
                                     progressDialog.dismiss()
-                                    // Update button to installed state
-                                    this@apply.isEnabled = false
-                                    this@apply.text = context.getString(R.string.installed_label, artifact.name)
-                                    this@apply.setIconResource(R.drawable.ic_check)
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(
-                                            R.string.successfully_installed,
-                                            driverData.name
-                                        ),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+
+                                    MaterialAlertDialogBuilder(context)
+                                        .setTitle(context.getString(R.string.successfully_installed, driverData.name?.ifEmpty { artifact.name } ?: artifact.name))
+                                        .setMessage(context.getString(R.string.apply_driver_confirm, artifact.name))
+                                        .setPositiveButton(R.string.apply_driver_now) { _, _ ->
+                                            org.yuzu.yuzu_emu.features.settings.model.StringSetting.DRIVER_PATH.setString(driverPath)
+                                            driverViewModel.updateDriverList()
+                                            notifyDataSetChanged()
+                                        }
+                                        .setNegativeButton(R.string.close) { _, _ ->
+                                            notifyDataSetChanged()
+                                        }
+                                        .show()
                                 } else {
                                     throw IOException(
                                         context.getString(

@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/synthwave_background"
+    app:strokeColor="?attr/colorPrimary"
+    app:strokeWidth="1.5dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="?attr/colorPrimary"
+                    android:layout_marginEnd="10dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_wizard_title"
+                        style="@style/SynthwaveText.Header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/auto_optimization_wizard_title"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/auto_optimization_wizard_description"
+                        android:textSize="11sp"
+                        android:textColor="@color/synthwave_text_secondary" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btn_close_wizard"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_clear"
+                    app:tint="@color/synthwave_text_secondary" />
+
+            </LinearLayout>
+
+            <!-- Hardware Diagnostic Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/synthwave_surface"
+                app:strokeColor="?attr/colorOutline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🔍 Обнаруженное оборудование"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorSecondary"
+                        android:layout_marginBottom="6dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_hw_soc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="SoC: Snapdragon 8 Gen 2 (8 ядер, ARMv9)"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_hw_gpu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="GPU: Adreno 740 / Turnip Vulkan 1.3"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_hw_ram"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="RAM: 12.0 ГБ (Доступно: 7.2 ГБ)"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnBackground"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_hw_tier"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Класс устройства: Флагман (Высокая производительность)"
+                        android:textSize="11sp"
+                        android:textColor="#38bdf8"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mode 1: Fast -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_mode_fast"
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="?attr/colorOutline"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_mode_fast"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:layout_marginEnd="6dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_fast"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnBackground" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_fast_desc"
+                            android:textSize="11sp"
+                            android:textColor="@color/synthwave_text_secondary"
+                            android:layout_marginTop="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mode 2: Normal (Recommended) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_mode_normal"
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_mode_normal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:layout_marginEnd="6dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_normal"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_normal_desc"
+                            android:textSize="11sp"
+                            android:textColor="@color/synthwave_text_secondary"
+                            android:layout_marginTop="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mode 3: Accurate -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_mode_accurate"
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="?attr/colorOutline"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_mode_accurate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:layout_marginEnd="6dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_accurate"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnBackground" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_accurate_desc"
+                            android:textSize="11sp"
+                            android:textColor="@color/synthwave_text_secondary"
+                            android:layout_marginTop="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mode 4: Reset to Defaults / Disable Auto-Optimization -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_mode_default"
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="?attr/colorOutline"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_mode_default"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:layout_marginEnd="6dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_default"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnBackground" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_optimization_mode_default_desc"
+                            android:textSize="11sp"
+                            android:textColor="@color/synthwave_text_secondary"
+                            android:layout_marginTop="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Action Buttons (2 Rows with colored badges) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp">
+
+                <!-- Row 1: Reset Defaults Pill Badge -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_reset_defaults"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:text="@string/auto_optimization_reset_defaults"
+                    android:textColor="#ffffff"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#dc2626"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_clear"
+                    app:iconTint="#ffffff"
+                    app:iconSize="16dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Row 2: Cancel and Apply Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_cancel_wizard"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="@string/cancel"
+                        android:textColor="#e2e8f0"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#334155"
+                        app:cornerRadius="12dp"
+                        android:layout_marginEnd="6dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_apply_wizard"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="@string/auto_optimization_apply"
+                        android:textColor="#ffffff"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="?attr/colorPrimary"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_settings"
+                        app:iconTint="#ffffff"
+                        app:iconSize="16dp"
+                        android:layout_marginStart="6dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</com.google.android.material.card.MaterialCardView>

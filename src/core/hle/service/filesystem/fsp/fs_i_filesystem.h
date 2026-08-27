@@ -36,6 +36,8 @@ public:
         const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> path);
     Result RenameFile(const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> old_path,
                       const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> new_path);
+    Result RenameDirectory(const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> old_path,
+                           const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> new_path);
     Result OpenFile(OutInterface<IFile> out_interface,
                     const InLargeData<FileSys::Sf::Path, BufferAttr_HipcPointer> path, u32 mode);
     Result OpenDirectory(OutInterface<IDirectory> out_interface,

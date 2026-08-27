@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Цей застосунок запускає ігри для ігрової консолі Nintendo Switch. Він не містить ігор чи ключів.<br /><br />Перш ніж почати, укажіть розташування файлу <![CDATA[<b> prod.keys </b>]]> у пам’яті вашого пристрою.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Дізнатися більше</a>]]></string>
@@ -1157,4 +1157,60 @@
     <string name="add_folders">Додати теку</string>
     <string name="percent">%1$d%%</string>
 
+    <string name="add_cheat">Додати чит</string>
+    <string name="auto_optimization_apply">Застосувати режим</string>
+    <string name="auto_optimization_mode_normal">⚖️ Нормальний (Рекомендовано)</string>
+    <string name="downloading_cheats">Завантаження бази чит-кодів…</string>
+    <string name="auto_optimization_mode_normal_desc">Ідеальний баланс графіки, плавності та стабільності. 1X (720p/1080p), FSR 85%, FXAA, збалансовані бар\'єри.</string>
+    <string name="auto_optimization_mode_accurate">💎 Точний</string>
+    <string name="auto_optimization_mode_accurate_desc">Максимальна якість графіки, 1.5X/1X роздільна здатність, безпечний DMA, SMAA, Анізотропія 16x.</string>
+    <string name="dma_accuracy_high">Високо</string>
+    <string name="vram_usage_mode_aggressive">Агресивний (Макс. продуктивність)</string>
+    <string name="auto_optimization_mode_fast_desc">Максимум FPS, мінімум нагріву та економія батареї. 0.75X роздільна здатність, економний VRAM, NCE.</string>
+    <string name="auto_optimization_mode_fast">⚡ Швидкий</string>
+    <string name="cheat_status_active">⚡ Активний у грі</string>
+    <string name="translator_enable_floating_button">Показати плаваючу кнопку</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="eco_frame_pacing_description">Усуває холостий хід ядер ЦП під час очікування кадрів, знижуючи нагрів при стабільних 60 FPS.</string>
+    <string name="vram_usage_mode_normal">Нормальний (Рекомендовано)</string>
+    <string name="auto_optimization_wizard_title">Авто-налаштування</string>
+    <string name="download_cheats">Завантажити чити онлайн</string>
+    <string name="cpu_affinity_pinning">Прив\'язка ядер ЦП</string>
+    <string name="cheats_download_success">Базу читів успішно завантажено! Знайдено %1$d читів.</string>
+    <string name="search_amiibo_hint">Пошук за назвою, персонажем або ID...</string>
+    <string name="overlay_skin_theme">Тема сенсорного контролера</string>
+    <string name="cpu_affinity_pinning_description">Прив\'язує критичні потоки JIT та GPU до потужних ядер, а допоміжні — до енергоефективних.</string>
+    <string name="eco_thermal_mode_description">Контроль пікових частот для запобігання перегріву та термального троттлінгу.</string>
+    <string name="auto_optimization_device_info">Характеристики пристрою</string>
+    <string name="translator_title">ПЕРЕКЛАДАЧ STORM</string>
+    <string name="translator_translate_screen">Переклад екрану (OCR + Озвучення)</string>
+    <string name="amiibo_database_title">Онлайн-база Amiibo</string>
+    <string name="optimization_features">Оптимізація та охолодження</string>
+    <string name="cheat_code">Код Atmosphere</string>
+    <string name="cheat_status_disabled">⚪ Вимкнено</string>
+    <string name="amiibo_database_description">Перегляд, створення та швидке завантаження віртуальних Amiibo у гру</string>
+    <string name="cheats_not_found">Чит-кодів для цієї гри не знайдено. Ви можете додати власний код.</string>
+    <string name="overlay_skin_theme_description">Оберіть стиль та кольори для віртуальних кнопок і джойстиків</string>
+    <string name="cheats_count_summary">Всього читів: %1$d | Увімкнено: %2$d</string>
+    <string name="auto_optimization_applied_toast">⚡ Авто-налаштування успішно застосовано: профіль «%1$s»!</string>
+    <string name="eco_thermal_mode">Еко-режим та охолодження</string>
+    <string name="dma_accuracy_normal">Нормально (Рекомендовано)</string>
+    <string name="cheats_manager_title">Менеджер чит-кодів</string>
+    <string name="auto_optimization_wizard_description">Аналіз ЦП, GPU та ОЗП для автоматичного налаштування найкращих параметрів під ваш пристрій</string>
+    <string name="eco_frame_pacing">Енергоефективний фреймпейсинг</string>
+    <string name="cheat_name">Назва читу</string>
+    <string name="vram_garbage_collection_description">Періодично звільняє невикористовувану пам\'ять текстур для уникнення мікрофризів та закриття системою LMK.</string>
+    <string name="vulkan_pipeline_cache_description">Зберігає кеш конвеєрів на накопичувачі для усунення статтерів у грі.</string>
+    <string name="translator_disable_floating_button">Сховати плаваючу кнопку</string>
+    <string name="cheat_status_enabled">✅ Увімкнено</string>
+    <string name="deselect_all">Вимкнути все</string>
+    <string name="smart_shader_throttle_description">Динамічно розподіляє компіляцію шейдерів на енергоефективні ядра, запобігаючи фризам та нагріву.</string>
+    <string name="cheats">Чит-коди</string>
+    <string name="vram_garbage_collection">Очищення відеопам\'яті (VRAM)</string>
+    <string name="vram_usage_mode_conservative">Економний (Менше пам\'яті)</string>
+    <string name="cheats_description">Керування чит-кодами Atmosphere, активація читів та завантаження онлайн-бази</string>
+    <string name="auto_optimization_summary_title">Застосовані налаштування</string>
+    <string name="smart_shader_throttle">Розумний контроль фонових шейдерів</string>
+    <string name="select_all">Увімкнути все</string>
+    <string name="vulkan_pipeline_cache">Кеш конвеєрів Vulkan</string>
 </resources>

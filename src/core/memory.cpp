@@ -959,6 +959,9 @@ void Memory::MarkRegionDebug(Common::ProcessAddress vaddr, u64 size, bool debug)
 }
 
 bool Memory::InvalidateNCE(Common::ProcessAddress vaddr, size_t size) {
+    if (GetInteger(vaddr) == 0 || size == 0) {
+        return false;
+    }
     [[maybe_unused]] bool mapped = true;
     [[maybe_unused]] bool rasterizer = false;
 

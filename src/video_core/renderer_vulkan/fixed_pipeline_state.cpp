@@ -126,9 +126,10 @@ void FixedPipelineState::Refresh(Tegra::Engines::Maxwell3D& maxwell3d, DynamicFe
     patch_control_points_minus_one.Assign(regs.patch_vertices - 1);
     const bool can_collapse_topology_class =
         features.has_extended_dynamic_state && features.has_extended_dynamic_state_2;
-    topology.Assign(can_collapse_topology_class
-                        ? TOPOLOGY_CLASS_REPRESENTATIVE_LUT[static_cast<size_t>(topology_)]
-                        : topology_);
+    const size_t top_idx = static_cast<size_t>(topology_);
+    topology.Assign(top_idx < TOPOLOGY_CLASS_REPRESENTATIVE_LUT.size()
+                        ? (can_collapse_topology_class ? TOPOLOGY_CLASS_REPRESENTATIVE_LUT[top_idx] : topology_)
+                        : Maxwell::PrimitiveTopology::Triangles);
     msaa_mode.Assign(regs.anti_alias_samples_mode);
     attachment0_dual_source_blend.Assign(ComputeAttachment0DualSourceBlend(regs) ? 1 : 0);
 

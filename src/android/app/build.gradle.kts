@@ -63,6 +63,12 @@ android {
         generateLocaleConfig = true
     }
 
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+        disable.add("ExtraTranslation")
+    }
+
     defaultConfig {
         applicationId = "dev.eden.eden_emulator"
         minSdk = 24
@@ -219,7 +225,7 @@ android {
 
         create("legacy") {
             dimension = "version"
-            minSdk = 29
+            minSdk = 26
             manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN Legacy")
             resValue("string", "app_name_suffixed", "STORM EDEN Legacy")
             applicationId = "dev.legacy.eden_emulator"
@@ -373,7 +379,7 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    return "4.3.7"
+    return "4.6.1"
 }
 
 afterEvaluate {

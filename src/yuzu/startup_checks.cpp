@@ -45,6 +45,7 @@ bool CheckEnvVars(bool* is_child) {
     const DWORD startup_check_var =
         GetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, variable_contents, 8);
     if (startup_check_var > 0 && std::strncmp(variable_contents, ENV_VAR_ENABLED_TEXT, 8) == 0) {
+        SetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, nullptr);
         CheckVulkan();
         return true;
     }
@@ -55,15 +56,12 @@ bool CheckEnvVars(bool* is_child) {
     if (is_child_len > 0 && std::strncmp(is_child_s, ENV_VAR_ENABLED_TEXT, 8) == 0) {
         *is_child = true;
         return false;
-    } else if (!SetEnvironmentVariableA(IS_CHILD_ENV_VAR, ENV_VAR_ENABLED_TEXT)) {
-        fmt::print(stderr, "SetEnvironmentVariableA failed to set {} with error {}\n",
-                   IS_CHILD_ENV_VAR, GetLastError());
-        return true;
     }
 #else
     const char* startup_check_var = getenv(STARTUP_CHECK_ENV_VAR);
     if (startup_check_var != nullptr &&
         std::strncmp(startup_check_var, ENV_VAR_ENABLED_TEXT, 8) == 0) {
+        unsetenv(STARTUP_CHECK_ENV_VAR);
         CheckVulkan();
         return true;
     }
@@ -73,45 +71,38 @@ bool CheckEnvVars(bool* is_child) {
 
 bool StartupChecks(const char* arg0, bool* has_broken_vulkan, bool perform_vulkan_check) {
 #ifdef _WIN32
-    // Set the startup variable for child processes
-    const bool env_var_set = SetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, ENV_VAR_ENABLED_TEXT);
-    if (!env_var_set) {
-        fmt::print(stderr, "SetEnvironmentVariableA failed to set {} with error {}\n",
-                   STARTUP_CHECK_ENV_VAR, GetLastError());
-        return false;
-    }
-
     if (perform_vulkan_check) {
+        SetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, ENV_VAR_ENABLED_TEXT);
+        SetEnvironmentVariableA(IS_CHILD_ENV_VAR, ENV_VAR_ENABLED_TEXT);
+
         // Spawn child process that performs Vulkan check
         PROCESS_INFORMATION process_info;
         std::memset(&process_info, '\0', sizeof(process_info));
 
-        if (!SpawnChild(arg0, &process_info, 0)) {
-            return false;
+        if (SpawnChild(arg0, &process_info, 0)) {
+            // Wait until the process exits and get exit code from it
+            WaitForSingleObject(process_info.hProcess, INFINITE);
+            DWORD exit_code = STILL_ACTIVE;
+            const int err = GetExitCodeProcess(process_info.hProcess, &exit_code);
+            if (err == 0) {
+                fmt::print(stderr, "GetExitCodeProcess failed with error {}\n", GetLastError());
+            }
+
+            // Vulkan is broken if the child crashed (return value is not zero)
+            *has_broken_vulkan = (exit_code != 0);
+
+            if (CloseHandle(process_info.hProcess) == 0) {
+                fmt::print(stderr, "CloseHandle failed with error {}\n", GetLastError());
+            }
+            if (CloseHandle(process_info.hThread) == 0) {
+                fmt::print(stderr, "CloseHandle failed with error {}\n", GetLastError());
+            }
+        } else {
+            *has_broken_vulkan = false;
         }
 
-        // Wait until the process exits and get exit code from it
-        WaitForSingleObject(process_info.hProcess, INFINITE);
-        DWORD exit_code = STILL_ACTIVE;
-        const int err = GetExitCodeProcess(process_info.hProcess, &exit_code);
-        if (err == 0) {
-            fmt::print(stderr, "GetExitCodeProcess failed with error {}\n", GetLastError());
-        }
-
-        // Vulkan is broken if the child crashed (return value is not zero)
-        *has_broken_vulkan = (exit_code != 0);
-
-        if (CloseHandle(process_info.hProcess) == 0) {
-            fmt::print(stderr, "CloseHandle failed with error {}\n", GetLastError());
-        }
-        if (CloseHandle(process_info.hThread) == 0) {
-            fmt::print(stderr, "CloseHandle failed with error {}\n", GetLastError());
-        }
-    }
-
-    if (!SetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, nullptr)) {
-        fmt::print(stderr, "SetEnvironmentVariableA failed to clear {} with error {}\n",
-                   STARTUP_CHECK_ENV_VAR, GetLastError());
+        SetEnvironmentVariableA(STARTUP_CHECK_ENV_VAR, nullptr);
+        SetEnvironmentVariableA(IS_CHILD_ENV_VAR, nullptr);
     }
 
 #else
@@ -157,12 +148,10 @@ bool SpawnChild(const char* arg0, PROCESS_INFORMATION* pi, int flags) {
     std::memset(&startup_info, '\0', sizeof(startup_info));
     startup_info.cb = sizeof(startup_info);
 
-    char p_name[255];
-    std::strncpy(p_name, arg0, 254);
-    p_name[254] = '\0';
+    std::string cmd = fmt::format("\"{}\"", arg0);
 
     const bool process_created = CreateProcessA(nullptr,       // lpApplicationName
-                                                p_name,        // lpCommandLine
+                                                cmd.data(),    // lpCommandLine
                                                 nullptr,       // lpProcessAttributes
                                                 nullptr,       // lpThreadAttributes
                                                 false,         // bInheritHandles

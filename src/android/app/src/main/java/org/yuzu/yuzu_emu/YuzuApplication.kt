@@ -143,11 +143,42 @@ class YuzuApplication : Application() {
 
         private val LANGUAGE_CODES = arrayOf(
             "system", "en", "es", "fr", "de", "it", "pt", "pt-BR", "ru", "ja", "ko",
-            "zh-CN", "zh-TW", "pl", "cs", "nb", "hu", "uk", "vi", "id", "ar", "ckb", "fa", "he", "sr"
+            "zh-CN", "zh-TW", "pl", "cs", "nb", "hu", "uk", "vi", "id", "ar", "ckb", "fa", "he", "sr", "th"
         )
 
+        fun setAppLocale(languageIndex: Int) {
+            val langCode = if (languageIndex in LANGUAGE_CODES.indices) {
+                LANGUAGE_CODES[languageIndex]
+            } else {
+                "system"
+            }
+            try {
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(appContext)
+                    .edit()
+                    .putInt("app_language", languageIndex)
+                    .putString("app_language_code", langCode)
+                    .apply()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            if (langCode == "system") {
+                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                    androidx.core.os.LocaleListCompat.getEmptyLocaleList()
+                )
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                    androidx.core.os.LocaleListCompat.forLanguageTags(langCode)
+                )
+            }
+        }
+
         fun applyLanguage(context: Context): Context {
-            val languageIndex = IntSetting.APP_LANGUAGE.getInt()
+            val prefs = try {
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+            } catch (_: Exception) { null }
+            val savedIdx = prefs?.getInt("app_language", -1) ?: -1
+            val languageIndex = if (savedIdx >= 0) savedIdx else IntSetting.APP_LANGUAGE.getInt()
+
             val langCode = if (languageIndex in LANGUAGE_CODES.indices) {
                 LANGUAGE_CODES[languageIndex]
             } else {
@@ -170,6 +201,10 @@ class YuzuApplication : Application() {
 
             val config = Configuration(context.resources.configuration)
             config.setLocales(LocaleList(locale))
+            config.setLayoutDirection(locale)
+
+            @Suppress("DEPRECATION")
+            context.resources.updateConfiguration(config, context.resources.displayMetrics)
 
             return context.createConfigurationContext(config)
         }

@@ -123,9 +123,11 @@ class FloatingTranslateButtonView @JvmOverloads constructor(
                     x = savedX.coerceIn(0f, maxX)
                     y = savedY.coerceIn(0f, maxY)
                 } else {
-                    // Default position: Left Center
-                    x = 16f
-                    y = (parentView.height - height) / 2f
+                    // Default position: Under L button on the left, centered horizontally with L button and small margin
+                    val lCenterX = (70f / 1000f) * parentView.width
+                    val lCenterY = (220f / 1000f) * parentView.height
+                    x = (lCenterX - width / 2f).coerceIn(8f, maxX)
+                    y = (lCenterY + (height * 1.15f)).coerceIn(8f, maxY)
                 }
             }
         }

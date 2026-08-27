@@ -91,21 +91,12 @@ std::pair<std::vector<u8>, std::string> GetGameListCachedObject(
     if (!Common::FS::Exists(path1) || !Common::FS::Exists(path2)) {
         const auto [icon, nacp] = generator();
 
-        QFile file1{QString::fromStdString(path1)};
-        if (!file1.open(QFile::WriteOnly)) {
-            LOG_ERROR(Frontend, "Failed to open cache file.");
-            return generator();
-        }
-
-        if (!file1.resize(icon.size())) {
-            LOG_ERROR(Frontend, "Failed to resize cache file to necessary size.");
-            return generator();
-        }
-
-        if (file1.write(reinterpret_cast<const char*>(icon.data()), icon.size()) !=
-            s64(icon.size())) {
-            LOG_ERROR(Frontend, "Failed to write data to cache file.");
-            return generator();
+        if (!icon.empty()) {
+            QFile file1{QString::fromStdString(path1)};
+            if (file1.open(QFile::WriteOnly)) {
+                file1.resize(icon.size());
+                file1.write(reinterpret_cast<const char*>(icon.data()), icon.size());
+            }
         }
 
         QFile file2{QString::fromStdString(path2)};
@@ -119,24 +110,21 @@ std::pair<std::vector<u8>, std::string> GetGameListCachedObject(
     QFile file1(QString::fromStdString(path1));
     QFile file2(QString::fromStdString(path2));
 
-    if (!file1.open(QFile::ReadOnly)) {
-        LOG_ERROR(Frontend, "Failed to open cache file for reading.");
-        return generator();
+    std::vector<u8> vec;
+    if (file1.exists() && file1.open(QFile::ReadOnly)) {
+        vec.resize(file1.size());
+        if (file1.read(reinterpret_cast<char*>(vec.data()), vec.size()) !=
+            static_cast<s64>(vec.size())) {
+            vec.clear();
+        }
     }
 
-    if (!file2.open(QFile::ReadOnly)) {
-        LOG_ERROR(Frontend, "Failed to open cache file for reading.");
-        return generator();
+    std::string data_str;
+    if (file2.exists() && file2.open(QFile::ReadOnly)) {
+        data_str = file2.readAll().toStdString();
     }
 
-    std::vector<u8> vec(file1.size());
-    if (file1.read(reinterpret_cast<char*>(vec.data()), vec.size()) !=
-        static_cast<s64>(vec.size())) {
-        return generator();
-    }
-
-    const auto data = file2.readAll();
-    return std::make_pair(vec, data.toStdString());
+    return std::make_pair(std::move(vec), std::move(data_str));
 }
 
 void GetMetadataFromControlNCA(const FileSys::PatchManager& patch_manager, const FileSys::NCA& nca,
@@ -144,7 +132,15 @@ void GetMetadataFromControlNCA(const FileSys::PatchManager& patch_manager, const
     std::tie(icon, name) = GetGameListCachedObject(
         fmt::format("{:016X}", patch_manager.GetTitleID()), {}, [&patch_manager, &nca] {
             const auto [nacp, icon_f] = patch_manager.ParseControlNCA(nca);
-            return std::make_pair(icon_f->ReadAllBytes(), nacp->GetApplicationName());
+            std::vector<u8> icon_bytes;
+            if (icon_f != nullptr) {
+                icon_bytes = icon_f->ReadAllBytes();
+            }
+            std::string app_name;
+            if (nacp != nullptr) {
+                app_name = nacp->GetApplicationName();
+            }
+            return std::make_pair(std::move(icon_bytes), std::move(app_name));
         });
 }
 
@@ -600,6 +596,10 @@ void GameListWorker::run() {
         GameListDir* game_list_dir;
         bool scan = false;
 
+        if (game_dir.path.empty()) {
+            continue;
+        }
+
         if (game_dir.path == std::string("SDMC")) {
             game_list_dir = new GameListDir(game_dir, GameListItemType::SdmcDir);
         } else if (game_dir.path == std::string("UserNAND")) {
@@ -608,9 +608,10 @@ void GameListWorker::run() {
             game_list_dir = new GameListDir(game_dir, GameListItemType::SysNandDir);
         } else {
             const QString qpath = QString::fromStdString(game_dir.path);
-            if (QDir(qpath).exists()) {
-                watch_list.append(qpath);
+            if (!QDir(qpath).exists()) {
+                continue;
             }
+            watch_list.append(qpath);
 
             game_list_dir = new GameListDir(game_dir);
             scan = true;

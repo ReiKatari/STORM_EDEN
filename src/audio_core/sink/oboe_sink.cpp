@@ -110,12 +110,12 @@ protected:
 private:
     static oboe::AudioStreamBuilder* ConfigureBuilder(oboe::AudioStreamBuilder& builder,
                                                       oboe::Direction direction) {
-        // TODO: investigate callback delay issues when using AAudio
         return builder.setPerformanceMode(oboe::PerformanceMode::LowLatency)
-            ->setAudioApi(oboe::AudioApi::OpenSLES)
+            ->setSharingMode(oboe::SharingMode::Shared)
+            ->setAudioApi(oboe::AudioApi::AAudio)
             ->setDirection(direction)
             ->setSampleRate(TargetSampleRate)
-            ->setSampleRateConversionQuality(oboe::SampleRateConversionQuality::High)
+            ->setSampleRateConversionQuality(oboe::SampleRateConversionQuality::Medium)
             ->setFormat(oboe::AudioFormat::I16)
             ->setFormatConversionAllowed(true)
             ->setUsage(oboe::Usage::Game)
@@ -166,7 +166,12 @@ private:
     bool SetStreamProperties() {
         ASSERT(m_stream);
 
-        m_stream->setBufferSizeInFrames(TargetSampleCount * 2);
+        const auto frames_per_burst = m_stream->getFramesPerBurst();
+        if (frames_per_burst > 0) {
+            m_stream->setBufferSizeInFrames(std::max<s32>(frames_per_burst * 2, TargetSampleCount * 2));
+        } else {
+            m_stream->setBufferSizeInFrames(TargetSampleCount * 2);
+        }
         device_channels = m_stream->getChannelCount();
 
         const auto sample_rate = m_stream->getSampleRate();

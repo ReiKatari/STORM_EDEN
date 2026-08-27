@@ -341,6 +341,10 @@ public:
 
     void ReloadCheatList(const std::vector<Memory::CheatEntry>& list);
 
+    void SetMainNsoParameters(u64 main_region_begin, u64 main_region_size);
+    [[nodiscard]] u64 GetMainNsoBase() const;
+    [[nodiscard]] u64 GetMainNsoSize() const;
+
     [[nodiscard]] bool HasCheatEngine() const;
 
     void SetFrontendAppletSet(Service::AM::Frontend::FrontendAppletSet&& set);

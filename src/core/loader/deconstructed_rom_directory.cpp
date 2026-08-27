@@ -164,9 +164,10 @@ AppLoader_DeconstructedRomDirectory::LoadResult AppLoader_DeconstructedRomDirect
         return {result, {}};
     }
 
+    const FileSys::PatchManager patch_manager(
+        metadata.GetTitleID(), system.GetFileSystemController(), system.GetContentProvider());
+
     if (override_update) {
-        const FileSys::PatchManager patch_manager(
-            metadata.GetTitleID(), system.GetFileSystemController(), system.GetContentProvider());
         dir = patch_manager.PatchExeFS(dir);
     }
 
@@ -207,7 +208,7 @@ AppLoader_DeconstructedRomDirectory::LoadResult AppLoader_DeconstructedRomDirect
 
         const bool should_pass_arguments = std::strcmp(module, "rtld") == 0;
         const auto tentative_next_load_addr = AppLoader_NSO::LoadModule(
-            process, system, *module_file, code_size, should_pass_arguments, false, {},
+            process, system, *module_file, code_size, should_pass_arguments, false, patch_manager,
             patch_ctx.GetPatchers(), patch_ctx.GetLastIndex());
         if (!tentative_next_load_addr) {
             return {ResultStatus::ErrorLoadingNSO, {}};

@@ -271,6 +271,7 @@ static U1 GetFlowTest(IREmitter& ir, FlowTest flow_test) {
     case FlowTest::CSM_MX:
     case FlowTest::FCSM_TA:
     case FlowTest::FCSM_MX:
+        return ir.Imm1(false);
     default:
         throw NotImplementedException("Flow test {}", flow_test);
     }

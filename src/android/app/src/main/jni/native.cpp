@@ -75,6 +75,8 @@ extern "C" {
 #include "core/frontend/applets/software_keyboard.h"
 #include "core/frontend/applets/web_browser.h"
 #include "common/android/applets/web_browser.h"
+#include "core/hle/kernel/k_process.h"
+#include "core/hle/kernel/k_page_table.h"
 #include "core/hle/service/am/applet_manager.h"
 #include "core/hle/service/am/frontend/applets.h"
 #include "core/hle/service/filesystem/filesystem.h"
@@ -255,6 +257,7 @@ void EmulationSession::InitializeSystem(bool reload) {
         // Initialize logging system
         Common::Log::Initialize();
         Common::Log::SetColorConsoleBackendEnabled(true);
+        Common::Log::SetFileBackendEnabled(true);
         Common::Log::Start();
 
         m_input_subsystem.Initialize();
@@ -1355,6 +1358,27 @@ void Java_org_yuzu_yuzu_1emu_NativeLibrary_setCabinetMode(JNIEnv* env, jclass cl
                                                           jint jcabinetMode) {
     EmulationSession::GetInstance().System().GetFrontendAppletHolder().SetCabinetMode(
         static_cast<Service::NFP::CabinetMode>(jcabinetMode));
+}
+
+void Java_org_yuzu_yuzu_1emu_NativeLibrary_reloadCheats(JNIEnv* env, jclass clazz) {
+    if (!EmulationSession::GetInstance().IsRunning()) {
+        return;
+    }
+    auto& system = EmulationSession::GetInstance().System();
+    const u64 title_id = system.GetApplicationProcessProgramID();
+    if (title_id == 0) {
+        return;
+    }
+    const auto build_id = system.GetApplicationProcessBuildID();
+    const auto patch_manager = FileSys::PatchManager(title_id, system.GetFileSystemController(), system.GetContentProvider());
+    const auto cheats = patch_manager.CreateCheatList(build_id);
+
+    if (system.HasCheatEngine()) {
+        system.ReloadCheatList(cheats);
+    } else if (system.ApplicationProcess()) {
+        system.RegisterCheatList(cheats, build_id, system.GetMainNsoBase(), system.GetMainNsoSize());
+    }
+    LOG_INFO(Frontend, "Reloaded {} cheats for title_id={:016X}", cheats.size(), title_id);
 }
 
 bool isFirmwarePresent() {

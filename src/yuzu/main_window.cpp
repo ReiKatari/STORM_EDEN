@@ -7,6 +7,7 @@
 #undef VMA_IMPLEMENTATION
 #endif
 
+#include <fstream>
 #include <QRegularExpression>
 #include <boost/algorithm/string/split.hpp>
 #include "common/cityhash.h"
@@ -74,6 +75,7 @@
 #include "util/overlay_dialog.h"
 
 #include "multiplayer/state.h"
+#include "core/hle/service/game_fix_database.h"
 
 // Qt Stuff //
 #define QT_NO_OPENGL
@@ -1167,7 +1169,7 @@ void MainWindow::InitializeWidgets() {
         QMenu context_menu(this);
         const auto cur_aa = Settings::values.anti_aliasing.GetValue();
         for (auto const& aa_text_pair : ConfigurationShared::anti_aliasing_texts_map) {
-            auto* act = context_menu.addAction(tr(aa_text_pair.second.toUtf8().constData()), [this, aa_text_pair] {
+            auto* act = context_menu.addAction(aa_text_pair.second, [this, aa_text_pair] {
                 Settings::values.anti_aliasing.SetValue(aa_text_pair.first);
                 UpdateAAText();
             });
@@ -1192,7 +1194,7 @@ void MainWindow::InitializeWidgets() {
         QMenu context_menu(this);
         const auto cur_filter = Settings::values.scaling_filter.GetValue();
         for (auto const& filter_text_pair : ConfigurationShared::scaling_filter_texts_map) {
-            auto* act = context_menu.addAction(tr(filter_text_pair.second.toUtf8().constData()), [this, filter_text_pair] {
+            auto* act = context_menu.addAction(filter_text_pair.second, [this, filter_text_pair] {
                 Settings::values.scaling_filter.SetValue(filter_text_pair.first);
                 UpdateFilterText();
             });
@@ -1216,7 +1218,7 @@ void MainWindow::InitializeWidgets() {
         QMenu context_menu(this);
         const auto cur_dock = Settings::values.use_docked_mode.GetValue();
         for (auto const& pair : ConfigurationShared::use_docked_mode_texts_map) {
-            auto* act = context_menu.addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = context_menu.addAction(pair.second, [this, pair] {
                 if (pair.first != Settings::values.use_docked_mode.GetValue()) {
                     OnToggleDockedMode();
                 }
@@ -1241,7 +1243,7 @@ void MainWindow::InitializeWidgets() {
         QMenu context_menu(this);
         const auto cur_gpu = Settings::values.gpu_accuracy.GetValue();
         for (auto const& gpu_accuracy_pair : ConfigurationShared::gpu_accuracy_texts_map) {
-            auto* act = context_menu.addAction(tr(gpu_accuracy_pair.second.toUtf8().constData()), [this, gpu_accuracy_pair] {
+            auto* act = context_menu.addAction(gpu_accuracy_pair.second, [this, gpu_accuracy_pair] {
                 Settings::values.gpu_accuracy.SetValue(gpu_accuracy_pair.first);
                 UpdateGPUAccuracyButton();
             });
@@ -1270,7 +1272,7 @@ void MainWindow::InitializeWidgets() {
             if (renderer_backend_pair.first == Settings::RendererBackend::Null) {
                 continue;
             }
-            auto* act = context_menu.addAction(tr(renderer_backend_pair.second.toUtf8().constData()), [this, renderer_backend_pair] {
+            auto* act = context_menu.addAction(renderer_backend_pair.second, [this, renderer_backend_pair] {
                 Settings::values.renderer_backend.SetValue(renderer_backend_pair.first);
                 UpdateAPIText();
             });
@@ -3084,19 +3086,72 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
 
     last_filename_booted = filename;
 
+    const auto utf8_str = filename.toUtf8();
     QtCommon::Content::configureFilesystemProvider(filename.toStdString());
-    const auto v_file = Core::GetGameFileFromPath(QtCommon::vfs, filename.toUtf8().constData());
+    const auto v_file = Core::GetGameFileFromPath(QtCommon::vfs, utf8_str.constData());
     const auto loader =
         Loader::GetLoader(*QtCommon::system, v_file, params.program_id, params.program_index);
 
     if (loader != nullptr && loader->ReadProgramId(title_id) == Loader::ResultStatus::Success &&
         type == StartGameType::Normal) {
-        // Load per game settings
-        const auto file_path_hash = Common::CityHash64(filename.toUtf8().constData(), filename.toUtf8().size());
+        const auto file_path_hash = Common::CityHash64(utf8_str.constData(), static_cast<std::size_t>(utf8_str.size()));
         const auto specific_config = fmt::format("{:016X}_{:016X}", title_id, file_path_hash);
         const auto legacy_config = fmt::format("{:016X}", title_id);
 
         std::filesystem::path custom_path = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir) / "custom";
+        std::string target_ini = (custom_path / (specific_config + ".ini")).string();
+
+        const auto* profile = Core::GameFixDatabase::GetProfile(title_id);
+        if (profile != nullptr) {
+            bool already_applied = false;
+            std::string check_ini = target_ini;
+            if (!std::filesystem::exists(check_ini) && std::filesystem::exists(custom_path / (legacy_config + ".ini"))) {
+                check_ini = (custom_path / (legacy_config + ".ini")).string();
+            }
+            if (std::filesystem::exists(check_ini)) {
+                std::ifstream f(check_ini);
+                std::string l;
+                while (std::getline(f, l)) {
+                    if (l.find("storm_fix_applied=true") != std::string::npos || l.find("storm_fix_applied = true") != std::string::npos) {
+                        already_applied = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!already_applied) {
+                QMessageBox msgBox(this);
+                msgBox.setWindowTitle(tr("🔧 Оптимизация STORM EDEN: %1").arg(QString::fromStdString(profile->game_name)));
+                
+                QString issues_formatted = QString::fromStdString(profile->issues_ru);
+                issues_formatted.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
+                QString fixes_formatted = QString::fromStdString(profile->fixes_ru);
+                fixes_formatted.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
+
+                QString htmlText = QString::fromUtf8(
+                    "<h3>🎮 %1</h3>"
+                    "<p style='color:#ef4444;'><b>⚠️ Обнаружены известные проблемы в игре:</b><br>%2</p>"
+                    "<p style='color:#10b981;'><b>⚡ Рекомендуемые настройки STORM EDEN:</b><br>%3</p>"
+                    "<p>Применить оптимизированные настройки для этой игры и сохранить их?")
+                    .arg(QString::fromStdString(profile->game_name))
+                    .arg(issues_formatted)
+                    .arg(fixes_formatted);
+                
+                msgBox.setText(htmlText);
+                msgBox.setIcon(QMessageBox::Information);
+                QPushButton* applyBtn = msgBox.addButton(tr("⚡ Применить и запустить"), QMessageBox::AcceptRole);
+                QPushButton* skipBtn = msgBox.addButton(tr("Запустить без изменений"), QMessageBox::RejectRole);
+                msgBox.setDefaultButton(applyBtn);
+
+                msgBox.exec();
+
+                if (msgBox.clickedButton() == applyBtn) {
+                    Core::GameFixDatabase::ApplyProfileToPerGameConfig(title_id, target_ini);
+                }
+            }
+        }
+
+        // Load per game settings
         std::string config_to_load = specific_config;
         if (!std::filesystem::exists(custom_path / (specific_config + ".ini")) &&
             std::filesystem::exists(custom_path / (legacy_config + ".ini"))) {
@@ -3260,7 +3315,14 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     }
     title_version = display_version_str;
     const std::string internal_version_str = std::to_string(raw_internal_version);
-    const auto raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
+    std::string raw_gpu_vendor = "GPU";
+    try {
+        if (QtCommon::system != nullptr) {
+            raw_gpu_vendor = QtCommon::system->GPU().Renderer().GetDeviceVendor();
+        }
+    } catch (...) {
+        raw_gpu_vendor = "VULKAN GPU";
+    }
     const auto gpu_vendor = QString::fromStdString(raw_gpu_vendor).toUpper().toStdString();
 
     const auto full_file_name = full_file_info_name.toStdString();
@@ -6478,7 +6540,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         const auto cur_api = Settings::values.renderer_backend.GetValue();
         for (const auto& pair : ConfigurationShared::renderer_backend_texts_map) {
             if (pair.first == Settings::RendererBackend::Null) continue;
-            auto* act = api_menu->addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = api_menu->addAction(pair.second, [this, pair] {
                 Settings::values.renderer_backend.SetValue(pair.first);
                 UpdateAPIText();
             });
@@ -6489,7 +6551,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         auto* gpu_acc_menu = context_menu.addMenu(tr("🎯 Точность GPU"));
         const auto cur_gpu_acc = Settings::values.gpu_accuracy.GetValue();
         for (const auto& pair : ConfigurationShared::gpu_accuracy_texts_map) {
-            auto* act = gpu_acc_menu->addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = gpu_acc_menu->addAction(pair.second, [this, pair] {
                 Settings::values.gpu_accuracy.SetValue(pair.first);
                 UpdateGPUAccuracyButton();
             });
@@ -6646,7 +6708,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         auto* aa_menu = context_menu.addMenu(tr("✨ Сглаживание"));
         const auto cur_aa = Settings::values.anti_aliasing.GetValue();
         for (const auto& pair : ConfigurationShared::anti_aliasing_texts_map) {
-            auto* act = aa_menu->addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = aa_menu->addAction(pair.second, [this, pair] {
                 Settings::values.anti_aliasing.SetValue(pair.first);
                 UpdateAAText();
             });
@@ -6657,7 +6719,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         auto* filter_menu = context_menu.addMenu(tr("🔬 Фильтрация масштабирования"));
         const auto cur_filter = Settings::values.scaling_filter.GetValue();
         for (const auto& pair : ConfigurationShared::scaling_filter_texts_map) {
-            auto* act = filter_menu->addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = filter_menu->addAction(pair.second, [this, pair] {
                 Settings::values.scaling_filter.SetValue(pair.first);
                 UpdateFilterText();
             });
@@ -6679,7 +6741,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         auto* dock_menu = context_menu.addMenu(tr("📺 Режим консоли"));
         const auto cur_dock = Settings::values.use_docked_mode.GetValue();
         for (const auto& pair : ConfigurationShared::use_docked_mode_texts_map) {
-            auto* act = dock_menu->addAction(tr(pair.second.toUtf8().constData()), [this, pair] {
+            auto* act = dock_menu->addAction(pair.second, [this, pair] {
                 if (pair.first != Settings::values.use_docked_mode.GetValue()) {
                     OnToggleDockedMode();
                 }

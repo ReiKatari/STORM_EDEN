@@ -283,7 +283,7 @@ public:
         virtual void CommandLog(std::string_view data) = 0;
     };
 
-    static constexpr std::size_t MaximumProgramOpcodeCount = 0x400;
+    static constexpr std::size_t MaximumProgramOpcodeCount = 0x4000;
     static constexpr std::size_t NumRegisters = 0x10;
     static constexpr std::size_t NumReadableStaticRegisters = 0x80;
     static constexpr std::size_t NumWritableStaticRegisters = 0x80;

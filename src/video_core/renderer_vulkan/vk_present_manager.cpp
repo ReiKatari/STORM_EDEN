@@ -308,6 +308,12 @@ void PresentManager::CopyToSwapchain(Frame* frame) {
     bool requires_recreation = false;
 
     while (true) {
+#ifdef __ANDROID__
+        while (render_window.GetWindowInfo().render_surface == nullptr) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            requires_recreation = true;
+        }
+#endif
         try {
             // Recreate surface and swapchain if needed.
             if (requires_recreation) {
@@ -315,13 +321,19 @@ void PresentManager::CopyToSwapchain(Frame* frame) {
                 surface = CreateSurface(instance, render_window.GetWindowInfo());
 #endif
                 RecreateSwapchain(frame);
+                requires_recreation = false;
             }
 
             // Draw to swapchain.
             return CopyToSwapchainImpl(frame);
         } catch (const vk::Exception& except) {
-            if (except.GetResult() != VK_ERROR_SURFACE_LOST_KHR) {
-                throw;
+            const auto res = except.GetResult();
+            if (res != VK_ERROR_SURFACE_LOST_KHR &&
+                res != VK_ERROR_OUT_OF_DATE_KHR &&
+                res != VK_SUBOPTIMAL_KHR &&
+                res != VK_ERROR_NATIVE_WINDOW_IN_USE_KHR) {
+                LOG_ERROR(Render_Vulkan, "Unexpected Vulkan exception in present: {}", except.what());
+                std::this_thread::sleep_for(std::chrono::milliseconds(16));
             }
 
             requires_recreation = true;

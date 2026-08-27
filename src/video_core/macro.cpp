@@ -65,6 +65,9 @@ bool IsTopologySafe(Maxwell3D::Regs::PrimitiveTopology topology) {
 } // Anonymous namespace
 
 void HLE_DrawArraysIndirect::Execute(Core::System& system, Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    if (parameters.empty()) {
+        return;
+    }
     auto topology = static_cast<Maxwell3D::Regs::PrimitiveTopology>(parameters[0]);
     if (!maxwell3d.AnyParametersDirty() || !IsTopologySafe(topology)) {
         Fallback(system, maxwell3d, parameters);
@@ -100,6 +103,9 @@ void HLE_DrawArraysIndirect::Fallback(Core::System& system, Engines::Maxwell3D& 
             maxwell3d.replace_table.clear();
         }
     };
+    if (parameters.size() < 5) {
+        return;
+    }
     maxwell3d.RefreshParameters();
     const u32 instance_count = (maxwell3d.GetRegisterValue(0xD1B) & parameters[2]);
     auto topology = Maxwell3D::Regs::PrimitiveTopology(parameters[0]);
@@ -124,9 +130,16 @@ void HLE_DrawArraysIndirect::Fallback(Core::System& system, Engines::Maxwell3D& 
 }
 
 void HLE_DrawIndexedIndirect::Execute(Core::System& system, Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    if (parameters.empty()) {
+        return;
+    }
     auto topology = static_cast<Maxwell3D::Regs::PrimitiveTopology>(parameters[0]);
     if (!maxwell3d.AnyParametersDirty() || !IsTopologySafe(topology)) {
         Fallback(system, maxwell3d, parameters);
+        return;
+    }
+
+    if (parameters.size() < 6) {
         return;
     }
 
@@ -162,6 +175,9 @@ void HLE_DrawIndexedIndirect::Execute(Core::System& system, Engines::Maxwell3D& 
     }
 }
 void HLE_DrawIndexedIndirect::Fallback(Core::System& system, Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters) {
+    if (parameters.size() < 6) {
+        return;
+    }
     maxwell3d.RefreshParameters();
     const u32 instance_count = (maxwell3d.GetRegisterValue(0xD1B) & parameters[2]);
     const u32 element_base = parameters[4];
@@ -1231,6 +1247,7 @@ static void MacroJIT_ErrorThunk(uintptr_t parameter, uintptr_t max_parameter) {
 
 Xbyak::Reg32 MacroJITx64Impl::Compile_FetchParameter() {
     Xbyak::Label parameter_ok{};
+    Xbyak::Label end{};
     cmp(PARAMETERS, MAX_PARAMETER);
     jb(parameter_ok, T_NEAR);
     Common::X64::ABI_PushRegistersAndAdjustStack(*this, PersistentCallerSavedRegs(), 0);
@@ -1238,9 +1255,12 @@ Xbyak::Reg32 MacroJITx64Impl::Compile_FetchParameter() {
     mov(Common::X64::ABI_PARAM2, MAX_PARAMETER);
     Common::X64::CallFarFunction(*this, &MacroJIT_ErrorThunk);
     Common::X64::ABI_PopRegistersAndAdjustStack(*this, PersistentCallerSavedRegs(), 0);
+    xor_(eax, eax);
+    jmp(end, T_NEAR);
     L(parameter_ok);
     mov(eax, dword[PARAMETERS]);
     add(PARAMETERS, sizeof(u32));
+    L(end);
     return eax;
 }
 

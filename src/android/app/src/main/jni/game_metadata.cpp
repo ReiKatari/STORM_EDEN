@@ -37,6 +37,9 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         loader->ReadProgramId(entry.programId);
         loader->ReadIcon(entry.icon);
 
+        FileSys::NACP nacp{};
+        bool has_embedded_nacp = (loader->ReadControlData(nacp) == Loader::ResultStatus::Success);
+
         const FileSys::PatchManager pm{
             entry.programId,
             instance.System().GetFileSystemController(),
@@ -45,18 +48,18 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         const auto control = pm.GetControlMetadata();
         const auto game_version = pm.GetGameVersion();
 
-        if (control.first != nullptr) {
+        if (has_embedded_nacp && !nacp.GetVersionString().empty()) {
+            entry.developer = nacp.GetDeveloperName();
+            entry.version = nacp.GetVersionString();
+        } else if (control.first != nullptr) {
             entry.developer = control.first->GetDeveloperName();
             entry.version = control.first->GetVersionString();
+        } else if (has_embedded_nacp) {
+            entry.developer = nacp.GetDeveloperName();
+            entry.version = nacp.GetVersionString();
         } else {
-            FileSys::NACP nacp{};
-            if (loader->ReadControlData(nacp) == Loader::ResultStatus::Success) {
-                entry.developer = nacp.GetDeveloperName();
-                entry.version = nacp.GetVersionString();
-            } else {
-                entry.developer = "";
-                entry.version = "1.0.0";
-            }
+            entry.developer = "";
+            entry.version = "1.0.0";
         }
 
         // Check if filename contains paired display version and internal version (e.g. "(1.5.1 - 262144 - ...)")
@@ -64,6 +67,13 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         std::smatch pair_match;
         if (std::regex_search(path, pair_match, pair_ver_regex) && pair_match.size() > 2) {
             entry.version = pair_match[1].str();
+        } else {
+            // Check if filename contains standalone version like [1.0.1], (1.0.1), [v1.0.1], (v1.0.1)
+            std::regex ver_tag_regex(R"([\[\(]v?([0-9]+\.[0-9]+(?:\.[0-9]+)*)[\]\)])", std::regex::icase);
+            std::smatch ver_match;
+            if (std::regex_search(path, ver_match, ver_tag_regex) && ver_match.size() > 1) {
+                entry.version = ver_match[1].str();
+            }
         }
 
         // Clean version string: remove leading 'v' / 'V'
@@ -76,24 +86,31 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
 
         // Accurate internal version: numeric string without 'v' (e.g. 65536, 393216, 0)
         u32 internal_ver = 0;
-        if (game_version.has_value() && *game_version > 0) {
-            internal_ver = *game_version;
-        } else {
-            internal_ver = instance.System().GetContentProvider().GetEntryVersion(entry.programId).value_or(0);
+        if (pair_match.size() > 2) {
+            try {
+                internal_ver = static_cast<u32>(std::stoul(pair_match[2].str()));
+            } catch (...) {}
         }
 
-        // Check if filename contains version tag like [v65536], (v131072), [v0], _v393216
         if (internal_ver == 0) {
-            std::regex ver_tag_regex(R"([\[\(_]v(\d+)[\]\)])", std::regex::icase);
+            std::regex num_ver_regex(R"([\[\(_]v(\d+)[\]\)])", std::regex::icase);
             std::smatch match;
-            if (std::regex_search(path, match, ver_tag_regex) && match.size() > 1) {
+            if (std::regex_search(path, match, num_ver_regex) && match.size() > 1) {
                 try {
                     internal_ver = static_cast<u32>(std::stoul(match[1].str()));
                 } catch (...) {}
             }
         }
 
-        // If internal_ver is still 0, but display version string is e.g. "1.2.0" or "1.1.0" or "2.0.0"
+        if (internal_ver == 0) {
+            if (game_version.has_value() && *game_version > 0) {
+                internal_ver = *game_version;
+            } else {
+                internal_ver = instance.System().GetContentProvider().GetEntryVersion(entry.programId).value_or(0);
+            }
+        }
+
+        // If internal_ver is still 0, calculate from display version string e.g. "1.2.0"
         if (internal_ver == 0 && !entry.version.empty() && entry.version != "1.0.0" && entry.version != "1.0") {
             int major = 1, minor = 0, patch = 0;
             if (std::sscanf(entry.version.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {

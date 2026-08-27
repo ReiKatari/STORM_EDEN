@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Diese Software führt Spiele für die Nintendo Switch-Konsole aus. Es sind keine Spiele oder Schlüssel enthalten. Suche, bevor du beginnst, deine <![CDATA[<b> prod.keys </b>]]>-Datei auf deinem Gerät.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Mehr Erfahren</a>]]></string>
@@ -1054,4 +1054,60 @@ Wirklich fortfahren?</string>
     <!-- Licenses screen strings -->
     <string name="licenses">Lizenzen</string>
     <string name="license_fidelityfx_fsr_description">Hochwertiges Upscaling von AMD</string>
-    </resources>
+    <string name="vram_usage_mode_aggressive">Aggressiv (Maximale Leistung)</string>
+    <string name="auto_optimization_mode_fast_desc">Maximale FPS, minimale Hitze und Batteriesparen. 0.75X Auflösung, sparsamer VRAM, schnelle GPU-Barrieren, NCE.</string>
+    <string name="cheat_status_disabled">⚪ Deaktiviert</string>
+    <string name="search_amiibo_hint">Nach Name, Charakter oder ID suchen...</string>
+    <string name="cheats_download_success">Cheat-Datenbank erfolgreich heruntergeladen! %1 Cheats gefunden.</string>
+    <string name="auto_optimization_wizard_description">Analysiert CPU, GPU und RAM und stellt automatisch die besten Einstellungen für Ihr Gerät ein</string>
+    <string name="downloading_cheats">Cheat-Datenbank wird heruntergeladen…</string>
+    <string name="deselect_all">Alle abwählen</string>
+    <string name="amiibo_database_title">Online-Amiibo-Datenbank</string>
+    <string name="translator_title">STORM TRANSLATOR</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="cheats_description">Atmosphere Cheat-Codes verwalten, aktivieren und Online-Datenbank herunterladen</string>
+    <string name="smart_shader_throttle">Intelligente Hintergrund-Shader-Steuerung</string>
+    <string name="auto_optimization_device_info">Hardware-Informationen</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="optimization_features">Optimierung &amp; Kühlung</string>
+    <string name="cpu_affinity_pinning">CPU-Kern-Zuweisung</string>
+    <string name="eco_frame_pacing">Eco-Frame-Pacing</string>
+    <string name="smart_shader_throttle_description">Verteilt die Shader-Kompilierung auf Effizienzkerne, um Ruckler und Hitzeentwicklung zu vermeiden.</string>
+    <string name="vram_garbage_collection_description">Gibt ungenutzten Texturspeicher frei, um Ruckler und Abstürze durch Android LMK zu verhindern.</string>
+    <string name="translator_enable_floating_button">Schwebenden Button anzeigen</string>
+    <string name="cheat_code">Atmosphere Cheat-Code</string>
+    <string name="auto_optimization_mode_normal_desc">Optimale Balance aus Grafikqualität, Flüssigkeit und Stabilität. 1X (720p/1080p), FSR 85%, FXAA, ausgewogene Barrieren.</string>
+    <string name="download_cheats">Online-Cheats herunterladen</string>
+    <string name="auto_optimization_mode_accurate_desc">Höchste Grafikqualität, 1.5X/1X Auflösung, sicheres DMA, strikte GPU-Barrieren, SMAA, 16x Anisotropie.</string>
+    <string name="auto_optimization_mode_normal">⚖️ Normal (Empfohlen)</string>
+    <string name="auto_optimization_apply">Modus anwenden</string>
+    <string name="cheats_not_found">Keine Cheats für dieses Spiel gefunden. Du kannst eigene Cheats hinzufügen.</string>
+    <string name="vram_garbage_collection">VRAM-Bereinigung</string>
+    <string name="vram_usage_mode_conservative">Konservativ (Geringer Speicher)</string>
+    <string name="vram_usage_mode_normal">Normal (Empfohlen)</string>
+    <string name="cpu_affinity_pinning_description">Weist kritische JIT- und GPU-Threads Leistungs-Kernen zu und Hintergrundaufgaben Effizienzkernen.</string>
+    <string name="cheats_manager_title">Cheat-Manager</string>
+    <string name="amiibo_database_description">Virtuelle Amiibos durchsuchen, erstellen und schnell in Spiele einfügen</string>
+    <string name="auto_optimization_mode_accurate">💎 Präzise</string>
+    <string name="add_cheat">Cheat hinzufügen</string>
+    <string name="translator_translate_screen">Bildschirm übersetzen (OCR + TTS)</string>
+    <string name="overlay_skin_theme_description">Farben und Animationen für virtuelle Tasten und Joysticks auswählen</string>
+    <string name="cheat_status_active">⚡ Im Spiel aktiv</string>
+    <string name="translator_disable_floating_button">Schwebenden Button ausblenden</string>
+    <string name="overlay_skin_theme">Touch-Controller-Design</string>
+    <string name="eco_frame_pacing_description">Beseitigt ungenutzte CPU-Zyklen beim Frame-Pacing und senkt die Temperatur bei stabilen 60 FPS.</string>
+    <string name="auto_optimization_applied_toast">⚡ Automatische Konfiguration angewendet: Profil «%1$s»!</string>
+    <string name="dma_accuracy_normal">Normal (Empfohlen)</string>
+    <string name="cheat_name">Cheat-Name</string>
+    <string name="auto_optimization_wizard_title">Automatische Konfiguration</string>
+    <string name="cheat_status_enabled">✅ Aktiviert</string>
+    <string name="auto_optimization_summary_title">Angewendete Einstellungen</string>
+    <string name="vulkan_pipeline_cache_description">Speichert Pipeline-Caches auf dem Speicher, um Ruckler im Spiel zu vermeiden.</string>
+    <string name="dma_accuracy_high">Hoch</string>
+    <string name="eco_thermal_mode_description">Regelt Spitzenfrequenzen, um Überhitzung und thermisches Throttling zu verhindern.</string>
+    <string name="cheats">Cheat-Codes</string>
+    <string name="auto_optimization_mode_fast">⚡ Schnell</string>
+    <string name="vulkan_pipeline_cache">Vulkan-Pipeline-Cache</string>
+    <string name="cheats_count_summary">Cheats insgesamt: %1$d | Aktiviert: %2$d</string>
+    <string name="eco_thermal_mode">Eco- &amp; Thermomodus</string>
+</resources>

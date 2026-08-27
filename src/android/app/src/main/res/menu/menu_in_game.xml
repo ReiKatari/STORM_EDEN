@@ -15,6 +15,11 @@
             android:title="@string/translator_translate_screen" />
 
         <item
+            android:id="@+id/menu_toggle_translate_button"
+            android:icon="@drawable/ic_languages"
+            android:title="@string/translator_enable_floating_button" />
+
+        <item
             android:id="@+id/menu_load_amiibo"
             android:icon="@drawable/ic_nfc"
             android:title="@string/load_amiibo" />
@@ -28,6 +33,11 @@
             android:id="@+id/menu_multiplayer"
             android:icon="@drawable/ic_two_users"
             android:title="@string/multiplayer" />
+
+        <item
+            android:id="@+id/menu_view_logs"
+            android:icon="@drawable/ic_log"
+            android:title="@string/view_logs" />
     </group>
 
     <group android:id="@+id/group_settings">

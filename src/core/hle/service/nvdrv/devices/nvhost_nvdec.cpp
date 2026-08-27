@@ -37,10 +37,15 @@ NvResult nvhost_nvdec::Ioctl1(DeviceFD fd, Ioctl command, std::span<const u8> in
             return WrapFixedVariable(this, &nvhost_nvdec::MapBuffer, input, output, fd);
         case 0x0a:
             return WrapFixedVariable(this, &nvhost_nvdec::UnmapBuffer, input, output);
+        case 0x14:
+            return NvResult::Success;
+        case 0x1a:
+            return NvResult::Success;
         case 0x23:
             return WrapFixed(this, &nvhost_nvdec::GetClkRate, input, output);
         default:
-            break;
+            LOG_WARNING(Service_NVDRV, "Stubbed nvhost_nvdec ioctl1 group 0x0 cmd={:02X}", command.cmd);
+            return NvResult::Success;
         }
         break;
     case 'H':
@@ -48,25 +53,27 @@ NvResult nvhost_nvdec::Ioctl1(DeviceFD fd, Ioctl command, std::span<const u8> in
         case 0x1:
             return WrapFixed(this, &nvhost_nvdec::SetNVMAPfd, input, output);
         default:
-            break;
+            LOG_WARNING(Service_NVDRV, "Stubbed nvhost_nvdec ioctl1 group 'H' cmd={:02X}", command.cmd);
+            return NvResult::Success;
         }
         break;
+    default:
+        LOG_WARNING(Service_NVDRV, "Stubbed nvhost_nvdec ioctl1 raw={:08X}", command.raw);
+        return NvResult::Success;
     }
-
-    UNIMPLEMENTED_MSG("Unimplemented ioctl={:08X}", command.raw);
-    return NvResult::NotImplemented;
+    return NvResult::Success;
 }
 
 NvResult nvhost_nvdec::Ioctl2(DeviceFD fd, Ioctl command, std::span<const u8> input,
                               std::span<const u8> inline_input, std::span<u8> output) {
-    UNIMPLEMENTED_MSG("Unimplemented ioctl={:08X}", command.raw);
-    return NvResult::NotImplemented;
+    LOG_WARNING(Service_NVDRV, "Stubbed nvhost_nvdec ioctl2 raw={:08X}", command.raw);
+    return NvResult::Success;
 }
 
 NvResult nvhost_nvdec::Ioctl3(DeviceFD fd, Ioctl command, std::span<const u8> input,
                               std::span<u8> output, std::span<u8> inline_output) {
-    UNIMPLEMENTED_MSG("Unimplemented ioctl={:08X}", command.raw);
-    return NvResult::NotImplemented;
+    LOG_WARNING(Service_NVDRV, "Stubbed nvhost_nvdec ioctl3 raw={:08X}", command.raw);
+    return NvResult::Success;
 }
 
 void nvhost_nvdec::OnOpen(NvCore::SessionId session_id, DeviceFD fd) {

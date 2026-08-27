@@ -62,6 +62,7 @@ enum class BooleanSetting(override val key: String) : AbstractBooleanSetting {
     SHOW_GPU_MODEL("show_gpu_model"),
     SHOW_SOC_MODEL("show_soc_model"),
     SHOW_FW_VERSION("show_firmware_version"),
+    SHOW_DEVICE_LOAD_OVERLAY("show_device_load_overlay"),
 
     SOC_OVERLAY_BACKGROUND("soc_overlay_background"),
     ENABLE_INPUT_OVERLAY_AUTO_HIDE("enable_input_overlay_auto_hide"),
@@ -95,6 +96,8 @@ enum class BooleanSetting(override val key: String) : AbstractBooleanSetting {
 
     // Optimization & Thermal / Memory Features
     ECO_THERMAL_MODE("eco_thermal_mode"),
+    ECO_FRAME_PACING("eco_frame_pacing"),
+    SMART_SHADER_THROTTLE("smart_shader_throttle"),
     CPU_AFFINITY_PINNING("cpu_affinity_pinning"),
     VULKAN_PIPELINE_CACHE("vulkan_pipeline_cache"),
     VRAM_GARBAGE_COLLECTION("vram_garbage_collection");

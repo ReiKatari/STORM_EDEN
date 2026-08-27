@@ -22,6 +22,7 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.SettingsNavigationDirections
+import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.databinding.ListItemSettingBinding
 import org.yuzu.yuzu_emu.databinding.ListItemSettingInputBinding
 import org.yuzu.yuzu_emu.databinding.ListItemSettingSwitchBinding
@@ -453,15 +454,6 @@ class SettingsAdapter(
             SettingsDialogFragment.TYPE_RESET_SETTING,
             position
         ).show(fragment.childFragmentManager, SettingsDialogFragment.TAG)
-
-        // reset language if detected
-        if (item.setting.key == "app_language") {
-            // recreate page apply language change instantly
-            fragment.requireActivity().recreate()
-
-            settingsViewModel.setShouldRecreateForLanguageChange(true)
-        }
-
         return true
     }
 

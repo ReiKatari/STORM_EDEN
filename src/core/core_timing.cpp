@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <tuple>
 #include "common/cpu_features.h"
 #include "common/cpu_features.h"
@@ -218,6 +219,15 @@ void CoreTiming::AddTicks(u64 ticks_to_add) {
 
 void CoreTiming::Idle() {
     AddTicks(1000U);
+#if defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__GNUC__) || defined(__clang__)
+    asm volatile("yield" ::: "memory");
+#else
+    __yield();
+#endif
+#else
+    std::this_thread::yield();
+#endif
 }
 
 void CoreTiming::ResetTicks() {

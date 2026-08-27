@@ -126,14 +126,28 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         return {ResultStatus::ErrorAlreadyLoaded, {}};
     }
 
-    const auto title_id = nsp->GetProgramTitleID();
-
+    auto title_id = nsp->GetProgramTitleID();
     if (!nsp->IsExtractedType() && title_id == 0) {
-        return {ResultStatus::ErrorNSPMissingProgramNCA, {}};
+        for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetTitleId() != 0) {
+                if ((nca_item->GetTitleId() & 0x800) == 0 && nca_item->GetType() == FileSys::NCAContentType::Program) {
+                    title_id = nca_item->GetTitleId();
+                    break;
+                }
+            }
+        }
+        if (title_id == 0) {
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetTitleId() != 0) {
+                    title_id = (nca_item->GetTitleId() & 0xFFFFFFFFFFFFE000ULL);
+                    break;
+                }
+            }
+        }
     }
 
     const auto nsp_status = nsp->GetStatus();
-    if (nsp_status != ResultStatus::Success) {
+    if (nsp_status != ResultStatus::Success && nsp->GetNCAsCollapsed().empty()) {
         return {nsp_status, {}};
     }
 
@@ -156,13 +170,38 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         }
     }
 
-    if (!nsp->IsExtractedType() && secondary_loader == nullptr &&
-        nsp->GetNCA(title_id, FileSys::ContentRecordType::Program) == nullptr) {
-        if (!Core::Crypto::KeyManager::KeyFileExists(false)) {
-            return {ResultStatus::ErrorMissingProductionKeyFile, {}};
+    if (!nsp->IsExtractedType() && secondary_loader == nullptr) {
+        auto program_nca = nsp->GetNCA(title_id, FileSys::ContentRecordType::Program);
+        if (program_nca == nullptr) {
+            // Search across all collapsed NCAs in the merged multi-content container (Base + Update + DLCs)
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                    (nca_item->GetStatus() == ResultStatus::Success ||
+                     nca_item->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                    program_nca = nca_item;
+                    break;
+                }
+            }
         }
 
-        return {ResultStatus::ErrorNSPMissingProgramNCA, {}};
+        if (program_nca != nullptr) {
+            secondary_loader = std::make_unique<AppLoader_NCA>(program_nca->GetBaseFile());
+        } else {
+            // Try any NCA with valid ExeFS
+            for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+                if (nca_item && nca_item->GetExeFS() != nullptr) {
+                    secondary_loader = std::make_unique<AppLoader_NCA>(nca_item->GetBaseFile());
+                    break;
+                }
+            }
+        }
+
+        if (secondary_loader == nullptr) {
+            if (!Core::Crypto::KeyManager::KeyFileExists(false)) {
+                return {ResultStatus::ErrorMissingProductionKeyFile, {}};
+            }
+            return {ResultStatus::ErrorNSPMissingProgramNCA, {}};
+        }
     }
 
     auto result = secondary_loader ? secondary_loader->Load(process, system)

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+    app:cardBackgroundColor="@color/synthwave_surface"
+    app:strokeColor="?attr/colorPrimary"
+    app:strokeWidth="1.5dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="560dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Title & Badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:id="@+id/image_game_fix_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="?attr/colorPrimary"
+                    android:layout_marginEnd="12dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_game_fix_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="The Legend of Zelda: Tears of the Kingdom"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnBackground"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_game_fix_title_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="0100F2C0115B6000"
+                        android:textSize="11.5sp"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Card 1: Known Issues -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="#ef4444"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="6dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_info_outline"
+                            app:tint="#ef4444"
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/game_fix_issues_header"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#ef4444" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_game_fix_issues"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="• Черный экран при смене оружия\n• Утечки VRAM в кавернах"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="@color/synthwave_text_secondary" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 2: Recommended Fixes & Settings -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/EdenCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/synthwave_background"
+                app:strokeColor="#10b981"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="6dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_check"
+                            app:tint="#10b981"
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/game_fix_recommended_header"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#10b981" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/text_game_fix_recommended"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✓ Разрешение: Handheld 0.75X\n✓ Сжатие ASTC: BC1/BC3"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="@color/synthwave_text_secondary" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Checkbox: Don't ask again -->
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_dont_ask_again"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/game_fix_dont_ask_again"
+                android:textSize="12sp"
+                android:textColor="@color/synthwave_text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Action Buttons (2 Rows with colored plaques) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Row 1: Apply & Launch -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_apply_game_fix"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="@string/game_fix_apply_and_launch"
+                    android:textColor="#ffffff"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_settings"
+                    app:iconTint="#ffffff"
+                    app:iconSize="16dp"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Row 2: Skip & Launch -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_skip_game_fix"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:text="@string/game_fix_skip_and_launch"
+                    android:textColor="#cbd5e1"
+                    android:textSize="12.5sp"
+                    app:backgroundTint="#334155"
+                    app:cornerRadius="12dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</com.google.android.material.card.MaterialCardView>

@@ -84,7 +84,7 @@ class AboutFragment : Fragment() {
         }
 
         val buildName = getString(R.string.app_name_suffixed)
-        val buildVersion = NativeLibrary.getBuildVersion()
+        val buildVersion = org.yuzu.yuzu_emu.BuildConfig.VERSION_NAME
         val fullVersionText = "$buildName ($buildVersion)"
 
         binding.textVersionName.text = fullVersionText

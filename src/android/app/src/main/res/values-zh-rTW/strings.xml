@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">本軟體可執行Nintendo Switch主機的遊戲，軟體不提供遊戲和金鑰檔案。&lt;br/> &lt;br/>在開始之前，請先安裝您的 &lt;<![CDATA[ &lt;b>prod.keys&lt;/b> ]]> 檔案，&lt;br />&lt;br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">了解更多</a>]]></string>
@@ -973,4 +973,60 @@
     <!-- Licenses screen strings -->
     <string name="licenses">授權</string>
     <string name="license_fidelityfx_fsr_description">來自 AMD 的升級圖像品質</string>
-    </resources>
+    <string name="add_cheat">添加金手指</string>
+    <string name="auto_optimization_apply">套用此配置</string>
+    <string name="auto_optimization_mode_normal">⚖️ 均衡（推薦）</string>
+    <string name="downloading_cheats">正在下載線上金手指資料庫…</string>
+    <string name="auto_optimization_mode_normal_desc">畫質、流暢度與穩定性的完美平衡。1X（720p/1080p）、FSR 85%、FXAA、均衡柵欄。</string>
+    <string name="auto_optimization_mode_accurate">💎 畫質 / 精確</string>
+    <string name="auto_optimization_mode_accurate_desc">頂級畫質表現，1.5X/1X 解析度、安全 DMA、嚴格 GPU 柵欄、SMAA、16x 各向異性過濾。</string>
+    <string name="dma_accuracy_high">高</string>
+    <string name="vram_usage_mode_aggressive">積極（最高效能）</string>
+    <string name="auto_optimization_mode_fast_desc">最高幀率、最低發熱與省電。0.75X 解析度、保守顯存、快速 GPU 柵欄、NCE。</string>
+    <string name="auto_optimization_mode_fast">⚡ 極速 / 節能</string>
+    <string name="cheat_status_active">⚡ 遊戲中生效</string>
+    <string name="translator_enable_floating_button">顯示懸浮翻譯按鈕</string>
+    <string name="amiibo">Amiibo</string>
+    <string name="eco_frame_pacing_description">消除幀呈現間隙中的 CPU 空轉，在穩定 60 FPS 的同時顯著降低設備溫度與功耗。</string>
+    <string name="vram_usage_mode_normal">標準（推薦）</string>
+    <string name="auto_optimization_wizard_title">自動配置</string>
+    <string name="download_cheats">下載線上金手指</string>
+    <string name="cpu_affinity_pinning">CPU 核心綁定</string>
+    <string name="cheats_download_success">金手指資料庫下載成功！共找到 %1$d 個作弊碼。</string>
+    <string name="search_amiibo_hint">按名稱、角色或 ID 搜尋...</string>
+    <string name="overlay_skin_theme">虛擬手把皮膚主題</string>
+    <string name="cpu_affinity_pinning_description">將關鍵 JIT 和 GPU 模擬執行緒綁定至超大核/大核，輔助任務調度至能效核心。</string>
+    <string name="eco_thermal_mode_description">控制突發峰值頻率，防止設備過熱與降頻。</string>
+    <string name="auto_optimization_device_info">硬體配置資訊</string>
+    <string name="translator_title">STORM 翻譯器</string>
+    <string name="translator_translate_screen">螢幕即時翻譯（OCR + 語音朗讀）</string>
+    <string name="amiibo_database_title">線上 Amiibo 資料庫</string>
+    <string name="optimization_features">效能優化與溫控降溫</string>
+    <string name="cheat_code">Atmosphere 作弊碼</string>
+    <string name="cheat_status_disabled">⚪ 已禁用</string>
+    <string name="amiibo_database_description">瀏覽、生成並快速向遊戲中注入虛擬 Amiibo</string>
+    <string name="cheats_not_found">資料庫中未找到該遊戲的金手指，您可以手動添加。</string>
+    <string name="overlay_skin_theme_description">選擇虛擬按鍵與搖桿的配色方案與光影質感</string>
+    <string name="cheats_count_summary">金手指總數：%1$d | 已啟用：%2$d</string>
+    <string name="auto_optimization_applied_toast">⚡ 自動配置已生效：「%1$s」配置方案！</string>
+    <string name="eco_thermal_mode">節能溫控模式</string>
+    <string name="dma_accuracy_normal">標準（推薦）</string>
+    <string name="cheats_manager_title">金手指管理器</string>
+    <string name="auto_optimization_wizard_description">智慧分析 CPU、GPU 及記憶體，自動為您配置最適合本機的設定</string>
+    <string name="eco_frame_pacing">節能幀同步 (Eco Frame Pacing)</string>
+    <string name="cheat_name">作弊碼名稱</string>
+    <string name="vram_garbage_collection_description">定期清理未引用的紋理快取，防止微卡頓及 Android 記憶體不足閃退。</string>
+    <string name="vulkan_pipeline_cache_description">在儲存中預編譯並持久化 Vulkan 管線快取，徹底消除遊戲內卡頓。</string>
+    <string name="translator_disable_floating_button">隱藏懸浮翻譯按鈕</string>
+    <string name="cheat_status_enabled">✅ 已啟用</string>
+    <string name="deselect_all">取消全選</string>
+    <string name="smart_shader_throttle_description">動態將後台著色器編譯排程至能效核心，防止遊戲主執行緒掉幀與發熱。</string>
+    <string name="cheats">金手指 / 作弊碼</string>
+    <string name="vram_garbage_collection">VRAM 記憶體回收</string>
+    <string name="vram_usage_mode_conservative">保守（低顯存佔用）</string>
+    <string name="cheats_description">管理 Atmosphere 金手指作弊碼，啟用或下載線上代碼資料庫</string>
+    <string name="auto_optimization_summary_title">生效設定項</string>
+    <string name="smart_shader_throttle">智慧後台著色器調控</string>
+    <string name="select_all">全選</string>
+    <string name="vulkan_pipeline_cache">Vulkan 管線快取</string>
+</resources>

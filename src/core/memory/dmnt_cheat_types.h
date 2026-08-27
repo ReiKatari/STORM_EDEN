@@ -23,9 +23,9 @@ struct CheatProcessMetadata {
 };
 
 struct CheatDefinition {
-    std::array<char, 0x40> readable_name{};
+    std::array<char, 0x80> readable_name{};
     u32 num_opcodes{};
-    std::array<u32, 0x100> opcodes{};
+    std::array<u32, 0x1000> opcodes{};
 };
 
 struct CheatEntry {

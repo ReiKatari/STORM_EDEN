@@ -389,11 +389,7 @@ struct Values {
                                                   true};
 
     SwitchableSetting<bool> use_asynchronous_gpu_emulation{linkage,
-#ifdef __ANDROID__
-        false,
-#else
         true,
-#endif
         "use_asynchronous_gpu_emulation", Category::Renderer};
     // *nix platforms may have issues with the borderless windowed fullscreen mode.
     // Default to exclusive fullscreen on these platforms for now.
@@ -547,6 +543,20 @@ struct Values {
                                              Specialization::Default,
                                              true,
                                              true};
+    SwitchableSetting<bool> eco_frame_pacing{linkage,
+                                             true,
+                                             "eco_frame_pacing",
+                                             Category::Renderer,
+                                             Specialization::Default,
+                                             true,
+                                             true};
+    SwitchableSetting<bool> smart_shader_throttle{linkage,
+                                                  true,
+                                                  "smart_shader_throttle",
+                                                  Category::RendererAdvanced,
+                                                  Specialization::Default,
+                                                  true,
+                                                  true};
     SwitchableSetting<bool> cpu_affinity_pinning{linkage,
                                                  true,
                                                  "cpu_affinity_pinning",
@@ -600,11 +610,7 @@ struct Values {
                                                         true,
                                                         true};
     SwitchableSetting<bool> async_presentation{linkage,
-#ifdef __ANDROID__
-                                               false,
-#else
-                                               false,
-#endif
+                                               true,
                                                "async_presentation", Category::RendererHacks};
 
     SwitchableSetting<bool> fix_bloom_effects{linkage, false, "fix_bloom_effects",

@@ -50,11 +50,51 @@ object GpuDriverHelper {
         hookLibPath = YuzuApplication.appContext.applicationInfo.nativeLibraryDir + "/"
         NativeFreedrenoConfig.reloadFreedrenoConfig()
 
-        // Initialize GPU driver.
+        val isA830Device = android.os.Build.MODEL.contains("S938", ignoreCase = true) ||
+                           android.os.Build.HARDWARE.contains("sun", ignoreCase = true) ||
+                           android.os.Build.BOARD.contains("sun", ignoreCase = true) ||
+                           android.os.Build.DEVICE.contains("sun", ignoreCase = true) ||
+                           android.os.Build.PRODUCT.contains("sun", ignoreCase = true) ||
+                           (android.os.Build.VERSION.SDK_INT >= 31 && android.os.Build.SOC_MODEL.contains("8750", ignoreCase = true))
+
+        val customLib = installedCustomDriverData.libraryName
+        if (!customLib.isNullOrEmpty()) {
+            val drircFile = File(driverInstallationPath, "drirc.xml")
+            if (drircFile.exists()) {
+                NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_FILE", drircFile.absolutePath)
+            }
+            
+            // 4GB Monolithic Shader Cache for Mesa Turnip and PanVK
+            NativeFreedrenoConfig.setFreedrenoEnv("MESA_SHADER_CACHE_MAX_SIZE", "4294967296")
+            NativeFreedrenoConfig.setFreedrenoEnv("MESA_DISK_CACHE_SINGLE_FILE", "1")
+
+            var model = ""
+            try {
+                model = hookLibPath?.let { getGpuModel(hookLibPath = it) } ?: ""
+            } catch (e: Throwable) {
+                // Ignore fallback
+            }
+
+            // Adreno 830 / Snapdragon 8 Elite hardware-specific stability fix (UBWC alignment)
+            val isA830 = isA830Device || model.contains("830") || model.contains("8750") || model.contains("8 Elite", ignoreCase = true)
+            if (isA830) {
+                val currentTuDebug = NativeFreedrenoConfig.getFreedrenoEnv("TU_DEBUG")
+                if (!currentTuDebug.contains("noubwc")) {
+                    val newTuDebug = if (currentTuDebug.isEmpty()) "noubwc" else "$currentTuDebug,noubwc"
+                    NativeFreedrenoConfig.setFreedrenoEnv("TU_DEBUG", newTuDebug)
+                }
+            }
+
+            // ARM Mali (PanVK/Panfrost) early Z and geometry optimizations
+            if (model.contains("Mali", ignoreCase = true)) {
+                NativeFreedrenoConfig.setFreedrenoEnv("PAN_MESA_DEBUG", "fpk,early_z,opt")
+            }
+        }
+
         NativeLibrary.initializeGpuDriver(
             hookLibPath,
             driverInstallationPath,
-            installedCustomDriverData.libraryName,
+            customLib,
             fileRedirectionPath
         )
     }

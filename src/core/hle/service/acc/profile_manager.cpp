@@ -284,8 +284,9 @@ UserIDArray ProfileManager::GetAllUsers() const {
 /// needed for GetOpenUsers and we need to ensure the rest of the output buffer is zero'd out
 UserIDArray ProfileManager::GetOpenUsers() const {
     UserIDArray output{};
-    std::ranges::transform(profiles, output.begin(), [](const ProfileInfo& p) {
-        if (p.is_open)
+    const bool any_open = std::any_of(profiles.begin(), profiles.end(), [](const ProfileInfo& p) { return p.is_open; });
+    std::ranges::transform(profiles, output.begin(), [any_open](const ProfileInfo& p) {
+        if (p.is_open || (!any_open && p.user_uuid.IsValid()))
             return p.user_uuid;
         return Common::InvalidUUID;
     });
@@ -296,20 +297,31 @@ UserIDArray ProfileManager::GetOpenUsers() const {
 
 /// Returns the last user which was opened
 UUID ProfileManager::GetLastOpenedUser() const {
-    return last_opened_user;
+    if (last_opened_user.IsValid()) {
+        return last_opened_user;
+    }
+    if (user_count > 0 && profiles[0].user_uuid.IsValid()) {
+        return profiles[0].user_uuid;
+    }
+    return Common::InvalidUUID;
 }
 
 /// Gets the list of stored opened users.
 UserIDArray ProfileManager::GetStoredOpenedUsers() const {
     UserIDArray output{};
-    std::ranges::transform(stored_opened_profiles, output.begin(), [](const ProfileInfo& p) {
-        if (p.is_open)
-            return p.user_uuid;
-        return Common::InvalidUUID;
-    });
-    std::stable_partition(output.begin(), output.end(),
-                          [](const UUID& uuid) { return uuid.IsValid(); });
-    return output;
+    const bool has_any_stored = std::any_of(stored_opened_profiles.begin(), stored_opened_profiles.end(),
+                                            [](const ProfileInfo& p) { return p.is_open && p.user_uuid.IsValid(); });
+    if (has_any_stored) {
+        std::ranges::transform(stored_opened_profiles, output.begin(), [](const ProfileInfo& p) {
+            if (p.is_open)
+                return p.user_uuid;
+            return Common::InvalidUUID;
+        });
+        std::stable_partition(output.begin(), output.end(),
+                              [](const UUID& uuid) { return uuid.IsValid(); });
+        return output;
+    }
+    return GetOpenUsers();
 }
 
 /// Captures the opened users, which can be queried across process launches with

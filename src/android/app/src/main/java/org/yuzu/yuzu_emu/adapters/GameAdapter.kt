@@ -32,6 +32,7 @@ import org.yuzu.yuzu_emu.model.GamesViewModel
 import org.yuzu.yuzu_emu.utils.GameIconUtils
 import org.yuzu.yuzu_emu.utils.ViewUtils.marquee
 import org.yuzu.yuzu_emu.viewholder.AbstractViewHolder
+import android.os.Build
 import androidx.core.net.toUri
 import androidx.core.content.edit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -278,32 +279,36 @@ class GameAdapter(private val activity: AppCompatActivity) :
                 return
             }
 
-            val launch: () -> Unit = {
-                val preferences =
-                    PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
-                preferences.edit {
-                    putLong(
-                        game.keyLastPlayedTime,
-                        System.currentTimeMillis()
-                    )
-                }
+            val preferences =
+                PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
+            preferences.edit {
+                putLong(
+                    game.keyLastPlayedTime,
+                    System.currentTimeMillis()
+                )
+            }
 
+            val launch: (Boolean) -> Unit = { useCustom ->
                 activity.lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
-                        val shortcut =
-                            ShortcutInfoCompat.Builder(YuzuApplication.appContext, game.path)
-                                .setShortLabel(game.title)
-                                .setIcon(GameIconUtils.getShortcutIcon(activity, game))
-                                .setIntent(game.launchIntent)
-                                .build()
-                        ShortcutManagerCompat.pushDynamicShortcut(
-                            YuzuApplication.appContext,
-                            shortcut
-                        )
+                        if (NativeLibrary.reloadKeys()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                val shortcut =
+                                    ShortcutInfoCompat.Builder(YuzuApplication.appContext, game.path)
+                                        .setShortLabel(game.title)
+                                        .setIcon(GameIconUtils.getShortcutIcon(activity, game))
+                                        .setIntent(game.launchIntent)
+                                        .build()
+                                ShortcutManagerCompat.pushDynamicShortcut(
+                                    YuzuApplication.appContext,
+                                    shortcut
+                                )
+                            }
+                        }
                     }
                 }
 
-                val action = HomeNavigationDirections.actionGlobalEmulationActivity(game, true)
+                val action = HomeNavigationDirections.actionGlobalEmulationActivity(game, useCustom)
                 binding.root.findNavController().navigate(action)
             }
 
@@ -311,12 +316,12 @@ class GameAdapter(private val activity: AppCompatActivity) :
                 if (GameFixDatabase.hasFix(game) &&
                     !GameFixDatabase.isDontAskAgain(activity, game) &&
                     !GameFixDatabase.isFixApplied(game)) {
-                    val dialog = GameFixDialogFragment.newInstance(game) { _ ->
-                        launch()
+                    val dialog = GameFixDialogFragment.newInstance(game) { wasApplied ->
+                        launch(wasApplied)
                     }
                     dialog.show(activity.supportFragmentManager, GameFixDialogFragment.TAG)
                 } else {
-                    launch()
+                    launch(GameFixDatabase.isFixApplied(game))
                 }
             }
 

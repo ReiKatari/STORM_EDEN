@@ -68,9 +68,12 @@ class GameFixDialogFragment : DialogFragment() {
             onLaunchCallback?.invoke(false)
         }
 
-        return MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(binding.root)
             .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        return dialog
     }
 
     override fun onDestroyView() {

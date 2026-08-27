@@ -12,14 +12,31 @@ namespace Core {
 
 static const std::vector<GameFixProfile> s_profiles = {
     {
+        0x01007EF00011E000ULL,
+        "The Legend of Zelda: Breath of the Wild",
+        "• Белая непрозрачная вода из-за рассинхронизации буфера глубины и рефракций\n• Желтые/ослепляющие вспышки частиц и тумана в Святилищах (Shrines)\n• Мерцание текстур травы и теней",
+        "• White opaque water caused by depth buffer and refraction desync\n• Yellow/blinding particle flashes and fog in Shrines\n• Grass and shadow texture flickering",
+        "✓ Точность GPU: Высокая (High — идеальная прозрачная вода)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Сжатие ASTC: Отключено (Uncompressed — решает проблемы воды и Святилищ)\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High (Crystal clear water transparency)\n✓ Reactive Flushing: Enabled\n✓ ASTC Recompression: Uncompressed (Fixes water & Shrines)\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "true"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Core\\memory_layout_mode", "2"}
+        }
+    },
+    {
         0x0100F2C0115B6000ULL,
         "The Legend of Zelda: Tears of the Kingdom",
         "• Черный экран при смене оружия и способностей (Fuse/Ultrahand)\n• Утечки VRAM в кавернах и святилищах\n• Мерцание текстур скверны (Gloom) и теней облаков",
         "• Black screen during weapon/ability switching (Fuse menu)\n• VRAM leaks in Depths and Shrines\n• Gloom texture flickering and cloud shadow artifacts",
-        "✓ Разрешение: Handheld 0.75X - 1.0X\n✓ Сжатие ASTC: BC1/BC3 (экономия 4 ГБ VRAM)\n✓ Анизотропная фильтрация: 16x\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-        "✓ Resolution: Handheld 0.75X - 1.0X\n✓ ASTC Recompression: BC1/BC3 (saves 4GB VRAM)\n✓ Anisotropic Filtering: 16x\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Анизотропная фильтрация: 16x\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ ASTC Recompression: Uncompressed\n✓ Anisotropic Filtering: 16x\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\astc_recompression", "1"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "true"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\max_anisotropy", "5"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Core\\memory_layout_mode", "2"}
@@ -28,13 +45,14 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x01004D701742A000ULL,
         "Paper Mario: The Thousand-Year Door",
-        "• Черный экран на катсценах в прологе\n• Сбои 2D-шрифтов диалогов на расширении Dynamic State 3",
-        "• Black screen during prologue cutscenes\n• Corrupted battle text boxes with Dynamic State 3",
-        "✓ Динамическое состояние: EDS1/EDS2\n✓ Точность GPU: Высокая (High)\n✓ Очистка кэша конвейеров",
-        "✓ Dynamic State: EDS1/EDS2\n✓ GPU Accuracy: High\n✓ Clean Pipeline Cache",
+        "• Черный экран на катсценах в прологе\n• Сбои 2D-шрифтов диалогов и мерцание текстур",
+        "• Black screen during prologue cutscenes\n• Corrupted battle text boxes and flickering textures",
+        "✓ Точность GPU: Высокая (High)\n✓ Сжатие ASTC: Отключено (для идеального видео)\n✓ Реактивный сброс (Reactive Flushing): Включено",
+        "✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed\n✓ Reactive Flushing: Enabled",
         {
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\dyna_state", "1"}
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\use_reactive_flushing", "true"}
         }
     },
     {
@@ -80,12 +98,15 @@ static const std::vector<GameFixProfile> s_profiles = {
         "LEGO Star Wars: The Skywalker Saga",
         "• Зацикливание стартовой заставки и полосы загрузки",
         "• Boot loop on startup splash screen and loading bar",
-        "✓ Авто-создание сохранений профиля в STORM EDEN 4.6.0+\n✓ Разрешение: Handheld 0.75X + FSR 80%",
-        "✓ Auto SaveData profile creation in STORM EDEN 4.6.0+\n✓ Resolution: Handheld 0.75X + FSR 80%",
+        "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Синхронная компиляция шейдеров на старте\n✓ Сжатие ASTC: BC1",
+        "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ Synchronous Shaders on boot\n✓ ASTC Recompression: BC1",
         {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\astc_recompression", "1"},
             {"Renderer\\resolution_setup", "1"},
             {"Renderer\\fsr_sharpening_slider", "80"},
-            {"Renderer\\use_asynchronous_shaders", "true"}
+            {"Renderer\\use_reactive_flushing", "true"},
+            {"Renderer\\use_asynchronous_shaders", "false"}
         }
     },
     {

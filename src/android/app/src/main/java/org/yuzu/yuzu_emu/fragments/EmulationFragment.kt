@@ -287,20 +287,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             game = gameToUse
             emulationActivity?.updateSessionGame(gameToUse)
 
-            if (GameFixDatabase.hasFix(gameToUse) &&
-                !GameFixDatabase.isDontAskAgain(requireContext(), gameToUse) &&
-                !GameFixDatabase.isFixApplied(gameToUse)) {
-                val dialog = GameFixDialogFragment.newInstance(gameToUse) { wasApplied ->
-                    if (wasApplied) {
-                        shouldUseCustom = true
-                    }
-                    continueGameSetupAfterFix()
-                }
-                dialog.isCancelable = false
-                dialog.show(childFragmentManager, GameFixDialogFragment.TAG)
-                return
-            }
-
             continueGameSetupAfterFix()
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error during game setup: ${e.message}")
@@ -316,51 +302,29 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     private fun continueGameSetupAfterFix() {
         try {
-            when {
-                // Game launched via intent (check for existing custom config)
-                intentGame != null -> {
-                    game?.let { gameInstance ->
-                        runCatching { GameHelper.restoreContentForGame(gameInstance) }
-                            .onFailure {
-                                Log.warning(
-                                    "[EmulationFragment] Failed to restore content for intent launch: ${it.message}"
-                                )
-                            }
+            val gameToUse = game ?: return
+            val hasCustom = (gameToUse == args.game && args.custom) ||
+                            GameFixDatabase.isFixApplied(gameToUse) ||
+                            SettingsFile.getCustomSettingsFile(gameToUse).exists()
 
-                        val customConfigFile = SettingsFile.getCustomSettingsFile(gameInstance)
-                        if (customConfigFile.exists()) {
-                            shouldUseCustom = true
-                            Log.info(
-                                "[EmulationFragment] Found existing custom settings for ${gameInstance.title}, loading them"
-                            )
-                            SettingsFile.loadCustomConfig(gameInstance)
-                            NativeConfig.unloadPerGameConfig()
-                        } else {
-                            shouldUseCustom = false
-                            Log.info(
-                                "[EmulationFragment] No custom settings found for ${gameInstance.title}, using global settings"
-                            )
-                            NativeConfig.reloadGlobalConfig()
-                        }
-                    } ?: run {
-                        Log.info("[EmulationFragment] No game available, using global settings")
-                        NativeConfig.reloadGlobalConfig()
+            if (intentGame != null) {
+                runCatching { GameHelper.restoreContentForGame(gameToUse) }
+                    .onFailure {
+                        Log.warning(
+                            "[EmulationFragment] Failed to restore content for intent launch: ${it.message}"
+                        )
                     }
-                }
+            }
 
-                // Normal game launch from arguments
-                else -> {
-                    shouldUseCustom = game?.let { it == args.game && args.custom } ?: false
-
-                    if (shouldUseCustom) {
-                        SettingsFile.loadCustomConfig(game!!)
-                        NativeConfig.unloadPerGameConfig()
-                        Log.info("[EmulationFragment] Loading custom settings for ${game!!.title}")
-                    } else {
-                        Log.info("[EmulationFragment] Using global settings")
-                        NativeConfig.reloadGlobalConfig()
-                    }
-                }
+            if (hasCustom && args.custom) {
+                shouldUseCustom = true
+                SettingsFile.loadCustomConfig(gameToUse)
+                NativeConfig.unloadPerGameConfig()
+                Log.info("[EmulationFragment] Loading custom settings for ${gameToUse.title}")
+            } else {
+                shouldUseCustom = false
+                NativeConfig.reloadGlobalConfig()
+                Log.info("[EmulationFragment] Using global settings (launch without changes)")
             }
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error loading configuration: ${e.message}")

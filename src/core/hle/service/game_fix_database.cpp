@@ -96,17 +96,19 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x0100923008C54000ULL,
         "LEGO Star Wars: The Skywalker Saga",
-        "• Зацикливание стартовой заставки и полосы загрузки",
-        "• Boot loop on startup splash screen and loading bar",
-        "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Синхронная компиляция шейдеров на старте\n✓ Сжатие ASTC: BC1",
-        "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ Synchronous Shaders on boot\n✓ ASTC Recompression: BC1",
+        "• Бесконечная загрузка (зацикливание индикатора загрузки TT Games)\n• Зависание асинхронного таймера GPU при обращении к ресурсам",
+        "• Infinite loading screen (TT Games loading indicator loop)\n• GPU async timer deadlock during asset initialization",
+        "✓ Быстрое время GPU (Fast GPU Time): Отключено (устраняет вечную загрузку!)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность GPU: Высокая (High)\n✓ Точность CPU: Точная (Accurate)\n✓ Реактивный сброс: Отключено\n✓ Память: 8GB DRAM",
+        "✓ Fast GPU Time: Disabled (Fixes infinite loading!)\n✓ Dynamic State: Basic (EDS1)\n✓ GPU Accuracy: High\n✓ CPU Accuracy: Accurate\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM",
         {
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\dyna_state", "0"},
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\astc_recompression", "1"},
-            {"Renderer\\resolution_setup", "1"},
-            {"Renderer\\fsr_sharpening_slider", "80"},
-            {"Renderer\\use_reactive_flushing", "true"},
-            {"Renderer\\use_asynchronous_shaders", "false"}
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\use_asynchronous_shaders", "false"},
+            {"Cpu\\cpu_accuracy", "0"},
+            {"Core\\memory_layout_mode", "2"}
         }
     },
     {

@@ -8,6 +8,7 @@ import androidx.preference.PreferenceManager
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.GameMetadata
 import org.yuzu.yuzu_emu.utils.Log
+import org.yuzu.yuzu_emu.utils.NativeConfig
 import java.io.File
 
 data class GameFixProfile(
@@ -109,17 +110,19 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100923008C54000L,
             "LEGO Star Wars: The Skywalker Saga",
-            "• Зацикливание стартовой заставки и полосы загрузки",
-            "• Boot loop on startup splash screen and loading bar",
-            "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Синхронная компиляция шейдеров на старте\n✓ Сжатие ASTC: BC1",
-            "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ Synchronous Shaders on boot\n✓ ASTC Recompression: BC1",
+            "• Бесконечная загрузка (зацикливание индикатора загрузки TT Games)\n• Зависание асинхронного таймера GPU при обращении к ресурсам",
+            "• Infinite loading screen (TT Games loading indicator loop)\n• GPU async timer deadlock during asset initialization",
+            "✓ Быстрое время GPU (Fast GPU Time): Отключено (устраняет вечную загрузку!)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность GPU: Высокая (High)\n✓ Точность CPU: Точная (Accurate)\n✓ Реактивный сброс: Отключено\n✓ Память: 8GB DRAM",
+            "✓ Fast GPU Time: Disabled (Fixes infinite loading!)\n✓ Dynamic State: Basic (EDS1)\n✓ GPU Accuracy: High\n✓ CPU Accuracy: Accurate\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dyna_state" to "0",
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\astc_recompression" to "1",
-                "Renderer\\resolution_setup" to "1",
-                "Renderer\\fsr_sharpening_slider" to "80",
-                "Renderer\\use_reactive_flushing" to "true",
-                "Renderer\\use_asynchronous_shaders" to "false"
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Cpu\\cpu_accuracy" to "0",
+                "Core\\memory_layout_mode" to "2"
             )
         ),
         GameFixProfile(
@@ -579,6 +582,25 @@ object GameFixDatabase {
                 f.writeText(textToSave)
                 Log.info("[GameFixDatabase] Applied game fix profile to ${f.absolutePath}")
             }
+
+            // Also directly apply to in-memory settings if session is running
+            for ((fullKey, value) in fix.settingsMap) {
+                val parts = fullKey.split("\\")
+                if (parts.size == 2) {
+                    val key = parts[1]
+                    try {
+                        when (key) {
+                            "use_fast_gpu_time", "use_reactive_flushing", "use_asynchronous_shaders", "cpuopt_fastmem" -> {
+                                NativeConfig.setBoolean(key, value.toBoolean())
+                            }
+                            "gpu_accuracy", "astc_recompression", "resolution_setup", "fsr_sharpening_slider", "max_anisotropy", "cpu_accuracy", "memory_layout_mode", "dyna_state" -> {
+                                NativeConfig.setInt(key, value.toIntOrNull() ?: 0)
+                            }
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
+
             true
         } catch (e: Exception) {
             Log.error("[GameFixDatabase] Failed to apply game fix: ${e.message}")

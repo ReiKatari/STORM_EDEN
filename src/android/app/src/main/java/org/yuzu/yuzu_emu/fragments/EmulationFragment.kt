@@ -319,12 +319,12 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             if (hasCustom && args.custom) {
                 shouldUseCustom = true
                 SettingsFile.loadCustomConfig(gameToUse)
-                NativeConfig.unloadPerGameConfig()
-                Log.info("[EmulationFragment] Loading custom settings for ${gameToUse.title}")
+                Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")
             } else {
                 shouldUseCustom = false
+                NativeConfig.unloadPerGameConfig()
                 NativeConfig.reloadGlobalConfig()
-                Log.info("[EmulationFragment] Using global settings (launch without changes)")
+                Log.info("[EmulationFragment] Using clean global config for ${gameToUse.title}")
             }
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error loading configuration: ${e.message}")

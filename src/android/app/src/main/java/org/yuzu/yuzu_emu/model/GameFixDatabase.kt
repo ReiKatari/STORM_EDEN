@@ -583,24 +583,6 @@ object GameFixDatabase {
                 Log.info("[GameFixDatabase] Applied game fix profile to ${f.absolutePath}")
             }
 
-            // Also directly apply to in-memory settings if session is running
-            for ((fullKey, value) in fix.settingsMap) {
-                val parts = fullKey.split("\\")
-                if (parts.size == 2) {
-                    val key = parts[1]
-                    try {
-                        when (key) {
-                            "use_fast_gpu_time", "use_reactive_flushing", "use_asynchronous_shaders", "cpuopt_fastmem" -> {
-                                NativeConfig.setBoolean(key, value.toBoolean())
-                            }
-                            "gpu_accuracy", "astc_recompression", "resolution_setup", "fsr_sharpening_slider", "max_anisotropy", "cpu_accuracy", "memory_layout_mode", "dyna_state" -> {
-                                NativeConfig.setInt(key, value.toIntOrNull() ?: 0)
-                            }
-                        }
-                    } catch (_: Exception) {}
-                }
-            }
-
             true
         } catch (e: Exception) {
             Log.error("[GameFixDatabase] Failed to apply game fix: ${e.message}")

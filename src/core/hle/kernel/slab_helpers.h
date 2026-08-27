@@ -151,7 +151,9 @@ public:
         const bool is_initialized = this->IsInitialized();
         uintptr_t arg = 0;
         if (is_initialized) {
-            kernel.ObjectListContainer().Unregister(this);
+            if (kernel.HasObjectListContainer()) {
+                kernel.ObjectListContainer().Unregister(this);
+            }
             arg = this->GetPostDestroyArgument();
             this->Finalize(kernel);
         }

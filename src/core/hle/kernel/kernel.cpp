@@ -949,6 +949,10 @@ Kernel::KHardwareTimer& KernelCore::HardwareTimer() {
     return *impl->hardware_timer;
 }
 
+bool KernelCore::HasObjectListContainer() const {
+    return impl && impl->global_object_list_container.has_value();
+}
+
 KAutoObjectWithListContainer& KernelCore::ObjectListContainer() {
     return *impl->global_object_list_container;
 }

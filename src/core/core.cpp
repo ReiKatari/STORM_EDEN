@@ -346,8 +346,8 @@ struct System::Impl {
         // All threads are started, begin main process execution, now that we're in the clear
         applet_manager.CreateAndInsertByFrontendAppletParameters(std::move(process), params);
 
-        // Initialize cheat engine after process is valid and registered
-        if (cheat_engine) {
+        // Initialize cheat engine after process is valid and registered (only if active cheats exist)
+        if (cheat_engine && !cheat_engine->IsCheatsEmpty()) {
             cheat_engine->Initialize();
         }
 
@@ -762,6 +762,13 @@ FileSys::VirtualFilesystem System::GetFilesystem() const {
 void System::RegisterCheatList(const std::vector<Memory::CheatEntry>& list,
                                const std::array<u8, 32>& build_id, u64 main_region_begin,
                                u64 main_region_size) {
+    if (list.empty()) {
+        if (impl->cheat_engine) {
+            impl->cheat_engine.reset();
+        }
+        return;
+    }
+
     if (main_region_begin != 0) {
         impl->main_nso_begin = main_region_begin;
         impl->main_nso_size = main_region_size;

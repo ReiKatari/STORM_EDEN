@@ -70,6 +70,7 @@ public:
     void SetMainMemoryParameters(VAddr main_region_begin, u64 main_region_size);
 
     void Reload(std::vector<CheatEntry> reload_cheats);
+    [[nodiscard]] bool IsCheatsEmpty() const { return cheats.empty(); }
 
 private:
     void FrameCallback(std::chrono::nanoseconds ns_late);

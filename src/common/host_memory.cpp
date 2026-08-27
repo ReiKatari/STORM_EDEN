@@ -114,11 +114,9 @@ using PFN_UnmapViewOfFile2 = BOOL(WINAPI*)(_In_ HANDLE Process, _In_ PVOID BaseA
                                            _In_ ULONG UnmapFlags);
 
 template <typename T>
-static void GetFuncAddress(Common::DynamicLibrary& dll, const char* name, T& pfn) {
-    if (!dll.GetSymbol(name, &pfn)) {
-        LOG_CRITICAL(HW_Memory, "Failed to load {}", name);
-        throw std::bad_alloc{};
-    }
+static bool GetFuncAddress(Common::DynamicLibrary& dll, const char* name, T& pfn) {
+    pfn = nullptr;
+    return dll.GetSymbol(name, &pfn);
 }
 
 class HostMemory::Impl {
@@ -131,18 +129,26 @@ public:
     {}
 
     bool Init() {
-        if (!kernelbase_dll.IsOpen()) {
-            LOG_CRITICAL(HW_Memory, "Failed to load Kernelbase.dll");
-            return false;
+        if (kernelbase_dll.IsOpen()) {
+            GetFuncAddress(kernelbase_dll, "CreateFileMapping2", pfn_CreateFileMapping2);
+            GetFuncAddress(kernelbase_dll, "VirtualAlloc2", pfn_VirtualAlloc2);
+            GetFuncAddress(kernelbase_dll, "MapViewOfFile3", pfn_MapViewOfFile3);
+            GetFuncAddress(kernelbase_dll, "UnmapViewOfFile2", pfn_UnmapViewOfFile2);
         }
-        GetFuncAddress(kernelbase_dll, "CreateFileMapping2", pfn_CreateFileMapping2);
-        GetFuncAddress(kernelbase_dll, "VirtualAlloc2", pfn_VirtualAlloc2);
-        GetFuncAddress(kernelbase_dll, "MapViewOfFile3", pfn_MapViewOfFile3);
-        GetFuncAddress(kernelbase_dll, "UnmapViewOfFile2", pfn_UnmapViewOfFile2);
 
         if (!pfn_CreateFileMapping2 || !pfn_VirtualAlloc2 || !pfn_MapViewOfFile3 || !pfn_UnmapViewOfFile2) {
-            LOG_CRITICAL(HW_Memory, "Failed to find functions for virtual allocs");
-            return false;
+            LOG_WARNING(HW_Memory, "Windows 10 1709+ placeholder API not available, enabling Win32 fallback memory mapping");
+            is_fallback_mode = true;
+            backing_base = static_cast<u8*>(VirtualAlloc(nullptr, backing_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
+            if (!backing_base) {
+                LOG_CRITICAL(HW_Memory, "Failed to allocate {} MiB of backing memory", backing_size >> 20);
+                return false;
+            }
+            virtual_base = static_cast<u8*>(VirtualAlloc(nullptr, virtual_size, MEM_RESERVE, PAGE_NOACCESS));
+            if (!virtual_base) {
+                virtual_base = backing_base;
+            }
+            return true;
         }
 
         // Allocate backing file map
@@ -180,6 +186,18 @@ public:
     }
 
     void Map(size_t virtual_offset, size_t host_offset, size_t length, MemoryPermission perms) {
+        if (is_fallback_mode) {
+            DWORD new_flags = PAGE_NOACCESS;
+            const bool read = True(perms & MemoryPermission::Read);
+            const bool write = True(perms & MemoryPermission::Write);
+            if (read && write) {
+                new_flags = PAGE_READWRITE;
+            } else if (read) {
+                new_flags = PAGE_READONLY;
+            }
+            VirtualAlloc(virtual_base + virtual_offset, length, MEM_COMMIT, new_flags);
+            return;
+        }
         std::unique_lock lock{placeholder_mutex};
         if (!IsNiechePlaceholder(virtual_offset, length)) {
             Split(virtual_offset, length);
@@ -191,6 +209,10 @@ public:
     }
 
     void Unmap(size_t virtual_offset, size_t length) {
+        if (is_fallback_mode) {
+            VirtualFree(virtual_base + virtual_offset, length, MEM_DECOMMIT);
+            return;
+        }
         std::scoped_lock lock{placeholder_mutex};
 
         // Unmap until there are no more placeholders
@@ -232,12 +254,25 @@ public:
     const size_t backing_size; ///< Size of the backing memory in bytes
     const size_t virtual_size; ///< Size of the virtual address placeholder in bytes
 
+    bool is_fallback_mode = false;
     u8* backing_base{};
     u8* virtual_base{};
 
 private:
     /// Release all resources in the object
     void Release() {
+        if (is_fallback_mode) {
+            if (virtual_base && virtual_base != backing_base) {
+                VirtualFree(virtual_base, 0, MEM_RELEASE);
+            }
+            if (backing_base) {
+                VirtualFree(backing_base, 0, MEM_RELEASE);
+            }
+            virtual_base = nullptr;
+            backing_base = nullptr;
+            return;
+        }
+
         if (!placeholders.empty()) {
             for (const auto& placeholder : placeholders) {
                 if (!pfn_UnmapViewOfFile2(process, virtual_base + placeholder.lower(),

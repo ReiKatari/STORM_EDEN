@@ -524,6 +524,25 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
     const auto atmo_cheats_dir = sdmc_base_path / "atmosphere" / "contents" / title_str / "cheats";
     const auto atmo_cheats_lower_dir = sdmc_base_path / "atmosphere" / "contents" / Common::ToLower(title_str) / "cheats";
 
+    // Ensure user/cheats/<title_id>/ and atmosphere/contents/<title_id>/cheats/ directories exist
+    std::error_code ec_create;
+    std::filesystem::create_directories(title_cheats_dir, ec_create);
+    std::filesystem::create_directories(atmo_cheats_dir, ec_create);
+    const auto template_cheat_file = title_cheats_dir / (build_id_16 + ".txt");
+    if (!std::filesystem::exists(template_cheat_file, ec_create)) {
+        Common::FS::IOFile tfile(template_cheat_file, Common::FS::FileAccessMode::Write, Common::FS::FileType::TextFile);
+        if (tfile.IsOpen()) {
+            const std::string template_content = fmt::format(
+                "// STORM EDEN / Atmosphere Cheat File\n"
+                "// Title ID: {}\n"
+                "// Build ID: {}\n"
+                "// Syntax: [Cheat Name]\n"
+                "//         04000000 01234567 00000000\n\n",
+                title_str, build_id_str);
+            (void)tfile.WriteString(template_content);
+        }
+    }
+
     std::vector<std::filesystem::path> cheat_files_to_check;
     std::set<std::string> enabled_from_file;
     bool has_enabled_file = false;

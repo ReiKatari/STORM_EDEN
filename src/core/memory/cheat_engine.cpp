@@ -39,7 +39,7 @@ void StandardVmCallbacks::MemoryReadUnsafe(VAddr address, void* data, u64 size) 
         return;
     }
 
-    if (!IsAddressInRange(address) && !system.ApplicationMemory().IsValidVirtualAddress(address)) {
+    if (!system.ApplicationMemory().IsValidVirtualAddressRange(address, size)) {
         std::memset(data, 0, size);
         return;
     }
@@ -52,7 +52,7 @@ void StandardVmCallbacks::MemoryWriteUnsafe(VAddr address, const void* data, u64
         return;
     }
 
-    if (!IsAddressInRange(address) && !system.ApplicationMemory().IsValidVirtualAddress(address)) {
+    if (!system.ApplicationMemory().IsValidVirtualAddressRange(address, size)) {
         return;
     }
 
@@ -301,27 +301,44 @@ void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
         return;
     }
 
+    if (!system.IsPoweredOn()) {
+        return;
+    }
+
+    auto* proc = system.ApplicationProcess();
+    if (proc == nullptr || proc->IsSuspended()) {
+        return;
+    }
+
     if (metadata.main_nso_extents.base == 0) {
-        auto* proc = system.ApplicationProcess();
-        if (proc != nullptr) {
-            metadata.main_nso_extents = {
-                .base = GetInteger(proc->GetPageTable().GetCodeRegionStart()),
-                .size = proc->GetPageTable().GetCodeRegionSize(),
-            };
-        }
+        metadata.main_nso_extents = {
+            .base = GetInteger(proc->GetPageTable().GetCodeRegionStart()),
+            .size = proc->GetPageTable().GetCodeRegionSize(),
+        };
         if (metadata.main_nso_extents.base == 0) {
             return;
         }
     }
 
     if (metadata.heap_extents.base == 0) {
-        auto* proc = system.ApplicationProcess();
-        if (proc != nullptr) {
-            metadata.heap_extents = {
-                .base = GetInteger(proc->GetPageTable().GetHeapRegionStart()),
-                .size = proc->GetPageTable().GetHeapRegionSize(),
-            };
-        }
+        metadata.heap_extents = {
+            .base = GetInteger(proc->GetPageTable().GetHeapRegionStart()),
+            .size = proc->GetPageTable().GetHeapRegionSize(),
+        };
+    }
+
+    if (metadata.alias_extents.base == 0) {
+        metadata.alias_extents = {
+            .base = GetInteger(proc->GetPageTable().GetAliasRegionStart()),
+            .size = proc->GetPageTable().GetAliasRegionSize(),
+        };
+    }
+
+    if (metadata.aslr_extents.base == 0) {
+        metadata.aslr_extents = {
+            .base = GetInteger(proc->GetPageTable().GetAddressSpaceStart()),
+            .size = proc->GetPageTable().GetAddressSpaceSize(),
+        };
     }
 
     vm.Execute(metadata);

@@ -3092,8 +3092,22 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     const auto loader =
         Loader::GetLoader(*QtCommon::system, v_file, params.program_id, params.program_index);
 
-    if (loader != nullptr && loader->ReadProgramId(title_id) == Loader::ResultStatus::Success &&
-        type == StartGameType::Normal) {
+    if (loader != nullptr) {
+        loader->ReadProgramId(title_id);
+    }
+    if (title_id == 0) {
+        static const QRegularExpression tid_regex(QStringLiteral(R"(\[([0-9a-fA-F]{16})\])"));
+        const auto match = tid_regex.match(filename);
+        if (match.hasMatch()) {
+            bool ok = false;
+            const u64 parsed = match.captured(1).toULongLong(&ok, 16);
+            if (ok && parsed != 0) {
+                title_id = parsed;
+            }
+        }
+    }
+
+    if (title_id != 0 && type == StartGameType::Normal) {
         const auto file_path_hash = Common::CityHash64(utf8_str.constData(), static_cast<std::size_t>(utf8_str.size()));
         const auto specific_config = fmt::format("{:016X}_{:016X}", title_id, file_path_hash);
         const auto legacy_config = fmt::format("{:016X}", title_id);
@@ -3147,6 +3161,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
 
                 if (msgBox.clickedButton() == applyBtn) {
                     Core::GameFixDatabase::ApplyProfileToPerGameConfig(title_id, target_ini);
+                    Core::GameFixDatabase::ApplyProfileToPerGameConfig(title_id, (custom_path / (legacy_config + ".ini")).string());
                 }
             }
         }

@@ -80,10 +80,13 @@ import org.yuzu.yuzu_emu.features.settings.model.Settings
 import org.yuzu.yuzu_emu.features.settings.model.Settings.EmulationOrientation
 import org.yuzu.yuzu_emu.features.settings.model.Settings.EmulationVerticalAlignment
 import org.yuzu.yuzu_emu.features.settings.model.ShortSetting
+import org.yuzu.yuzu_emu.features.settings.model.view.SettingsItem
 import org.yuzu.yuzu_emu.features.settings.utils.SettingsFile
 import org.yuzu.yuzu_emu.model.DriverViewModel
 import org.yuzu.yuzu_emu.model.EmulationViewModel
 import org.yuzu.yuzu_emu.model.Game
+import org.yuzu.yuzu_emu.model.GameFixDatabase
+import org.yuzu.yuzu_emu.fragments.GameFixDialogFragment
 import org.yuzu.yuzu_emu.overlay.model.OverlayControl
 import org.yuzu.yuzu_emu.overlay.model.OverlayLayout
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
@@ -283,6 +286,22 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
             game = gameToUse
             emulationActivity?.updateSessionGame(gameToUse)
+
+            if (GameFixDatabase.hasFix(gameToUse) &&
+                !GameFixDatabase.isDontAskAgain(requireContext(), gameToUse) &&
+                !GameFixDatabase.isFixApplied(gameToUse)) {
+                val dialog = GameFixDialogFragment.newInstance(gameToUse) { wasApplied ->
+                    if (wasApplied) {
+                        shouldUseCustom = true
+                    }
+                    continueGameSetupAfterFix()
+                }
+                dialog.isCancelable = false
+                dialog.show(childFragmentManager, GameFixDialogFragment.TAG)
+                return
+            }
+
+            continueGameSetupAfterFix()
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error during game setup: ${e.message}")
             Toast.makeText(
@@ -293,7 +312,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             requireActivity().finish()
             return
         }
+    }
 
+    private fun continueGameSetupAfterFix() {
         try {
             when {
                 // Game launched via intent (check for existing custom config)

@@ -6,6 +6,7 @@ package org.yuzu.yuzu_emu.model
 import android.content.Context
 import androidx.preference.PreferenceManager
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
+import org.yuzu.yuzu_emu.utils.GameMetadata
 import org.yuzu.yuzu_emu.utils.Log
 import java.io.File
 
@@ -311,22 +312,71 @@ object GameFixDatabase {
     fun parseProgramId(programIdStr: String): Long {
         val str = programIdStr.trim()
         if (str.isEmpty()) return 0L
-        // 1. Try parsing decimal representation (default from std::to_string(u64))
+        
+        // 1. If explicit Hex format (0x..., length 16, starts with 0100, or has A-F characters)
+        if (str.startsWith("0x", ignoreCase = true) ||
+            str.length == 16 ||
+            str.startsWith("0100", ignoreCase = true) ||
+            str.any { it in 'a'..'f' || it in 'A'..'F' }) {
+            try {
+                val cleanHex = str.removePrefix("0x").removePrefix("0X")
+                val hex = java.lang.Long.parseUnsignedLong(cleanHex, 16)
+                if (hex != 0L) return hex
+            } catch (_: Exception) {}
+        }
+
+        // 2. Try parsing decimal representation (from std::to_string(u64))
         try {
             val dec = java.lang.Long.parseUnsignedLong(str, 10)
             if (dec != 0L) return dec
         } catch (_: Exception) {}
-        // 2. Try parsing hexadecimal representation
+
+        // 3. Fallback to hexadecimal representation
         try {
             val cleanHex = str.removePrefix("0x").removePrefix("0X")
             val hex = java.lang.Long.parseUnsignedLong(cleanHex, 16)
             if (hex != 0L) return hex
         } catch (_: Exception) {}
+
+        return 0L
+    }
+
+    fun resolveTitleId(game: Game): Long {
+        var id = parseProgramId(game.programId)
+        if (id != 0L) return id
+
+        // Extract 16-hex Title ID from filename e.g. "Game [0100916014D8C000].nsp"
+        try {
+            val regex = Regex("\\[([0-9a-fA-F]{16})\\]")
+            val match = regex.find(game.path)
+            if (match != null) {
+                val hex = match.groupValues[1]
+                id = java.lang.Long.parseUnsignedLong(hex, 16)
+                if (id != 0L) return id
+            }
+        } catch (_: Exception) {}
+
+        // Try reading metadata via GameMetadata JNI
+        try {
+            if (game.path.isNotEmpty()) {
+                val progId = GameMetadata.getProgramId(game.path)
+                if (progId.isNotEmpty()) {
+                    id = parseProgramId(progId)
+                    if (id != 0L) return id
+                }
+            }
+        } catch (_: Exception) {}
+
         return 0L
     }
 
     fun getProgramIdHex(programIdStr: String): String {
         val idLong = parseProgramId(programIdStr)
+        return if (idLong != 0L) String.format("%016X", idLong) else ""
+    }
+
+    fun getProgramIdHex(game: Game): String {
+        val idLong = resolveTitleId(game)
         return if (idLong != 0L) String.format("%016X", idLong) else ""
     }
 
@@ -337,12 +387,30 @@ object GameFixDatabase {
         return profiles.firstOrNull { it.titleId == idLong || (it.titleId and 0x1FFFL.inv()) == baseId }
     }
 
+    fun getFix(game: Game): GameFixProfile? {
+        val idLong = resolveTitleId(game)
+        if (idLong == 0L) return null
+        val baseId = idLong and 0x1FFFL.inv()
+        return profiles.firstOrNull { it.titleId == idLong || (it.titleId and 0x1FFFL.inv()) == baseId }
+    }
+
     fun hasFix(programIdStr: String): Boolean {
         return getFix(programIdStr) != null
     }
 
+    fun hasFix(game: Game): Boolean {
+        return getFix(game) != null
+    }
+
     fun isDontAskAgain(context: Context, programIdStr: String): Boolean {
         val hex = getProgramIdHex(programIdStr)
+        if (hex.isEmpty()) return false
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return prefs.getBoolean("storm_fix_dont_ask_$hex", false)
+    }
+
+    fun isDontAskAgain(context: Context, game: Game): Boolean {
+        val hex = getProgramIdHex(game)
         if (hex.isEmpty()) return false
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getBoolean("storm_fix_dont_ask_$hex", false)
@@ -356,34 +424,53 @@ object GameFixDatabase {
         }
     }
 
-    fun isFixApplied(game: Game): Boolean {
-        val titleIdHex = getProgramIdHex(game.programId)
-        if (titleIdHex.isEmpty()) return false
-        val configFile = File(DirectoryInitialization.userDirectory, "config/custom/$titleIdHex.ini")
-        if (!configFile.exists()) return false
-        return try {
-            val content = configFile.readText()
-            content.contains("storm_fix_applied=true") || content.contains("storm_fix_applied = true")
-        } catch (e: Exception) {
-            false
+    fun setDontAskAgain(context: Context, game: Game, value: Boolean = true) {
+        val hex = getProgramIdHex(game)
+        if (hex.isNotEmpty()) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            prefs.edit().putBoolean("storm_fix_dont_ask_$hex", value).apply()
         }
     }
 
+    fun isFixApplied(game: Game): Boolean {
+        val titleIdHex = getProgramIdHex(game)
+        if (titleIdHex.isEmpty()) return false
+        val filesToCheck = listOf(
+            File(DirectoryInitialization.userDirectory, "config/custom/$titleIdHex.ini"),
+            File(DirectoryInitialization.userDirectory, "config/custom/${game.settingsName}.ini")
+        )
+        for (configFile in filesToCheck) {
+            if (configFile.exists()) {
+                try {
+                    val content = configFile.readText()
+                    if (content.contains("storm_fix_applied=true") || content.contains("storm_fix_applied = true")) {
+                        return true
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+        return false
+    }
+
     fun applyFix(game: Game): Boolean {
-        val fix = getFix(game.programId) ?: return false
-        val titleIdHex = getProgramIdHex(game.programId)
+        val fix = getFix(game) ?: return false
+        val titleIdHex = getProgramIdHex(game)
         if (titleIdHex.isEmpty()) return false
         val configDir = File(DirectoryInitialization.userDirectory, "config/custom")
         if (!configDir.exists()) {
             configDir.mkdirs()
         }
-        val configFile = File(configDir, "$titleIdHex.ini")
+        val targetFiles = listOf(
+            File(configDir, "$titleIdHex.ini"),
+            File(configDir, "${game.settingsName}.ini")
+        )
 
         return try {
             val sections = mutableMapOf<String, MutableMap<String, String>>()
-            if (configFile.exists()) {
+            val primaryFile = targetFiles.firstOrNull { it.exists() } ?: targetFiles[0]
+            if (primaryFile.exists()) {
                 var currentSection = ""
-                configFile.forEachLine { rawLine ->
+                primaryFile.forEachLine { rawLine ->
                     val line = rawLine.trim()
                     if (line.isNotEmpty() && !line.startsWith("#") && !line.startsWith(";")) {
                         if (line.startsWith("[") && line.endsWith("]")) {
@@ -424,8 +511,11 @@ object GameFixDatabase {
                 }
                 sb.append("\n")
             }
-            configFile.writeText(sb.toString())
-            Log.info("[GameFixDatabase] Applied game fix profile to ${configFile.absolutePath}")
+            val textToSave = sb.toString()
+            for (f in targetFiles) {
+                f.writeText(textToSave)
+                Log.info("[GameFixDatabase] Applied game fix profile to ${f.absolutePath}")
+            }
             true
         } catch (e: Exception) {
             Log.error("[GameFixDatabase] Failed to apply game fix: ${e.message}")

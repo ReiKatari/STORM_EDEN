@@ -413,14 +413,18 @@ void Device::RemoveExtensionFeature(bool& extension, Feature& feature,
     // Unload extension.
     this->RemoveExtension(extension, extension_name);
 
-    // Save sType and pNext for chain.
-    VkStructureType sType = feature.sType;
-    void* pNext = feature.pNext;
+    // Unlink feature struct from the features2 pNext chain so vkCreateDevice receives valid Vulkan structs
+    void** curr = &features2.pNext;
+    while (*curr != nullptr) {
+        if (*curr == static_cast<void*>(&feature)) {
+            *curr = feature.pNext;
+            break;
+        }
+        auto* next_header = static_cast<VkBaseOutStructure*>(*curr);
+        curr = reinterpret_cast<void**>(&next_header->pNext);
+    }
 
-    // Clear feature struct and restore chain.
     feature = {};
-    feature.sType = sType;
-    feature.pNext = pNext;
 }
 
 template <typename Feature>

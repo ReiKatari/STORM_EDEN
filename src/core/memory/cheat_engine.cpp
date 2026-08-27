@@ -255,6 +255,7 @@ CheatEngine::CheatEngine(System& system_, std::vector<CheatEntry> cheats_,
     : vm{std::make_unique<StandardVmCallbacks>(system_, metadata)},
       cheats(std::move(cheats_)), core_timing{system_.CoreTiming()}, system{system_} {
     metadata.main_nso_build_id = build_id_;
+    vm.LoadProgram(cheats);
 }
 
 CheatEngine::~CheatEngine() {
@@ -269,6 +270,15 @@ void CheatEngine::Initialize() {
         core_timing.UnscheduleEvent(event);
         event.reset();
     }
+    event = Core::Timing::CreateEvent(
+        "CheatEngine::FrameCallback",
+        [this](s64 time, std::chrono::nanoseconds ns_late)
+            -> std::optional<std::chrono::nanoseconds> {
+            FrameCallback(ns_late);
+            return CHEAT_ENGINE_NS;
+        });
+    core_timing.ScheduleLoopingEvent(CHEAT_ENGINE_NS, CHEAT_ENGINE_NS, event);
+    LOG_INFO(CheatEngine, "CheatEngine initialized and scheduled at 60Hz frame timing");
 }
 
 void CheatEngine::SetMainMemoryParameters(VAddr main_region_begin, u64 main_region_size) {
@@ -282,12 +292,39 @@ void CheatEngine::SetMainMemoryParameters(VAddr main_region_begin, u64 main_regi
 
 void CheatEngine::Reload(std::vector<CheatEntry> reload_cheats) {
     cheats = std::move(reload_cheats);
+    vm.LoadProgram(cheats);
     is_pending_reload.exchange(false);
 }
 
 void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
-    // Cheats execution temporarily disabled for maximum game stability
-    return;
+    if (is_pending_reload.load()) {
+        return;
+    }
+
+    if (metadata.main_nso_extents.base == 0) {
+        auto* proc = system.ApplicationProcess();
+        if (proc != nullptr) {
+            metadata.main_nso_extents = {
+                .base = GetInteger(proc->GetPageTable().GetCodeRegionStart()),
+                .size = proc->GetPageTable().GetCodeRegionSize(),
+            };
+        }
+        if (metadata.main_nso_extents.base == 0) {
+            return;
+        }
+    }
+
+    if (metadata.heap_extents.base == 0) {
+        auto* proc = system.ApplicationProcess();
+        if (proc != nullptr) {
+            metadata.heap_extents = {
+                .base = GetInteger(proc->GetPageTable().GetHeapRegionStart()),
+                .size = proc->GetPageTable().GetHeapRegionSize(),
+            };
+        }
+    }
+
+    vm.Execute(metadata);
 }
 
 } // namespace Core::Memory

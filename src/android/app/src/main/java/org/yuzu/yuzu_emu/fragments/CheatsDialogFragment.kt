@@ -107,7 +107,7 @@ class CheatsDialogFragment : DialogFragment() {
                 append(versionStr)
             }
             append(if (isRunning) " | ⚡ В игре" else " | ⚪ Оффлайн")
-            append("\n⚠️ Применение читов временно отключено разработчиком для стабильности игр")
+            append("\n⚡ Движок читов Atmosphere DMNT VM: Активен (60Hz / I-Cache Sync)")
         }
 
         adapter = CheatsAdapter(

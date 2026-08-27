@@ -37,11 +37,11 @@ class GameFixDialogFragment : DialogFragment() {
         _binding = DialogGameFixBinding.inflate(layoutInflater)
 
         val currentGame = game ?: return super.onCreateDialog(savedInstanceState)
-        val profile = GameFixDatabase.getFix(currentGame.programId)
+        val profile = GameFixDatabase.getFix(currentGame)
 
         if (profile != null) {
             binding.textGameFixTitle.text = currentGame.title
-            val hexId = GameFixDatabase.getProgramIdHex(currentGame.programId)
+            val hexId = GameFixDatabase.getProgramIdHex(currentGame)
             binding.textGameFixTitleId.text = "ID: $hexId"
             GameIconUtils.loadGameIcon(currentGame, binding.imageGameFixIcon)
 
@@ -52,7 +52,7 @@ class GameFixDialogFragment : DialogFragment() {
 
         binding.btnApplyGameFix.setOnClickListener {
             if (binding.cbDontAskAgain.isChecked) {
-                GameFixDatabase.setDontAskAgain(requireContext(), currentGame.programId, true)
+                GameFixDatabase.setDontAskAgain(requireContext(), currentGame, true)
             }
             GameFixDatabase.applyFix(currentGame)
             Toast.makeText(requireContext(), "⚡ Оптимизации STORM EDEN применены!", Toast.LENGTH_SHORT).show()
@@ -62,7 +62,7 @@ class GameFixDialogFragment : DialogFragment() {
 
         binding.btnSkipGameFix.setOnClickListener {
             if (binding.cbDontAskAgain.isChecked) {
-                GameFixDatabase.setDontAskAgain(requireContext(), currentGame.programId, true)
+                GameFixDatabase.setDontAskAgain(requireContext(), currentGame, true)
             }
             dismiss()
             onLaunchCallback?.invoke(false)

@@ -40,13 +40,14 @@ object GameFixDatabase {
         GameFixProfile(
             0x01004D701742A000L,
             "Paper Mario: The Thousand-Year Door",
-            "• Черный экран на катсценах в прологе\n• Сбои 2D-шрифтов диалогов на расширении Dynamic State 3",
-            "• Black screen during prologue cutscenes\n• Corrupted battle text boxes with Dynamic State 3",
-            "✓ Динамическое состояние: EDS1/EDS2\n✓ Точность GPU: Высокая (High)\n✓ Очистка кэша конвейеров",
-            "✓ Dynamic State: EDS1/EDS2\n✓ GPU Accuracy: High\n✓ Clean Pipeline Cache",
+            "• Черный экран на катсценах в прологе\n• Сбои 2D-шрифтов диалогов и мерцание текстур",
+            "• Black screen during prologue cutscenes\n• Corrupted battle text boxes and flickering textures",
+            "✓ Точность GPU: Высокая (High)\n✓ Сжатие ASTC: Отключено (для идеального видео)\n✓ Реактивный сброс (Reactive Flushing): Включено",
+            "✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed\n✓ Reactive Flushing: Enabled",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1"
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "true"
             )
         ),
         GameFixProfile(
@@ -93,13 +94,15 @@ object GameFixDatabase {
             "LEGO Star Wars: The Skywalker Saga",
             "• Зацикливание стартовой заставки и полосы загрузки",
             "• Boot loop on startup splash screen and loading bar",
-            "✓ Авто-создание сохранений профиля в STORM EDEN 4.6.0+\n✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие ASTC: BC1",
-            "✓ Auto SaveData profile creation in STORM EDEN 4.6.0+\n✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1",
+            "✓ Точность GPU: Высокая (High)\n✓ Реактивный сброс (Reactive Flushing): Включено\n✓ Синхронная компиляция шейдеров на старте\n✓ Сжатие ASTC: BC1",
+            "✓ GPU Accuracy: High\n✓ Reactive Flushing: Enabled\n✓ Synchronous Shaders on boot\n✓ ASTC Recompression: BC1",
             mapOf(
+                "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\astc_recompression" to "1",
                 "Renderer\\resolution_setup" to "1",
                 "Renderer\\fsr_sharpening_slider" to "80",
-                "Renderer\\use_asynchronous_shaders" to "true"
+                "Renderer\\use_reactive_flushing" to "true",
+                "Renderer\\use_asynchronous_shaders" to "false"
             )
         ),
         GameFixProfile(
@@ -313,28 +316,40 @@ object GameFixDatabase {
         val str = programIdStr.trim()
         if (str.isEmpty()) return 0L
         
-        // 1. If explicit Hex format (0x..., length 16, starts with 0100, or has A-F characters)
-        if (str.startsWith("0x", ignoreCase = true) ||
-            str.length == 16 ||
-            str.startsWith("0100", ignoreCase = true) ||
-            str.any { it in 'a'..'f' || it in 'A'..'F' }) {
+        // 1. If explicit Hex format (starts with 0x/0X or has A-F characters)
+        if (str.startsWith("0x", ignoreCase = true)) {
             try {
-                val cleanHex = str.removePrefix("0x").removePrefix("0X")
-                val hex = java.lang.Long.parseUnsignedLong(cleanHex, 16)
+                val hex = java.lang.Long.parseUnsignedLong(str.substring(2), 16)
                 if (hex != 0L) return hex
             } catch (_: Exception) {}
         }
 
-        // 2. Try parsing decimal representation (from std::to_string(u64))
+        if (str.any { it in 'a'..'f' || it in 'A'..'F' }) {
+            try {
+                val hex = java.lang.Long.parseUnsignedLong(str, 16)
+                if (hex != 0L) return hex
+            } catch (_: Exception) {}
+        }
+
+        // 2. If it's a 16-character hex string starting with 0100
+        if (str.length == 16 && str.startsWith("0100", ignoreCase = true)) {
+            try {
+                val hex = java.lang.Long.parseUnsignedLong(str, 16)
+                if (hex != 0L) return hex
+            } catch (_: Exception) {}
+        }
+
+        // 3. Try parsing decimal representation (from std::to_string(u64))
         try {
             val dec = java.lang.Long.parseUnsignedLong(str, 10)
-            if (dec != 0L) return dec
+            if (dec != 0L && ((dec ushr 48) == 0x0100L || (dec ushr 48) == 0x0101L || dec > 0x1000000000000L)) {
+                return dec
+            }
         } catch (_: Exception) {}
 
-        // 3. Fallback to hexadecimal representation
+        // 4. Fallback to hexadecimal representation
         try {
-            val cleanHex = str.removePrefix("0x").removePrefix("0X")
-            val hex = java.lang.Long.parseUnsignedLong(cleanHex, 16)
+            val hex = java.lang.Long.parseUnsignedLong(str, 16)
             if (hex != 0L) return hex
         } catch (_: Exception) {}
 
@@ -377,7 +392,9 @@ object GameFixDatabase {
 
     fun getProgramIdHex(game: Game): String {
         val idLong = resolveTitleId(game)
-        return if (idLong != 0L) String.format("%016X", idLong) else ""
+        if (idLong != 0L) return String.format("%016X", idLong)
+        val profile = getFix(game)
+        return if (profile != null) String.format("%016X", profile.titleId) else ""
     }
 
     fun getFix(programIdStr: String): GameFixProfile? {
@@ -389,9 +406,37 @@ object GameFixDatabase {
 
     fun getFix(game: Game): GameFixProfile? {
         val idLong = resolveTitleId(game)
-        if (idLong == 0L) return null
-        val baseId = idLong and 0x1FFFL.inv()
-        return profiles.firstOrNull { it.titleId == idLong || (it.titleId and 0x1FFFL.inv()) == baseId }
+        if (idLong != 0L) {
+            val baseId = idLong and 0x1FFFL.inv()
+            val byId = profiles.firstOrNull { it.titleId == idLong || (it.titleId and 0x1FFFL.inv()) == baseId }
+            if (byId != null) return byId
+        }
+
+        // 100% Robust fallback: match by game title keywords & path
+        val cleanTitle = (game.title ?: "").lowercase(java.util.Locale.ROOT)
+        val cleanPath = (game.path ?: "").lowercase(java.util.Locale.ROOT)
+        return profiles.firstOrNull { profile ->
+            val nameLower = profile.gameName.lowercase(java.util.Locale.ROOT)
+            val keywords = when {
+                nameLower.contains("tears of the kingdom") -> listOf("tears of the kingdom", "totk", "0100f2c0115b6000")
+                nameLower.contains("paper mario") -> listOf("paper mario", "thousand-year", "01004d701742a000")
+                nameLower.contains("hogwarts legacy") -> listOf("hogwarts", "0100b5b0112f8000")
+                nameLower.contains("diablo ii") -> listOf("diablo ii", "diablo 2", "resurrected", "0100916014d8c000")
+                nameLower.contains("mechanicus") -> listOf("mechanicus", "warhammer", "0100c6000eea8000")
+                nameLower.contains("skywalker saga") -> listOf("skywalker saga", "lego star wars", "0100923008c54000")
+                nameLower.contains("bayonetta 3") -> listOf("bayonetta 3", "01004a4010fea000")
+                nameLower.contains("shin megami tensei v") -> listOf("vengeance", "shin megami", "smt v", "smtv", "01006f801bc4c000")
+                nameLower.contains("luigi's mansion 3") -> listOf("luigi's mansion 3", "luigis mansion", "0100d7c000b02000")
+                nameLower.contains("scarlet") -> listOf("scarlet", "0100a3d008c5c000")
+                nameLower.contains("violet") -> listOf("violet", "01008f6008c5e000")
+                nameLower.contains("arkham knight") -> listOf("arkham knight", "010023a017e94000")
+                nameLower.contains("doom eternal") -> listOf("doom eternal", "0100bb600dc30000")
+                nameLower.contains("lost crown") -> listOf("lost crown", "prince of persia", "0100bb70144f8000")
+                nameLower.contains("animal well") -> listOf("animal well", "010092c01d9f8000")
+                else -> listOf(nameLower)
+            }
+            keywords.any { cleanTitle.contains(it) || cleanPath.contains(it) }
+        }
     }
 
     fun hasFix(programIdStr: String): Boolean {

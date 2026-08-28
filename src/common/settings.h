@@ -359,11 +359,7 @@ struct Values {
                                                     true,
                                                     true};
     SwitchableSetting<int, true> fsr_sharpening_slider{linkage,
-#ifdef __ANDROID__
                                                        0,
-#else
-                                                       25,
-#endif
                                                        0,
                                                        200,
                                                        "fsr_sharpening_slider",
@@ -413,11 +409,7 @@ struct Values {
                                          linkage, 0, "bg_blue", Category::Renderer, Specialization::Default, true, true};
 
     SwitchableSetting<GpuAccuracy, true> gpu_accuracy{linkage,
-#ifdef __ANDROID__
                                                       GpuAccuracy::Low,
-#else
-                                                      GpuAccuracy::High,
-#endif
                                                       "gpu_accuracy",
                                                       Category::RendererAdvanced,
                                                       Specialization::Default,
@@ -453,11 +445,7 @@ struct Values {
                                                       "nvdec_emulation", Category::RendererAdvanced};
 
     SwitchableSetting<AnisotropyMode, true> max_anisotropy{linkage,
-#ifdef __ANDROID__
                                                            AnisotropyMode::Default,
-#else
-                                                           AnisotropyMode::Automatic,
-#endif
                                                            "max_anisotropy",
                                                            Category::RendererAdvanced};
     SwitchableSetting<AstcDecodeMode, true> accelerate_astc{linkage,
@@ -476,10 +464,12 @@ struct Values {
                                                                true};
 
     SwitchableSetting<AstcRecompression, true> astc_recompression{linkage,
-                                                                  AstcRecompression::Uncompressed,
+                                                                  AstcRecompression::Bc1,
                                                                   "astc_recompression",
                                                                   Category::RendererAdvanced};
 
+    SwitchableSetting<bool> drs_resolution_lock{linkage, false, "drs_resolution_lock",
+                                                Category::RendererAdvanced};
 
     SwitchableSetting<bool> sync_memory_operations{linkage,
                                                    false,
@@ -506,11 +496,7 @@ struct Values {
                                                 Category::RendererAdvanced};
 
     SwitchableSetting<bool> use_reactive_flushing{linkage,
-#ifdef __ANDROID__
                                                   false,
-#else
-                                                  true,
-#endif
                                                   "use_reactive_flushing",
                                                   Category::RendererAdvanced};
 
@@ -634,7 +620,7 @@ struct Values {
                                                        true,
                                                        true};
 
-    SwitchableSetting<bool> use_asynchronous_shaders{linkage, false, "use_asynchronous_shaders",
+    SwitchableSetting<bool> use_asynchronous_shaders{linkage, true, "use_asynchronous_shaders",
                                                      Category::RendererHacks};
 
     SwitchableSetting<GpuUnswizzleSize> gpu_unswizzle_texture_size{linkage,
@@ -739,11 +725,7 @@ struct Values {
     Setting<s32> current_user{linkage, 0, "current_user", Category::System};
 
     SwitchableSetting<ConsoleMode> use_docked_mode{linkage,
-#ifdef __ANDROID__
                                                    ConsoleMode::Handheld,
-#else
-                                                   ConsoleMode::Docked,
-#endif
                                                    "use_docked_mode",
                                                    Category::System,
                                                    Specialization::Radio,

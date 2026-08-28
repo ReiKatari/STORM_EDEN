@@ -430,7 +430,7 @@ void Device::RemoveExtensionFeature(bool& extension, Feature& feature,
 template <typename Feature>
 void Device::RemoveExtensionFeatureIfUnsuitable(bool is_suitable, Feature& feature,
                                                 const std::string& extension_name) {
-    if (loaded_extensions.contains(extension_name) && !is_suitable) {
+    if (!is_suitable) {
         LOG_WARNING(Render_Vulkan, "Removing features for unsuitable extension {}", extension_name);
         this->RemoveExtensionFeature(is_suitable, feature, extension_name);
     }
@@ -1344,6 +1344,19 @@ void Device::RemoveUnsuitableExtensions() {
                                      features.shader_atomic_int64.shaderSharedInt64Atomics;
     RemoveExtensionFeatureIfUnsuitable(extensions.shader_atomic_int64, features.shader_atomic_int64,
                                        VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME);
+
+    // VK_KHR_shader_float16_int8
+    extensions.shader_float16_int8 = features.shader_float16_int8.shaderFloat16 ||
+                                     features.shader_float16_int8.shaderInt8;
+    RemoveExtensionFeatureIfUnsuitable(extensions.shader_float16_int8, features.shader_float16_int8,
+                                       VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME);
+
+    // VK_KHR_uniform_buffer_standard_layout
+    extensions.uniform_buffer_standard_layout =
+        features.uniform_buffer_standard_layout.uniformBufferStandardLayout;
+    RemoveExtensionFeatureIfUnsuitable(extensions.uniform_buffer_standard_layout,
+                                       features.uniform_buffer_standard_layout,
+                                       VK_KHR_UNIFORM_BUFFER_STANDARD_LAYOUT_EXTENSION_NAME);
 
     // VK_EXT_shader_demote_to_helper_invocation
     extensions.shader_demote_to_helper_invocation =

@@ -69,6 +69,9 @@ import java.text.NumberFormat
 import kotlin.math.roundToInt
 import org.yuzu.yuzu_emu.utils.ForegroundService
 import androidx.core.os.BundleCompat
+import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
+import java.io.File
 
 class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager.InputDeviceListener {
     private lateinit var binding: ActivityEmulationBinding
@@ -77,6 +80,9 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
     private lateinit var nfcReader: NfcReader
     private lateinit var inputManager: InputManager
 
+    private var thermalJob: Job? = null
+    private var isThermalThrottled = false
+
     private var touchDownTime: Long = 0
     private val maxTapDuration = 500L
 
@@ -84,6 +90,12 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
     private val accel = FloatArray(3)
     private var motionTimestamp: Long = 0
     private var flipMotionOrientation: Boolean = false
+
+    private val gyroFiltered = floatArrayOf(0f, 0f, 0f)
+    private val gyroBias = floatArrayOf(0f, 0f, 0f)
+    private var gyroCalibSamples = 0
+    private val gyroBiasAccum = floatArrayOf(0f, 0f, 0f)
+    private var gyroStillFrames = 0
 
     private val actionPause = "ACTION_EMULATOR_PAUSE"
     private val actionPlay = "ACTION_EMULATOR_PLAY"
@@ -109,6 +121,43 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         Log.warning("[EmulationActivity] ROM swap stop timed out; retrying native stop and continuing to wait")
         NativeLibrary.stopEmulation()
         scheduleRomSwapStopTimeout()
+    }
+
+    private fun startThermalMonitor() {
+        thermalJob = lifecycleScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                try {
+                    val thermalZones = File("/sys/class/thermal/").listFiles { f -> f.name.startsWith("thermal_zone") } ?: emptyArray()
+                    var maxTemp = 0
+                    for (zone in thermalZones) {
+                        val tempFile = File(zone, "temp")
+                        if (tempFile.canRead()) {
+                            val temp = tempFile.readText().trim().toIntOrNull() ?: 0
+                            // Some zones report in millidegrees, some in degrees
+                            val tempC = if (temp > 1000) temp / 1000 else temp
+                            if (tempC > maxTemp) maxTemp = tempC
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        when {
+                            maxTemp >= 45 && !isThermalThrottled -> {
+                                isThermalThrottled = true
+                                NativeLibrary.setThermalThrottle(true)
+                                Log.warning("[Thermal] Temperature ${maxTemp}°C - throttling enabled")
+                            }
+                            maxTemp < 40 && isThermalThrottled -> {
+                                isThermalThrottled = false
+                                NativeLibrary.setThermalThrottle(false)
+                                Log.warning("[Thermal] Temperature ${maxTemp}°C - throttling disabled")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Thermal reading not available on all devices
+                }
+                delay(5000) // Check every 5 seconds
+            }
+        }
     }
 
     private fun scheduleRomSwapStopTimeout() {
@@ -247,6 +296,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
     override fun onResume() {
         super.onResume()
+        startThermalMonitor()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val powerManager = getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
             if (powerManager?.isSustainedPerformanceModeSupported == true) {
@@ -262,6 +312,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
     }
 
     override fun onPause() {
+        thermalJob?.cancel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             window.setSustainedPerformanceMode(false)
         }
@@ -609,6 +660,41 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
                 gyro[1] = -event.values[0] / 6.0f
             }
             gyro[2] = event.values[2] / 6.0f
+
+            // Auto-calibration: detect stillness
+            if (Math.abs(gyro[0]) < GYRO_STILL_THRESHOLD && 
+                Math.abs(gyro[1]) < GYRO_STILL_THRESHOLD && 
+                Math.abs(gyro[2]) < GYRO_STILL_THRESHOLD) {
+                gyroStillFrames++
+                if (gyroStillFrames > GYRO_CALIB_FRAMES) {
+                    gyroBiasAccum[0] += gyro[0]
+                    gyroBiasAccum[1] += gyro[1]
+                    gyroBiasAccum[2] += gyro[2]
+                    gyroCalibSamples++
+                    if (gyroCalibSamples >= 50) {
+                        gyroBias[0] = gyroBiasAccum[0] / gyroCalibSamples
+                        gyroBias[1] = gyroBiasAccum[1] / gyroCalibSamples
+                        gyroBias[2] = gyroBiasAccum[2] / gyroCalibSamples
+                        gyroBiasAccum[0] = 0f; gyroBiasAccum[1] = 0f; gyroBiasAccum[2] = 0f
+                        gyroCalibSamples = 0
+                    }
+                }
+            } else {
+                gyroStillFrames = 0
+            }
+
+            // Remove bias
+            gyro[0] -= gyroBias[0]
+            gyro[1] -= gyroBias[1]
+            gyro[2] -= gyroBias[2]
+
+            // Low-pass filter
+            gyroFiltered[0] = GYRO_LPF_ALPHA * gyro[0] + (1f - GYRO_LPF_ALPHA) * gyroFiltered[0]
+            gyroFiltered[1] = GYRO_LPF_ALPHA * gyro[1] + (1f - GYRO_LPF_ALPHA) * gyroFiltered[1]
+            gyroFiltered[2] = GYRO_LPF_ALPHA * gyro[2] + (1f - GYRO_LPF_ALPHA) * gyroFiltered[2]
+            gyro[0] = gyroFiltered[0]
+            gyro[1] = gyroFiltered[1]
+            gyro[2] = gyroFiltered[2]
         }
 
         // Only update state on accelerometer data
@@ -927,6 +1013,9 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         const val EXTRA_SELECTED_GAME = "SelectedGame"
         const val EXTRA_OVERLAY_GAMELESS_EDIT_MODE = "overlayGamelessEditMode"
         private const val ROM_SWAP_STOP_TIMEOUT_MS = 5000L
+        private const val GYRO_LPF_ALPHA = 0.3f
+        private const val GYRO_STILL_THRESHOLD = 0.01f
+        private const val GYRO_CALIB_FRAMES = 100
         @Volatile
         private var processHasEmulationSession = false
         @Volatile

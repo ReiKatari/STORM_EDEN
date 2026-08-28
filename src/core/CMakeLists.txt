@@ -17,6 +17,8 @@ add_library(core STATIC
     constants.h
     core.cpp
     core.h
+    save_state.cpp
+    save_state.h
     game_settings.cpp
     game_settings.h
     core_timing.cpp

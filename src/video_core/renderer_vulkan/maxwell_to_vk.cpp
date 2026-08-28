@@ -256,13 +256,28 @@ FormatInfo SurfaceFormat(const Device& device, FormatType format_type, bool with
             }
             break;
         case Settings::AstcRecompression::Bc1:
-            tuple.format = is_srgb ? VK_FORMAT_BC1_RGBA_SRGB_BLOCK : VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+            if (device.IsOptimalBcnSupported()) {
+                tuple.format = is_srgb ? VK_FORMAT_BC1_RGBA_SRGB_BLOCK : VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+            } else {
+                tuple.format = is_srgb ? VK_FORMAT_A8B8G8R8_SRGB_PACK32 : VK_FORMAT_A8B8G8R8_UNORM_PACK32;
+                if (!is_srgb) tuple.usage |= usage_storage;
+            }
             break;
         case Settings::AstcRecompression::Bc3:
-            tuple.format = is_srgb ? VK_FORMAT_BC3_SRGB_BLOCK : VK_FORMAT_BC3_UNORM_BLOCK;
+            if (device.IsOptimalBcnSupported()) {
+                tuple.format = is_srgb ? VK_FORMAT_BC3_SRGB_BLOCK : VK_FORMAT_BC3_UNORM_BLOCK;
+            } else {
+                tuple.format = is_srgb ? VK_FORMAT_A8B8G8R8_SRGB_PACK32 : VK_FORMAT_A8B8G8R8_UNORM_PACK32;
+                if (!is_srgb) tuple.usage |= usage_storage;
+            }
             break;
         case Settings::AstcRecompression::Bc5:
-            tuple.format = VK_FORMAT_BC5_UNORM_BLOCK;
+            if (device.IsOptimalBcnSupported()) {
+                tuple.format = VK_FORMAT_BC5_UNORM_BLOCK;
+            } else {
+                tuple.format = is_srgb ? VK_FORMAT_A8B8G8R8_SRGB_PACK32 : VK_FORMAT_A8B8G8R8_UNORM_PACK32;
+                if (!is_srgb) tuple.usage |= usage_storage;
+            }
             break;
         }
     }

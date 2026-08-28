@@ -362,6 +362,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
 
         when (mode) {
             MODE_FAST -> {
+                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
                 // Resolution: 0.75X (2) for budget / Mali, 1X (3) for Flagship Adreno
                 IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno) 3 else 2)
                 // GPU Accuracy: Normal (0)
@@ -379,8 +380,8 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.FSR_SHARPENING_SLIDER.setInt(80)
                 // ASTC: GPU (1) for Adreno/Flagship, CPU (0) for budget Mali
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(if (isLowEnd && !isAdreno) 0 else 1)
-                // ASTC Recompression: BC1 (1) for Max RAM savings
-                IntSetting.ASTC_RECOMPRESSION.setInt(1)
+                // ASTC Recompression: Uncompressed (0) for 100% video core stability
+                IntSetting.ASTC_RECOMPRESSION.setInt(0)
                 // NVDEC: GPU (2)
                 IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
                 // Anisotropy: Default (0)
@@ -422,6 +423,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
             }
 
             MODE_NORMAL -> {
+                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
                 // Resolution: 1X (3) standard
                 IntSetting.RENDERER_RESOLUTION.setInt(if (isLowEnd && !isAdreno) 2 else 3)
                 // GPU Accuracy: Normal (0)
@@ -439,8 +441,8 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
                 // ASTC: GPU (1)
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
-                // ASTC Recompression: BC3 (2) for balanced RAM reduction
-                IntSetting.ASTC_RECOMPRESSION.setInt(if (isLowEnd) 1 else 2)
+                // ASTC Recompression: Uncompressed (0) for universal stability
+                IntSetting.ASTC_RECOMPRESSION.setInt(0)
                 // NVDEC: GPU (2)
                 IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
                 // Anisotropy: Default (0)
@@ -482,6 +484,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
             }
 
             MODE_ACCURATE -> {
+                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
                 // Resolution: 1.5X (5) for Flagship Adreno, 1X (3) for Mid-Range
                 IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno) 5 else 3)
                 // GPU Accuracy: High (1)
@@ -499,8 +502,8 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.FSR_SHARPENING_SLIDER.setInt(90)
                 // ASTC: GPU (1)
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
-                // ASTC Recompression: Uncompressed (0) for Flagship with 12GB+, BC3 (2) for 6-8GB
-                IntSetting.ASTC_RECOMPRESSION.setInt(if (isFlagship) 0 else 2)
+                // ASTC Recompression: Uncompressed (0)
+                IntSetting.ASTC_RECOMPRESSION.setInt(0)
                 // NVDEC: GPU (2)
                 IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
                 // Anisotropy: 16x (4) for Flagship/Mid, 4x (2) for Low

@@ -468,7 +468,7 @@ struct Values {
                                                                true};
 
     SwitchableSetting<AstcRecompression, true> astc_recompression{linkage,
-                                                                  AstcRecompression::Bc1,
+                                                                  AstcRecompression::Uncompressed,
                                                                   "astc_recompression",
                                                                   Category::RendererAdvanced};
 

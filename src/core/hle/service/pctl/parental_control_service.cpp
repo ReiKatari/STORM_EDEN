@@ -196,8 +196,8 @@ Result IParentalControlService::Initialize() {
     LOG_DEBUG(Service_PCTL, "called");
 
     if (False(capability & (Capability::Application | Capability::System))) {
-        LOG_ERROR(Service_PCTL, "Invalid capability! capability={:X}", capability);
-        R_THROW(PCTL::ResultNoCapability);
+        LOG_WARNING(Service_PCTL, "Empty or invalid capability! capability={:X}, defaulting to Application", capability);
+        capability |= Capability::Application;
     }
 
     // TODO(ogniK): Recovery flag initialization for pctl:r

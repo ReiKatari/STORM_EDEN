@@ -17,11 +17,18 @@ void LoopProcess(Core::System& system) {
                                                  Capability::Status | Capability::StereoVision));
     // TODO(ogniK): Implement remaining capabilities
     server_manager->RegisterNamedService("pctl:a", std::make_shared<IParentalControlServiceFactory>(
-                                                       system, "pctl:a", Capability::None));
+                                                       system, "pctl:a",
+                                                       Capability::Application | Capability::System |
+                                                           Capability::SnsPost | Capability::Status |
+                                                           Capability::StereoVision | Capability::Recovery));
     server_manager->RegisterNamedService("pctl:r", std::make_shared<IParentalControlServiceFactory>(
-                                                       system, "pctl:r", Capability::None));
+                                                       system, "pctl:r",
+                                                       Capability::Recovery | Capability::Status |
+                                                           Capability::Application | Capability::System));
     server_manager->RegisterNamedService("pctl:s", std::make_shared<IParentalControlServiceFactory>(
-                                                       system, "pctl:s", Capability::None));
+                                                       system, "pctl:s",
+                                                       Capability::System | Capability::Status |
+                                                           Capability::Recovery | Capability::Application));
     ServerManager::RunServer(std::move(server_manager));
 }
 

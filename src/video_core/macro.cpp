@@ -103,7 +103,7 @@ void HLE_DrawArraysIndirect::Fallback(Core::System& system, Engines::Maxwell3D& 
             maxwell3d.replace_table.clear();
         }
     };
-    if (parameters.size() < 5) {
+    if (parameters.size() < (extended ? 5U : 4U)) {
         return;
     }
     maxwell3d.RefreshParameters();
@@ -115,7 +115,7 @@ void HLE_DrawArraysIndirect::Fallback(Core::System& system, Engines::Maxwell3D& 
         ASSERT(false && "Faulty draw!");
         return;
     }
-    const u32 base_instance = parameters[4];
+    const u32 base_instance = extended ? parameters[4] : 0;
     if (extended) {
         maxwell3d.regs.global_base_instance_index = base_instance;
         maxwell3d.engine_state = Maxwell3D::EngineHint::OnHLEMacro;
@@ -139,13 +139,13 @@ void HLE_DrawIndexedIndirect::Execute(Core::System& system, Engines::Maxwell3D& 
         return;
     }
 
-    if (parameters.size() < 6) {
+    if (parameters.size() < (extended ? 6U : 5U)) {
         return;
     }
 
     const u32 estimate = u32(maxwell3d.EstimateIndexBufferSize());
     const u32 element_base = parameters[4];
-    const u32 base_instance = parameters[5];
+    const u32 base_instance = extended ? parameters[5] : 0;
     maxwell3d.regs.vertex_id_base = element_base;
     maxwell3d.regs.global_base_vertex_index = element_base;
     maxwell3d.regs.global_base_instance_index = base_instance;
@@ -175,13 +175,13 @@ void HLE_DrawIndexedIndirect::Execute(Core::System& system, Engines::Maxwell3D& 
     }
 }
 void HLE_DrawIndexedIndirect::Fallback(Core::System& system, Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters) {
-    if (parameters.size() < 6) {
+    if (parameters.size() < (extended ? 6U : 5U)) {
         return;
     }
     maxwell3d.RefreshParameters();
     const u32 instance_count = (maxwell3d.GetRegisterValue(0xD1B) & parameters[2]);
     const u32 element_base = parameters[4];
-    const u32 base_instance = parameters[5];
+    const u32 base_instance = extended ? parameters[5] : 0;
     maxwell3d.regs.vertex_id_base = element_base;
     maxwell3d.regs.global_base_vertex_index = element_base;
     maxwell3d.regs.global_base_instance_index = base_instance;
@@ -1242,7 +1242,7 @@ bool MacroJITx64Impl::Compile_NextInstruction(Core::System& system) {
 }
 
 static void MacroJIT_ErrorThunk(uintptr_t parameter, uintptr_t max_parameter) {
-    LOG_CRITICAL(HW_GPU, "Macro JIT: invalid parameter access {:#x} ({:#x} is the last parameter)", parameter, max_parameter - sizeof(u32));
+    LOG_DEBUG(HW_GPU, "Macro JIT: invalid parameter access {:#x} ({:#x} is the last parameter)", parameter, max_parameter - sizeof(u32));
 }
 
 Xbyak::Reg32 MacroJITx64Impl::Compile_FetchParameter() {

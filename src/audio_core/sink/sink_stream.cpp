@@ -182,14 +182,29 @@ void SinkStream::ProcessAudioOutAndRender(std::span<s16> output_buffer, std::siz
         return;
     }
 
+    // Update drift ratio based on queue occupancy
+    {
+        const f64 current_level = static_cast<f64>(queued_buffers.load());
+        drift_ema_queue_level = drift_ema_alpha * current_level + (1.0 - drift_ema_alpha) * drift_ema_queue_level;
+        const f64 error = drift_ema_queue_level - static_cast<f64>(target_queue_size);
+        drift_integral = std::clamp(drift_integral + error * drift_ki, -drift_max, drift_max);
+        drift_ratio = std::clamp(1.0 + error * drift_kp + drift_integral, 1.0 - drift_max, 1.0 + drift_max);
+    }
+
     while (frames_written < num_frames) {
         if (playing_buffer.consumed || playing_buffer.frames == 0) {
             std::unique_lock lk{release_mutex};
 
             if (!queue.TryPop(playing_buffer)) {
                 lk.unlock();
-                for (size_t i = frames_written; i < num_frames; i++)
-                    std::memcpy(&output_buffer[i * frame_size], last_frame.data(), frame_size_bytes);
+                // Fade out over remaining frames to avoid popping
+                const size_t fade_frames = num_frames - frames_written;
+                for (size_t i = 0; i < fade_frames; i++) {
+                    const f32 fade = 1.0f - static_cast<f32>(i) / static_cast<f32>(std::max<size_t>(fade_frames, 1));
+                    for (size_t ch = 0; ch < frame_size; ch++) {
+                        output_buffer[(frames_written + i) * frame_size + ch] = static_cast<s16>(last_frame[ch] * fade);
+                    }
+                }
                 frames_written = num_frames;
                 continue;
             }
@@ -200,12 +215,34 @@ void SinkStream::ProcessAudioOutAndRender(std::span<s16> output_buffer, std::siz
         }
 
         const size_t frames_available = std::min<u64>(playing_buffer.frames - playing_buffer.frames_played, num_frames - frames_written);
+        
+        const size_t frames_to_consume = static_cast<size_t>(std::ceil(static_cast<f64>(frames_available) * drift_ratio));
+        const size_t actual_consume = std::min(frames_to_consume, static_cast<size_t>(playing_buffer.frames - playing_buffer.frames_played));
 
-        samples_buffer.Pop(&output_buffer[frames_written * frame_size], frames_available * frame_size);
+        if (actual_consume == frames_available) {
+            samples_buffer.Pop(&output_buffer[frames_written * frame_size], frames_available * frame_size);
+        } else {
+            // Dynamic resampling
+            std::vector<s16> temp_buf(actual_consume * frame_size);
+            samples_buffer.Pop(temp_buf.data(), actual_consume * frame_size);
+            
+            for (size_t i = 0; i < frames_available; i++) {
+                f64 src_idx = static_cast<f64>(i) * drift_ratio;
+                size_t idx0 = std::min(static_cast<size_t>(src_idx), actual_consume - 1);
+                size_t idx1 = std::min(idx0 + 1, actual_consume - 1);
+                f64 frac = src_idx - std::floor(src_idx);
+                
+                for (size_t ch = 0; ch < frame_size; ch++) {
+                    s16 s0 = temp_buf[idx0 * frame_size + ch];
+                    s16 s1 = temp_buf[idx1 * frame_size + ch];
+                    output_buffer[(frames_written + i) * frame_size + ch] = static_cast<s16>(s0 + (s1 - s0) * frac);
+                }
+            }
+        }
 
         frames_written += frames_available;
         actual_frames_written += frames_available;
-        playing_buffer.frames_played += frames_available;
+        playing_buffer.frames_played += actual_consume;
 
         if (playing_buffer.frames_played >= playing_buffer.frames)
             playing_buffer.consumed = true;

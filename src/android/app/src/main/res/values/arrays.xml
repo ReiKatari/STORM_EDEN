@@ -25,12 +25,14 @@
         <item>@string/memory_4gb</item>
         <item>@string/memory_6gb</item>
         <item>@string/memory_8gb</item>
+        <item>@string/memory_12gb</item>
     </string-array>
 
     <integer-array name="memoryValues">
         <item>0</item>
         <item>1</item>
         <item>2</item>
+        <item>4</item>
     </integer-array>
 
     <string-array name="clockNames">

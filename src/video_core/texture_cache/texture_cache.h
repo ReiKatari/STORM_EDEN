@@ -115,15 +115,16 @@ TextureCache<P>::TextureCache(Runtime& runtime_, Tegra::MaxwellDeviceMemoryManag
 
 template <class P>
 void TextureCache<P>::RunGarbageCollector() {
+    const bool vram_gc = Settings::values.vram_garbage_collection.GetValue();
     bool high_priority_mode = false;
     bool aggressive_mode = false;
     u64 ticks_to_destroy = 0;
     size_t num_iterations = 0;
     const auto Configure = [&](bool allow_aggressive) {
-        high_priority_mode = total_used_memory >= expected_memory;
+        high_priority_mode = (total_used_memory >= expected_memory) || vram_gc;
         aggressive_mode = allow_aggressive && total_used_memory >= critical_memory;
-        ticks_to_destroy = aggressive_mode ? 10ULL : high_priority_mode ? 25ULL : 50ULL;
-        num_iterations = aggressive_mode ? 40 : (high_priority_mode ? 20 : 10);
+        ticks_to_destroy = aggressive_mode ? 8ULL : (vram_gc ? 15ULL : (high_priority_mode ? 25ULL : 50ULL));
+        num_iterations = aggressive_mode ? 40 : (vram_gc ? 30 : (high_priority_mode ? 20 : 10));
     };
     const auto Cleanup = [this, &num_iterations, &high_priority_mode, &aggressive_mode](ImageId image_id) {
         if (num_iterations == 0) {
@@ -173,7 +174,8 @@ void TextureCache<P>::TickFrame() {
     if (runtime.CanReportMemoryUsage()) {
         total_used_memory = runtime.GetDeviceMemoryUsage();
     }
-    if (total_used_memory > minimum_memory) {
+    const bool vram_gc = Settings::values.vram_garbage_collection.GetValue();
+    if (total_used_memory > (vram_gc ? (minimum_memory * 3 / 4) : minimum_memory)) {
         RunGarbageCollector();
     }
     sentenced_images.Tick();

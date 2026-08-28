@@ -984,6 +984,8 @@
     <string name="memory_4gb">4GB (Recommended)</string>
     <string name="memory_6gb">6GB (Unsafe)</string>
     <string name="memory_8gb">8GB (Unsafe)</string>
+    <string name="memory_12gb">12GB (Ultra Unsafe)</string>
+    <string name="memory_12gb_not_enough_ram">12GB DRAM mode requires a device with at least 12GB of physical RAM.</string>
 
     <!-- CPU clock levels -->
     <string name="clock_normal">Normal</string>

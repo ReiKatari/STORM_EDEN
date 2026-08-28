@@ -373,6 +373,26 @@ class SettingsDialogFragment : DialogFragment(), DialogInterface.OnClickListener
                 val scSetting = settingsViewModel.clickedItem as SingleChoiceSetting
                 val value = getValueForSingleChoiceSelection(scSetting, which)
 
+                if (scSetting.setting.key == IntSetting.MEMORY_LAYOUT.key && value == 4) {
+                    val actManager = requireContext().getSystemService(android.content.Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+                    val memInfo = android.app.ActivityManager.MemoryInfo()
+                    var totalRamGb = 16.0
+                    if (actManager != null) {
+                        actManager.getMemoryInfo(memInfo)
+                        totalRamGb = memInfo.totalMem.toDouble() / (1024.0 * 1024.0 * 1024.0)
+                    }
+                    if (totalRamGb < 11.0) {
+                        MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
+                            .setTitle(R.string.warning)
+                            .setMessage(R.string.memory_12gb_not_enough_ram)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show()
+                        clearDialogState()
+                        dialog.dismiss()
+                        return
+                    }
+                }
+
                 if (value in scSetting.warnChoices) {
                     MaterialAlertDialogBuilder(requireContext(), R.style.EdenMaterialDialog)
                         .setTitle(R.string.warning)

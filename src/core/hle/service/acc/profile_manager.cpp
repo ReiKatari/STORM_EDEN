@@ -54,21 +54,25 @@ ProfileManager::ProfileManager() {
     ParseUserSaveFile();
 
     // Create an user if none are present
-    if (user_count == 0) {
+    if (user_count == 0 || !profiles[0].user_uuid.IsValid()) {
         CreateNewUser(UUID::MakeRandom(), "STORM EDEN");
         WriteUserSaveFile();
     }
 
     auto current =
-        std::clamp<int>(static_cast<s32>(Settings::values.current_user), 0, MAX_USERS - 1);
+        std::clamp<int>(static_cast<s32>(Settings::values.current_user.GetValue()), 0, static_cast<int>(MAX_USERS - 1));
 
     // If user index don't exist. Load the first user and change the active user
     if (!UserExistsIndex(current)) {
         current = 0;
-        Settings::values.current_user = 0;
+        Settings::values.current_user.SetValue(0);
     }
 
-    OpenUser(*GetUser(current));
+    if (auto user = GetUser(current)) {
+        OpenUser(*user);
+    } else if (user_count > 0 && profiles[0].user_uuid.IsValid()) {
+        OpenUser(profiles[0].user_uuid);
+    }
 }
 
 ProfileManager::~ProfileManager() = default;

@@ -329,6 +329,95 @@ object GameFixDatabase {
             mapOf(
                 "Renderer\\use_asynchronous_shaders" to "true"
             )
+        ),
+        GameFixProfile(
+            0x0100C88011246000L,
+            "Disco Elysium: The Final Cut",
+            "• Утечка памяти и вылеты при смене локаций (OOM)\n• Размытие и мерцание текста диалогов TextMeshPro\n• Цветовые артефакты акварельных портретов и фонов",
+            "• Out of memory (OOM) crash on zone transitions\n• TextMeshPro dialogue font blur and jitter\n• Color compression artifacts on painted portraits and backdrops",
+            "✓ Память: 6GB DRAM (ликвидация OOM вылетов Unity)\n✓ Сжатие ASTC: Отключено (Uncompressed — идеальное качество артов)\n✓ Динамическое состояние: EDS1\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Реактивный сброс: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents Unity OOM crashes)\n✓ ASTC Recompression: Uncompressed (Max art fidelity)\n✓ Dynamic State: EDS1\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Reactive Flushing: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\dyna_state" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_reactive_flushing" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01003AE017DB0000L,
+            "Batman: Arkham City",
+            "• Просадки FPS при планировании над городом и микрофризы",
+            "• FPS drops and micro-stutters while gliding across Arkham City",
+            "✓ Точность CPU: Точная (Accurate)\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS1",
+            "✓ CPU Accuracy: Accurate\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS1",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "0",
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\dyna_state" to "0"
+            )
+        ),
+        GameFixProfile(
+            0x0100FF500E34A000L,
+            "Xenoblade Chronicles: Definitive Edition",
+            "• Мерцание текстур открытого мира и артефакты облаков",
+            "• Open world texture shimmering and cloud rendering artifacts",
+            "✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS2\n✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM",
+            "✓ GPU Accuracy: High\n✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "2",
+                "Renderer\\astc_recompression" to "2",
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\use_fast_gpu_time" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100E95004038000L,
+            "Xenoblade Chronicles 2",
+            "• Просадки кадровой частоты в густонаселенных локациях (Гула, Мор Ардайн)",
+            "• Heavy frame drops in dense titan areas (Gormott, Mor Ardain)",
+            "✓ Динамическое состояние: EDS2\n✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Быстрое время GPU: Включено",
+            "✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Fast GPU Time: Enabled",
+            mapOf(
+                "Renderer\\dyna_state" to "2",
+                "Renderer\\astc_recompression" to "2",
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\use_fast_gpu_time" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010074F013262000L,
+            "Xenoblade Chronicles 3",
+            "• Утечки VRAM и микростаттеры в битвах с 7 персонажами",
+            "• VRAM leaks and micro-stutters during full 7-character battle parties",
+            "✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS2\n✓ Точность GPU: Высокая (High)",
+            "✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS2\n✓ GPU Accuracy: High",
+            mapOf(
+                "Renderer\\astc_recompression" to "2",
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\dyna_state" to "2",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_fast_gpu_time" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100E67012924000L,
+            "The Witcher 3: Wild Hunt - Complete Edition",
+            "• Вылеты по памяти (OOM) и заикания физики в Новиграде и Туссенте",
+            "• OOM crashes and physics stutter in Novigrad and Toussaint",
+            "✓ Память: 6GB DRAM\n✓ Точность GPU: Высокая (High)\n✓ Сжатие ASTC: BC3\n✓ Быстрое время GPU: Включено\n✓ Реактивный сброс: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ ASTC Recompression: BC3\n✓ Fast GPU Time: Enabled\n✓ Reactive Flushing: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "2",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\use_reactive_flushing" to "true"
+            )
         )
     )
 
@@ -438,6 +527,10 @@ object GameFixDatabase {
         return profiles.firstOrNull { profile ->
             val nameLower = profile.gameName.lowercase(java.util.Locale.ROOT)
             val keywords = when {
+                nameLower.contains("disco elysium") -> listOf("disco elysium", "elysium", "0100c88011246000")
+                nameLower.contains("xenoblade") -> listOf("xenoblade", "0100ff500e34a000", "0100e95004038000", "010074f013262000")
+                nameLower.contains("witcher") -> listOf("witcher", "wild hunt", "0100e67012924000", "01003d100e9c6000")
+                nameLower.contains("arkham city") -> listOf("arkham city", "01003ae017db0000")
                 nameLower.contains("breath of the wild") -> listOf("breath of the wild", "botw", "01007ef00011e000")
                 nameLower.contains("tears of the kingdom") -> listOf("tears of the kingdom", "totk", "0100f2c0115b6000")
                 nameLower.contains("paper mario") -> listOf("paper mario", "thousand-year", "01004d701742a000")

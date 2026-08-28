@@ -934,10 +934,6 @@ bool Device::GetSuitability(bool requires_swapchain) {
     bool suitable = true;
 
     // Configure properties.
-    VkPhysicalDeviceVulkan12Features features_1_2{};
-    VkPhysicalDeviceVulkan13Features features_1_3{};
-
-    // Configure properties.
     properties.properties = physical.GetProperties();
 
     // Set instance version.
@@ -1036,9 +1032,17 @@ bool Device::GetSuitability(bool requires_swapchain) {
     }
 
     FOR_EACH_VK_FEATURE_1_1(FEATURE);
+    if (instance_version >= VK_API_VERSION_1_2) {
+        FOR_EACH_VK_FEATURE_1_2(FEATURE);
+    } else {
+        FOR_EACH_VK_FEATURE_1_2(EXT_FEATURE);
+    }
+    if (instance_version >= VK_API_VERSION_1_3) {
+        FOR_EACH_VK_FEATURE_1_3(FEATURE);
+    } else {
+        FOR_EACH_VK_FEATURE_1_3(EXT_FEATURE);
+    }
     FOR_EACH_VK_FEATURE_EXT(EXT_FEATURE);
-    FOR_EACH_VK_FEATURE_1_2(EXT_FEATURE);
-    FOR_EACH_VK_FEATURE_1_3(EXT_FEATURE);
 
 #undef EXT_FEATURE
 #undef FEATURE

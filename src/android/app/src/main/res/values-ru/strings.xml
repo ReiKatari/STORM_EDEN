@@ -972,6 +972,8 @@
     <string name="memory_4gb">4 ГБ (Рекомендуется)</string>
     <string name="memory_6gb">6 ГБ (Небезопасно)</string>
     <string name="memory_8gb">8 ГБ (Небезопасно)</string>
+    <string name="memory_12gb">12 ГБ (Экстремально)</string>
+    <string name="memory_12gb_not_enough_ram">Для режима 12 ГБ DRAM требуется устройство минимум с 12 ГБ физической оперативной памяти.</string>
 
     <!--CPU clock speeds-->
     <string name="clock_normal">Штатная</string>

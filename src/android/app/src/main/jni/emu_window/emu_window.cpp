@@ -249,11 +249,12 @@ EmuWindow_Android::EmuWindow_Android(ANativeWindow* surface,
     : m_driver_library{driver_library} {
     LOG_INFO(Frontend, "initializing");
 
+    window_info.type = Core::Frontend::WindowSystemType::Android;
+
     if (!surface) {
         LOG_CRITICAL(Frontend, "surface is nullptr");
         return;
     }
 
     OnSurfaceChanged(surface);
-    window_info.type = Core::Frontend::WindowSystemType::Android;
 }

@@ -328,6 +328,95 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\use_asynchronous_shaders", "true"}
         }
+    },
+    {
+        0x0100C88011246000ULL,
+        "Disco Elysium: The Final Cut",
+        "• Утечка памяти и вылеты при смене локаций (OOM)\n• Размытие и мерцание текста диалогов TextMeshPro\n• Цветовые артефакты акварельных портретов и фонов",
+        "• Out of memory (OOM) crash on zone transitions\n• TextMeshPro dialogue font blur and jitter\n• Color compression artifacts on painted portraits and backdrops",
+        "✓ Память: 6GB DRAM (ликвидация OOM вылетов Unity)\n✓ Сжатие ASTC: Отключено (Uncompressed — идеальное качество артов)\n✓ Динамическое состояние: EDS1\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Реактивный сброс: Включено",
+        "✓ Memory Layout: 6GB DRAM (Prevents Unity OOM crashes)\n✓ ASTC Recompression: Uncompressed (Max art fidelity)\n✓ Dynamic State: EDS1\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Reactive Flushing: Enabled",
+        {
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\dyna_state", "0"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x01003AE017DB0000ULL,
+        "Batman: Arkham City",
+        "• Просадки FPS при планировании над городом и микрофризы",
+        "• FPS drops and micro-stutters while gliding across Arkham City",
+        "✓ Точность CPU: Точная (Accurate)\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS1",
+        "✓ CPU Accuracy: Accurate\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS1",
+        {
+            {"Cpu\\cpu_accuracy", "0"},
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\dyna_state", "0"}
+        }
+    },
+    {
+        0x0100FF500E34A000ULL,
+        "Xenoblade Chronicles: Definitive Edition",
+        "• Мерцание текстур открытого мира и артефакты облаков",
+        "• Open world texture shimmering and cloud rendering artifacts",
+        "✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS2\n✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM",
+        "✓ GPU Accuracy: High\n✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dyna_state", "2"},
+            {"Renderer\\astc_recompression", "2"},
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\use_fast_gpu_time", "true"}
+        }
+    },
+    {
+        0x0100E95004038000ULL,
+        "Xenoblade Chronicles 2",
+        "• Просадки кадровой частоты в густонаселенных локациях (Гула, Мор Ардайн)",
+        "• Heavy frame drops in dense titan areas (Gormott, Mor Ardain)",
+        "✓ Динамическое состояние: EDS2\n✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Быстрое время GPU: Включено",
+        "✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Fast GPU Time: Enabled",
+        {
+            {"Renderer\\dyna_state", "2"},
+            {"Renderer\\astc_recompression", "2"},
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\use_fast_gpu_time", "true"}
+        }
+    },
+    {
+        0x010074F013262000ULL,
+        "Xenoblade Chronicles 3",
+        "• Утечки VRAM и микростаттеры в битвах с 7 персонажами",
+        "• VRAM leaks and micro-stutters during full 7-character battle parties",
+        "✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS2\n✓ Точность GPU: Высокая (High)",
+        "✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS2\n✓ GPU Accuracy: High",
+        {
+            {"Renderer\\astc_recompression", "2"},
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\dyna_state", "2"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_fast_gpu_time", "true"}
+        }
+    },
+    {
+        0x0100E67012924000ULL,
+        "The Witcher 3: Wild Hunt - Complete Edition",
+        "• Вылеты по памяти (OOM) и заикания физики в Новиграде и Туссенте",
+        "• OOM crashes and physics stutter in Novigrad and Toussaint",
+        "✓ Память: 6GB DRAM\n✓ Точность GPU: Высокая (High)\n✓ Сжатие ASTC: BC3\n✓ Быстрое время GPU: Включено\n✓ Реактивный сброс: Включено",
+        "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ ASTC Recompression: BC3\n✓ Fast GPU Time: Enabled\n✓ Reactive Flushing: Enabled",
+        {
+            {"Core\\memory_layout_mode", "1"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\use_fast_gpu_time", "true"},
+            {"Renderer\\use_reactive_flushing", "true"}
+        }
     }
 };
 

@@ -48,6 +48,10 @@ struct ResolutionScalingInfo {
     }
 };
 
+#if defined(_MSC_VER) && !defined(CANNOT_EXPLICITLY_INSTANTIATE)
+#define CANNOT_EXPLICITLY_INSTANTIATE 1
+#endif
+
 #ifndef CANNOT_EXPLICITLY_INSTANTIATE
 // Instantiate the classes elsewhere (settings.cpp) to reduce compiler/linker work
 // TODO(crueter): Move new enums here

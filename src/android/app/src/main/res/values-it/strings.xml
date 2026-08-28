@@ -936,4 +936,12 @@
     <string name="smart_shader_throttle">Controllo intelligente degli shader in background</string>
     <string name="select_all">Seleziona tutto</string>
     <string name="vulkan_pipeline_cache">Cache pipeline Vulkan</string>
+
+    <string name="memory_12gb_not_enough_ram">La modalità 12 GB DRAM richiede un dispositivo con almeno 12 GB di RAM fisica.</string>
+    <string name="game_fix_apply_and_launch">⚡ Applica correzioni e avvia</string>
+    <string name="game_fix_dont_ask_again">Non chiedere più per questo gioco</string>
+    <string name="game_fix_recommended_header">⚡ Impostazioni consigliate di STORM EDEN</string>
+    <string name="game_fix_skip_and_launch">Avvia senza modifiche</string>
+    <string name="game_fix_issues_header">⚠️ Problemi e bug noti</string>
+    <string name="memory_12gb">12 GB (Estremo)</string>
 </resources>

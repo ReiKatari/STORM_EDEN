@@ -112,6 +112,7 @@ signals:
     void CreateShortcut(u64 program_id, const std::string& game_path,
                         const QtCommon::Game::ShortcutTarget target);
     void OpenPerGameGeneralRequested(const std::string& file);
+    void OpenModManagerRequested(u64 program_id, const QString& game_path);
     void OpenCheatsRequested(u64 program_id, const QString& game_path);
     void LinkToRyujinxRequested(const u64& program_id);
     void OpenDirectory(const QString& directory);

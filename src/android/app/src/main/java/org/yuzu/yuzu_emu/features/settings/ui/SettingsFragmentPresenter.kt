@@ -30,9 +30,7 @@ import org.yuzu.yuzu_emu.utils.InputHandler
 import org.yuzu.yuzu_emu.utils.NativeConfig
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.FullscreenHelper
-import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
-import org.yuzu.yuzu_emu.fragments.AutoOptimizationDialogFragment
 import org.yuzu.yuzu_emu.fragments.MessageDialogFragment
 
 class SettingsFragmentPresenter(
@@ -150,20 +148,6 @@ class SettingsFragmentPresenter(
 
     private fun addConfigSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
-            if (!NativeConfig.isPerGameConfigLoaded() && !NativeLibrary.isRunning()) {
-                add(
-                    RunnableSetting(
-                        titleId = R.string.auto_optimization_wizard_title,
-                        descriptionId = R.string.auto_optimization_wizard_description,
-                        isRunnable = true,
-                        iconId = R.drawable.ic_settings
-                    ) {
-                        activity?.supportFragmentManager?.let { fm ->
-                            AutoOptimizationDialogFragment.newInstance().show(fm, AutoOptimizationDialogFragment.TAG)
-                        }
-                    }
-                )
-            }
             add(
                 SubmenuSetting(
                     titleId = R.string.preferences_system,

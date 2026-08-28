@@ -1029,4 +1029,12 @@
     <string name="smart_shader_throttle">智慧後台著色器調控</string>
     <string name="select_all">全選</string>
     <string name="vulkan_pipeline_cache">Vulkan 管線快取</string>
+
+    <string name="memory_12gb_not_enough_ram">12GB DRAM 模式需要至少 12GB 實體記憶體的裝置。</string>
+    <string name="game_fix_apply_and_launch">⚡ 套用修復並啟動</string>
+    <string name="game_fix_dont_ask_again">對此遊戲不再提示</string>
+    <string name="game_fix_recommended_header">⚡ STORM EDEN 推薦設定</string>
+    <string name="game_fix_skip_and_launch">直接啟動（不修改）</string>
+    <string name="game_fix_issues_header">⚠️ 已知問題與錯誤</string>
+    <string name="memory_12gb">12GB (極高風險)</string>
 </resources>

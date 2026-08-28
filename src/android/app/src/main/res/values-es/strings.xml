@@ -1227,4 +1227,12 @@
     <string name="vulkan_pipeline_cache">Caché de canalizaciones Vulkan</string>
     <string name="cheats_count_summary">Total de trucos: %1 | Activados: %2</string>
     <string name="eco_thermal_mode">Modo Eco y refrigeración</string>
+
+    <string name="memory_12gb_not_enough_ram">El modo 12 GB DRAM requiere un dispositivo con al menos 12 GB de RAM física.</string>
+    <string name="game_fix_apply_and_launch">⚡ Aplicar correcciones e iniciar</string>
+    <string name="game_fix_dont_ask_again">No volver a preguntar para este juego</string>
+    <string name="game_fix_recommended_header">⚡ Ajustes recomendados de STORM EDEN</string>
+    <string name="game_fix_skip_and_launch">Iniciar sin cambios</string>
+    <string name="game_fix_issues_header">⚠️ Problemas y errores conocidos</string>
+    <string name="memory_12gb">12 GB (Extremo)</string>
 </resources>

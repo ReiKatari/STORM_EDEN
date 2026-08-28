@@ -1110,4 +1110,12 @@ Wirklich fortfahren?</string>
     <string name="vulkan_pipeline_cache">Vulkan-Pipeline-Cache</string>
     <string name="cheats_count_summary">Cheats insgesamt: %1$d | Aktiviert: %2$d</string>
     <string name="eco_thermal_mode">Eco- &amp; Thermomodus</string>
+
+    <string name="memory_12gb_not_enough_ram">Der 12 GB DRAM-Modus erfordert ein Gerät mit mindestens 12 GB physischem RAM.</string>
+    <string name="game_fix_apply_and_launch">⚡ Optimierungen anwenden &amp; starten</string>
+    <string name="game_fix_dont_ask_again">Für dieses Spiel nicht mehr nachfragen</string>
+    <string name="game_fix_recommended_header">⚡ Empfohlene STORM EDEN Optimierungen</string>
+    <string name="game_fix_skip_and_launch">Ohne Änderungen starten</string>
+    <string name="game_fix_issues_header">⚠️ Bekannte Probleme &amp; Fehler</string>
+    <string name="memory_12gb">12 GB (Extrem)</string>
 </resources>

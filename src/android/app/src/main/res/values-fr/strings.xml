@@ -1159,4 +1159,12 @@
     <string name="vulkan_pipeline_cache">Cache de pipelines Vulkan</string>
     <string name="cheats_count_summary">Total des codes: %1 | Activés: %2</string>
     <string name="eco_thermal_mode">Mode Éco et thermique</string>
+
+    <string name="memory_12gb_not_enough_ram">Le mode 12 Go DRAM nécessite un appareil disposant d\'au moins 12 Go de RAM physique.</string>
+    <string name="game_fix_apply_and_launch">⚡ Appliquer les correctifs et lancer</string>
+    <string name="game_fix_dont_ask_again">Ne plus demander pour ce jeu</string>
+    <string name="game_fix_recommended_header">⚡ Paramètres recommandés STORM EDEN</string>
+    <string name="game_fix_skip_and_launch">Lancer sans modifications</string>
+    <string name="game_fix_issues_header">⚠️ Problèmes et bugs connus</string>
+    <string name="memory_12gb">12 Go (Extrême)</string>
 </resources>

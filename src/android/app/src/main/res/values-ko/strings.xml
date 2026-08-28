@@ -808,4 +808,12 @@
     <string name="select_all">모두 선택</string>
     <string name="dma_accuracy_safe">안전 (최대 호환성)</string>
     <string name="vulkan_pipeline_cache">Vulkan 파이프라인 캐시</string>
+
+    <string name="memory_12gb_not_enough_ram">12GB DRAM 모드는 최소 12GB의 물리적 RAM이 있는 기기가 필요합니다.</string>
+    <string name="game_fix_apply_and_launch">⚡ 수정 사항 적용 및 실행</string>
+    <string name="game_fix_dont_ask_again">이 게임에 대해 다시 묻지 않음</string>
+    <string name="game_fix_recommended_header">⚡ STORM EDEN 권장 설정</string>
+    <string name="game_fix_skip_and_launch">변경 없이 실행</string>
+    <string name="game_fix_issues_header">⚠️ 알려진 문제 및 버그</string>
+    <string name="memory_12gb">12GB (극한)</string>
 </resources>

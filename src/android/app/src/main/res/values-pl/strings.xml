@@ -1054,4 +1054,12 @@
     <string name="smart_shader_throttle">Inteligentna kontrola shaderów w tle</string>
     <string name="select_all">Zaznacz wszystko</string>
     <string name="vulkan_pipeline_cache">Pamięć podręczna potoków Vulkan</string>
+
+    <string name="memory_12gb_not_enough_ram">Tryb 12 GB DRAM wymaga urządzenia z co najmniej 12 GB fizycznej pamięci RAM.</string>
+    <string name="game_fix_apply_and_launch">⚡ Zastosuj poprawki &amp; uruchom</string>
+    <string name="game_fix_dont_ask_again">Nie pytaj ponownie dla tej gry</string>
+    <string name="game_fix_recommended_header">⚡ Zalecane ustawienia STORM EDEN</string>
+    <string name="game_fix_skip_and_launch">Uruchom bez zmian</string>
+    <string name="game_fix_issues_header">⚠️ Znane problemy &amp; błędy</string>
+    <string name="memory_12gb">12 GB (Ekstremalny)</string>
 </resources>

@@ -41,6 +41,8 @@ add_executable(yuzu
     bootmanager.h
     cheats_dialog.cpp
     cheats_dialog.h
+    mod_manager_dialog.cpp
+    mod_manager_dialog.h
     configuration/configuration_shared.cpp
     configuration/configuration_shared.h
     configuration/configure.ui

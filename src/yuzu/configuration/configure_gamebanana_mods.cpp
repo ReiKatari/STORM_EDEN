@@ -146,17 +146,17 @@ ConfigureGameBananaMods::ConfigureGameBananaMods(Core::System& system_, u64 titl
 
     main_layout->addLayout(controls_layout);
 
-    // 3. Main Splitter (Left: Mod List + Pagination, Right: Mod Details & Install)
+    // 3. Main Splitter (Left: Mod List, Right: Mod Details & Install)
     auto* splitter = new QSplitter(Qt::Horizontal, this);
 
     // Left Pane
     auto* left_pane = new QWidget(this);
     auto* left_layout = new QVBoxLayout(left_pane);
     left_layout->setContentsMargins(0, 0, 0, 0);
-    left_layout->setSpacing(6);
+    left_layout->setSpacing(4);
 
     mod_tree = new QTreeWidget(this);
-    mod_tree->setHeaderLabels({tr("НАЗВАНИЕ МОДА"), tr("АВТОР"), tr("СКАЧИВАНИЙ"), tr("ЛАЙКОВ"), tr("КАТЕГОРИЯ")});
+    mod_tree->setHeaderLabels({tr("НАЗВАНИЕ МОДА"), tr("АВТОР"), tr("ПРОСМОТРОВ"), tr("ЛАЙКОВ"), tr("КАТЕГОРИЯ")});
     mod_tree->setAlternatingRowColors(true);
     mod_tree->setRootIsDecorated(false);
     for (int i = 0; i < 5; ++i) {
@@ -164,35 +164,16 @@ ConfigureGameBananaMods::ConfigureGameBananaMods(Core::System& system_, u64 titl
     }
     mod_tree->header()->setStretchLastSection(false);
     mod_tree->header()->setSectionResizeMode(0, QHeaderView::Interactive);
-    mod_tree->header()->resizeSection(0, 320);
+    mod_tree->header()->resizeSection(0, 340);
     mod_tree->header()->setSectionResizeMode(1, QHeaderView::Interactive);
-    mod_tree->header()->resizeSection(1, 160);
+    mod_tree->header()->resizeSection(1, 150);
     mod_tree->header()->setSectionResizeMode(2, QHeaderView::Interactive);
-    mod_tree->header()->resizeSection(2, 140);
+    mod_tree->header()->resizeSection(2, 120);
     mod_tree->header()->setSectionResizeMode(3, QHeaderView::Interactive);
-    mod_tree->header()->resizeSection(3, 130);
+    mod_tree->header()->resizeSection(3, 100);
     mod_tree->header()->setSectionResizeMode(4, QHeaderView::Stretch);
-    mod_tree->header()->resizeSection(4, 160);
+    mod_tree->header()->resizeSection(4, 150);
     left_layout->addWidget(mod_tree, 1);
-
-    // Pagination Controls
-    auto* pag_layout = new QHBoxLayout;
-    first_page_btn = new QPushButton(tr("⏮️ Первая"), this);
-    prev_page_btn = new QPushButton(tr("◀ Назад"), this);
-    page_label = new QLabel(tr("Страница 1"), this);
-    page_label->setStyleSheet(QStringLiteral("font-weight: bold; padding: 0 10px; color: #38bdf8;"));
-    next_page_btn = new QPushButton(tr("Вперед ▶"), this);
-
-    first_page_btn->setEnabled(false);
-    prev_page_btn->setEnabled(false);
-    next_page_btn->setEnabled(false);
-
-    pag_layout->addWidget(first_page_btn);
-    pag_layout->addWidget(prev_page_btn);
-    pag_layout->addWidget(page_label);
-    pag_layout->addWidget(next_page_btn);
-    pag_layout->addStretch();
-    left_layout->addLayout(pag_layout);
 
     splitter->addWidget(left_pane);
 
@@ -296,10 +277,31 @@ ConfigureGameBananaMods::ConfigureGameBananaMods(Core::System& system_, u64 titl
 
     splitter->addWidget(details_widget);
     details_widget->setVisible(false);
-    splitter->setStretchFactor(0, 3);
-    splitter->setStretchFactor(1, 2);
-
     main_layout->addWidget(splitter, 1);
+
+    // 4. Bottom Pagination Bar
+    auto* bottom_bar = new QHBoxLayout;
+    first_page_btn = new QPushButton(tr("⏮️ Первая"), this);
+    prev_page_btn = new QPushButton(tr("◀ Назад"), this);
+    page_label = new QLabel(tr("Страница 1"), this);
+    page_label->setStyleSheet(QStringLiteral("font-weight: bold; padding: 0 12px; color: #38bdf8; font-size: 12px;"));
+    next_page_btn = new QPushButton(tr("Вперед ▶"), this);
+
+    first_page_btn->setStyleSheet(QStringLiteral("padding: 4px 12px; font-weight: bold;"));
+    prev_page_btn->setStyleSheet(QStringLiteral("padding: 4px 12px; font-weight: bold;"));
+    next_page_btn->setStyleSheet(QStringLiteral("padding: 4px 12px; font-weight: bold;"));
+
+    first_page_btn->setEnabled(false);
+    prev_page_btn->setEnabled(false);
+    next_page_btn->setEnabled(false);
+
+    bottom_bar->addWidget(first_page_btn);
+    bottom_bar->addWidget(prev_page_btn);
+    bottom_bar->addWidget(page_label);
+    bottom_bar->addWidget(next_page_btn);
+    bottom_bar->addStretch(1);
+
+    main_layout->addLayout(bottom_bar);
 
     // Connect signals
     connect(search_btn, &QPushButton::clicked, this, &ConfigureGameBananaMods::OnSearchClicked);
@@ -416,7 +418,8 @@ void ConfigureGameBananaMods::PopulateModTree() {
         auto* tree_item = new QTreeWidgetItem(mod_tree);
         tree_item->setText(0, item.name);
         tree_item->setText(1, item.submitter.isEmpty() ? QStringLiteral("-") : item.submitter);
-        tree_item->setText(2, FormatNumber(item.downloads));
+        const qint64 count_val = item.views > 0 ? item.views : item.downloads;
+        tree_item->setText(2, FormatNumber(count_val));
         tree_item->setText(3, FormatNumber(item.likes));
         tree_item->setText(4, item.category.isEmpty() ? QStringLiteral("Мод") : item.category);
         tree_item->setData(0, Qt::UserRole, item.id);
@@ -451,37 +454,21 @@ void ConfigureGameBananaMods::SearchMods(const QString& query, int page) {
     clean_title.remove(QRegularExpression(QStringLiteral("\\(.*?\\)")));
     clean_title = clean_title.trimmed();
 
-    QUrl search_url;
+    QUrl search_url(QStringLiteral("https://gamebanana.com/apiv11/Util/Search/Results"));
     QUrlQuery q;
     q.addQueryItem(QStringLiteral("_nPage"), QString::number(current_page));
     q.addQueryItem(QStringLiteral("_nPerpage"), QStringLiteral("40"));
 
-    if (gamebanana_game_id > 0 && query.isEmpty()) {
-        search_url = QUrl(QStringLiteral("https://gamebanana.com/apiv11/Mod/Index"));
-        q.addQueryItem(QStringLiteral("_aFilters[Generic_Game]"), QString::number(gamebanana_game_id));
-
-        QString sort_param = QStringLiteral("Generic_MostDownloaded");
-        const int sort_idx = sort_combo->currentIndex();
-        if (sort_idx == 0) sort_param = QStringLiteral("Generic_MostDownloaded");
-        else if (sort_idx == 1) sort_param = QStringLiteral("Generic_MostLiked");
-        else if (sort_idx == 2) sort_param = QStringLiteral("Generic_MostViewed");
-        else if (sort_idx == 3) sort_param = QStringLiteral("Generic_Latest");
-        else if (sort_idx == 4) sort_param = QStringLiteral("Generic_Alphabetical");
-        q.addQueryItem(QStringLiteral("_sSort"), sort_param);
+    QString search_term = query.trimmed();
+    if (search_term.isEmpty()) {
+        search_term = clean_title.isEmpty() ? QStringLiteral("Nintendo Switch") : clean_title;
     } else {
-        search_url = QUrl(QStringLiteral("https://gamebanana.com/apiv11/Util/Search/Results"));
-        if (gamebanana_game_id > 0) {
-            q.addQueryItem(QStringLiteral("_idGameRow"), QString::number(gamebanana_game_id));
-            q.addQueryItem(QStringLiteral("_sSearchString"), query);
-        } else {
-            // Strictly target Nintendo Switch (1, 2) platform
-            QString search_term = query.isEmpty()
-                ? QStringLiteral("%1 Switch").arg(clean_title)
-                : QStringLiteral("%1 %2 Switch").arg(clean_title, query);
-            q.addQueryItem(QStringLiteral("_sSearchString"), search_term);
+        if (!clean_title.isEmpty() && !search_term.contains(clean_title, Qt::CaseInsensitive)) {
+            search_term = QStringLiteral("%1 %2").arg(clean_title, search_term);
         }
-        q.addQueryItem(QStringLiteral("_sModelName"), QStringLiteral("Mod"));
     }
+    q.addQueryItem(QStringLiteral("_sSearchString"), search_term);
+    q.addQueryItem(QStringLiteral("_sModelName"), QStringLiteral("Mod"));
     search_url.setQuery(q);
 
     QNetworkRequest request(search_url);
@@ -614,9 +601,11 @@ void ConfigureGameBananaMods::LoadModDetails(int mod_id) {
         const QString desc = obj.value(QStringLiteral("_sDescription")).toString();
         const QString text = obj.value(QStringLiteral("_sText")).toString();
         const QString author = obj.value(QStringLiteral("_aSubmitter")).toObject().value(QStringLiteral("_sName")).toString();
+        const qint64 views_count = obj.value(QStringLiteral("_nViewCount")).toVariant().toLongLong();
+        const qint64 likes_count = obj.value(QStringLiteral("_nLikeCount")).toVariant().toLongLong();
 
-        QString html = QStringLiteral("<h2>%1</h2><p><b>Автор:</b> %2</p><p><i>%3</i></p><hr/><div>%4</div>")
-                           .arg(name, author, desc, text.isEmpty() ? desc : text);
+        QString html = QStringLiteral("<h2>%1</h2><p><b>Автор:</b> %2 &nbsp;|&nbsp; <b>👁️ Просмотров:</b> %3 &nbsp;|&nbsp; <b>❤️ Лайков:</b> %4</p><p><i>%5</i></p><hr/><div>%6</div>")
+                           .arg(name, author, FormatNumber(views_count), FormatNumber(likes_count), desc, text.isEmpty() ? desc : text);
         detail_browser->setHtml(html);
 
         // Parse Files
@@ -633,7 +622,8 @@ void ConfigureGameBananaMods::LoadModDetails(int mod_id) {
             current_files.push_back(file_info);
 
             const double size_mb = static_cast<double>(file_info.size) / (1024.0 * 1024.0);
-            QString item_label = QStringLiteral("%1 (%2 MB)").arg(file_info.name, QString::number(size_mb, 'f', 1));
+            const qint64 file_dl = fobj.value(QStringLiteral("_nDownloadCount")).toVariant().toLongLong();
+            QString item_label = QStringLiteral("%1 (%2 MB, 📥 %3 скач.)").arg(file_info.name, QString::number(size_mb, 'f', 1), FormatNumber(file_dl));
             if (!file_info.description.isEmpty()) {
                 item_label += QStringLiteral(" — %1").arg(file_info.description);
             }

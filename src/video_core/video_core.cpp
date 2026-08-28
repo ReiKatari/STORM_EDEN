@@ -32,12 +32,11 @@ std::unique_ptr<VideoCore::RendererBase> CreateRenderer(Core::System& system, Co
     case Settings::RendererBackend::OpenGL_SPIRV:
         return std::make_unique<OpenGL::RendererOpenGL>(emu_window, device_memory, gpu, std::move(context));
 #endif
-    case Settings::RendererBackend::Vulkan:
-        return std::make_unique<Vulkan::RendererVulkan>(emu_window, device_memory, gpu, std::move(context));
     case Settings::RendererBackend::Null:
         return std::make_unique<Null::RendererNull>(emu_window, gpu, std::move(context));
+    case Settings::RendererBackend::Vulkan:
     default:
-        return nullptr;
+        return std::make_unique<Vulkan::RendererVulkan>(emu_window, device_memory, gpu, std::move(context));
     }
 }
 

@@ -273,7 +273,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         prefs.edit().putInt("selected_auto_optimization_mode", MODE_DEFAULT).apply()
 
         // 1. Renderer / Video Defaults
-        IntSetting.RENDERER_BACKEND.setInt(0) // Vulkan
+        IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan (1 = Vulkan, 2 = Null)
         IntSetting.RENDERER_ACCURACY.setInt(0) // Normal
         IntSetting.RENDERER_RESOLUTION.setInt(3) // 1.0X (720p/1080p)
         IntSetting.RENDERER_VSYNC.setInt(0) // FIFO

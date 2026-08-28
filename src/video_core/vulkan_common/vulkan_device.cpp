@@ -969,12 +969,8 @@ bool Device::GetSuitability(bool requires_swapchain) {
             extensions.var_name = true;                                                                \
     }
 
-    if (instance_version < VK_API_VERSION_1_2) {
-        FOR_EACH_VK_FEATURE_1_2(FEATURE_EXTENSION);
-    }
-    if (instance_version < VK_API_VERSION_1_3) {
-        FOR_EACH_VK_FEATURE_1_3(FEATURE_EXTENSION);
-    }
+    FOR_EACH_VK_FEATURE_1_2(FEATURE_EXTENSION);
+    FOR_EACH_VK_FEATURE_1_3(FEATURE_EXTENSION);
 
     FOR_EACH_VK_FEATURE_EXT(FEATURE_EXTENSION);
     FOR_EACH_VK_EXTENSION(EXTENSION);
@@ -1025,16 +1021,6 @@ bool Device::GetSuitability(bool requires_swapchain) {
     // Set next pointer.
     void** next = &features2.pNext;
 
-    // Vulkan 1.2 and 1.3 features
-    if (instance_version >= VK_API_VERSION_1_2) {
-        features_1_2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-        features_1_3.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-
-        features_1_2.pNext = &features_1_3;
-
-        *next = &features_1_2;
-    }
-
 // Test all features we know about. If the feature is not available in core at our
 // current API version, and was not enabled by an extension, skip testing the feature.
 // We set the structure sType explicitly here as it is zeroed by the constructor.
@@ -1051,16 +1037,8 @@ bool Device::GetSuitability(bool requires_swapchain) {
 
     FOR_EACH_VK_FEATURE_1_1(FEATURE);
     FOR_EACH_VK_FEATURE_EXT(EXT_FEATURE);
-    if (instance_version >= VK_API_VERSION_1_2) {
-        FOR_EACH_VK_FEATURE_1_2(FEATURE);
-    } else {
-        FOR_EACH_VK_FEATURE_1_2(EXT_FEATURE);
-    }
-    if (instance_version >= VK_API_VERSION_1_3) {
-        FOR_EACH_VK_FEATURE_1_3(FEATURE);
-    } else {
-        FOR_EACH_VK_FEATURE_1_3(EXT_FEATURE);
-    }
+    FOR_EACH_VK_FEATURE_1_2(EXT_FEATURE);
+    FOR_EACH_VK_FEATURE_1_3(EXT_FEATURE);
 
 #undef EXT_FEATURE
 #undef FEATURE

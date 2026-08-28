@@ -116,6 +116,7 @@ class AmiiboDialogFragment : DialogFragment() {
 
         binding.buttonDisconnectAmiibo.setOnClickListener {
             NativeLibrary.closeAmiibo()
+            AmiiboHelper.activeAmiiboName = null
             Toast.makeText(
                 requireContext(),
                 R.string.amiibo_removed_toast,
@@ -146,10 +147,12 @@ class AmiiboDialogFragment : DialogFragment() {
             return
         }
         val state = NativeLibrary.getVirtualAmiiboState()
-        // State 2 = TagNearby
-        if (state == 2) {
+        // InputCommon::VirtualAmiibo::State: 0=Disabled, 1=Initialized, 2=WaitingForAmiibo, 3=TagNearby
+        val hasActiveAmiibo = (state == 3) && AmiiboHelper.activeAmiiboName != null
+        if (hasActiveAmiibo) {
             binding.cardActiveAmiibo.isVisible = true
-            binding.textActiveAmiiboStatus.text = getString(R.string.amiibo_currently_attached, "NFC Active")
+            val name = AmiiboHelper.activeAmiiboName ?: "NFC Tag"
+            binding.textActiveAmiiboStatus.text = getString(R.string.amiibo_currently_attached, name)
         } else {
             binding.cardActiveAmiibo.isVisible = false
         }
@@ -288,6 +291,7 @@ class AmiiboDialogFragment : DialogFragment() {
                     val success = AmiiboHelper.loadAmiiboDirectly(entry)
                     withContext(Dispatchers.Main) {
                         if (success) {
+                            AmiiboHelper.activeAmiiboName = entry.name
                             Toast.makeText(
                                 requireContext(),
                                 getString(R.string.amiibo_injected_success, entry.name),

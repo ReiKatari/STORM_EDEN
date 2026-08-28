@@ -2206,8 +2206,27 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         else -> "🔥"               // 5. Critical (>= 54°C)
                     }
 
+                    // 5. Game Resolution
+                    val isDocked = BooleanSetting.USE_DOCKED_MODE.getBoolean(NativeConfig.isPerGameConfigLoaded())
+                    val resSetting = IntSetting.RENDERER_RESOLUTION.getInt(NativeConfig.isPerGameConfigLoaded())
+                    val (baseW, baseH) = if (isDocked) Pair(1920, 1080) else Pair(1280, 720)
+                    val scale = when (resSetting) {
+                        0 -> 0.5f
+                        1 -> 0.65f
+                        2 -> 0.75f
+                        3 -> 1.0f
+                        4 -> 1.25f
+                        5 -> 1.5f
+                        6 -> 2.0f
+                        7 -> 3.0f
+                        8 -> 4.0f
+                        else -> 1.0f
+                    }
+                    val actualW = (baseW * scale).toInt()
+                    val actualH = (baseH * scale).toInt()
+
                     // Build formatted string
-                    sb.append("⚙️ ЦП: $cpuUsagePercent%")
+                    sb.append("📺 ${actualW}x${actualH} | ⚙️ ЦП: $cpuUsagePercent%")
                     if (gpuUsagePercent >= 0) {
                         sb.append(" | 🎮 ГПУ: $gpuUsagePercent%")
                     }

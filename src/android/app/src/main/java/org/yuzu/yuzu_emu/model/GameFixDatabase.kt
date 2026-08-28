@@ -2307,6 +2307,149 @@ object GameFixDatabase {
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Renderer\\use_reactive_flushing" to "false"
             )
+        ),
+        GameFixProfile(
+            0x0100FF500E34A000L,
+            "Xenoblade Chronicles: Definitive Edition",
+            "• Просадки FPS и утечки VRAM в открытых локациях (Bionis Leg)\n• Микрофризы при подгрузке текстур высокого разрешения",
+            "• Framerate drops and VRAM pressure in large open zones (Bionis Leg)\n• Texture streaming micro-stutters",
+            "✓ Точность GPU: Обычная (Normal, стабильная производительность)\n✓ Сжатие ASTC: Отключено (чистые текстуры без задержек)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: Normal (Smooth performance)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "System\\memory_layout_mode" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x0100E95004038000L,
+            "Xenoblade Chronicles 2",
+            "• Размытие динамического разрешения и нехватка VRAM в провинции Гормотт\n• Просадки частоты кадров в битвах",
+            "• Dynamic resolution blur and VRAM memory buildup in Gormott\n• Combat framerate drops",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "System\\memory_layout_mode" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x01008D3017B4C000L,
+            "Super Mario RPG",
+            "• Микрофризы при переходе между локациями и в диалогах\n• Сбои глубины теней персонажей",
+            "• Micro-stutters during scene transitions and battle dialogs\n• Character shadow depth inaccuracies",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010006701B4B2000L,
+            "Princess Peach: Showtime!",
+            "• Падение FPS на движке Unreal Engine 4 при трансформациях\n• Мерцание геометрии и теней",
+            "• Framerate drops on Unreal Engine 4 during transformations\n• Geometry and shadow flickering",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ GPU Accuracy: Normal\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100C8901844A000L,
+            "Luigi's Mansion 2 HD",
+            "• Компиляционные задержки шейдеров в темных комнатах особняка\n• Мерцание динамического освещения фонарика",
+            "• Shader compilation stutters in dark mansion corridors\n• Flashlight dynamic lighting flickering",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "System\\memory_layout_mode" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x0100B9301A4A0000L,
+            "F-Zero 99",
+            "• Зависание на стартовом экране при попытке подключения к серверам Nintendo\n• Бесконечная синхронизация онлайна",
+            "• Hang on title screen attempting to connect to Nintendo servers\n• Infinite online network sync loop",
+            "✓ Режим полёта: Включено (пропуск сетевого зависания)\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT, 60 FPS)\n✓ Точность GPU: Обычная (Normal)",
+            "✓ Airplane Mode: Enabled (Bypasses network connection hang)\n✓ CPU Accuracy: Auto / Unsafe (60 FPS)\n✓ GPU Accuracy: Normal",
+            mapOf(
+                "System\\airplane_mode" to "true",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100427010476000L,
+            "Super Mario 3D All-Stars",
+            "• Накладные расходы двойной эмуляции в Super Mario Sunshine и Super Mario Galaxy\n• Потрескивания звука при нехватке CPU",
+            "• Double-emulation overhead in Super Mario Sunshine and Galaxy\n• Audio crackling from CPU thread starvation",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Maximum JIT performance)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01001F5010DFA000L,
+            "Pokemon Legends: Arceus",
+            "• Микрофризы и просадки FPS при спавне диких Покемонов\n• Утечки памяти в деревне Джубилайф",
+            "• Micro-stutters and framerate drops during wild Pokemon spawns\n• Memory pressure in Jubilife Village",
+            "✓ Точность GPU: Обычная (Normal, стабильные 30 FPS)\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ GPU Accuracy: Normal (Smooth 30 FPS)\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100A3D008C5C000L,
+            "Pokemon Scarlet",
+            "• Тяжелые утечки памяти в открытом мире Палдеи (>9 ГБ VRAM)\n• Падения FPS и рывки камеры",
+            "• Massive open world memory leaks in Paldea (>9 GB VRAM)\n• Framerate drops and camera stuttering",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Реактивная очистка: Отключено\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ GPU Accuracy: Normal\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01008F6008C5E000L,
+            "Pokemon Violet",
+            "• Тяжелые утечки памяти в открытом мире Палдеи (>9 ГБ VRAM)\n• Падения FPS и рывки камеры",
+            "• Massive open world memory leaks in Paldea (>9 GB VRAM)\n• Framerate drops and camera stuttering",
+            "✓ Точность GPU: Обычная (Normal)\n✓ Реактивная очистка: Отключено\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ GPU Accuracy: Normal\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
         )
     )
 
@@ -2540,6 +2683,16 @@ object GameFixDatabase {
                 nameLower.contains("warframe") -> listOf("warframe", "01000b300b250000")
                 nameLower.contains("brotato") -> listOf("brotato", "010077001a8d4000")
                 nameLower.contains("vampire survivors") -> listOf("vampire survivors", "vampire", "survivors", "010085c019864000")
+                nameLower.contains("definitive edition") && nameLower.contains("xenoblade") -> listOf("xenoblade", "definitive", "0100ff500e34a000")
+                nameLower.contains("xenoblade chronicles 2") -> listOf("xenoblade 2", "0100e95004038000")
+                nameLower.contains("super mario rpg") -> listOf("mario rpg", "01008d3017b4c000")
+                nameLower.contains("showtime") -> listOf("showtime", "princess peach", "010006701b4b2000")
+                nameLower.contains("mansion 2") -> listOf("mansion 2", "dark moon", "0100c8901844a000")
+                nameLower.contains("f-zero") -> listOf("f-zero", "fzero", "0100b9301a4a0000")
+                nameLower.contains("3d all-stars") -> listOf("3d all-stars", "all stars", "sunshine", "galaxy", "0100427010476000")
+                nameLower.contains("legends: arceus") || nameLower.contains("arceus") -> listOf("arceus", "01001f5010dfa000")
+                nameLower.contains("scarlet") -> listOf("scarlet", "0100a3d008c5c000")
+                nameLower.contains("violet") -> listOf("violet", "01008f6008c5e000")
                 else -> listOf(nameLower)
             }
             keywords.any { cleanTitle.contains(it) || cleanPath.contains(it) }

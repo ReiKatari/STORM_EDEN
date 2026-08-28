@@ -45,6 +45,7 @@ object AmiiboHelper {
     }
 
     private var cachedAmiibos: List<AmiiboEntry> = emptyList()
+    var activeAmiiboName: String? = null
 
     suspend fun getAmiiboDatabase(forceRefresh: Boolean = false): List<AmiiboEntry> =
         withContext(Dispatchers.IO) {

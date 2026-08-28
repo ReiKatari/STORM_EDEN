@@ -2328,6 +2328,149 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\use_reactive_flushing", "false"}
         }
+    },
+    {
+        0x0100FF500E34A000ULL,
+        "Xenoblade Chronicles: Definitive Edition",
+        "• Просадки FPS и утечки VRAM в открытых локациях (Bionis Leg)\n• Микрофризы при подгрузке текстур высокого разрешения",
+        "• Framerate drops and VRAM pressure in large open zones (Bionis Leg)\n• Texture streaming micro-stutters",
+        "✓ Точность GPU: Обычная (Normal, стабильная производительность)\n✓ Сжатие ASTC: Отключено (чистые текстуры без задержек)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: Normal (Smooth performance)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"System\\memory_layout_mode", "1"}
+        }
+    },
+    {
+        0x0100E95004038000ULL,
+        "Xenoblade Chronicles 2",
+        "• Размытие динамического разрешения и нехватка VRAM в провинции Гормотт\n• Просадки частоты кадров в битвах",
+        "• Dynamic resolution blur and VRAM memory buildup in Gormott\n• Combat framerate drops",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"System\\memory_layout_mode", "1"}
+        }
+    },
+    {
+        0x01008D3017B4C000ULL,
+        "Super Mario RPG",
+        "• Микрофризы при переходе между локациями и в диалогах\n• Сбои глубины теней персонажей",
+        "• Micro-stutters during scene transitions and battle dialogs\n• Character shadow depth inaccuracies",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010006701B4B2000ULL,
+        "Princess Peach: Showtime!",
+        "• Падение FPS на движке Unreal Engine 4 при трансформациях\n• Мерцание геометрии и теней",
+        "• Framerate drops on Unreal Engine 4 during transformations\n• Geometry and shadow flickering",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: Normal\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100C8901844A000ULL,
+        "Luigi's Mansion 2 HD",
+        "• Компиляционные задержки шейдеров в темных комнатах особняка\n• Мерцание динамического освещения фонарика",
+        "• Shader compilation stutters in dark mansion corridors\n• Flashlight dynamic lighting flickering",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"System\\memory_layout_mode", "1"}
+        }
+    },
+    {
+        0x0100B9301A4A0000ULL,
+        "F-Zero 99",
+        "• Зависание на стартовом экране при попытке подключения к серверам Nintendo\n• Бесконечная синхронизация онлайна",
+        "• Hang on title screen attempting to connect to Nintendo servers\n• Infinite online network sync loop",
+        "✓ Режим полёта: Включено (пропуск сетевого зависания)\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT, 60 FPS)\n✓ Точность GPU: Обычная (Normal)",
+        "✓ Airplane Mode: Enabled (Bypasses network connection hang)\n✓ CPU Accuracy: Auto / Unsafe (60 FPS)\n✓ GPU Accuracy: Normal",
+        {
+            {"System\\airplane_mode", "true"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x0100427010476000ULL,
+        "Super Mario 3D All-Stars",
+        "• Накладные расходы двойной эмуляции в Super Mario Sunshine и Super Mario Galaxy\n• Потрескивания звука при нехватке CPU",
+        "• Double-emulation overhead in Super Mario Sunshine and Galaxy\n• Audio crackling from CPU thread starvation",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Maximum JIT performance)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x01001F5010DFA000ULL,
+        "Pokemon Legends: Arceus",
+        "• Микрофризы и просадки FPS при спавне диких Покемонов\n• Утечки памяти в деревне Джубилайф",
+        "• Micro-stutters and framerate drops during wild Pokemon spawns\n• Memory pressure in Jubilife Village",
+        "✓ Точность GPU: Обычная (Normal, стабильные 30 FPS)\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: Normal (Smooth 30 FPS)\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100A3D008C5C000ULL,
+        "Pokemon Scarlet",
+        "• Тяжелые утечки памяти в открытом мире Палдеи (>9 ГБ VRAM)\n• Падения FPS и рывки камеры",
+        "• Massive open world memory leaks in Paldea (>9 GB VRAM)\n• Framerate drops and camera stuttering",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Реактивная очистка: Отключено\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: Normal\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x01008F6008C5E000ULL,
+        "Pokemon Violet",
+        "• Тяжелые утечки памяти в открытом мире Палдеи (>9 ГБ VRAM)\n• Падения FPS и рывки камеры",
+        "• Massive open world memory leaks in Paldea (>9 GB VRAM)\n• Framerate drops and camera stuttering",
+        "✓ Точность GPU: Обычная (Normal)\n✓ Реактивная очистка: Отключено\n✓ Память: 8GB DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: Normal\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 8GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
     }
 };
 
@@ -2606,6 +2749,33 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("vampire survivors") != std::string::npos && (lower.find("vampire") != std::string::npos || lower.find("survivors") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("xenoblade") != std::string::npos && (lower.find("xenoblade") != std::string::npos || lower.find("xcde") != std::string::npos || lower.find("xc2") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("mario rpg") != std::string::npos && (lower.find("mario rpg") != std::string::npos || lower.find("super mario rpg") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("showtime") != std::string::npos && (lower.find("showtime") != std::string::npos || lower.find("princess peach") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("luigi's mansion 2") != std::string::npos && (lower.find("mansion 2") != std::string::npos || lower.find("dark moon") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("f-zero") != std::string::npos && (lower.find("f-zero") != std::string::npos || lower.find("fzero") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("3d all-stars") != std::string::npos && (lower.find("all-stars") != std::string::npos || lower.find("all stars") != std::string::npos || lower.find("sunshine") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("arceus") != std::string::npos && (lower.find("arceus") != std::string::npos || lower.find("legends") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("scarlet") != std::string::npos && lower.find("scarlet") != std::string::npos) {
+            return &profile;
+        }
+        if (game_lower.find("violet") != std::string::npos && lower.find("violet") != std::string::npos) {
             return &profile;
         }
 

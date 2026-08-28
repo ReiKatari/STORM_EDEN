@@ -290,24 +290,32 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         IntSetting.RENDERER_DYNA_STATE.setInt(0) // Default
 
         // 2. CPU / System Defaults
+        BooleanSetting.USE_DOCKED_MODE.setBoolean(false) // Handheld for speed/efficiency
         IntSetting.CPU_BACKEND.setInt(1) // NCE
         IntSetting.CPU_ACCURACY.setInt(0) // Auto
         IntSetting.MEMORY_LAYOUT.setInt(0) // 4GB
         val cpuCores = Runtime.getRuntime().availableProcessors()
         IntSetting.ANDROID_PIPELINE_WORKERS.setInt((cpuCores - 2).coerceIn(2, 4))
 
-        // 3. Renderer Booleans
+        // 3. Audio Defaults
+        IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0) // Auto
+        BooleanSetting.AUDIO_MUTED.setBoolean(false)
+
+        // 4. Renderer Booleans
         BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
         BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
         BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
         BooleanSetting.FASTMEM.setBoolean(true)
-        BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(true)
-        BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(true)
-        BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(false)
+        BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
+        BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(false)
+        BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
         BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
         BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
+        BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
+        BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
+        BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
 
-        // 4. Auto-Optimization Engine Flags Disabled
+        // 5. Auto-Optimization Engine Flags
         BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
         BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
         BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
@@ -382,6 +390,11 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.CPU_ACCURACY.setInt(0)
                 // Memory Layout: 4GB (0)
                 IntSetting.MEMORY_LAYOUT.setInt(0)
+                // System / Docked: Handheld (false)
+                BooleanSetting.USE_DOCKED_MODE.setBoolean(false)
+                // Audio: Auto engine, unmuted
+                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
+                BooleanSetting.AUDIO_MUTED.setBoolean(false)
                 // Dynamic State (Extended Dynamic State): Enabled (1) for Adreno/Qualcomm for games like LEGO Star Wars
                 IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno) 1 else 0)
                 // Pipeline Workers: 2 (reduces background CPU load, battery drain and heat)
@@ -397,6 +410,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
                 BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(true)
                 BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
+                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
+                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
+                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
                 BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
                 BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
                 BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
@@ -434,6 +450,11 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.CPU_ACCURACY.setInt(0)
                 // Memory Layout: 6GB (1) if RAM >= 11GB, else 4GB (0)
                 IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship) 1 else 0)
+                // System / Docked: Handheld (false) for speed
+                BooleanSetting.USE_DOCKED_MODE.setBoolean(false)
+                // Audio: Auto engine, unmuted
+                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
+                BooleanSetting.AUDIO_MUTED.setBoolean(false)
                 // Dynamic State: Enabled (1) for Adreno
                 IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno) 1 else 0)
                 // Pipeline Workers
@@ -449,6 +470,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
                 BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(true)
                 BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
+                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
+                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
+                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
                 BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
                 BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
                 BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
@@ -486,6 +510,11 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.CPU_ACCURACY.setInt(1) // Accurate
                 // Memory Layout: 6GB/8GB if RAM >= 11GB
                 IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship) 2 else 0)
+                // System / Docked: Docked for Flagship, Handheld for others
+                BooleanSetting.USE_DOCKED_MODE.setBoolean(isFlagship)
+                // Audio: Auto engine, unmuted
+                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
+                BooleanSetting.AUDIO_MUTED.setBoolean(false)
                 // Dynamic State: Enabled (1)
                 IntSetting.RENDERER_DYNA_STATE.setInt(1)
                 // Pipeline Workers
@@ -501,6 +530,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
                 BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
                 BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
+                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(true)
+                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
+                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
                 BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
                 BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
                 BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)

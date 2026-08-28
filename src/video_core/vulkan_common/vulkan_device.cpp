@@ -413,24 +413,20 @@ void Device::RemoveExtensionFeature(bool& extension, Feature& feature,
     // Unload extension.
     this->RemoveExtension(extension, extension_name);
 
-    // Unlink feature struct from the features2 pNext chain so vkCreateDevice receives valid Vulkan structs
-    void** curr = &features2.pNext;
-    while (*curr != nullptr) {
-        if (*curr == static_cast<void*>(&feature)) {
-            *curr = feature.pNext;
-            break;
-        }
-        auto* next_header = static_cast<VkBaseOutStructure*>(*curr);
-        curr = reinterpret_cast<void**>(&next_header->pNext);
-    }
+    // Save sType and pNext for chain.
+    VkStructureType sType = feature.sType;
+    void* pNext = feature.pNext;
 
+    // Clear feature struct and restore chain.
     feature = {};
+    feature.sType = sType;
+    feature.pNext = pNext;
 }
 
 template <typename Feature>
 void Device::RemoveExtensionFeatureIfUnsuitable(bool is_suitable, Feature& feature,
                                                 const std::string& extension_name) {
-    if (!is_suitable) {
+    if (loaded_extensions.contains(extension_name) && !is_suitable) {
         LOG_WARNING(Render_Vulkan, "Removing features for unsuitable extension {}", extension_name);
         this->RemoveExtensionFeature(is_suitable, feature, extension_name);
     }
@@ -934,6 +930,10 @@ bool Device::GetSuitability(bool requires_swapchain) {
     bool suitable = true;
 
     // Configure properties.
+    VkPhysicalDeviceVulkan12Features features_1_2{};
+    VkPhysicalDeviceVulkan13Features features_1_3{};
+
+    // Configure properties.
     properties.properties = physical.GetProperties();
 
     // Set instance version.
@@ -965,8 +965,12 @@ bool Device::GetSuitability(bool requires_swapchain) {
             extensions.var_name = true;                                                                \
     }
 
-    FOR_EACH_VK_FEATURE_1_2(FEATURE_EXTENSION);
-    FOR_EACH_VK_FEATURE_1_3(FEATURE_EXTENSION);
+    if (instance_version < VK_API_VERSION_1_2) {
+        FOR_EACH_VK_FEATURE_1_2(FEATURE_EXTENSION);
+    }
+    if (instance_version < VK_API_VERSION_1_3) {
+        FOR_EACH_VK_FEATURE_1_3(FEATURE_EXTENSION);
+    }
 
     FOR_EACH_VK_FEATURE_EXT(FEATURE_EXTENSION);
     FOR_EACH_VK_EXTENSION(EXTENSION);
@@ -1017,6 +1021,16 @@ bool Device::GetSuitability(bool requires_swapchain) {
     // Set next pointer.
     void** next = &features2.pNext;
 
+    // Vulkan 1.2 and 1.3 features
+    if (instance_version >= VK_API_VERSION_1_2) {
+        features_1_2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+        features_1_3.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+
+        features_1_2.pNext = &features_1_3;
+
+        *next = &features_1_2;
+    }
+
 // Test all features we know about. If the feature is not available in core at our
 // current API version, and was not enabled by an extension, skip testing the feature.
 // We set the structure sType explicitly here as it is zeroed by the constructor.
@@ -1032,6 +1046,7 @@ bool Device::GetSuitability(bool requires_swapchain) {
     }
 
     FOR_EACH_VK_FEATURE_1_1(FEATURE);
+    FOR_EACH_VK_FEATURE_EXT(EXT_FEATURE);
     if (instance_version >= VK_API_VERSION_1_2) {
         FOR_EACH_VK_FEATURE_1_2(FEATURE);
     } else {
@@ -1042,7 +1057,6 @@ bool Device::GetSuitability(bool requires_swapchain) {
     } else {
         FOR_EACH_VK_FEATURE_1_3(EXT_FEATURE);
     }
-    FOR_EACH_VK_FEATURE_EXT(EXT_FEATURE);
 
 #undef EXT_FEATURE
 #undef FEATURE
@@ -1344,19 +1358,6 @@ void Device::RemoveUnsuitableExtensions() {
                                      features.shader_atomic_int64.shaderSharedInt64Atomics;
     RemoveExtensionFeatureIfUnsuitable(extensions.shader_atomic_int64, features.shader_atomic_int64,
                                        VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME);
-
-    // VK_KHR_shader_float16_int8
-    extensions.shader_float16_int8 = features.shader_float16_int8.shaderFloat16 ||
-                                     features.shader_float16_int8.shaderInt8;
-    RemoveExtensionFeatureIfUnsuitable(extensions.shader_float16_int8, features.shader_float16_int8,
-                                       VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME);
-
-    // VK_KHR_uniform_buffer_standard_layout
-    extensions.uniform_buffer_standard_layout =
-        features.uniform_buffer_standard_layout.uniformBufferStandardLayout;
-    RemoveExtensionFeatureIfUnsuitable(extensions.uniform_buffer_standard_layout,
-                                       features.uniform_buffer_standard_layout,
-                                       VK_KHR_UNIFORM_BUFFER_STANDARD_LAYOUT_EXTENSION_NAME);
 
     // VK_EXT_shader_demote_to_helper_invocation
     extensions.shader_demote_to_helper_invocation =

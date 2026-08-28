@@ -229,6 +229,7 @@
     <addaction name="separator"/>
     <addaction name="action_Capture_Screenshot"/>
     <addaction name="action_Translate_Screen"/>
+    <addaction name="action_Mod_Manager"/>
     <addaction name="action_Cheats"/>
     <addaction name="menuTAS"/>
    </widget>
@@ -480,6 +481,17 @@
    </property>
    <property name="text">
     <string>Configure C&amp;urrent Game...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_Mod_Manager">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>🧩 &amp;Менеджер модов...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

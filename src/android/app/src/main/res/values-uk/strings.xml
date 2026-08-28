@@ -1213,4 +1213,12 @@
     <string name="smart_shader_throttle">Розумний контроль фонових шейдерів</string>
     <string name="select_all">Увімкнути все</string>
     <string name="vulkan_pipeline_cache">Кеш конвеєрів Vulkan</string>
+
+    <string name="memory_12gb_not_enough_ram">Для режиму 12 ГБ DRAM потрібен пристрій щонайменше з 12 ГБ фізичної оперативної пам\'яті.</string>
+    <string name="game_fix_apply_and_launch">⚡ Застосувати виправлення та запустити</string>
+    <string name="game_fix_dont_ask_again">Більше не запитувати для цієї гри</string>
+    <string name="game_fix_recommended_header">⚡ Рекомендовані налаштування STORM EDEN</string>
+    <string name="game_fix_skip_and_launch">Запустити без змін</string>
+    <string name="game_fix_issues_header">⚠️ Відомі проблеми та збої</string>
+    <string name="memory_12gb">12 ГБ (Екстремально)</string>
 </resources>

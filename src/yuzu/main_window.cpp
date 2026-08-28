@@ -43,6 +43,7 @@
 #include "about_dialog.h"
 #include "amiibo_browser_dialog.h"
 #include "cheats_dialog.h"
+#include "mod_manager_dialog.h"
 #include "data_dialog.h"
 #include "deps_dialog.h"
 #include "install_dialog.h"
@@ -2615,6 +2616,12 @@ void MainWindow::ConnectWidgetEvents() {
     });
     connect(game_list, &GameList::OpenDirectory, this, &MainWindow::OnGameListOpenDirectory);
     connect(game_list, &GameList::OpenFolderRequested, this, &MainWindow::OnGameListOpenFolder);
+    connect(game_list, &GameList::OpenModManagerRequested, this,
+            [this](u64 program_id, const QString& game_path) {
+                const QString game_name = QFileInfo(game_path).completeBaseName();
+                ModManagerDialog dialog(this, *QtCommon::system, program_id, game_path, game_name);
+                dialog.exec();
+            });
     connect(game_list, &GameList::OpenCheatsRequested, this,
             [this](u64 program_id, const QString& game_path) {
                 CheatsDialog dialog(this, *QtCommon::system, program_id, game_path);
@@ -2682,6 +2689,7 @@ void MainWindow::ConnectMenuEvents() {
     connect_menu(ui->action_Restart, &MainWindow::OnRestartGame);
     connect_menu(ui->action_Configure, &MainWindow::OnConfigure);
     connect_menu(ui->action_Configure_Current_Game, &MainWindow::OnConfigurePerGame);
+    connect_menu(ui->action_Mod_Manager, &MainWindow::OnModManagerDialog);
     connect_menu(ui->action_Cheats, &MainWindow::OnCheatsDialog);
 
     // View
@@ -5034,6 +5042,31 @@ void MainWindow::OnToggleGraphicsAPI() {
 void MainWindow::OnConfigurePerGame() {
     const u64 title_id = QtCommon::system->GetApplicationProcessProgramID();
     OpenPerGameConfiguration(title_id, current_game_path.toStdString());
+}
+
+void MainWindow::OnModManagerDialog() {
+    u64 title_id = 0;
+    QString game_path;
+    QString game_name;
+
+    if (QtCommon::system->IsPoweredOn()) {
+        title_id = QtCommon::system->GetApplicationProcessProgramID();
+        game_path = current_game_path;
+        game_name = m_current_addons_game_name;
+    } else if (m_current_addons_title_id != 0) {
+        title_id = m_current_addons_title_id;
+        game_path = QString::fromStdString(m_current_addons_game_path);
+        game_name = m_current_addons_game_name;
+    }
+
+    if (title_id == 0) {
+        QMessageBox::information(this, tr("Менеджер модов"),
+                                 tr("Выберите игру из списка или запустите эмуляцию для управления модами."));
+        return;
+    }
+
+    ModManagerDialog dialog(this, *QtCommon::system, title_id, game_path, game_name);
+    dialog.exec();
 }
 
 void MainWindow::OnCheatsDialog() {

@@ -751,4 +751,12 @@
     <string name="cheats_count_summary">チート合計: %1 | 有効: %2</string>
     <string name="dma_accuracy_safe">安全（最高互換性）</string>
     <string name="eco_thermal_mode">Eco / サーマル制御</string>
+
+    <string name="memory_12gb_not_enough_ram">12GB DRAMモードには、12GB以上の物理RAMを搭載したデバイスが必要です。</string>
+    <string name="game_fix_apply_and_launch">⚡ 修正を適用して起動</string>
+    <string name="game_fix_dont_ask_again">このゲームで再確認しない</string>
+    <string name="game_fix_recommended_header">⚡ STORM EDEN 推奨設定</string>
+    <string name="game_fix_skip_and_launch">変更せずに起動</string>
+    <string name="game_fix_issues_header">⚠️ 既知の問題と不具合</string>
+    <string name="memory_12gb">12GB (極度)</string>
 </resources>

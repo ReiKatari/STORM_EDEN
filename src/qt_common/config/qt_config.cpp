@@ -198,6 +198,7 @@ void QtConfig::ReadPathValues() {
     UISettings::values.game_dir_deprecated_deepscan =
         ReadBooleanSetting(std::string("gameListDeepScan"), std::make_optional(false));
 
+    UISettings::values.game_dirs.clear();
     const int gamedirs_size = BeginArray(std::string("gamedirs"));
     for (int i = 0; i < gamedirs_size; ++i) {
         SetArrayIndex(i);
@@ -206,7 +207,20 @@ void QtConfig::ReadPathValues() {
         game_dir.deep_scan =
             ReadBooleanSetting(std::string("deep_scan"), std::make_optional(true));
         game_dir.expanded = ReadBooleanSetting(std::string("expanded"), std::make_optional(true));
-        UISettings::values.game_dirs.append(game_dir);
+
+        if (game_dir.path.empty()) {
+            continue;
+        }
+
+        const QString clean = QDir::cleanPath(QString::fromStdString(game_dir.path));
+        const bool exists = std::any_of(
+            UISettings::values.game_dirs.begin(), UISettings::values.game_dirs.end(),
+            [&](const UISettings::GameDir& d) {
+                return QDir::cleanPath(QString::fromStdString(d.path)).compare(clean, Qt::CaseInsensitive) == 0;
+            });
+        if (!exists) {
+            UISettings::values.game_dirs.append(game_dir);
+        }
     }
     EndArray();
 
@@ -237,12 +251,21 @@ void QtConfig::ReadPathValues() {
         QString::fromStdString(ReadStringSetting(std::string("recentFiles")))
             .split(QStringLiteral(", "), Qt::SkipEmptyParts, Qt::CaseSensitive);
 
+    Settings::values.external_content_dirs.clear();
     const int external_dirs_size = BeginArray(std::string("external_content_dirs"));
     for (int i = 0; i < external_dirs_size; ++i) {
         SetArrayIndex(i);
         std::string dir_path = ReadStringSetting(std::string("path"));
         if (!dir_path.empty()) {
-            Settings::values.external_content_dirs.push_back(dir_path);
+            const QString clean = QDir::cleanPath(QString::fromStdString(dir_path));
+            const bool exists = std::any_of(
+                Settings::values.external_content_dirs.begin(), Settings::values.external_content_dirs.end(),
+                [&](const std::string& d) {
+                    return QDir::cleanPath(QString::fromStdString(d)).compare(clean, Qt::CaseInsensitive) == 0;
+                });
+            if (!exists) {
+                Settings::values.external_content_dirs.push_back(dir_path);
+            }
         }
     }
     EndArray();

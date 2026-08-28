@@ -1109,6 +1109,7 @@ void MainWindow::InitializeWidgets() {
             Settings::values.volume.SetValue(static_cast<u8>(p_val));
             UpdateVolumeUI();
             UpdateMuteButton();
+            ApplyDynamicSettingChange();
         });
         preset_layout->addWidget(btn);
     }
@@ -1125,6 +1126,7 @@ void MainWindow::InitializeWidgets() {
         Settings::values.volume.SetValue(volume);
         UpdateVolumeUI();
         UpdateMuteButton();
+        ApplyDynamicSettingChange();
     });
     connect(volume_button, &QPushButton::clicked, this, [this] {
         UpdateVolumeUI();
@@ -1147,11 +1149,13 @@ void MainWindow::InitializeWidgets() {
                 context_menu.addAction(
                     Settings::values.audio_muted.GetValue() ? tr("Включить звук") : tr("Выключить звук"), [this] {
                         OnMute();
+                        ApplyDynamicSettingChange();
                     });
 
                 context_menu.addAction(tr("Сбросить громкость (100%)"), [this] {
                     Settings::values.volume.SetValue(100);
                     UpdateVolumeUI();
+                    ApplyDynamicSettingChange();
                 });
 
                 ShowMenuAtWidget(context_menu, volume_button);
@@ -1173,6 +1177,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(aa_text_pair.second, [this, aa_text_pair] {
                 Settings::values.anti_aliasing.SetValue(aa_text_pair.first);
                 UpdateAAText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(aa_text_pair.first == cur_aa);
@@ -1198,6 +1203,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(filter_text_pair.second, [this, filter_text_pair] {
                 Settings::values.scaling_filter.SetValue(filter_text_pair.first);
                 UpdateFilterText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(filter_text_pair.first == cur_filter);
@@ -1222,6 +1228,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(pair.second, [this, pair] {
                 if (pair.first != Settings::values.use_docked_mode.GetValue()) {
                     OnToggleDockedMode();
+                    ApplyDynamicSettingChange();
                 }
             });
             act->setCheckable(true);
@@ -1247,6 +1254,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(gpu_accuracy_pair.second, [this, gpu_accuracy_pair] {
                 Settings::values.gpu_accuracy.SetValue(gpu_accuracy_pair.first);
                 UpdateGPUAccuracyButton();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(gpu_accuracy_pair.first == cur_gpu);
@@ -1276,6 +1284,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(renderer_backend_pair.second, [this, renderer_backend_pair] {
                 Settings::values.renderer_backend.SetValue(renderer_backend_pair.first);
                 UpdateAPIText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(renderer_backend_pair.first == cur_api);
@@ -1304,6 +1313,7 @@ void MainWindow::InitializeWidgets() {
                 auto* act = context_menu.addAction(name, [this, val] {
                     Settings::values.aspect_ratio.SetValue(static_cast<Settings::AspectRatio>(val));
                     UpdateAspectText();
+                    ApplyDynamicSettingChange();
                 });
                 act->setCheckable(true);
                 act->setChecked(val == cur_aspect);
@@ -1333,6 +1343,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(item.second, [this, item] {
                 Settings::values.dma_accuracy.SetValue(item.first);
                 UpdateDmaText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(item.first == cur_dma);
@@ -1362,6 +1373,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(item.second, [this, item] {
                 Settings::values.gpu_fence_behavior.SetValue(item.first);
                 UpdateGpuFenceText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(item.first == cur_fence);
@@ -1389,6 +1401,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.vram_usage_mode.SetValue(opt.first);
                 UpdateVramText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_vram);
@@ -1422,6 +1435,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.max_anisotropy.SetValue(opt.first);
                 UpdateAnisotropyText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_aniso);
@@ -1449,6 +1463,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.accelerate_astc.SetValue(opt.first);
                 UpdateAstcDecodeText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_dec);
@@ -1477,6 +1492,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.astc_recompression.SetValue(opt.first);
                 UpdateAstcRecompressText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_rec);
@@ -1614,6 +1630,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.resolution_setup.SetValue(opt.first);
                 UpdateResScaleText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_res);
@@ -1641,11 +1658,13 @@ void MainWindow::InitializeWidgets() {
     connect(airplane_mode_button, &QPushButton::clicked, this, [this] {
         Settings::values.airplane_mode.SetValue(!Settings::values.airplane_mode.GetValue());
         UpdateAirplaneModeButton();
+        ApplyDynamicSettingChange();
     });
     airplane_mode_button->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(airplane_mode_button, &QPushButton::customContextMenuRequested, [this] {
         Settings::values.airplane_mode.SetValue(!Settings::values.airplane_mode.GetValue());
         UpdateAirplaneModeButton();
+        ApplyDynamicSettingChange();
     });
 
     // Setup VSync button
@@ -1666,6 +1685,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.vsync_mode.SetValue(opt.first);
                 UpdateVSyncText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_vsync);
@@ -1690,6 +1710,7 @@ void MainWindow::InitializeWidgets() {
             Settings::values.use_speed_limit.SetValue(true);
             Settings::values.speed_limit.SetValue(100);
             UpdateSpeedLimitText();
+            ApplyDynamicSettingChange();
         });
         act100->setCheckable(true);
         act100->setChecked(use_limit && speed_val == 100);
@@ -1698,6 +1719,7 @@ void MainWindow::InitializeWidgets() {
             Settings::values.use_speed_limit.SetValue(true);
             Settings::values.speed_limit.SetValue(150);
             UpdateSpeedLimitText();
+            ApplyDynamicSettingChange();
         });
         act150->setCheckable(true);
         act150->setChecked(use_limit && speed_val == 150);
@@ -1706,6 +1728,7 @@ void MainWindow::InitializeWidgets() {
             Settings::values.use_speed_limit.SetValue(true);
             Settings::values.speed_limit.SetValue(200);
             UpdateSpeedLimitText();
+            ApplyDynamicSettingChange();
         });
         act200->setCheckable(true);
         act200->setChecked(use_limit && speed_val == 200);
@@ -1714,6 +1737,7 @@ void MainWindow::InitializeWidgets() {
             Settings::values.use_speed_limit.SetValue(true);
             Settings::values.speed_limit.SetValue(300);
             UpdateSpeedLimitText();
+            ApplyDynamicSettingChange();
         });
         act300->setCheckable(true);
         act300->setChecked(use_limit && speed_val == 300);
@@ -1721,6 +1745,7 @@ void MainWindow::InitializeWidgets() {
         auto* act_unlimit = context_menu.addAction(tr("Без лимита скорости"), [this] {
             Settings::values.use_speed_limit.SetValue(false);
             UpdateSpeedLimitText();
+            ApplyDynamicSettingChange();
         });
         act_unlimit->setCheckable(true);
         act_unlimit->setChecked(!use_limit);
@@ -1748,6 +1773,7 @@ void MainWindow::InitializeWidgets() {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
                 Settings::values.nvdec_emulation.SetValue(opt.first);
                 UpdateNvdecText();
+                ApplyDynamicSettingChange();
             });
             act->setCheckable(true);
             act->setChecked(opt.first == cur_nvdec);
@@ -3091,6 +3117,9 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     config->SaveAllValues();
 
     u64 title_id{0};
+    if (params.program_id != 0) {
+        title_id = params.program_id;
+    }
 
     last_filename_booted = filename;
 
@@ -3100,11 +3129,17 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     const auto loader =
         Loader::GetLoader(*QtCommon::system, v_file, params.program_id, params.program_index);
 
-    if (loader != nullptr) {
+    if (loader != nullptr && title_id == 0) {
         loader->ReadProgramId(title_id);
     }
+    if (loader != nullptr && title_id == 0) {
+        std::vector<u64> pids;
+        if (loader->ReadProgramIds(pids) == Loader::ResultStatus::Success && !pids.empty()) {
+            title_id = pids[0];
+        }
+    }
     if (title_id == 0) {
-        static const QRegularExpression tid_regex(QStringLiteral(R"(\[([0-9a-fA-F]{16})\])"));
+        static const QRegularExpression tid_regex(QStringLiteral(R"(([0-9a-fA-F]{16}))"));
         const auto match = tid_regex.match(filename);
         if (match.hasMatch()) {
             bool ok = false;
@@ -3115,6 +3150,11 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         }
     }
 
+    const auto* profile = Core::GameFixDatabase::GetProfileByTitleOrPath(title_id, filename.toStdString());
+    if (profile != nullptr && title_id == 0) {
+        title_id = profile->title_id;
+    }
+
     if (title_id != 0 && type == StartGameType::Normal) {
         const auto file_path_hash = Common::CityHash64(utf8_str.constData(), static_cast<std::size_t>(utf8_str.size()));
         const auto specific_config = fmt::format("{:016X}_{:016X}", title_id, file_path_hash);
@@ -3123,9 +3163,8 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         std::filesystem::path custom_path = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir) / "custom";
         std::string target_ini = (custom_path / (specific_config + ".ini")).string();
 
-        const auto* profile = Core::GameFixDatabase::GetProfile(title_id);
         if (profile != nullptr) {
-            bool already_applied = false;
+            bool dont_ask = false;
             std::string check_ini = target_ini;
             if (!std::filesystem::exists(check_ini) && std::filesystem::exists(custom_path / (legacy_config + ".ini"))) {
                 check_ini = (custom_path / (legacy_config + ".ini")).string();
@@ -3134,42 +3173,94 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
                 std::ifstream f(check_ini);
                 std::string l;
                 while (std::getline(f, l)) {
-                    if (l.find("storm_fix_applied=true") != std::string::npos || l.find("storm_fix_applied = true") != std::string::npos) {
-                        already_applied = true;
+                    if (l.find("storm_fix_dont_ask=true") != std::string::npos || l.find("storm_fix_dont_ask = true") != std::string::npos) {
+                        dont_ask = true;
                         break;
                     }
                 }
             }
 
-            if (!already_applied) {
-                QMessageBox msgBox(this);
-                msgBox.setWindowTitle(tr("🔧 Оптимизация STORM EDEN: %1").arg(QString::fromStdString(profile->game_name)));
-                
+            if (!dont_ask) {
+                QDialog fixDialog(this);
+                fixDialog.setWindowTitle(tr("🔧 Оптимизация STORM EDEN: %1").arg(QString::fromStdString(profile->game_name)));
+                fixDialog.setWindowFlags(fixDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+                fixDialog.setMinimumWidth(540);
+
+                auto* dlg_layout = new QVBoxLayout(&fixDialog);
+                dlg_layout->setContentsMargins(18, 18, 18, 18);
+                dlg_layout->setSpacing(14);
+
+                auto* content_layout = new QHBoxLayout();
+                content_layout->setSpacing(14);
+
+                auto* icon_label = new QLabel(&fixDialog);
+                icon_label->setPixmap(QIcon::fromTheme(QStringLiteral("dialog-information")).pixmap(48, 48));
+                icon_label->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+                content_layout->addWidget(icon_label);
+
                 QString issues_formatted = QString::fromStdString(profile->issues_ru);
                 issues_formatted.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
                 QString fixes_formatted = QString::fromStdString(profile->fixes_ru);
                 fixes_formatted.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
 
                 QString htmlText = QString::fromUtf8(
-                    "<h3>🎮 %1</h3>"
-                    "<p style='color:#ef4444;'><b>⚠️ Обнаружены известные проблемы в игре:</b><br>%2</p>"
-                    "<p style='color:#10b981;'><b>⚡ Рекомендуемые настройки STORM EDEN:</b><br>%3</p>"
-                    "<p>Применить оптимизированные настройки для этой игры и сохранить их?")
+                    "<h3 style='margin:0 0 6px 0;'>🎮 %1</h3>"
+                    "<p style='color:#ef4444; margin:4px 0;'><b>⚠️ Обнаружены известные проблемы в игре:</b><br>%2</p>"
+                    "<p style='color:#10b981; margin:4px 0;'><b>⚡ Рекомендуемые настройки STORM EDEN:</b><br>%3</p>"
+                    "<p style='margin:8px 0 0 0;'><b>Применить оптимизированные настройки для этой игры и сохранить их?</b></p>")
                     .arg(QString::fromStdString(profile->game_name))
                     .arg(issues_formatted)
                     .arg(fixes_formatted);
-                
-                msgBox.setText(htmlText);
-                msgBox.setIcon(QMessageBox::Information);
-                QPushButton* applyBtn = msgBox.addButton(tr("⚡ Применить и запустить"), QMessageBox::AcceptRole);
-                QPushButton* skipBtn = msgBox.addButton(tr("Запустить без изменений"), QMessageBox::RejectRole);
-                msgBox.setDefaultButton(applyBtn);
 
-                msgBox.exec();
+                auto* text_label = new QLabel(htmlText, &fixDialog);
+                text_label->setTextFormat(Qt::RichText);
+                text_label->setWordWrap(true);
+                content_layout->addWidget(text_label, 1);
+                dlg_layout->addLayout(content_layout);
 
-                if (msgBox.clickedButton() == applyBtn) {
+                auto* cb_layout = new QHBoxLayout();
+                cb_layout->setAlignment(Qt::AlignCenter);
+                auto* dont_ask_cb = new QCheckBox(tr("Больше не показывать для этой игры"), &fixDialog);
+                cb_layout->addWidget(dont_ask_cb);
+                dlg_layout->addLayout(cb_layout);
+
+                // Centered action buttons
+                auto* btn_layout = new QHBoxLayout();
+                btn_layout->setContentsMargins(0, 8, 0, 0);
+                btn_layout->setSpacing(12);
+                btn_layout->setAlignment(Qt::AlignCenter);
+
+                auto* applyBtn = new QPushButton(tr("⚡ Применить и запустить"), &fixDialog);
+                applyBtn->setObjectName(QStringLiteral("PrimaryDialogButton"));
+                applyBtn->setStyleSheet(QStringLiteral("font-weight: bold; padding: 7px 16px; border-radius: 6px;"));
+
+                auto* skipBtn = new QPushButton(tr("Запустить без изменений"), &fixDialog);
+                skipBtn->setStyleSheet(QStringLiteral("padding: 7px 16px; border-radius: 6px;"));
+
+                btn_layout->addWidget(applyBtn);
+                btn_layout->addWidget(skipBtn);
+                dlg_layout->addLayout(btn_layout);
+
+                bool applied = false;
+                connect(applyBtn, &QPushButton::clicked, &fixDialog, [&fixDialog, &applied] {
+                    applied = true;
+                    fixDialog.accept();
+                });
+                connect(skipBtn, &QPushButton::clicked, &fixDialog, [&fixDialog] {
+                    fixDialog.reject();
+                });
+
+                fixDialog.exec();
+
+                if (dont_ask_cb->isChecked()) {
+                    Core::GameFixDatabase::SetDontAskAgain(title_id, target_ini);
+                    Core::GameFixDatabase::SetDontAskAgain(title_id, (custom_path / (legacy_config + ".ini")).string());
+                }
+
+                if (applied) {
                     Core::GameFixDatabase::ApplyProfileToPerGameConfig(title_id, target_ini);
                     Core::GameFixDatabase::ApplyProfileToPerGameConfig(title_id, (custom_path / (legacy_config + ".ini")).string());
+                    Core::GameFixDatabase::ApplyProfileDirectly(title_id);
                 }
             }
         }
@@ -3184,6 +3275,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         QtConfig per_game_config(config_to_load, Config::ConfigType::PerGameConfig);
         QtCommon::system->HIDCore().ReloadInputDevices();
         QtCommon::system->ApplySettings();
+        UpdateStatusButtons();
     }
 
     Settings::LogSettings();
@@ -3240,7 +3332,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         render_window->show();
         render_window->setFocus();
     }
-    status_bar_update_timer.start(500);
+    status_bar_update_timer.start(250);
     renderer_status_button->setDisabled(true);
     refresh_button->setDisabled(true);
     SetFPSSuffix();
@@ -3538,9 +3630,20 @@ void MainWindow::OnEmulationStopped() {
     // Enable game list
     game_list->setEnabled(true);
 
-    Settings::RestoreGlobalState(QtCommon::system->IsPoweredOn());
+    Settings::RestoreGlobalState(false);
+    config = std::make_unique<QtConfig>();
+    config->ReloadAllValues();
     QtCommon::system->HIDCore().ReloadInputDevices();
     UpdateStatusButtons();
+    UpdateGPUAccuracyButton();
+    UpdateAirplaneModeButton();
+    UpdateAstcRecompressText();
+    UpdateAnisotropyText();
+    UpdateResScaleText();
+    UpdateVSyncText();
+    UpdateSpeedLimitText();
+    UpdateNvdecText();
+    UpdateDockedButton();
 }
 
 void MainWindow::ShutdownGame() {
@@ -4014,10 +4117,16 @@ void MainWindow::OnGameListAddDirectory() {
         return;
     }
 
-    UISettings::GameDir game_dir{dir_path.toStdString(), true, true};
-    const auto it = std::find(UISettings::values.game_dirs.begin(),
-                              UISettings::values.game_dirs.end(), game_dir);
+    const QString clean_path = QDir::cleanPath(dir_path);
+    const std::string path_str = clean_path.toStdString();
+
+    const auto it = std::find_if(UISettings::values.game_dirs.begin(),
+                                 UISettings::values.game_dirs.end(),
+                                 [&](const UISettings::GameDir& d) {
+                                     return QDir::cleanPath(QString::fromStdString(d.path)).compare(clean_path, Qt::CaseInsensitive) == 0;
+                                 });
     if (it == UISettings::values.game_dirs.end()) {
+        UISettings::GameDir game_dir{path_str, true, true};
         UISettings::values.game_dirs.append(game_dir);
     } else {
         it->expanded = true;
@@ -5827,7 +5936,17 @@ void MainWindow::UpdateStatusBar() {
         "QLabel { background-color: rgba(0, 230, 118, 0.10); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.30); "
         "border-radius: 4px; padding: 2px 6px; font-size: 7.2pt; font-weight: 700; }"));
 
-    QString fpsText = tr("Игра: %1 FPS").arg(std::round(results.average_game_fps), 0, 'f', 0);
+    double display_fps = results.average_game_fps;
+    if (std::isnan(display_fps) || display_fps <= 0.0) {
+        display_fps = results.system_fps;
+    } else if (results.system_fps > 0.0 && results.system_fps > display_fps && (results.system_fps - display_fps) > 5.0) {
+        display_fps = results.system_fps;
+    }
+    if (std::isnan(display_fps) || display_fps < 0.0) {
+        display_fps = 0.0;
+    }
+
+    QString fpsText = tr("Игра: %1 FPS").arg(std::round(display_fps), 0, 'f', 0);
     if (!m_fpsSuffix.isEmpty())
         fpsText = fpsText % QStringLiteral(" (%1)").arg(m_fpsSuffix);
 
@@ -5844,6 +5963,17 @@ void MainWindow::UpdateStatusBar() {
     emu_speed_label->setVisible(!Settings::values.use_multi_core.GetValue());
     game_fps_label->setVisible(true);
     emu_frametime_label->setVisible(true);
+}
+
+void MainWindow::ApplyDynamicSettingChange() {
+    Settings::UpdateGPUAccuracy();
+    Settings::UpdateRescalingInfo();
+    if (QtCommon::system && QtCommon::system->IsPoweredOn()) {
+        QtCommon::system->ApplySettings();
+    }
+    if (config) {
+        config->SaveAllValues();
+    }
 }
 
 QString MainWindow::CleanDisplayString(const QString& str) {

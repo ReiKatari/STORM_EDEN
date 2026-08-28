@@ -562,6 +562,16 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
         cheat_files_to_check.push_back(dir_path / (build_id_str + ".txt"));
         cheat_files_to_check.push_back(dir_path / (Common::ToLower(build_id_str) + ".txt"));
         cheat_files_to_check.push_back(dir_path / "cheats.txt");
+
+        // Also scan any other .txt cheat files in this directory
+        for (const auto& entry : std::filesystem::directory_iterator(dir_path, ec)) {
+            if (entry.is_regular_file(ec) && entry.path().extension() == ".txt") {
+                const auto fn = entry.path().filename().string();
+                if (fn != "enabled_cheats.txt" && fn != "ATTRIBUTION.txt") {
+                    cheat_files_to_check.push_back(entry.path());
+                }
+            }
+        }
     };
 
     CheckDirForCheats(title_cheats_dir);

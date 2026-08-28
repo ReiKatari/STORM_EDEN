@@ -443,6 +443,7 @@ private slots:
 #ifdef ENABLE_UPDATE_CHECKER
     void OnEmulatorUpdateAvailable();
 #endif
+    void ApplyDynamicSettingChange();
 
 private:
     void SetupMenuIcons();

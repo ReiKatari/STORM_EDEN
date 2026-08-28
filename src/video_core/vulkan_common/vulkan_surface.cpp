@@ -47,6 +47,10 @@ vk::SurfaceKHR CreateSurface(
     }
 #elif defined(__ANDROID__)
     if (window_info.type == Core::Frontend::WindowSystemType::Android) {
+        if (!window_info.render_surface) {
+            LOG_ERROR(Render_Vulkan, "Failed to initialize Android surface: render_surface is null");
+            throw vk::Exception(VK_ERROR_INITIALIZATION_FAILED);
+        }
         const VkAndroidSurfaceCreateInfoKHR android_ci{
             VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR, nullptr, 0,
             reinterpret_cast<ANativeWindow*>(window_info.render_surface)};

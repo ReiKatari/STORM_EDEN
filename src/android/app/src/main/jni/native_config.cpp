@@ -302,8 +302,16 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_setGameDirs(JNIEnv* env, jobject
         jstring juriString = static_cast<jstring>(env->GetObjectField(dir, uriStringField));
         jboolean jdeepScanBoolean = env->GetBooleanField(dir, deepScanBooleanField);
         std::string uriString = Common::Android::GetJString(env, juriString);
-        AndroidSettings::values.game_dirs.push_back(
-            AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
+        if (uriString.empty()) {
+            continue;
+        }
+        const auto it = std::find_if(
+            AndroidSettings::values.game_dirs.begin(), AndroidSettings::values.game_dirs.end(),
+            [&](const AndroidSettings::GameDir& d) { return d.path == uriString; });
+        if (it == AndroidSettings::values.game_dirs.end()) {
+            AndroidSettings::values.game_dirs.push_back(
+                AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
+        }
     }
 }
 
@@ -316,8 +324,14 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_addGameDir(JNIEnv* env, jobject 
     jstring juriString = static_cast<jstring>(env->GetObjectField(gameDir, uriStringField));
     jboolean jdeepScanBoolean = env->GetBooleanField(gameDir, deepScanBooleanField);
     std::string uriString = Common::Android::GetJString(env, juriString);
-    AndroidSettings::values.game_dirs.push_back(
-        AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
+
+    const auto it = std::find_if(
+        AndroidSettings::values.game_dirs.begin(), AndroidSettings::values.game_dirs.end(),
+        [&](const AndroidSettings::GameDir& d) { return d.path == uriString; });
+    if (it == AndroidSettings::values.game_dirs.end()) {
+        AndroidSettings::values.game_dirs.push_back(
+            AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
+    }
 }
 
 jobjectArray Java_org_yuzu_yuzu_1emu_utils_NativeConfig_getDisabledAddons(JNIEnv* env, jobject obj,

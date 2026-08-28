@@ -95,12 +95,10 @@
 
     <string-array name="rendererApiNames">
         <item>@string/renderer_vulkan</item>
-        <item>@string/renderer_none</item>
     </string-array>
 
     <integer-array name="rendererApiValues">
         <item>1</item>
-        <item>2</item>
     </integer-array>
 
     <string-array name="rendererAccuracyNames">

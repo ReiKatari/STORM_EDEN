@@ -1464,7 +1464,9 @@ void Device::SetupFamilies(VkSurfaceKHR surface) {
             continue;
         }
         if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            graphics = index;
+            if (!graphics || (surface && physical.GetSurfaceSupportKHR(index, surface))) {
+                graphics = index;
+            }
         }
         if (surface && physical.GetSurfaceSupportKHR(index, surface)) {
             present = index;
@@ -1475,14 +1477,16 @@ void Device::SetupFamilies(VkSurfaceKHR surface) {
         throw vk::Exception(VK_ERROR_FEATURE_NOT_PRESENT);
     }
     if (surface && !present) {
-        LOG_ERROR(Render_Vulkan, "Device lacks a present queue");
-        throw vk::Exception(VK_ERROR_FEATURE_NOT_PRESENT);
+        LOG_WARNING(Render_Vulkan, "Device lacks a dedicated present queue, falling back to graphics queue");
+        present = graphics;
     }
     if (graphics) {
         graphics_family = *graphics;
     }
     if (present) {
         present_family = *present;
+    } else {
+        present_family = graphics_family;
     }
 }
 
@@ -1515,7 +1519,7 @@ void Device::CollectPhysicalMemoryInfo() {
     const size_t num_properties = mem_properties.memoryHeapCount;
     device_access_memory = 0;
     u64 device_initial_usage = 0;
-    u64 local_memory = 0;
+    [[maybe_unused]] u64 local_memory = 0;
     for (size_t element = 0; element < num_properties; ++element) {
         const bool is_heap_local =
             (mem_properties.memoryHeaps[element].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) != 0;
@@ -1534,7 +1538,7 @@ void Device::CollectPhysicalMemoryInfo() {
         device_access_memory += mem_properties.memoryHeaps[element].size;
     }
     if (is_integrated) {
-        const s64 available_memory = static_cast<s64>(device_access_memory - device_initial_usage);
+        const s64 available_memory = static_cast<s64>(device_access_memory > device_initial_usage ? (device_access_memory - device_initial_usage) : device_access_memory);
         u64 memory_size = 4_GiB;
         switch (Settings::values.vram_usage_mode.GetValue()) {
         case Settings::VramUsageMode::Conservative:
@@ -1547,7 +1551,14 @@ void Device::CollectPhysicalMemoryInfo() {
             memory_size = 7_GiB;
             break;
         }
-        device_access_memory = static_cast<u64>(std::max<s64>(std::min<s64>(available_memory - 8_GiB, memory_size), std::min<s64>(local_memory, memory_size)));
+        if (available_memory > 0) {
+            device_access_memory = static_cast<u64>(std::clamp<s64>(available_memory, static_cast<s64>(2_GiB), static_cast<s64>(memory_size)));
+        } else {
+            device_access_memory = static_cast<u64>(std::min<u64>(memory_size, 4_GiB));
+        }
+        if (device_access_memory == 0) {
+            device_access_memory = 4_GiB;
+        }
     } else {
         const u64 reserve_memory = std::min<u64>(device_access_memory / 8, 1_GiB);
         device_access_memory -= reserve_memory;

@@ -33,6 +33,9 @@ void AndroidConfig::SaveAllValues() {
 }
 
 void AndroidConfig::ReadAndroidValues() {
+    // Enforce Vulkan graphics backend on Android
+    Settings::values.renderer_backend.SetValue(Settings::RendererBackend::Vulkan);
+
     if (global) {
         ReadAndroidUIValues();
         ReadUIValues();
@@ -75,7 +78,15 @@ void AndroidConfig::ReadPathValues() {
         game_dir.path = ReadStringSetting(std::string("path"));
         game_dir.deep_scan =
             ReadBooleanSetting(std::string("deep_scan"), std::make_optional(false));
-        AndroidSettings::values.game_dirs.push_back(game_dir);
+        if (game_dir.path.empty()) {
+            continue;
+        }
+        const bool exists = std::any_of(
+            AndroidSettings::values.game_dirs.begin(), AndroidSettings::values.game_dirs.end(),
+            [&](const AndroidSettings::GameDir& d) { return d.path == game_dir.path; });
+        if (!exists) {
+            AndroidSettings::values.game_dirs.push_back(game_dir);
+        }
     }
     EndArray();
 
@@ -86,7 +97,12 @@ void AndroidConfig::ReadPathValues() {
         SetArrayIndex(i);
         std::string dir_path = ReadStringSetting(std::string("path"));
         if (!dir_path.empty()) {
-            Settings::values.external_content_dirs.push_back(dir_path);
+            const bool exists = std::any_of(
+                Settings::values.external_content_dirs.begin(), Settings::values.external_content_dirs.end(),
+                [&](const std::string& d) { return d == dir_path; });
+            if (!exists) {
+                Settings::values.external_content_dirs.push_back(dir_path);
+            }
         }
     }
     EndArray();

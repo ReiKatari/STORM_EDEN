@@ -180,7 +180,13 @@ class SettingsFragment : Fragment() {
         presenter.onViewCreated()
         setInsets()
     }
-private fun getPlayerIndex(): Int =
+
+    override fun onResume() {
+        super.onResume()
+        presenter.loadSettingsList()
+    }
+
+    private fun getPlayerIndex(): Int =
         when (args.menuTag) {
             Settings.MenuTag.SECTION_INPUT_PLAYER_ONE -> 0
             Settings.MenuTag.SECTION_INPUT_PLAYER_TWO -> 1

@@ -218,11 +218,15 @@ class GamesViewModel : ViewModel() {
     }
 
     private fun getGameDirsAndExternalContent(reloadList: Boolean = false) {
-        val gameDirs = NativeConfig.getGameDirs().toMutableList()
-        val externalContentDirs = NativeConfig.getExternalContentDirs().map {
+        val gameDirs = NativeConfig.getGameDirs().distinctBy { it.uriString }.toMutableList()
+        val externalContentDirs = NativeConfig.getExternalContentDirs().distinct().map {
             GameDir(it, false, DirectoryType.EXTERNAL_CONTENT)
         }
-        gameDirs.addAll(externalContentDirs)
+        externalContentDirs.forEach { ext ->
+            if (gameDirs.none { it.uriString == ext.uriString }) {
+                gameDirs.add(ext)
+            }
+        }
         _folders.value = gameDirs
         if (reloadList) {
             reloadGames(true)

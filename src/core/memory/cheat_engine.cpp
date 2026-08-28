@@ -230,10 +230,21 @@ std::vector<CheatEntry> TextCheatParser::Parse(std::string_view data) const {
             std::string_view token = line.substr(token_start, token_end - token_start);
             token_start = token_end;
 
-            // Check if token is valid hex string (typically 8 hex chars)
-            if (token.size() <= 8 && std::all_of(token.begin(), token.end(), ::isxdigit)) {
+            // Check if token has hex characters (supporting 8-char, 16-char, 32-char words and 0x/$ prefixes)
+            std::string_view hex_token = token;
+            if (hex_token.starts_with("0x") || hex_token.starts_with("0X")) {
+                hex_token.remove_prefix(2);
+            }
+            if (hex_token.starts_with('$')) {
+                hex_token.remove_prefix(1);
+            }
+
+            while (!hex_token.empty() && std::all_of(hex_token.begin(), hex_token.end(), ::isxdigit)) {
+                std::size_t word_len = std::min<std::size_t>(hex_token.size(), 8);
+                std::string hex_str(hex_token.substr(0, word_len));
+                hex_token.remove_prefix(word_len);
+
                 if (current.definition.num_opcodes < current.definition.opcodes.size()) {
-                    std::string hex_str(token);
                     u32 val = static_cast<u32>(std::strtoul(hex_str.c_str(), nullptr, 16));
                     current.definition.opcodes[current.definition.num_opcodes++] = val;
                 }
@@ -253,27 +264,29 @@ std::vector<CheatEntry> TextCheatParser::Parse(std::string_view data) const {
 CheatEngine::CheatEngine(System& system_, std::vector<CheatEntry> cheats_,
                          const std::array<u8, 0x20>& build_id_)
     : vm{std::make_unique<StandardVmCallbacks>(system_, metadata)},
-      cheats(std::move(cheats_)), core_timing{system_.CoreTiming()}, system{system_} {
+      cheats{std::move(cheats_)}, core_timing{system_.CoreTiming()}, system{system_} {
     metadata.main_nso_build_id = build_id_;
+    metadata.process_id = 0;
+    metadata.title_id = 0;
+
     vm.LoadProgram(cheats);
 }
 
 CheatEngine::~CheatEngine() {
-    if (event)
+    if (event) {
         core_timing.UnscheduleEvent(event);
-    else
-        LOG_ERROR(CheatEngine, "~CheatEngine before event was registered");
+    } else {
+        LOG_DEBUG(CheatEngine, "~CheatEngine before event was registered");
+    }
 }
 
 void CheatEngine::Initialize() {
-    if (event) {
-        core_timing.UnscheduleEvent(event);
-        event.reset();
+    if (event != nullptr) {
+        return;
     }
     event = Core::Timing::CreateEvent(
         "CheatEngine::FrameCallback",
-        [this](s64 time, std::chrono::nanoseconds ns_late)
-            -> std::optional<std::chrono::nanoseconds> {
+        [this](s64 time, std::chrono::nanoseconds ns_late) -> std::optional<std::chrono::nanoseconds> {
             FrameCallback(ns_late);
             return CHEAT_ENGINE_NS;
         });
@@ -294,6 +307,10 @@ void CheatEngine::Reload(std::vector<CheatEntry> reload_cheats) {
     cheats = std::move(reload_cheats);
     vm.LoadProgram(cheats);
     is_pending_reload.exchange(false);
+
+    if (!cheats.empty() && event == nullptr && system.IsPoweredOn() && system.ApplicationProcess()) {
+        Initialize();
+    }
 }
 
 void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
@@ -320,28 +337,41 @@ void CheatEngine::FrameCallback(std::chrono::nanoseconds ns_late) {
         }
     }
 
-    if (metadata.heap_extents.base == 0) {
+    // Continuously sync dynamic memory region extents (heap, alias, aslr) as the game allocates/expands memory
+    const u64 heap_start = GetInteger(proc->GetPageTable().GetHeapRegionStart());
+    const u64 heap_size = proc->GetPageTable().GetHeapRegionSize();
+    if (heap_start != 0 && (metadata.heap_extents.base == 0 || metadata.heap_extents.size != heap_size)) {
         metadata.heap_extents = {
-            .base = GetInteger(proc->GetPageTable().GetHeapRegionStart()),
-            .size = proc->GetPageTable().GetHeapRegionSize(),
+            .base = heap_start,
+            .size = heap_size,
         };
     }
 
-    if (metadata.alias_extents.base == 0) {
+    const u64 alias_start = GetInteger(proc->GetPageTable().GetAliasRegionStart());
+    const u64 alias_size = proc->GetPageTable().GetAliasRegionSize();
+    if (alias_start != 0 && (metadata.alias_extents.base == 0 || metadata.alias_extents.size != alias_size)) {
         metadata.alias_extents = {
-            .base = GetInteger(proc->GetPageTable().GetAliasRegionStart()),
-            .size = proc->GetPageTable().GetAliasRegionSize(),
+            .base = alias_start,
+            .size = alias_size,
         };
     }
 
-    if (metadata.aslr_extents.base == 0) {
+    const u64 aslr_start = GetInteger(proc->GetPageTable().GetAddressSpaceStart());
+    const u64 aslr_size = proc->GetPageTable().GetAddressSpaceSize();
+    if (aslr_start != 0 && (metadata.aslr_extents.base == 0 || metadata.aslr_extents.size != aslr_size)) {
         metadata.aslr_extents = {
-            .base = GetInteger(proc->GetPageTable().GetAddressSpaceStart()),
-            .size = proc->GetPageTable().GetAddressSpaceSize(),
+            .base = aslr_start,
+            .size = aslr_size,
         };
     }
 
-    vm.Execute(metadata);
+    try {
+        vm.Execute(metadata);
+    } catch (const std::exception& e) {
+        LOG_ERROR(CheatEngine, "Exception during cheat execution: {}", e.what());
+    } catch (...) {
+        LOG_ERROR(CheatEngine, "Unknown exception during cheat execution");
+    }
 }
 
 } // namespace Core::Memory

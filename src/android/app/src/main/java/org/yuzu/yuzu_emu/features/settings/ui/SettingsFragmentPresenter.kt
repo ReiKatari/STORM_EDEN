@@ -148,6 +148,16 @@ class SettingsFragmentPresenter(
 
     private fun addConfigSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
+            if (!NativeConfig.isPerGameConfigLoaded()) {
+                add(
+                    SubmenuSetting(
+                        titleId = R.string.app_settings,
+                        descriptionId = R.string.app_settings_description,
+                        iconId = R.drawable.ic_palette,
+                        menuKey = MenuTag.SECTION_APP_SETTINGS
+                    )
+                )
+            }
             add(
                 SubmenuSetting(
                     titleId = R.string.preferences_system,
@@ -162,6 +172,14 @@ class SettingsFragmentPresenter(
                     descriptionId = R.string.preferences_graphics_description,
                     iconId = R.drawable.ic_graphics,
                     menuKey = MenuTag.SECTION_RENDERER
+                )
+            )
+            add(
+                SubmenuSetting(
+                    titleId = R.string.preferences_controls,
+                    descriptionId = R.string.preferences_controls_description,
+                    iconId = R.drawable.ic_controller,
+                    menuKey = MenuTag.SECTION_INPUT
                 )
             )
             if (!NativeConfig.isPerGameConfigLoaded()) {
@@ -197,6 +215,14 @@ class SettingsFragmentPresenter(
                     descriptionId = R.string.preferences_audio_description,
                     iconId = R.drawable.ic_audio,
                     menuKey = MenuTag.SECTION_AUDIO
+                )
+            )
+            add(
+                SubmenuSetting(
+                    titleId = R.string.freedreno_settings_title,
+                    descriptionId = R.string.gpu_driver_settings,
+                    iconId = R.drawable.ic_graphics,
+                    menuKey = MenuTag.SECTION_FREEDRENO
                 )
             )
             add(
@@ -294,6 +320,7 @@ class SettingsFragmentPresenter(
             add(BooleanSetting.RENDERER_REACTIVE_FLUSHING.key)
             add(BooleanSetting.ENABLE_BUFFER_HISTORY.key)
             add(BooleanSetting.ENABLE_GPU_BUFFER_READBACK.key)
+            add(BooleanSetting.USE_OPTIMIZED_VERTEX_BUFFERS.key)
             add(HeaderSetting(R.string.optimization_features))
             add(BooleanSetting.ECO_THERMAL_MODE.key)
             add(BooleanSetting.ECO_FRAME_PACING.key)

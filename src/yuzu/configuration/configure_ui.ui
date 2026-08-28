@@ -197,7 +197,7 @@
             <item>
              <widget class="QLabel" name="screenshot_width">
               <property name="text">
-               <string>TextLabel</string>
+               <string/>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>

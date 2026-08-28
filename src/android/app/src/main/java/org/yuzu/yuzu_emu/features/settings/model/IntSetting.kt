@@ -13,7 +13,13 @@ enum class IntSetting(override val key: String) : AbstractIntSetting {
     CPU_ACCURACY("cpu_accuracy"),
     REGION_INDEX("region_index"),
     LANGUAGE_INDEX("language_index"),
-    RENDERER_BACKEND("backend"),
+    RENDERER_BACKEND("backend") {
+        override fun getInt(needsGlobal: Boolean): Int {
+            val v = super.getInt(needsGlobal)
+            return if (v != 1) 1 else v
+        }
+        override val defaultValue: Int = 1
+    },
     RENDERER_VRAM_USAGE_MODE("vram_usage_mode"),
     RENDERER_NVDEC_EMULATION("nvdec_emulation"),
     RENDERER_ASTC_DECODE_METHOD("accelerate_astc"),

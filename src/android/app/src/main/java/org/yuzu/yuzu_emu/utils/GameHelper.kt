@@ -41,7 +41,11 @@ object GameHelper {
             gameDirs.add(GameDir(oldGamesDir, true))
             preferences.edit() { remove(KEY_OLD_GAME_PATH) }
         }
-        gameDirs.addAll(NativeConfig.getGameDirs())
+        NativeConfig.getGameDirs().forEach { dir ->
+            if (gameDirs.none { it.uriString == dir.uriString }) {
+                gameDirs.add(dir)
+            }
+        }
 
         if (cachedGameList.isEmpty()) {
             val stored = preferences.getStringSet(KEY_GAMES, emptySet()) ?: emptySet()

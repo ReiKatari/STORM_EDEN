@@ -118,9 +118,13 @@ VkCompositeAlphaFlagBitsKHR ChooseAlphaFlags(const VkSurfaceCapabilitiesKHR& cap
         return VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     } else if (capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
         return VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+    } else if (capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+        return VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+    } else if (capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+        return VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
     } else {
-        LOG_ERROR(Render_Vulkan, "Unknown composite alpha flags value {:#x}",
-                  capabilities.supportedCompositeAlpha);
+        LOG_WARNING(Render_Vulkan, "Unknown composite alpha flags value {:#x}, falling back to OPAQUE",
+                    capabilities.supportedCompositeAlpha);
         return VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     }
 }
@@ -287,6 +291,14 @@ void Swapchain::CreateSwapchain(const VkSurfaceCapabilitiesKHR& capabilities) {
     } else {
         requested_image_count = (std::max)(requested_image_count, 3U);
     }
+    VkImageUsageFlags image_usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (capabilities.supportedUsageFlags != 0) {
+        image_usage &= capabilities.supportedUsageFlags;
+        if (!(image_usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
+            image_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        }
+    }
+
     VkSwapchainCreateInfoKHR swapchain_ci{
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext = nullptr,
@@ -297,13 +309,15 @@ void Swapchain::CreateSwapchain(const VkSurfaceCapabilitiesKHR& capabilities) {
         .imageColorSpace = surface_format.colorSpace,
         .imageExtent = {},
         .imageArrayLayers = 1,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        .imageUsage = image_usage,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
         .pQueueFamilyIndices = nullptr,
 #ifdef __ANDROID__
-        // On Android, do not allow surface rotation to deviate from the frontend.
-        .preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
+        // On Android, prefer identity transform if supported, otherwise use currentTransform.
+        .preTransform = (capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+                            ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+                            : capabilities.currentTransform,
 #else
         .preTransform = capabilities.currentTransform,
 #endif
@@ -322,15 +336,19 @@ void Swapchain::CreateSwapchain(const VkSurfaceCapabilitiesKHR& capabilities) {
     }
     // According to Vulkan spec, when using VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR,
     // the base format (imageFormat) MUST be included in pViewFormats
-    const std::array view_formats{
-        swapchain_ci.imageFormat,  // Base format MUST be first
-        VK_FORMAT_B8G8R8A8_UNORM,
-        VK_FORMAT_B8G8R8A8_SRGB,
-#ifdef __ANDROID__
-        VK_FORMAT_R8G8B8A8_UNORM,  // Android may use RGBA
-        VK_FORMAT_R8G8B8A8_SRGB,
-#endif
+    std::vector<VkFormat> view_formats;
+    view_formats.push_back(swapchain_ci.imageFormat);
+    const auto add_view_format = [&](VkFormat fmt) {
+        if (std::find(view_formats.begin(), view_formats.end(), fmt) == view_formats.end()) {
+            view_formats.push_back(fmt);
+        }
     };
+    add_view_format(VK_FORMAT_B8G8R8A8_UNORM);
+    add_view_format(VK_FORMAT_B8G8R8A8_SRGB);
+#ifdef __ANDROID__
+    add_view_format(VK_FORMAT_R8G8B8A8_UNORM);
+    add_view_format(VK_FORMAT_R8G8B8A8_SRGB);
+#endif
     VkImageFormatListCreateInfo format_list{
         .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR,
         .pNext = nullptr,

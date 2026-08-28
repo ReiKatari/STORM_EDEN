@@ -71,14 +71,14 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "Позволяет загружать ресурсоемкие моды высокого разрешения (HD-текстуры) и предотвращает вылеты из-за нехватки памяти."));
     INSERT(Settings, use_speed_limit, QString(), QString());
     INSERT(Settings, current_speed_mode, QString(), QString());
-    INSERT(Settings, speed_limit, tr("Ограничение скорости (%)"),
+    INSERT(Settings, speed_limit, tr("Ограничение скорости"),
            tr("Задает максимальную скорость рендеринга игры (100% = стандартная скорость).\n"
               "200% для 30 FPS игры даст 60 FPS, для 60 FPS — 120 FPS.\n"
               "Отключение опции (0%) полностью разблокирует частоту кадров."));
 
-    INSERT(Settings, turbo_speed_limit, tr("Турбо-скорость (%)"),
+    INSERT(Settings, turbo_speed_limit, tr("Турбо-скорость"),
            tr("Скорость эмуляции при зажатии горячей клавиши Турбо-режима."));
-    INSERT(Settings, slow_speed_limit, tr("Замедленная скорость (%)"),
+    INSERT(Settings, slow_speed_limit, tr("Замедленная скорость"),
            tr("Скорость эмуляции при зажатии горячей клавиши Замедления."));
 
     INSERT(Settings, sync_core_speed, tr("Синхронизация частоты ядер ЦП"),
@@ -137,7 +137,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "FSR и SGSR обеспечивают наилучшую четкость."));
     INSERT(Settings, fsr_sharpening_slider, tr("Резкость FSR:"),
            tr("Степень резкости алгоритма AMD FidelityFX Super Resolution (FSR)."));
-    INSERT(Settings, anti_aliasing, tr("Сглаживание (Anti-Aliasing):"),
+    INSERT(Settings, anti_aliasing, tr("Сглаживание:"),
            tr("Устраняет неровности и ступенчатость на краях 3D-объектов."));
     INSERT(Settings, fullscreen_mode, tr("Полноэкранный режим:"), QString());
     INSERT(Settings, aspect_ratio, tr("Соотношение сторон:"), QString());
@@ -154,7 +154,11 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "ЦП Асинхронно — фоновое декодирование на процессоре для устранения статтеров."));
     INSERT(Settings, astc_recompression, tr("Пересжатие ASTC:"),
            tr("Сжимает текстуры в более компактные форматы (BC1-BC5), снижая потребление видеопамяти (VRAM)."));
-    INSERT(Settings, frame_pacing_mode, tr("Контроль плавности кадров (Frame Pacing)"),
+    INSERT(Settings, eco_frame_pacing, tr("Энергоэффективный фреймпейсинг"),
+           tr("Устраняет холостую загрузку ядер ЦП в циклах ожидания кадра и снижает нагрев устройства при стабильных 60 FPS."));
+    INSERT(Settings, drs_resolution_lock, tr("Блокировка динамического разрешения"),
+           tr("Блокирует снижение разрешения в играх с динамическим масштабированием (DRS), сохраняя максимальную четкость картинки."));
+    INSERT(Settings, frame_pacing_mode, tr("Контроль плавности кадров"),
            tr("Ограничивает максимальный FPS для обеспечения равномерного интервала между кадрами."));
     INSERT(Settings, vram_usage_mode, tr("Режим использования VRAM:"),
            tr("Ограничивает использование видеопамяти для видеокарт с объемом памяти менее 4 ГБ."));
@@ -171,7 +175,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
 
     INSERT(Settings, sync_memory_operations, tr("Синхронизация операций памяти"),
            tr("Синхронизирует потоки памяти ЦП и ГПУ, устраняя мерцание текстур в играх на движке Unreal Engine."));
-    INSERT(Settings, async_presentation, tr("Асинхронный вывод кадров (Present)"),
+    INSERT(Settings, async_presentation, tr("Асинхронный вывод кадров"),
            tr("Отделяет вывод готового кадра на экран от основного потока рендеринга, снижая задержки управления."));
     INSERT(
         Settings, renderer_force_max_clock, tr("Форсировать макс. частоту ГПУ (только Adreno)"),
@@ -184,7 +188,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "Высокая (High) — необходима для устранения визуальных артефактов в некоторых играх."));
     INSERT(Settings, dma_accuracy, tr("Точность DMA"),
            tr("Управляет точностью прямого доступа к памяти (DMA) при передаче текстур и геометрии."));
-    INSERT(Settings, gpu_fence_behavior, tr("Синхронизация барьеров (GPU Fence)"),
+    INSERT(Settings, gpu_fence_behavior, tr("Синхронизация барьеров"),
            tr("Управляет синхронизацией очередей команд ГПУ.\n"
               "Немедленно — максимальная скорость работы.\n"
               "Сбалансированно — оптимальная совместимость.\n"
@@ -193,6 +197,8 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Сохраняет модифицированные графическим процессором данные путем их считывания перед отправкой. Требуется некоторым играм для корректного рендеринга эффектов."));
     INSERT(Settings, use_asynchronous_shaders, tr("Включить асинхронную компиляцию шейдеров"),
            tr("Компилирует новые шейдеры в фоновом режиме, снижая статтеры и фризы во время игрового процесса."));
+    INSERT(Settings, smart_shader_throttle, tr("Умный троттлинг компиляции шейдеров"),
+           tr("Динамически регулирует приоритет фоновых потоков компиляции шейдеров для предотвращения микростаттеров в игре."));
     INSERT(Settings, gpu_clock, tr("Частота ГПУ"),
            tr("Регулирует частоту, которую видит гостевая игра, позволяя удерживать максимальное разрешение без срабатывания встроенных в игру ограничителей."));
     INSERT(Settings, gpu_unswizzle_enabled, tr("Unswizzle ГПУ"),
@@ -212,9 +218,9 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров и микрофризов при компиляции шейдеров."));
     INSERT(Settings, vram_garbage_collection, tr("Сборщик мусора видеопамяти"),
            tr("Периодическая фоновая очистка неиспользуемых текстурных буферов и кэша ASTC для предотвращения утечек видеопамяти и лагов."));
-    INSERT(Settings, enable_hdr10, tr("Поддержка HDR10 / Wide Color Gamut"),
+    INSERT(Settings, enable_hdr10, tr("Поддержка HDR10"),
            tr("Включает цветовое пространство HDR10 (BT.2020 PQ / ST2084) для совместимых HDR-мониторов и OLED-дисплеев, обеспечивая глубокие цвета и расширенный динамический диапазон."));
-    INSERT(Settings, frame_generation, tr("Генерация кадров (Fluid Motion)"),
+    INSERT(Settings, frame_generation, tr("Генерация кадров"),
            tr("Интерполяция промежуточных кадров на этапе вывода Vulkan для увеличения плавности с 30 FPS до 60/120 FPS на мониторах с высокой частотой обновления."));
     INSERT(Settings, enable_compute_pipelines, tr("Включить вычислительные пайплайны (только Intel Vulkan)"),
            tr("Специальная настройка совместимости для встроенной графики Intel."));
@@ -223,7 +229,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
         tr("Использует реактивную синхронизацию памяти вместо предиктивной для более точного соответствия оригиналу."));
     INSERT(Settings, use_video_framerate, tr("Синхронизация с частотой кадров видео"),
            tr("Воспроизводит внутриигровые ролики с оригинальной скоростью даже при разблокированном фреймрейте (FPS)."));
-    INSERT(Settings, barrier_feedback_loops, tr("Барьеры обратной связи (Feedback Loops)"),
+    INSERT(Settings, barrier_feedback_loops, tr("Барьеры обратной связи"),
            tr("Улучшает отрисовку эффектов прозрачности, зеркал и отражений в ряде игр."));
     INSERT(Settings, enable_buffer_history, tr("Включить историю буферов"),
            tr("Сохраняет предыдущие состояния буферов, повышая стабильность отрисовки пост-эффектов."));
@@ -239,7 +245,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "Устраняет полосы на видеокартах AMD/Intel и мерцание серых текстур в Luigi's Mansion 3."));
 
     // Renderer (Extensions)
-    INSERT(Settings, dyna_state, tr("Расширенное динамическое состояние (EDS)"),
+    INSERT(Settings, dyna_state, tr("Расширенное динамическое состояние"),
            tr("Управляет набором расширений Extended Dynamic State в Vulkan.\n"
               "Более высокие уровни расширяют возможности оптимизации и повышают FPS на современных драйверах."));
 
@@ -252,11 +258,11 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            "Существенно повышает качество субпиксельной детализации и текстур за счет повышенной нагрузки на ГПУ."));
 
     // System
-    INSERT(Settings, rng_seed, tr("Сид генератора случайных чисел (RNG)"),
+    INSERT(Settings, rng_seed, tr("Сид генератора случайных чисел"),
            tr("Фиксирует начальное значение генератора случайных чисел (RNG). Используется для спидранов."));
     INSERT(Settings, rng_seed_enabled, QString(), QString());
     INSERT(Settings, device_name, tr("Имя консоли"), tr("Отображаемое имя виртуальной консоли."));
-    INSERT(Settings, eco_thermal_mode, tr("Режим «Eco / Thermal Governor»"),
+    INSERT(Settings, eco_thermal_mode, tr("Эко-режим и охлаждение"),
            tr("Контроль пиковых частот, адаптивное управление ресурсами и предотвращение перегрева и термального троттлинга устройства."));
     INSERT(Settings, program_args, tr("Аргументы Homebrew"),
            tr("Аргументы командной строки, передаваемые homebrew-приложениям при запуске."));
@@ -288,7 +294,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Принудительно отключает вызов всплывающего системного апплета настройки контроллеров."));
     INSERT(UISettings, check_for_updates, tr("Проверять наличие обновлений"),
            tr("Проверять наличие свежих версий программы при запуске."));
-    INSERT(UISettings, enable_floating_translate_button, tr("Плавающая кнопка переводчика (STORM TRANSLATOR)"),
+    INSERT(UISettings, enable_floating_translate_button, tr("Плавающая кнопка переводчика"),
            tr("Отображать плавающую кнопку авто-переводчика поверх экрана во время игры."));
 
     // Linux

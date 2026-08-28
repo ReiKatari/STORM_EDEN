@@ -181,9 +181,22 @@ void EmulationSession::InitializeGpuDriver(const std::string& hook_lib_dir,
     }
 
     // Try to load the system driver.
-    if (!handle) {
+    if (!handle && hook_lib_dir.size()) {
         handle = adrenotools_open_libvulkan(RTLD_NOW, featureFlags, nullptr, hook_lib_dir.c_str(),
                                             nullptr, nullptr, file_redirect_dir_, nullptr);
+    }
+
+    // Ultimate fallback directly to system libvulkan.so if adrenotools returned null
+    if (!handle) {
+        handle = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+        if (!handle) {
+            handle = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+        }
+        if (handle) {
+            LOG_INFO(Frontend, "Fallback: loaded native system libvulkan.so via dlopen");
+        } else {
+            LOG_CRITICAL(Frontend, "Failed to dlopen libvulkan.so: {}", dlerror());
+        }
     }
 
     m_vulkan_library = std::make_shared<Common::DynamicLibrary>(handle);
@@ -818,29 +831,46 @@ jboolean JNICALL Java_org_yuzu_yuzu_1emu_utils_GpuDriverHelper_supportsCustomDri
 jobjectArray Java_org_yuzu_yuzu_1emu_utils_GpuDriverHelper_getSystemDriverInfo(
     JNIEnv* env, jobject j_obj, jobject j_surf, jstring j_hook_lib_dir) {
 #ifdef ARCHITECTURE_arm64
-    const char* file_redirect_dir_{};
-    int featureFlags{};
-    std::string hook_lib_dir = Common::Android::GetJString(env, j_hook_lib_dir);
-    auto handle = adrenotools_open_libvulkan(RTLD_NOW, featureFlags, nullptr, hook_lib_dir.c_str(),
-                                             nullptr, nullptr, file_redirect_dir_, nullptr);
-    auto driver_library = std::make_shared<Common::DynamicLibrary>(handle);
-    InputCommon::InputSubsystem input_subsystem;
-    auto window =
-        std::make_unique<EmuWindow_Android>(ANativeWindow_fromSurface(env, j_surf), driver_library);
+    std::string version_string = "1.1.0";
+    std::string driver_name = "generic";
+    try {
+        const char* file_redirect_dir_{};
+        int featureFlags{};
+        std::string hook_lib_dir = Common::Android::GetJString(env, j_hook_lib_dir);
+        void* handle = nullptr;
+        if (hook_lib_dir.size()) {
+            handle = adrenotools_open_libvulkan(RTLD_NOW, featureFlags, nullptr, hook_lib_dir.c_str(),
+                                                 nullptr, nullptr, file_redirect_dir_, nullptr);
+        }
+        if (!handle) {
+            handle = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+            if (!handle) {
+                handle = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+            }
+        }
+        if (handle) {
+            auto driver_library = std::make_shared<Common::DynamicLibrary>(handle);
+            auto window =
+                std::make_unique<EmuWindow_Android>(ANativeWindow_fromSurface(env, j_surf), driver_library);
 
-    Vulkan::vk::InstanceDispatch dld;
-    Vulkan::vk::Instance vk_instance = Vulkan::CreateInstance(
-        *driver_library, dld, VK_API_VERSION_1_1, Core::Frontend::WindowSystemType::Android);
+            Vulkan::vk::InstanceDispatch dld;
+            Vulkan::vk::Instance vk_instance = Vulkan::CreateInstance(
+                *driver_library, dld, VK_API_VERSION_1_1, Core::Frontend::WindowSystemType::Android);
 
-    auto surface = Vulkan::CreateSurface(vk_instance, window->GetWindowInfo());
+            auto surface = Vulkan::CreateSurface(vk_instance, window->GetWindowInfo());
+            auto device = Vulkan::CreateDevice(vk_instance, dld, *surface);
 
-    auto device = Vulkan::CreateDevice(vk_instance, dld, *surface);
-
-    auto driver_version = device.GetDriverVersion();
-    auto version_string =
-        fmt::format("{}.{}.{}", VK_API_VERSION_MAJOR(driver_version),
-                    VK_API_VERSION_MINOR(driver_version), VK_API_VERSION_PATCH(driver_version));
-    auto driver_name = device.GetDriverName();
+            auto driver_version = device.GetDriverVersion();
+            version_string =
+                fmt::format("{}.{}.{}", VK_API_VERSION_MAJOR(driver_version),
+                            VK_API_VERSION_MINOR(driver_version), VK_API_VERSION_PATCH(driver_version));
+            driver_name = device.GetDriverName();
+        }
+    } catch (const std::exception& e) {
+        LOG_WARNING(Frontend, "Failed to query system driver info: {}", e.what());
+    } catch (...) {
+        LOG_WARNING(Frontend, "Failed to query system driver info with unknown exception");
+    }
 #else
     auto driver_version = "1.0.0";
     auto version_string = "1.1.0"; //Assume lowest Vulkan level
@@ -853,27 +883,41 @@ jobjectArray Java_org_yuzu_yuzu_1emu_utils_GpuDriverHelper_getSystemDriverInfo(
 
 jstring Java_org_yuzu_yuzu_1emu_utils_GpuDriverHelper_getGpuModel(JNIEnv *env, jobject j_obj, jobject j_surf, jstring j_hook_lib_dir) {
 #ifdef ARCHITECTURE_arm64
-    const char* file_redirect_dir_{};
-    int featureFlags{};
-    std::string hook_lib_dir = Common::Android::GetJString(env, j_hook_lib_dir);
-    auto handle = adrenotools_open_libvulkan(RTLD_NOW, featureFlags, nullptr, hook_lib_dir.c_str(),
-                                             nullptr, nullptr, file_redirect_dir_, nullptr);
-    auto driver_library = std::make_shared<Common::DynamicLibrary>(handle);
-    InputCommon::InputSubsystem input_subsystem;
-    auto window =
-            std::make_unique<EmuWindow_Android>(ANativeWindow_fromSurface(env, j_surf), driver_library);
+    std::string model_name = "Adreno";
+    try {
+        const char* file_redirect_dir_{};
+        int featureFlags{};
+        std::string hook_lib_dir = Common::Android::GetJString(env, j_hook_lib_dir);
+        void* handle = nullptr;
+        if (hook_lib_dir.size()) {
+            handle = adrenotools_open_libvulkan(RTLD_NOW, featureFlags, nullptr, hook_lib_dir.c_str(),
+                                                 nullptr, nullptr, file_redirect_dir_, nullptr);
+        }
+        if (!handle) {
+            handle = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+            if (!handle) {
+                handle = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+            }
+        }
+        if (handle) {
+            auto driver_library = std::make_shared<Common::DynamicLibrary>(handle);
+            auto window =
+                    std::make_unique<EmuWindow_Android>(ANativeWindow_fromSurface(env, j_surf), driver_library);
 
-    Vulkan::vk::InstanceDispatch dld;
-    Vulkan::vk::Instance vk_instance = Vulkan::CreateInstance(
-            *driver_library, dld, VK_API_VERSION_1_1, Core::Frontend::WindowSystemType::Android);
+            Vulkan::vk::InstanceDispatch dld;
+            Vulkan::vk::Instance vk_instance = Vulkan::CreateInstance(
+                    *driver_library, dld, VK_API_VERSION_1_1, Core::Frontend::WindowSystemType::Android);
 
-    auto surface = Vulkan::CreateSurface(vk_instance, window->GetWindowInfo());
+            auto surface = Vulkan::CreateSurface(vk_instance, window->GetWindowInfo());
+            auto device = Vulkan::CreateDevice(vk_instance, dld, *surface);
 
-    auto device = Vulkan::CreateDevice(vk_instance, dld, *surface);
-
-    const std::string model_name{device.GetModelName()};
-
-    window.release();
+            model_name = device.GetModelName();
+        }
+    } catch (const std::exception& e) {
+        LOG_WARNING(Frontend, "Failed to query GPU model: {}", e.what());
+    } catch (...) {
+        LOG_WARNING(Frontend, "Failed to query GPU model with unknown exception");
+    }
 
     return Common::Android::ToJString(env, model_name);
 #else

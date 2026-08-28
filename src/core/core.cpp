@@ -798,6 +798,15 @@ void System::ReloadCheatList(const std::vector<Memory::CheatEntry>& list) {
             impl->cheat_engine->SetMainMemoryParameters(impl->main_nso_begin, impl->main_nso_size);
         }
         impl->cheat_engine->Reload(list);
+    } else if (!list.empty()) {
+        const auto build_id = GetApplicationProcessBuildID();
+        impl->cheat_engine.emplace(*this, list, build_id);
+        if (impl->main_nso_begin != 0) {
+            impl->cheat_engine->SetMainMemoryParameters(impl->main_nso_begin, impl->main_nso_size);
+        }
+        if (IsPoweredOn() && impl->kernel.ApplicationProcess()) {
+            impl->cheat_engine->Initialize();
+        }
     }
 }
 

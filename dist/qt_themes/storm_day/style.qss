@@ -493,3 +493,97 @@ QToolTip {
     border-radius: 6px;
     padding: 6px;
 }
+
+/* QSlider Styling - STORM DAY */
+QSlider {
+    min-height: 24px;
+    background: transparent;
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid #cbd5e1;
+    height: 6px;
+    background: #e2e8f0;
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);
+    border-radius: 3px;
+}
+
+QSlider::add-page:horizontal {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, stop:0.5 #ffffff, stop:1.0 #2563eb);
+    border: 2px solid #2563eb;
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #ffffff;
+    border: 2px solid #1d4ed8;
+    width: 18px;
+    height: 18px;
+    margin: -7px 0;
+    border-radius: 9px;
+}
+
+QSlider::handle:horizontal:pressed {
+    background: #2563eb;
+    border: 2px solid #ffffff;
+}
+
+QSlider::handle:horizontal:disabled {
+    background: #cbd5e1;
+    border: 2px solid #94a3b8;
+}
+
+QSlider::groove:vertical {
+    border: 1px solid #cbd5e1;
+    width: 6px;
+    background: #e2e8f0;
+    margin: 0 2px;
+    border-radius: 3px;
+}
+
+QSlider::sub-page:vertical {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #2563eb, stop:1 #3b82f6);
+    border-radius: 3px;
+}
+
+QSlider::handle:vertical {
+    background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, stop:0.5 #ffffff, stop:1.0 #2563eb);
+    border: 2px solid #2563eb;
+    width: 16px;
+    height: 16px;
+    margin: 0 -6px;
+    border-radius: 8px;
+}
+
+QSlider::handle:vertical:hover {
+    background: #ffffff;
+    border: 2px solid #1d4ed8;
+    width: 18px;
+    height: 18px;
+    margin: 0 -7px;
+    border-radius: 9px;
+}
+
+QSlider::handle:vertical:pressed {
+    background: #2563eb;
+    border: 2px solid #ffffff;
+}
+

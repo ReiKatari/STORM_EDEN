@@ -75,16 +75,6 @@ object GpuDriverHelper {
                 // Ignore fallback
             }
 
-            // Adreno 830 / Snapdragon 8 Elite hardware-specific stability fix (UBWC alignment)
-            val isA830 = isA830Device || model.contains("830") || model.contains("8750") || model.contains("8 Elite", ignoreCase = true)
-            if (isA830) {
-                val currentTuDebug = NativeFreedrenoConfig.getFreedrenoEnv("TU_DEBUG")
-                if (!currentTuDebug.contains("noubwc")) {
-                    val newTuDebug = if (currentTuDebug.isEmpty()) "noubwc" else "$currentTuDebug,noubwc"
-                    NativeFreedrenoConfig.setFreedrenoEnv("TU_DEBUG", newTuDebug)
-                }
-            }
-
             // ARM Mali (PanVK/Panfrost) early Z and geometry optimizations
             if (model.contains("Mali", ignoreCase = true)) {
                 NativeFreedrenoConfig.setFreedrenoEnv("PAN_MESA_DEBUG", "fpk,early_z,opt")

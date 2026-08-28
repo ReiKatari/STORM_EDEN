@@ -26,9 +26,12 @@ struct GameFixProfile {
 class GameFixDatabase {
 public:
     static const GameFixProfile* GetProfile(u64 title_id);
+    static const GameFixProfile* GetProfileByTitleOrPath(u64 title_id, const std::string& name_or_path);
     static bool HasProfile(u64 title_id);
     static const std::vector<GameFixProfile>& GetAllProfiles();
     static bool ApplyProfileToPerGameConfig(u64 title_id, const std::string& config_file_path);
+    static bool ApplyProfileDirectly(u64 title_id);
+    static void SetDontAskAgain(u64 title_id, const std::string& config_file_path);
 };
 
 } // namespace Core

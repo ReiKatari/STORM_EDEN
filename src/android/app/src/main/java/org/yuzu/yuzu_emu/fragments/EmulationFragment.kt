@@ -316,7 +316,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     }
             }
 
-            if (hasCustom && args.custom) {
+            if (hasCustom) {
                 shouldUseCustom = true
                 SettingsFile.loadCustomConfig(gameToUse)
                 Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")

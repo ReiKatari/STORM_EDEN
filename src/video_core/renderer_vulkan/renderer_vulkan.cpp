@@ -91,10 +91,14 @@ std::string BuildCommaSeparatedExtensions(
 
 Device CreateDevice(const vk::Instance& instance, const vk::InstanceDispatch& dld, VkSurfaceKHR surface) {
     const std::vector<VkPhysicalDevice> devices = instance.EnumeratePhysicalDevices();
-    const u32 device_index = Settings::values.vulkan_device.GetValue();
-    if (device_index >= u32(devices.size())) {
-        LOG_ERROR(Render_Vulkan, "Invalid device index {}!", device_index);
+    if (devices.empty()) {
+        LOG_ERROR(Render_Vulkan, "No Vulkan physical devices found!");
         throw vk::Exception(VK_ERROR_INITIALIZATION_FAILED);
+    }
+    u32 device_index = Settings::values.vulkan_device.GetValue();
+    if (device_index >= u32(devices.size())) {
+        LOG_WARNING(Render_Vulkan, "Invalid device index {}! Falling back to 0", device_index);
+        device_index = 0;
     }
     const vk::PhysicalDevice physical_device(devices[device_index], dld);
     return Device(*instance, physical_device, surface, dld);

@@ -76,7 +76,7 @@ object GameFixDatabase {
             "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: BC1 (снижает RAM до 4.8 ГБ)\n✓ Режим памяти: 8GB DRAM",
             "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1 (lowers RAM to 4.8 GB)\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\resolution_setup" to "1",
                 "Renderer\\fsr_sharpening_slider" to "80",
                 "Core\\memory_layout_mode" to "2"
@@ -90,7 +90,7 @@ object GameFixDatabase {
             "✓ Разрешение: Handheld 0.75X-1.0X + FSR 80%\n✓ Сжатие ASTC: BC1/BC3\n✓ Сброс реактивной памяти (Reactive Flushing): Отключено",
             "✓ Resolution: Handheld 0.75X-1.0X + FSR 80%\n✓ ASTC Recompression: BC1/BC3\n✓ Reactive Flushing: Disabled",
             mapOf(
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\fsr_sharpening_slider" to "80"
             )
@@ -215,7 +215,7 @@ object GameFixDatabase {
             "✓ Разрешение: Handheld 0.75X + FSR 75%\n✓ Сжатие ASTC: BC3\n✓ Ограничение VRAM: Conservative",
             "✓ Resolution: Handheld 0.75X + FSR 75%\n✓ ASTC Recompression: BC3\n✓ VRAM Usage: Conservative",
             mapOf(
-                "Renderer\\astc_recompression" to "2",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\resolution_setup" to "1",
                 "Renderer\\vram_usage_mode" to "1"
             )
@@ -251,7 +251,7 @@ object GameFixDatabase {
             "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие ASTC: BC1\n✓ Память: 8GB DRAM",
             "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\resolution_setup" to "1",
                 "Core\\memory_layout_mode" to "2"
             )
@@ -302,7 +302,7 @@ object GameFixDatabase {
             "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие ASTC: BC1\n✓ Память: 8GB DRAM",
             "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\resolution_setup" to "1",
                 "Core\\memory_layout_mode" to "2"
             )
@@ -370,7 +370,7 @@ object GameFixDatabase {
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\dyna_state" to "2",
-                "Renderer\\astc_recompression" to "2",
+                "Renderer\\astc_recompression" to "0",
                 "Core\\memory_layout_mode" to "1",
                 "Renderer\\use_fast_gpu_time" to "true"
             )
@@ -384,7 +384,7 @@ object GameFixDatabase {
             "✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Fast GPU Time: Enabled",
             mapOf(
                 "Renderer\\dyna_state" to "2",
-                "Renderer\\astc_recompression" to "2",
+                "Renderer\\astc_recompression" to "0",
                 "Core\\memory_layout_mode" to "1",
                 "Renderer\\use_fast_gpu_time" to "true"
             )
@@ -397,7 +397,7 @@ object GameFixDatabase {
             "✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS2\n✓ Точность GPU: Высокая (High)",
             "✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS2\n✓ GPU Accuracy: High",
             mapOf(
-                "Renderer\\astc_recompression" to "2",
+                "Renderer\\astc_recompression" to "0",
                 "Core\\memory_layout_mode" to "1",
                 "Renderer\\dyna_state" to "2",
                 "Renderer\\gpu_accuracy" to "1",
@@ -414,7 +414,7 @@ object GameFixDatabase {
             mapOf(
                 "Core\\memory_layout_mode" to "1",
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\astc_recompression" to "2",
+                "Renderer\\astc_recompression" to "0",
                 "Renderer\\use_fast_gpu_time" to "true",
                 "Renderer\\use_reactive_flushing" to "true"
             )

@@ -63,7 +63,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: BC1 (снижает RAM до 4.8 ГБ)\n✓ Режим памяти: 8GB DRAM",
         "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1 (lowers RAM to 4.8 GB)\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\astc_recompression", "1"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Renderer\\fsr_sharpening_slider", "80"},
             {"Core\\memory_layout_mode", "2"}
@@ -201,7 +201,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Разрешение: Handheld 0.75X + FSR 75%\n✓ Сжатие ASTC: BC3\n✓ Ограничение VRAM: Conservative",
         "✓ Resolution: Handheld 0.75X + FSR 75%\n✓ ASTC Recompression: BC3\n✓ VRAM Usage: Conservative",
         {
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Renderer\\vram_usage_mode", "1"}
         }
@@ -214,7 +214,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Разрешение: Handheld 0.75X + FSR 75%\n✓ Сжатие ASTC: BC3\n✓ Ограничение VRAM: Conservative",
         "✓ Resolution: Handheld 0.75X + FSR 75%\n✓ ASTC Recompression: BC3\n✓ VRAM Usage: Conservative",
         {
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Renderer\\vram_usage_mode", "1"}
         }
@@ -250,7 +250,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие ASTC: BC1\n✓ Память: 8GB DRAM",
         "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\astc_recompression", "1"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Core\\memory_layout_mode", "2"}
         }
@@ -301,7 +301,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие ASTC: BC1\n✓ Память: 8GB DRAM",
         "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\astc_recompression", "1"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Core\\memory_layout_mode", "2"}
         }
@@ -369,7 +369,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\dyna_state", "2"},
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Core\\memory_layout_mode", "1"},
             {"Renderer\\use_fast_gpu_time", "true"}
         }
@@ -383,7 +383,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Dynamic State: EDS2\n✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Fast GPU Time: Enabled",
         {
             {"Renderer\\dyna_state", "2"},
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Core\\memory_layout_mode", "1"},
             {"Renderer\\use_fast_gpu_time", "true"}
         }
@@ -396,7 +396,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Сжатие ASTC: BC3\n✓ Память: 6GB DRAM\n✓ Динамическое состояние: EDS2\n✓ Точность GPU: Высокая (High)",
         "✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS2\n✓ GPU Accuracy: High",
         {
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Core\\memory_layout_mode", "1"},
             {"Renderer\\dyna_state", "2"},
             {"Renderer\\gpu_accuracy", "1"},
@@ -413,7 +413,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Core\\memory_layout_mode", "1"},
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_fast_gpu_time", "true"},
             {"Renderer\\use_reactive_flushing", "true"}
         }

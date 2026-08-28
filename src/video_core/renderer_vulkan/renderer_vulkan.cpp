@@ -161,6 +161,12 @@ try
                   PresentFiltersForAppletCapture)
     , rasterizer(render_window, gpu, device_memory, device, memory_allocator, state_tracker, scheduler) {
 
+    if (!device.IsOptimalBcnSupported() &&
+        Settings::values.astc_recompression.GetValue() != Settings::AstcRecompression::Uncompressed) {
+        LOG_INFO(Render_Vulkan, "Device does not support optimal BCn textures; safely defaulting ASTC recompression to Uncompressed");
+        Settings::values.astc_recompression.SetValue(Settings::AstcRecompression::Uncompressed);
+    }
+
     if (Settings::values.renderer_force_max_clock.GetValue() && device.ShouldBoostClocks()) {
         turbo_mode.emplace(instance, dld);
         scheduler.RegisterOnSubmit([this] { turbo_mode->QueueSubmitted(); });

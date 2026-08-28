@@ -2471,6 +2471,363 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}
         }
+    },
+    {
+        0x0100D1AB10000000ULL,
+        "Diablo I + Hellfire (DevilutionX)",
+        "• Порт DevilutionX для Diablo I и дополнения Hellfire\n• Поддержка MPQ (diabdat, hellfire, hfmonk, ru)\n• Оптимизация 2D Software/Hardware SDL2 рендера",
+        "• DevilutionX port for Diablo I and Hellfire expansion\n• MPQ support (diabdat, hellfire, hfmonk, ru)\n• Optimized 2D SDL2 rendering",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\use_reactive_flushing", "false"}
+        }
+    },
+    {
+        0x0100B00B51230000ULL,
+        "Grand Theft Auto V (GTA V Homebrew Port)",
+        "• Кастомный Homebrew-порт GTA V для Nintendo Switch\n• Поддержка RPF архивов, аудио и DLC-паков в romfs/\n• Высокое потребление VRAM и тяжелая геометрия Лос-Сантоса",
+        "• GTA V Custom Homebrew Switch port\n• RPF archives, audio and DLC packs support in romfs/\n• Heavy Los Santos geometry and VRAM pressure",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100671000000000ULL,
+        "Grand Theft Auto: San Andreas (re3-sa)",
+        "• Порт открытого движка re3-sa для GTA San Andreas\n• Загрузка ресурсов main.scm, models, data, txd, dff\n• Стабильные 60 FPS на открытой карте штата Сан-Андреас",
+        "• re3-sa open engine port for GTA San Andreas\n• main.scm, models, data, txd, dff assets loading\n• Locked 60 FPS across San Andreas",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100672000000000ULL,
+        "Grand Theft Auto: Vice City (reVC)",
+        "• Порт открытого движка reVC для GTA Vice City\n• Загрузка ресурсов gxt, audio, txd, dff\n• Стабильные 60 FPS в Вайс-Сити",
+        "• reVC open engine port for GTA Vice City\n• gxt, audio, txd, dff assets loading\n• Locked 60 FPS in Vice City",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100673000000000ULL,
+        "Grand Theft Auto III (re3)",
+        "• Порт открытого движка re3 для GTA III\n• Загрузка ресурсов Либерти-Сити, коллизий и текстур\n• Стабильные 60 FPS",
+        "• re3 open engine port for GTA III\n• Liberty City collision and texture streaming\n• Locked 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000018ULL,
+        "Half-Life 1 / Black Mesa Classic (Xash3D FWGS)",
+        "• Движок Xash3D FWGS для Half-Life 1, Blue Shift, Opposing Force, Counter-Strike\n• Загрузка PAK/WAD ресурсов и GoldSrc карт\n• Максимальная производительность и отзывчивость управления",
+        "• Xash3D FWGS engine for Half-Life 1, Blue Shift, Opposing Force, CS\n• PAK/WAD resources and GoldSrc maps loading\n• Maximum responsiveness and framerate",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100D00100000000ULL,
+        "DOOM 1, 2, Final, Plutonia, TNT (GZDoom / PrBoom / Crispy)",
+        "• Порты GZDoom, PrBoom, Crispy Doom для классической серии DOOM\n• Поддержка WAD файлов, DeHackEd патчей и модов Sigil/Plutonia/TNT\n• 60 FPS с чистым виброоткликом",
+        "• GZDoom, PrBoom, Crispy Doom ports for classic DOOM series\n• WAD files, DeHackEd patches and Sigil/Plutonia/TNT mods\n• Smooth 60 FPS with rumble",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100D00300000000ULL,
+        "DOOM 3 (dhewm3 Switch)",
+        "• Порт dhewm3 (id Tech 4) для DOOM 3 и Resurrection of Evil\n• Поддержка динамического освещения и попиксельных теней id Tech 4\n• 8 ГБ DRAM для кэширования PK4",
+        "• dhewm3 (id Tech 4) port for DOOM 3 and Resurrection of Evil\n• id Tech 4 dynamic lighting and per-pixel shadow rendering\n• 8GB DRAM for PK4 caching",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000071ULL,
+        "Quake I / Quake II / Quake III (Quakespasm / Yamagi / ioquake3)",
+        "• Порты движков Quakespasm (Quake 1), Yamagi Quake II, ioquake3\n• Загрузка PAK и PK3 файлов, GL-рендеринг\n• Идеальные 60 FPS с гироскопом",
+        "• Quakespasm (Quake 1), Yamagi Quake II, ioquake3 ports\n• PAK and PK3 loading, hardware GL rendering\n• Locked 60 FPS with gyro support",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010000000000003DULL,
+        "Duke Nukem 3D / Shadow Warrior / Blood (EDuke32 / VoidSW / NBlood)",
+        "• Порты Build Engine (EDuke32, VoidSW, NBlood) для культовых 2.5D шутеров\n• Загрузка GRP и RFF ресурсов, вокселей и полигонального рендера\n• Стабильные 60 FPS",
+        "• Build Engine ports (EDuke32, VoidSW, NBlood) for classic 2.5D shooters\n• GRP and RFF assets, voxels and polygonal render\n• Locked 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000077ULL,
+        "Return to Castle Wolfenstein / Wolf3D (iortcw / ECWolf)",
+        "• Порты движков id Tech 3 (iortcw) и ECWolf для Wolfenstein 3D и RtCW\n• Поддержка PK3 и WL6 карт\n• 60 FPS с аппаратным освещением",
+        "• id Tech 3 (iortcw) and ECWolf ports for Wolfenstein 3D and RtCW\n• PK3 and WL6 map support\n• Smooth 60 FPS with hardware lighting",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x01000000000000F1ULL,
+        "Fallout 1 & Fallout 2 (fallout-ce / fallout2-ce)",
+        "• Порты Community Edition для Fallout 1 и Fallout 2\n• Загрузка master.dat, critter.dat и кастомных шрифтов\n• Стабильная работа мыши/тача и 60 FPS",
+        "• Community Edition ports for Fallout 1 and Fallout 2\n• master.dat, critter.dat and custom fonts loading\n• Smooth touch/mouse input and 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000030ULL,
+        "Heroes of Might and Magic II & III (fheroes2 / VCMI Switch)",
+        "• Порты движков fheroes2 и VCMI для Героев Меча и Магии II и III (In the Wake of Gods / Horn of the Abyss)\n• Загрузка LOD, AGG, SND ресурсов и модов",
+        "• fheroes2 and VCMI ports for Heroes of Might and Magic II and III (WoG / HotA)\n• LOD, AGG, SND assets and mods loading",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010000000000004DULL,
+        "Max Payne 1 (Max Payne Switch)",
+        "• Нативный порт Max Payne для Nintendo Switch\n• Загрузка архивов RAS (x_data.ras, x_russian.ras)\n• Плавный Bullet-Time и 60 FPS",
+        "• Native Max Payne port for Nintendo Switch\n• RAS archives loading (x_data.ras, x_english.ras)\n• Smooth Bullet-Time and locked 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010000000000006DULL,
+        "The Elder Scrolls III: Morrowind (OpenMW Switch)",
+        "• Порт современного 3D-движка OpenMW для TES III: Morrowind\n• Загрузка ESM, BSA, текстурных паков и модов\n• 8 ГБ DRAM для открытого мира Вварденфелла",
+        "• OpenMW modern 3D engine port for TES III: Morrowind\n• ESM, BSA, texture packs and mods loading\n• 8GB DRAM for Vvardenfell open world",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010000000000004AULL,
+        "Star Wars: Jedi Outcast & Academy (OpenJK Switch)",
+        "• Порт OpenJK для Star Wars Jedi Knight II: Jedi Outcast и Jedi Academy\n• Стабильные 60 FPS в дуэлях на световых мечах",
+        "• OpenJK port for Star Wars Jedi Knight II: Jedi Outcast and Academy\n• Smooth 60 FPS in lightsaber duels",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000053ULL,
+        "S.T.A.L.K.E.R.: Shadow of Chernobyl (OpenXRay Switch)",
+        "• Порт движка X-Ray 1.6 (OpenXRay) для S.T.A.L.K.E.R.: Тень Чернобыля\n• Загрузка DB-архивов и gamedata\n• 8 ГБ DRAM для локаций Зоны",
+        "• OpenXRay engine port for S.T.A.L.K.E.R.: Shadow of Chernobyl\n• DB archives and gamedata loading\n• 8GB DRAM for Zone locations",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x010000000000005CULL,
+        "Sonic CD / Sonic 1 / Sonic 2 / Mania (RSDK Decompilation)",
+        "• Порты Retro Engine (RSDKv3, RSDKv4, RSDKv5) для классических игр Sonic\n• Загрузка Data.rsdk и модов\n• Идеальные 60 FPS",
+        "• Retro Engine (RSDKv3, RSDKv4, RSDKv5) decompilations for classic Sonic games\n• Data.rsdk and mods loading\n• Flawless 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000064ULL,
+        "Super Mario 64 (SM64-NX / Render96)",
+        "• Порт SM64-NX и Render96 для Super Mario 64 с широкоформатным рендером и HD-моделями\n• Стабильные 60 FPS",
+        "• SM64-NX and Render96 port for Super Mario 64 with widescreen and HD models\n• Locked 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000074ULL,
+        "Zelda: Ocarina of Time / Majora's Mask (Ship of Harkinian / 2S2H)",
+        "• Порты Ship of Harkinian (OoT) и 2 Ship 2 Harkinian (MM)\n• Загрузка OTR архивов, поддержка 60 FPS, свободная камера и HD текстуры",
+        "• Ship of Harkinian (OoT) and 2 Ship 2 Harkinian (MM) ports\n• OTR archives loading, 60 FPS support, free camera and HD textures",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000022ULL,
+        "Cave Story / Cave Story+ / AM2R (NXEngine-evo / AM2R)",
+        "• Порты NXEngine-evo для Cave Story и нативный порт AM2R (Another Metroid 2 Remake)\n• Чистый 2D-рендеринг и 60 FPS",
+        "• NXEngine-evo ports for Cave Story and native AM2R port\n• Crisp 2D rendering and 60 FPS",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000068ULL,
+        "Theme Hospital / Caesar III (CorsixTH / Julius / Augustus)",
+        "• Порты CorsixTH (Theme Hospital) и Julius/Augustus (Caesar III)\n• Высокое разрешение и сенсорное управление",
+        "• CorsixTH (Theme Hospital) and Julius/Augustus (Caesar III) ports\n• High resolution and touch controls",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000000091ULL,
+        "Command & Conquer / Red Alert / Dune II (OpenRA / Dune Legacy)",
+        "• Порты OpenRA (C&C, Red Alert, Dune 2000) и Dune Legacy (Dune II)\n• Быстрый расчет AI юнитов на Unsafe JIT",
+        "• OpenRA (C&C, Red Alert, Dune 2000) and Dune Legacy (Dune II) ports\n• Fast RTS AI unit simulation on Unsafe JIT",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000001000ULL,
+        "RetroArch & Emulators (PPSSPP, Flycast, ScummVM, MelonDS, mGBA, DuckStation)",
+        "• Мультисистемные эмуляторы и оболочки для запуска ретро-платформ на Switch\n• 8 ГБ DRAM для тяжелых ядер (Flycast, PPSSPP, DuckStation)\n• Максимальная скорость JIT компиляции",
+        "• Multi-system emulators and frontends for retro platforms\n• 8GB DRAM for memory-heavy cores (Flycast, PPSSPP, DuckStation)\n• Maximum JIT compiler performance",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x0100000000003000ULL,
+        "Homebrew Utilities & Overlays (NX-Shell, DBI, Goldleaf, JKSV, Checkpoint, EdiZon, Tesla)",
+        "• Системные Homebrew-утилиты Switch для управления сейвами, файлами и оверлеями\n• Мгновенный отклик файловой системы и стабильная работа",
+        "• Switch Homebrew system utilities for saves, files and overlays\n• Instant filesystem responsiveness and stability",
+        "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
     }
 };
 
@@ -2776,6 +3133,81 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("violet") != std::string::npos && lower.find("violet") != std::string::npos) {
+            return &profile;
+        }
+        if (game_lower.find("devilutionx") != std::string::npos && (lower.find("devilutionx") != std::string::npos || lower.find("diablo") != std::string::npos || lower.find("hellfire") != std::string::npos || lower.find("diabdat") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("gta v") != std::string::npos && (lower.find("gta v") != std::string::npos || lower.find("gta 5") != std::string::npos || lower.find("0100b00b51230000") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("re3-sa") != std::string::npos && (lower.find("re3-sa") != std::string::npos || lower.find("san andreas") != std::string::npos || lower.find("gtasa") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("revc") != std::string::npos && (lower.find("revc") != std::string::npos || lower.find("vice city") != std::string::npos || lower.find("gtavc") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("re3") != std::string::npos && (lower.find("re3") != std::string::npos || lower.find("gta 3") != std::string::npos || lower.find("gta iii") != std::string::npos || lower.find("gta3") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("xash3d") != std::string::npos && (lower.find("xash3d") != std::string::npos || lower.find("half-life") != std::string::npos || lower.find("halflife") != std::string::npos || lower.find("valve.wad") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("gzdoom") != std::string::npos && (lower.find("gzdoom") != std::string::npos || lower.find("prboom") != std::string::npos || lower.find("crispy") != std::string::npos || lower.find("doom.wad") != std::string::npos || lower.find("doom2.wad") != std::string::npos || lower.find("plutonia") != std::string::npos || lower.find("sigil") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("dhewm3") != std::string::npos && (lower.find("dhewm3") != std::string::npos || lower.find("doom 3") != std::string::npos || lower.find("doom3") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("quakespasm") != std::string::npos && (lower.find("quake") != std::string::npos || lower.find("quakespasm") != std::string::npos || lower.find("yamagi") != std::string::npos || lower.find("ioquake3") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("eduke32") != std::string::npos && (lower.find("duke") != std::string::npos || lower.find("duke3d") != std::string::npos || lower.find("voidsw") != std::string::npos || lower.find("shadow warrior") != std::string::npos || lower.find("nblood") != std::string::npos || lower.find("blood.rff") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("iortcw") != std::string::npos && (lower.find("iortcw") != std::string::npos || lower.find("ecwolf") != std::string::npos || lower.find("wolfenstein") != std::string::npos || lower.find("wolf3d") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("fallout-ce") != std::string::npos && (lower.find("fallout") != std::string::npos || lower.find("fallout-ce") != std::string::npos || lower.find("fallout2-ce") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("fheroes2") != std::string::npos && (lower.find("heroes") != std::string::npos || lower.find("fheroes2") != std::string::npos || lower.find("vcmi") != std::string::npos || lower.find("homm") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("max payne") != std::string::npos && (lower.find("max payne") != std::string::npos || lower.find("maxpayne") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("openmw") != std::string::npos && (lower.find("openmw") != std::string::npos || lower.find("morrowind") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("openjk") != std::string::npos && (lower.find("openjk") != std::string::npos || lower.find("jedi outcast") != std::string::npos || lower.find("jedi academy") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("openxray") != std::string::npos && (lower.find("openxray") != std::string::npos || lower.find("stalker") != std::string::npos || lower.find("s.t.a.l.k.e.r") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("rsdk") != std::string::npos && (lower.find("rsdk") != std::string::npos || lower.find("sonic cd") != std::string::npos || lower.find("data.rsdk") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("sm64-nx") != std::string::npos && (lower.find("sm64") != std::string::npos || lower.find("render96") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("ship of harkinian") != std::string::npos && (lower.find("harkinian") != std::string::npos || lower.find("soh") != std::string::npos || lower.find("2s2h") != std::string::npos || lower.find("ocarina of time") != std::string::npos || lower.find("majora") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("nxengine") != std::string::npos && (lower.find("nxengine") != std::string::npos || lower.find("cave story") != std::string::npos || lower.find("am2r") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("corsixth") != std::string::npos && (lower.find("corsixth") != std::string::npos || lower.find("theme hospital") != std::string::npos || lower.find("julius") != std::string::npos || lower.find("augustus") != std::string::npos || lower.find("caesar") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("openra") != std::string::npos && (lower.find("openra") != std::string::npos || lower.find("dune legacy") != std::string::npos || lower.find("command & conquer") != std::string::npos || lower.find("red alert") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("retroarch") != std::string::npos && (lower.find("retroarch") != std::string::npos || lower.find("ppsspp") != std::string::npos || lower.find("flycast") != std::string::npos || lower.find("scummvm") != std::string::npos || lower.find("melonds") != std::string::npos || lower.find("mgba") != std::string::npos || lower.find("duckstation") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("homebrew utilities") != std::string::npos && (lower.find("nx-shell") != std::string::npos || lower.find("dbi") != std::string::npos || lower.find("goldleaf") != std::string::npos || lower.find("jksv") != std::string::npos || lower.find("checkpoint") != std::string::npos || lower.find("edizon") != std::string::npos || lower.find("awoo") != std::string::npos || lower.find("tesla") != std::string::npos)) {
             return &profile;
         }
 

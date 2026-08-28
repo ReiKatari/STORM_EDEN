@@ -2450,6 +2450,363 @@ object GameFixDatabase {
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true"
             )
+        ),
+        GameFixProfile(
+            0x0100D1AB10000000L,
+            "Diablo I + Hellfire (DevilutionX)",
+            "• Порт DevilutionX для Diablo I и дополнения Hellfire\n• Поддержка MPQ (diabdat, hellfire, hfmonk, ru)\n• Оптимизация 2D Software/Hardware SDL2 рендера",
+            "• DevilutionX port for Diablo I and Hellfire expansion\n• MPQ support (diabdat, hellfire, hfmonk, ru)\n• Optimized 2D SDL2 rendering",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\use_reactive_flushing" to "false"
+            )
+        ),
+        GameFixProfile(
+            0x0100B00B51230000L,
+            "Grand Theft Auto V (GTA V Homebrew Port)",
+            "• Кастомный Homebrew-порт GTA V для Nintendo Switch\n• Поддержка RPF архивов, аудио и DLC-паков в romfs/\n• Высокое потребление VRAM и тяжелая геометрия Лос-Сантоса",
+            "• GTA V Custom Homebrew Switch port\n• RPF archives, audio and DLC packs support in romfs/\n• Heavy Los Santos geometry and VRAM pressure",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100671000000000L,
+            "Grand Theft Auto: San Andreas (re3-sa)",
+            "• Порт открытого движка re3-sa для GTA San Andreas\n• Загрузка ресурсов main.scm, models, data, txd, dff\n• Стабильные 60 FPS на открытой карте штата Сан-Андреас",
+            "• re3-sa open engine port for GTA San Andreas\n• main.scm, models, data, txd, dff assets loading\n• Locked 60 FPS across San Andreas",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100672000000000L,
+            "Grand Theft Auto: Vice City (reVC)",
+            "• Порт открытого движка reVC для GTA Vice City\n• Загрузка ресурсов gxt, audio, txd, dff\n• Стабильные 60 FPS в Вайс-Сити",
+            "• reVC open engine port for GTA Vice City\n• gxt, audio, txd, dff assets loading\n• Locked 60 FPS in Vice City",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100673000000000L,
+            "Grand Theft Auto III (re3)",
+            "• Порт открытого движка re3 для GTA III\n• Загрузка ресурсов Либерти-Сити, коллизий и текстур\n• Стабильные 60 FPS",
+            "• re3 open engine port for GTA III\n• Liberty City collision and texture streaming\n• Locked 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000018L,
+            "Half-Life 1 / Black Mesa Classic (Xash3D FWGS)",
+            "• Движок Xash3D FWGS для Half-Life 1, Blue Shift, Opposing Force, Counter-Strike\n• Загрузка PAK/WAD ресурсов и GoldSrc карт\n• Максимальная производительность и отзывчивость управления",
+            "• Xash3D FWGS engine for Half-Life 1, Blue Shift, Opposing Force, CS\n• PAK/WAD resources and GoldSrc maps loading\n• Maximum responsiveness and framerate",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100D00100000000L,
+            "DOOM 1, 2, Final, Plutonia, TNT (GZDoom / PrBoom / Crispy)",
+            "• Порты GZDoom, PrBoom, Crispy Doom для классической серии DOOM\n• Поддержка WAD файлов, DeHackEd патчей и модов Sigil/Plutonia/TNT\n• 60 FPS с чистым виброоткликом",
+            "• GZDoom, PrBoom, Crispy Doom ports for classic DOOM series\n• WAD files, DeHackEd patches and Sigil/Plutonia/TNT mods\n• Smooth 60 FPS with rumble",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100D00300000000L,
+            "DOOM 3 (dhewm3 Switch)",
+            "• Порт dhewm3 (id Tech 4) для DOOM 3 и Resurrection of Evil\n• Поддержка динамического освещения и попиксельных теней id Tech 4\n• 8 ГБ DRAM для кэширования PK4",
+            "• dhewm3 (id Tech 4) port for DOOM 3 and Resurrection of Evil\n• id Tech 4 dynamic lighting and per-pixel shadow rendering\n• 8GB DRAM for PK4 caching",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000071L,
+            "Quake I / Quake II / Quake III (Quakespasm / Yamagi / ioquake3)",
+            "• Порты движков Quakespasm (Quake 1), Yamagi Quake II, ioquake3\n• Загрузка PAK и PK3 файлов, GL-рендеринг\n• Идеальные 60 FPS с гироскопом",
+            "• Quakespasm (Quake 1), Yamagi Quake II, ioquake3 ports\n• PAK and PK3 loading, hardware GL rendering\n• Locked 60 FPS with gyro support",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000003DL,
+            "Duke Nukem 3D / Shadow Warrior / Blood (EDuke32 / VoidSW / NBlood)",
+            "• Порты Build Engine (EDuke32, VoidSW, NBlood) для культовых 2.5D шутеров\n• Загрузка GRP и RFF ресурсов, вокселей и полигонального рендера\n• Стабильные 60 FPS",
+            "• Build Engine ports (EDuke32, VoidSW, NBlood) for classic 2.5D shooters\n• GRP and RFF assets, voxels and polygonal render\n• Locked 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000077L,
+            "Return to Castle Wolfenstein / Wolf3D (iortcw / ECWolf)",
+            "• Порты движков id Tech 3 (iortcw) и ECWolf для Wolfenstein 3D и RtCW\n• Поддержка PK3 и WL6 карт\n• 60 FPS с аппаратным освещением",
+            "• id Tech 3 (iortcw) and ECWolf ports for Wolfenstein 3D and RtCW\n• PK3 and WL6 map support\n• Smooth 60 FPS with hardware lighting",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01000000000000F1L,
+            "Fallout 1 & Fallout 2 (fallout-ce / fallout2-ce)",
+            "• Порты Community Edition для Fallout 1 и Fallout 2\n• Загрузка master.dat, critter.dat и кастомных шрифтов\n• Стабильная работа мыши/тача и 60 FPS",
+            "• Community Edition ports for Fallout 1 and Fallout 2\n• master.dat, critter.dat and custom fonts loading\n• Smooth touch/mouse input and 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000030L,
+            "Heroes of Might and Magic II & III (fheroes2 / VCMI Switch)",
+            "• Порты движков fheroes2 и VCMI для Героев Меча и Магии II и III (In the Wake of Gods / Horn of the Abyss)\n• Загрузка LOD, AGG, SND ресурсов и модов",
+            "• fheroes2 and VCMI ports for Heroes of Might and Magic II and III (WoG / HotA)\n• LOD, AGG, SND assets and mods loading",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000004DL,
+            "Max Payne 1 (Max Payne Switch)",
+            "• Нативный порт Max Payne для Nintendo Switch\n• Загрузка архивов RAS (x_data.ras, x_russian.ras)\n• Плавный Bullet-Time и 60 FPS",
+            "• Native Max Payne port for Nintendo Switch\n• RAS archives loading (x_data.ras, x_english.ras)\n• Smooth Bullet-Time and locked 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000006DL,
+            "The Elder Scrolls III: Morrowind (OpenMW Switch)",
+            "• Порт современного 3D-движка OpenMW для TES III: Morrowind\n• Загрузка ESM, BSA, текстурных паков и модов\n• 8 ГБ DRAM для открытого мира Вварденфелла",
+            "• OpenMW modern 3D engine port for TES III: Morrowind\n• ESM, BSA, texture packs and mods loading\n• 8GB DRAM for Vvardenfell open world",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000004AL,
+            "Star Wars: Jedi Outcast & Academy (OpenJK Switch)",
+            "• Порт OpenJK для Star Wars Jedi Knight II: Jedi Outcast и Jedi Academy\n• Стабильные 60 FPS в дуэлях на световых мечах",
+            "• OpenJK port for Star Wars Jedi Knight II: Jedi Outcast and Academy\n• Smooth 60 FPS in lightsaber duels",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000053L,
+            "S.T.A.L.K.E.R.: Shadow of Chernobyl (OpenXRay Switch)",
+            "• Порт движка X-Ray 1.6 (OpenXRay) для S.T.A.L.K.E.R.: Тень Чернобыля\n• Загрузка DB-архивов и gamedata\n• 8 ГБ DRAM для локаций Зоны",
+            "• OpenXRay engine port for S.T.A.L.K.E.R.: Shadow of Chernobyl\n• DB archives and gamedata loading\n• 8GB DRAM for Zone locations",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000005CL,
+            "Sonic CD / Sonic 1 / Sonic 2 / Mania (RSDK Decompilation)",
+            "• Порты Retro Engine (RSDKv3, RSDKv4, RSDKv5) для классических игр Sonic\n• Загрузка Data.rsdk и модов\n• Идеальные 60 FPS",
+            "• Retro Engine (RSDKv3, RSDKv4, RSDKv5) decompilations for classic Sonic games\n• Data.rsdk and mods loading\n• Flawless 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000064L,
+            "Super Mario 64 (SM64-NX / Render96)",
+            "• Порт SM64-NX и Render96 для Super Mario 64 с широкоформатным рендером и HD-моделями\n• Стабильные 60 FPS",
+            "• SM64-NX and Render96 port for Super Mario 64 with widescreen and HD models\n• Locked 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000074L,
+            "Zelda: Ocarina of Time / Majora's Mask (Ship of Harkinian / 2S2H)",
+            "• Порты Ship of Harkinian (OoT) и 2 Ship 2 Harkinian (MM)\n• Загрузка OTR архивов, поддержка 60 FPS, свободная камера и HD текстуры",
+            "• Ship of Harkinian (OoT) and 2 Ship 2 Harkinian (MM) ports\n• OTR archives loading, 60 FPS support, free camera and HD textures",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000022L,
+            "Cave Story / Cave Story+ / AM2R (NXEngine-evo / AM2R)",
+            "• Порты NXEngine-evo для Cave Story и нативный порт AM2R (Another Metroid 2 Remake)\n• Чистый 2D-рендеринг и 60 FPS",
+            "• NXEngine-evo ports for Cave Story and native AM2R port\n• Crisp 2D rendering and 60 FPS",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000068L,
+            "Theme Hospital / Caesar III (CorsixTH / Julius / Augustus)",
+            "• Порты CorsixTH (Theme Hospital) и Julius/Augustus (Caesar III)\n• Высокое разрешение и сенсорное управление",
+            "• CorsixTH (Theme Hospital) and Julius/Augustus (Caesar III) ports\n• High resolution and touch controls",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000091L,
+            "Command & Conquer / Red Alert / Dune II (OpenRA / Dune Legacy)",
+            "• Порты OpenRA (C&C, Red Alert, Dune 2000) и Dune Legacy (Dune II)\n• Быстрый расчет AI юнитов на Unsafe JIT",
+            "• OpenRA (C&C, Red Alert, Dune 2000) and Dune Legacy (Dune II) ports\n• Fast RTS AI unit simulation on Unsafe JIT",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000001000L,
+            "RetroArch & Emulators (PPSSPP, Flycast, ScummVM, MelonDS, mGBA, DuckStation)",
+            "• Мультисистемные эмуляторы и оболочки для запуска ретро-платформ на Switch\n• 8 ГБ DRAM для тяжелых ядер (Flycast, PPSSPP, DuckStation)\n• Максимальная скорость JIT компиляции",
+            "• Multi-system emulators and frontends for retro platforms\n• 8GB DRAM for memory-heavy cores (Flycast, PPSSPP, DuckStation)\n• Maximum JIT compiler performance",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000003000L,
+            "Homebrew Utilities & Overlays (NX-Shell, DBI, Goldleaf, JKSV, Checkpoint, EdiZon, Tesla)",
+            "• Системные Homebrew-утилиты Switch для управления сейвами, файлами и оверлеями\n• Мгновенный отклик файловой системы и стабильная работа",
+            "• Switch Homebrew system utilities for saves, files and overlays\n• Instant filesystem responsiveness and stability",
+            "✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal, 60 FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal (60 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
         )
     )
 
@@ -2693,6 +3050,31 @@ object GameFixDatabase {
                 nameLower.contains("legends: arceus") || nameLower.contains("arceus") -> listOf("arceus", "01001f5010dfa000")
                 nameLower.contains("scarlet") -> listOf("scarlet", "0100a3d008c5c000")
                 nameLower.contains("violet") -> listOf("violet", "01008f6008c5e000")
+                nameLower.contains("devilutionx") -> listOf("devilutionx", "diablo", "hellfire", "diabdat", "0100d1ab10000000")
+                nameLower.contains("gta v") -> listOf("gta v", "gta 5", "grand theft auto v", "0100b00b51230000")
+                nameLower.contains("re3-sa") -> listOf("re3-sa", "san andreas", "gtasa", "0100671000000000")
+                nameLower.contains("revc") -> listOf("revc", "vice city", "gtavc", "0100672000000000")
+                nameLower.contains("re3") -> listOf("re3", "gta 3", "gta iii", "gta3", "0100673000000000")
+                nameLower.contains("xash3d") -> listOf("xash3d", "half-life", "halflife", "valve.wad", "0100000000000018")
+                nameLower.contains("gzdoom") -> listOf("gzdoom", "prboom", "crispy", "doom.wad", "doom2.wad", "sigil", "plutonia", "0100d00100000000")
+                nameLower.contains("dhewm3") -> listOf("dhewm3", "doom 3", "doom3", "0100d00300000000")
+                nameLower.contains("quakespasm") -> listOf("quake", "quakespasm", "yamagi", "ioquake3", "0100000000000071")
+                nameLower.contains("eduke32") -> listOf("duke", "duke3d", "voidsw", "shadow warrior", "nblood", "blood.rff", "010000000000003d")
+                nameLower.contains("iortcw") -> listOf("iortcw", "ecwolf", "wolfenstein", "wolf3d", "0100000000000077")
+                nameLower.contains("fallout-ce") -> listOf("fallout", "fallout-ce", "fallout2-ce", "01000000000000f1")
+                nameLower.contains("fheroes2") -> listOf("heroes", "fheroes2", "vcmi", "homm", "0100000000000030")
+                nameLower.contains("max payne") -> listOf("max payne", "maxpayne", "010000000000004d")
+                nameLower.contains("openmw") -> listOf("openmw", "morrowind", "010000000000006d")
+                nameLower.contains("openjk") -> listOf("openjk", "jedi outcast", "jedi academy", "010000000000004a")
+                nameLower.contains("openxray") -> listOf("openxray", "stalker", "s.t.a.l.k.e.r", "0100000000000053")
+                nameLower.contains("rsdk") -> listOf("rsdk", "sonic cd", "data.rsdk", "010000000000005c")
+                nameLower.contains("sm64-nx") -> listOf("sm64", "render96", "0100000000000064")
+                nameLower.contains("ship of harkinian") -> listOf("harkinian", "soh", "2s2h", "ocarina of time", "majora", "0100000000000074")
+                nameLower.contains("nxengine") -> listOf("nxengine", "cave story", "am2r", "0100000000000022")
+                nameLower.contains("corsixth") -> listOf("corsixth", "theme hospital", "julius", "augustus", "caesar", "0100000000000068")
+                nameLower.contains("openra") -> listOf("openra", "dune legacy", "command & conquer", "red alert", "0100000000000091")
+                nameLower.contains("retroarch") -> listOf("retroarch", "ppsspp", "flycast", "scummvm", "melonds", "mgba", "duckstation", "0100000000001000")
+                nameLower.contains("homebrew utilities") -> listOf("nx-shell", "dbi", "goldleaf", "jksv", "checkpoint", "edizon", "awoo", "tesla", "0100000000003000")
                 else -> listOf(nameLower)
             }
             keywords.any { cleanTitle.contains(it) || cleanPath.contains(it) }

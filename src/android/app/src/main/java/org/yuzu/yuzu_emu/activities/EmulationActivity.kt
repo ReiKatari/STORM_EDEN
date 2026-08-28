@@ -139,18 +139,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        when {
-                            maxTemp >= 45 && !isThermalThrottled -> {
-                                isThermalThrottled = true
-                                NativeLibrary.setThermalThrottle(true)
-                                Log.warning("[Thermal] Temperature ${maxTemp}°C - throttling enabled")
-                            }
-                            maxTemp < 40 && isThermalThrottled -> {
-                                isThermalThrottled = false
-                                NativeLibrary.setThermalThrottle(false)
-                                Log.warning("[Thermal] Temperature ${maxTemp}°C - throttling disabled")
-                            }
-                        }
+                        // Monitor temperatures without artificial speed throttling
                     }
                 } catch (e: Exception) {
                     // Thermal reading not available on all devices

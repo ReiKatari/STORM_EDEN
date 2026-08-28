@@ -375,9 +375,8 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.GPU_FENCE_BEHAVIOR.setInt(2)
                 // Anti-Aliasing: None (0)
                 IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
-                // Scaling Filter: AMD FSR (6)
-                IntSetting.RENDERER_SCALING_FILTER.setInt(6)
-                IntSetting.FSR_SHARPENING_SLIDER.setInt(80)
+                // Scaling Filter: Bilinear (0) for pure maximum speed
+                IntSetting.RENDERER_SCALING_FILTER.setInt(0)
                 // ASTC: GPU (1) for Adreno/Flagship, CPU (0) for budget Mali
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(if (isLowEnd && !isAdreno) 0 else 1)
                 // ASTC Recompression: Uncompressed (0) for 100% video core stability
@@ -403,7 +402,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
 
                 // Booleans
                 BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(true)
+                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
                 BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
                 BooleanSetting.FASTMEM.setBoolean(true)
                 BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
@@ -414,12 +413,12 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
                 BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
                 BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
-                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(true)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
+                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
                 BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
+                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
             }
 
             MODE_NORMAL -> {
@@ -434,11 +433,10 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isLowEnd) 0 else 1)
                 // GPU Fence Behavior: Balanced (1)
                 IntSetting.GPU_FENCE_BEHAVIOR.setInt(1)
-                // Anti-Aliasing: FXAA (1)
-                IntSetting.RENDERER_ANTI_ALIASING.setInt(1)
-                // Scaling Filter: AMD FSR (6)
-                IntSetting.RENDERER_SCALING_FILTER.setInt(6)
-                IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
+                // Anti-Aliasing: None (0) for maximum framerate
+                IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
+                // Scaling Filter: Bilinear (0)
+                IntSetting.RENDERER_SCALING_FILTER.setInt(0)
                 // ASTC: GPU (1)
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
                 // ASTC Recompression: Uncompressed (0) for universal stability
@@ -460,11 +458,11 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 // Dynamic State: Enabled (1) for Adreno
                 IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno) 1 else 0)
                 // Pipeline Workers
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(optimalWorkers.coerceAtMost(3))
+                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(optimalWorkers.coerceIn(2, 4))
 
                 // Booleans
                 BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(true)
+                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
                 BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
                 BooleanSetting.FASTMEM.setBoolean(true)
                 BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
@@ -475,12 +473,12 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
                 BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
                 BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
-                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(true)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
+                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
                 BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
+                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
             }
 
             MODE_ACCURATE -> {

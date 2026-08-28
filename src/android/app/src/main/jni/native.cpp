@@ -733,11 +733,7 @@ void Java_org_yuzu_yuzu_1emu_NativeLibrary_setAppDirectory(JNIEnv* env, jobject 
 
 void Java_org_yuzu_yuzu_1emu_NativeLibrary_setThermalThrottle(JNIEnv* env, jclass clazz, jboolean throttle) {
     Settings::values.eco_thermal_mode = static_cast<bool>(throttle);
-    if (throttle) {
-        Settings::values.speed_limit.SetValue(80);
-    } else {
-        Settings::values.speed_limit.SetValue(100);
-    }
+    Settings::values.speed_limit.SetValue(100);
 }
 
 int Java_org_yuzu_yuzu_1emu_NativeLibrary_installFileToNand(JNIEnv* env, jobject instance,

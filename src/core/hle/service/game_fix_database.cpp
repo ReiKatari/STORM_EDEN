@@ -2869,6 +2869,157 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
+        0x01002C001B6B2000ULL,
+        "Luigi's Mansion 2 HD",
+        "• Зависание на загрузке особняка и артефакты шейдера фонарика\n• Утечки VRAM в многоэтажных локациях",
+        "• Mansion loading stall and flashlight shader artifacts\n• VRAM pressure in multi-floor corridors",
+        "✓ Точность GPU: Высокая (High, стабильный рендеринг теней)\n✓ Быстрое время GPU: Отключено (исправление катсцен)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ GPU Accuracy: High (Accurate shadow and light rendering)\n✓ Fast GPU Time: Disabled (Fixes cutscene hangs)\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x01004C6008E60000ULL,
+        "Paper Mario: The Origami King",
+        "• Просадки FPS при раскладывании конфетти\n• Черные текстуры оригами-боссов при агрессивной реактивной очистке",
+        "• Framerate drops during confetti tossing\n• Black origami boss textures with aggressive reactive flushing",
+        "✓ Точность GPU: Высокая (High)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено (чистые текстуры)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено",
+        "✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Renderer\\astc_recompression", "0"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x0100FF500E34A000ULL,
+        "Xenoblade Chronicles: Definitive Edition",
+        "• Утечки VRAM на локациях Колония 9 и Болота Сатори\n• Микрофризы при динамической смене погоды",
+        "• VRAM exhaustion in Colony 9 and Satori Marsh\n• Micro-stutters during dynamic weather transitions",
+        "✓ Память: 8GB DRAM (критично для больших локаций)\n✓ Сжатие ASTC: BC1 (экономия VRAM на мобильных GPU)\n✓ Точность GPU: Обычная (Normal, стабильный FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 8GB DRAM (Critical for large open world)\n✓ ASTC Recompression: BC1 (VRAM reduction)\n✓ GPU Accuracy: Normal (Stable FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\astc_recompression", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"}
+        }
+    },
+    {
+        0x01007300020FA000ULL,
+        "Astral Chain",
+        "• Рассинхрон аудио в экшен-сценах при быстром тайминге GPU\n• Мерцание неонового освещения города",
+        "• Audio desync in action cutscenes caused by GPU fast timer\n• City neon bloom flickering",
+        "✓ Быстрое время GPU: Отключено (идеальная синхронизация аудио)\n✓ Точность GPU: Высокая (High)\n✓ Расширенное динамическое состояние (EDS1): Включено\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено",
+        "✓ Fast GPU Time: Disabled (Fixes cutscene and audio sync)\n✓ GPU Accuracy: High\n✓ Extended Dynamic State (EDS1): Enabled\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\renderer_dyna_state", "1"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x0100AE801844E000ULL,
+        "No Man's Sky",
+        "• Вылет по нехватке памяти (OOM) при генерации планет\n• Высокая нагрузка на VRAM при процедурном текстурировании",
+        "• Out of memory (OOM) crashes during planetary generation\n• High VRAM consumption from procedural textures",
+        "✓ Память: 8GB DRAM (обязательно для генерации планет)\n✓ Сжатие ASTC: BC3 (баланс качества и VRAM)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Memory Layout: 8GB DRAM (Required for terrain generation)\n✓ ASTC Recompression: BC3 (VRAM optimization)\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\astc_recompression", "2"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\gpu_accuracy", "0"}
+        }
+    },
+    {
+        0x0100B870126CE000ULL,
+        "Shin Megami Tensei V",
+        "• Фризы в песчаных бурях Даата и на экранах слияния демонов\n• Размытие постобработки Unreal Engine 4",
+        "• Micro-stutters in Da'at sandstorms and demon fusion\n• UE4 post-processing blur",
+        "✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Расширенное динамическое состояние (EDS1): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Extended Dynamic State (EDS1): Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\renderer_dyna_state", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x01005CA00F966000ULL,
+        "Mario + Rabbids Sparks of Hope",
+        "• Зависание анимации тактических ходов при быстром тайминге GPU\n• Артефакты освещения на планетах",
+        "• Tactical turn animation softlock with GPU fast timer\n• Planet planetary lighting anomalies",
+        "✓ Быстрое время GPU: Отключено (исправление зависания ходов)\n✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ Fast GPU Time: Disabled (Prevents combat softlocks)\n✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x010098A01633E000ULL,
+        "Crisis Core: Final Fantasy VII Reunion",
+        "• Сбой при активации рулетки DMW (Digital Mind Wave)\n• Микрофризы в боях на Unreal Engine 4",
+        "• DMW (Digital Mind Wave) summon roulette crash\n• Combat micro-stutters on Unreal Engine 4",
+        "✓ Точность CPU: Безопасная (Safe, устранение вылета DMW)\n✓ Память: 8GB DRAM\n✓ Точность GPU: Обычная (Normal)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ CPU Accuracy: Safe (Prevents DMW roulette crashes)\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Cpu\\cpu_accuracy", "0"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x01006C300E9F0000ULL,
+        "Dragon Quest XI S: Echoes of an Elusive Age",
+        "• Микрофризы при переходе между открытыми локациями\n• Мерцание динамических теней в городах",
+        "• Micro-stutters during open world region transitions\n• City dynamic shadow shimmering",
+        "✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x01005C9014168000ULL,
+        "NieR:Automata The End of YoRHa Edition",
+        "• Мерцание текстур песка в пустыне\n• Просадки FPS в секциях 2D-полетов",
+        "• Desert sand texture shimmering\n• Framerate drops in 2D flight unit combat",
+        "✓ Точность GPU: Высокая (High)\n✓ Анизотропная фильтрация: 16x\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ GPU Accuracy: High\n✓ Anisotropic Filtering: 16x\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\max_anisotropy", "5"},
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
         0x0100000000003000ULL,
         "Homebrew Utilities & Overlays (NX-Shell, DBI, Goldleaf, JKSV, Checkpoint, EdiZon, Tesla)",
         "• Системные Homebrew-утилиты Switch для управления сейвами, файлами и оверлеями\n• Мгновенный отклик файловой системы и стабильная работа",

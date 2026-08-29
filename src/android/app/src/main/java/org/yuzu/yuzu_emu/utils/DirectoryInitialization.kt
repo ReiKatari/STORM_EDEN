@@ -101,8 +101,8 @@ object DirectoryInitialization {
             saveConfig = true
         }
 
-        val hasMigratedDefaults494 = preferences.getBoolean("migrated_defaults_494", false)
-        if (!hasMigratedDefaults494) {
+        val hasMigratedDefaults495 = preferences.getBoolean("migrated_defaults_495", false)
+        if (!hasMigratedDefaults495) {
             val curSpeedLimit = ShortSetting.RENDERER_SPEED_LIMIT.getShort(true)
             if (curSpeedLimit <= 0 || curSpeedLimit > 1000) {
                 ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
@@ -129,7 +129,7 @@ object DirectoryInitialization {
                 IntSetting.CPU_ACCURACY.setInt(1)
                 saveConfig = true
             }
-            preferences.edit().putBoolean("migrated_defaults_494", true).apply()
+            preferences.edit().putBoolean("migrated_defaults_495", true).apply()
         }
 
         val showPerformanceOverlay =

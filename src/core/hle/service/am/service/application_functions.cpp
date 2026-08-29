@@ -331,7 +331,12 @@ Result IApplicationFunctions::GetPseudoDeviceId(Out<Common::UUID> out_pseudo_dev
     const auto res = FileSys::PatchManager::GetMetadataFromBaseOrUpdate(system, m_applet->program_id);
     u8 hash[EVP_MAX_MD_SIZE];
     unsigned int hash_len = 0;
-    auto const seed = res.first->raw.seed_for_pseudo_device_id;
+    u64 seed = 0;
+    if (res.first != nullptr) {
+        seed = res.first->raw.seed_for_pseudo_device_id;
+    } else {
+        seed = m_applet->program_id;
+    }
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     auto const algorithm = EVP_sha1();
     EVP_DigestInit_ex(ctx, algorithm, nullptr);

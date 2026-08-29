@@ -27,12 +27,13 @@ object GameFixDatabase {
         GameFixProfile(
             0x01007EF00011E000L,
             "The Legend of Zelda: Breath of the Wild",
-            "• Просадки FPS при избыточной синхронизации GPU\n• Непрозрачный/темный туман в Святилищах при принудительной реактивной очистке\n• Микрофризы в лесах Короков",
-            "• Framerate drops caused by excessive GPU buffer synchronization\n• Dark opaque volumetric fog in Shrines caused by reactive flushing\n• Korok Forest micro-stutters",
-            "✓ Точность GPU: Обычная (Normal, стабильные 30 FPS)\n✓ Реактивная очистка: Отключено (исправление тумана в Святилищах)\n✓ Сжатие ASTC: Отключено (чистые текстуры)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: Normal (Locked 30 FPS without GPU stalling)\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "• Исчезновение графики, геометрии и темнота в Святилищах (Джа-Баиж, Кам-Ятак и др.)\n• Непрозрачный/темный туман при реактивной очистке\n• Микрофризы в лесах Короков",
+            "• Disappearing graphics, missing floor/walls geometry and dark shrines (Ja Baij, Kam Urog etc.)\n• Dark opaque volumetric fog caused by reactive flushing\n• Korok Forest micro-stutters",
+            "✓ Точность GPU: Высокая (High, 32-bit depth — восстанавливает графику в Святилищах)\n✓ Динамическое состояние: EDS1 (стабильный конвейер Adreno)\n✓ Реактивная очистка: Отключено (исправление тумана)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (32-bit depth precision — fixes missing graphics in Shrines)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dynamic_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
@@ -43,12 +44,13 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100F2C0115B6000L,
             "The Legend of Zelda: Tears of the Kingdom",
-            "• Утечки VRAM в Кавернах и конструкторе Ультраруки\n• Микрофризы при смене способностей в колесе быстрого выбора",
-            "• VRAM memory pressure in Depths and Ultrahand construction\n• Quick-select ability wheel micro-stutters",
-            "✓ Точность GPU: Обычная (Normal, максимальный FPS)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: Normal (Maximum framerate stability)\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "• Утечки VRAM в Кавернах и конструкторе Ультраруки\n• Микрофризы и артефакты геометрии в святилищах",
+            "• VRAM memory pressure in Depths and Ultrahand construction\n• Geometry clipping and micro-stutters in Shrines",
+            "✓ Точность GPU: Высокая (High, стабильный рендеринг глубины)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (Full depth buffer stability)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
-                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dynamic_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
@@ -162,6 +164,39 @@ object GameFixDatabase {
             mapOf(
                 "Cpu\\cpu_accuracy" to "0",
                 "Renderer\\sync_memory_operations" to "false"
+            )
+        ),
+        GameFixProfile(
+            0x0100623017A58000L,
+            "Alan Wake Remastered",
+            "• Фонарик светит рассеянным плоским лучом без освещения окружения\n• Просадки FPS и разрывы кадров при динамическом свете\n• Графические артефакты на лицах и поверхностях",
+            "• Flashlight renders flat diffuse cone without illuminating environment\n• Frame drops and stuttering under dynamic lighting\n• Surface and skin lighting artifacts",
+            "✓ Точность GPU: Высокая (High, правильный расчет буфера освещения и луча фонарика)\n✓ Быстрое время GPU: Отключено (синхронизация отложенного освещения)\n✓ Динамическое состояние: EDS1\n✓ Сжатие ASTC: Отключено (чистые карты нормалей и HDR-куки света)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (Fixes deferred lighting volume & flashlight beam)\n✓ Fast GPU Time: Disabled (Syncs deferred lighting passes)\n✓ Extended Dynamic State: EDS1\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dynamic_state" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "System\\memory_layout_mode" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x010000000000100DL,
+            "Grand Theft Auto V (Homebrew)",
+            "• Критический вылет при старте (Userspace PANIC! info2=0x4 / svcBreak) из-за нехватки памяти\n• Сбои инициализации RAGE Engine при стандартном лимите 4GB DRAM\n• Зависания аудиопотоков при смене радиостанций",
+            "• Critical crash on startup (Userspace PANIC! info2=0x4 / svcBreak) due to memory allocation failure\n• RAGE Engine initialization failure on standard 4GB DRAM\n• Audio thread deadlocks on radio station switches",
+            "✓ Режим памяти: 8GB DRAM (критично для пулов аллокации RAGE Engine и архивов RPF)\n✓ Точность CPU: Безопасная (Auto/Safe, предотвращение tagged pointer сбоев)\n✓ Быстрая память (Fastmem): Включено\n✓ Точность GPU: Обычная (Normal, стабильный FPS)\n✓ Сжатие ASTC: Отключено (чистые текстуры Лос-Сантоса)\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 8GB DRAM (Crucial for RAGE memory pools & RPF archives)\n✓ CPU Accuracy: Auto/Safe (Prevents tagged pointer traps)\n✓ Fastmem: Enabled\n✓ GPU Accuracy: Normal (Smoothest framerate)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\dynamic_state" to "1"
             )
         ),
         GameFixProfile(
@@ -3237,6 +3272,8 @@ object GameFixDatabase {
                 nameLower.contains("luigi's mansion 2") || nameLower.contains("dark moon") -> listOf("luigi's mansion 2", "dark moon", "01002c001b6b2000")
                 nameLower.contains("luigi's mansion 3") || nameLower.contains("lm3") -> listOf("luigi's mansion 3", "lm3", "0100dca0064a6000")
                 nameLower.contains("no man's sky") || nameLower.contains("nms") -> listOf("no man's sky", "nms", "0100ae801844e000", "0100de801648e000")
+                nameLower.contains("alan wake") -> listOf("alan wake", "alan_wake", "0100623017a58000")
+                nameLower.contains("gta v") || nameLower.contains("gta 5") || nameLower.contains("grand theft auto") -> listOf("gta v", "gta 5", "grand theft auto v", "gtav", "010000000000100d")
                 nameLower.contains("batman") || nameLower.contains("arkham") -> listOf("batman", "arkham", "010039b0182da000")
                 nameLower.contains("kingdom come") || nameLower.contains("kcd") -> listOf("kingdom come", "kcd", "010062c015792000")
                 nameLower.contains("tomb raider") -> listOf("tomb raider", "0100c4d018a0e000")

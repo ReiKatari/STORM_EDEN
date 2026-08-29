@@ -102,7 +102,7 @@ object SettingsProfileManager {
             json.put("id", id)
             json.put("name", safeName)
             json.put("description", description.trim())
-            json.put("version", "4.9.5")
+            json.put("version", "4.9.8")
             json.put("timestamp", System.currentTimeMillis())
 
             val boolObj = JSONObject()

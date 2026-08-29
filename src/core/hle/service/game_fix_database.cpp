@@ -15,12 +15,13 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x01007EF00011E000ULL,
         "The Legend of Zelda: Breath of the Wild",
-        "• Просадки FPS при избыточной синхронизации GPU\n• Непрозрачный/темный туман в Святилищах при принудительной реактивной очистке\n• Микрофризы в лесах Короков",
-        "• Framerate drops caused by excessive GPU buffer synchronization\n• Dark opaque volumetric fog in Shrines caused by reactive flushing\n• Korok Forest micro-stutters",
-        "✓ Точность GPU: Обычная (Normal, стабильные 30 FPS)\n✓ Реактивная очистка: Отключено (исправление тумана в Святилищах)\n✓ Сжатие ASTC: Отключено (чистые текстуры)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-        "✓ GPU Accuracy: Normal (Locked 30 FPS without GPU stalling)\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        "• Исчезновение графики, геометрии и темнота в Святилищах (Джа-Баиж, Кам-Ятак и др.)\n• Непрозрачный/темный туман при реактивной очистке\n• Микрофризы в лесах Короков",
+        "• Disappearing graphics, missing floor/walls geometry and dark shrines (Ja Baij, Kam Urog etc.)\n• Dark opaque volumetric fog caused by reactive flushing\n• Korok Forest micro-stutters",
+        "✓ Точность GPU: Высокая (High, 32-bit depth — восстанавливает графику в Святилищах)\n✓ Динамическое состояние: EDS1 (стабильный конвейер Adreno)\n✓ Реактивная очистка: Отключено (исправление тумана)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High (32-bit depth precision — fixes missing graphics in Shrines)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dynamic_state", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
@@ -31,12 +32,13 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x0100F2C0115B6000ULL,
         "The Legend of Zelda: Tears of the Kingdom",
-        "• Утечки VRAM в Кавернах и конструкторе Ультраруки\n• Микрофризы при смене способностей в колесе быстрого выбора",
-        "• VRAM memory pressure in Depths and Ultrahand construction\n• Quick-select ability wheel micro-stutters",
-        "✓ Точность GPU: Обычная (Normal, максимальный FPS)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-        "✓ GPU Accuracy: Normal (Maximum framerate stability)\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        "• Утечки VRAM в Кавернах и конструкторе Ультраруки\n• Микрофризы и артефакты геометрии в святилищах",
+        "• VRAM memory pressure in Depths and Ultrahand construction\n• Geometry clipping and micro-stutters in Shrines",
+        "✓ Точность GPU: Высокая (High, стабильный рендеринг глубины)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High (Full depth buffer stability)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
-            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dynamic_state", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
@@ -150,6 +152,39 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Cpu\\cpu_accuracy", "0"},
             {"Renderer\\sync_memory_operations", "false"}
+        }
+    },
+    {
+        0x0100623017A58000ULL,
+        "Alan Wake Remastered",
+        "• Фонарик светит рассеянным плоским лучом без освещения окружения\n• Просадки FPS и разрывы кадров при динамическом свете\n• Графические артефакты на лицах и поверхностях",
+        "• Flashlight renders flat diffuse cone without illuminating environment\n• Frame drops and stuttering under dynamic lighting\n• Surface and skin lighting artifacts",
+        "✓ Точность GPU: Высокая (High, правильный расчет буфера освещения и луча фонарика)\n✓ Быстрое время GPU: Отключено (синхронизация отложенного освещения)\n✓ Динамическое состояние: EDS1\n✓ Сжатие ASTC: Отключено (чистые карты нормалей и HDR-куки света)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High (Fixes deferred lighting volume & flashlight beam)\n✓ Fast GPU Time: Disabled (Syncs deferred lighting passes)\n✓ Extended Dynamic State: EDS1\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\dynamic_state", "1"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"System\\memory_layout_mode", "1"}
+        }
+    },
+    {
+        0x010000000000100DULL,
+        "Grand Theft Auto V (Homebrew)",
+        "• Критический вылет при старте (Userspace PANIC! info2=0x4 / svcBreak) из-за нехватки памяти\n• Сбои инициализации RAGE Engine при стандартном лимите 4GB DRAM\n• Зависания аудиопотоков при смене радиостанций",
+        "• Critical crash on startup (Userspace PANIC! info2=0x4 / svcBreak) due to memory allocation failure\n• RAGE Engine initialization failure on standard 4GB DRAM\n• Audio thread deadlocks on radio station switches",
+        "✓ Режим памяти: 8GB DRAM (критично для пулов аллокации RAGE Engine и архивов RPF)\n✓ Точность CPU: Безопасная (Auto/Safe, предотвращение tagged pointer сбоев)\n✓ Быстрая память (Fastmem): Включено\n✓ Точность GPU: Обычная (Normal, стабильный FPS)\n✓ Сжатие ASTC: Отключено (чистые текстуры Лос-Сантоса)\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 8GB DRAM (Crucial for RAGE memory pools & RPF archives)\n✓ CPU Accuracy: Auto/Safe (Prevents tagged pointer traps)\n✓ Fastmem: Enabled\n✓ GPU Accuracy: Normal (Smoothest framerate)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\dynamic_state", "1"}
         }
     },
     {
@@ -3250,6 +3285,13 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("no man's sky") != std::string::npos && (lower.find("no man") != std::string::npos || lower.find("nms") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("alan wake") != std::string::npos && (lower.find("alan wake") != std::string::npos || lower.find("alan_wake") != std::string::npos)) {
+            return &profile;
+        }
+        if ((game_lower.find("gta v") != std::string::npos || game_lower.find("gta 5") != std::string::npos || game_lower.find("grand theft auto") != std::string::npos) &&
+            (lower.find("gta v") != std::string::npos || lower.find("gta 5") != std::string::npos || lower.find("grand theft auto") != std::string::npos || lower.find("gtav") != std::string::npos)) {
             return &profile;
         }
         if (game_lower.find("batman") != std::string::npos && (lower.find("batman") != std::string::npos || lower.find("arkham") != std::string::npos)) {

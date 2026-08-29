@@ -56,6 +56,9 @@ object NativeConfig {
     @Synchronized
     external fun savePerGameConfig()
 
+    @Synchronized
+    external fun reloadPerGameConfig()
+
     /**
      * Destroys the stored per-game config object. This does not save the config.
      */

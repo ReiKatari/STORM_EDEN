@@ -747,7 +747,7 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
     std::span<Shader::Environment* const> envs, PipelineStatistics* statistics,
     bool build_in_parallel) try {
     auto hash = key.Hash();
-    LOG_INFO(Render_Vulkan, "{:#016x}", hash);
+    LOG_DEBUG(Render_Vulkan, "{:#016x}", hash);
     size_t env_index{0};
     std::array<Shader::IR::Program, Maxwell::MaxShaderProgram> programs;
     const bool uses_vertex_a{key.unique_hashes[0] != 0};
@@ -1055,7 +1055,14 @@ vk::PipelineCache PipelineCache::LoadVulkanPipelineCache(const std::filesystem::
         LOG_INFO(Render_Vulkan,
                  "Loaded Vulkan driver pipeline cache: ", Common::FS::PathToUTF8String(filename));
 
-        return create_pipeline_cache(cache_size, cache_data.data());
+        try {
+            return create_pipeline_cache(cache_size, cache_data.data());
+        } catch (const std::exception& e) {
+            LOG_WARNING(Render_Vulkan, "Failed to load corrupted Vulkan driver pipeline cache ({}), purging: {}",
+                        e.what(), Common::FS::PathToUTF8String(filename));
+            Common::FS::RemoveFile(filename);
+            return create_pipeline_cache(0, nullptr);
+        }
 
     } catch (const std::ios_base::failure& e) {
         LOG_ERROR(Common_Filesystem, "{}", e.what());

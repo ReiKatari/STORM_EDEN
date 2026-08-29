@@ -34,7 +34,7 @@ static u32 CalculatePointerBufferSize(size_t heap_size) {
 }
 
 AppLoader_NCA::AppLoader_NCA(FileSys::VirtualFile file_)
-    : AppLoader(std::move(file_)), nca(std::make_unique<FileSys::NCA>(file)) {}
+    : AppLoader(std::move(file_)), nca(std::make_shared<FileSys::NCA>(file)) {}
 
 AppLoader_NCA::~AppLoader_NCA() = default;
 

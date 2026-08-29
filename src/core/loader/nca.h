@@ -49,8 +49,12 @@ public:
 
     ResultStatus ReadNSOModules(Modules& modules) override;
 
+    std::shared_ptr<FileSys::NCA> GetNCA() const override {
+        return nca;
+    }
+
 private:
-    std::unique_ptr<FileSys::NCA> nca;
+    std::shared_ptr<FileSys::NCA> nca;
     std::unique_ptr<AppLoader_DeconstructedRomDirectory> directory_loader;
 };
 

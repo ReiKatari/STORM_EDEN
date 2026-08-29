@@ -254,17 +254,21 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
 
     u64 play_time = play_time_manager.GetPlayTime(program_id);
 
-    // Determine the exact version for this specific file
+    // Determine the exact version for this specific file directly from metadata
     QString file_version;
 
-    // 1. Try filename regex for paired version (e.g. "(1.5.1 - 262144 - ...)" or "(1.6.15.13 - 1310720 - ...)")
-    static const QRegularExpression fn_pair_ver_regex{QStringLiteral(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))")};
-    const auto fm = fn_pair_ver_regex.match(QString::fromStdString(path));
-    if (fm.hasMatch() && !fm.captured(1).isEmpty()) {
-        file_version = fm.captured(1);
+    // 1. Try highest priority Update patch from PatchManager / ContentProvider
+    FileSys::VirtualFile update_raw_file;
+    loader.ReadUpdateRaw(update_raw_file);
+    const auto all_patches = patch.GetPatches(update_raw_file);
+    for (const auto& p : all_patches) {
+        if (p.type == FileSys::PatchType::Update && p.enabled && !p.version.empty() && p.version != "PACKED") {
+            file_version = QString::fromStdString(p.version);
+            break;
+        }
     }
 
-    // 2. Try PatchManager control metadata (which prioritizes updates)
+    // 2. Try PatchManager control metadata (NACP)
     if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
         if (const auto nacp = patch.GetControlMetadata().first; nacp != nullptr) {
             const auto ver = nacp->GetVersionString();
@@ -285,29 +289,7 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
         }
     }
 
-    // 4. Fallback to general filename version regex
-    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
-        static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
-        const auto m = fn_ver_regex.match(QString::fromStdString(path));
-        if (m.hasMatch() && m.hasCaptured(1)) {
-            const QString parsed_fn_ver = m.captured(1);
-            if (!parsed_fn_ver.isEmpty()) {
-                file_version = parsed_fn_ver;
-            }
-        }
-    }
-
-    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
-        static const QRegularExpression fn_vnum_regex{QStringLiteral(R"(\[v([0-9]+)\])")};
-        const auto vm = fn_vnum_regex.match(QString::fromStdString(path));
-        if (vm.hasMatch()) {
-            const u32 vnum = vm.captured(1).toUInt();
-            if (vnum > 0) {
-                file_version = QString::number(vnum);
-            }
-        }
-    }
-
+    // Clean leading 'v' or whitespace
     while (file_version.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
         file_version.remove(0, 1);
     }
@@ -539,7 +521,7 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                         RecordEvent([=](GameListModel* model) { model->AddEntry(entry, parent_dir); });
                     };
 
-                    if (res2 == Loader::ResultStatus::Success && program_ids.size() > 1 &&
+                    if (program_ids.size() > 1 &&
                         (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
                          file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                         for (const auto id : program_ids) {
@@ -547,15 +529,30 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                             if ((id & 0xFFF) != 0) {
                                 continue;
                             }
-                            loader = Loader::GetLoader(system, file, id);
-                            if (!loader) {
+                            auto sub_loader = Loader::GetLoader(system, file, id);
+                            if (!sub_loader) {
                                 continue;
                             }
 
-                            addEntry(loader, id);
+                            addEntry(sub_loader, id);
                         }
-                    } else if (res2 == Loader::ResultStatus::Success && (program_id & 0xFFF) == 0 && program_id != 0) {
-                        addEntry(loader, program_id);
+                    } else {
+                        if (program_id == 0 && !program_ids.empty()) {
+                            for (const auto id : program_ids) {
+                                if ((id & 0xFFF) == 0) {
+                                    program_id = id;
+                                    break;
+                                }
+                            }
+                            if (program_id == 0) {
+                                program_id = program_ids[0];
+                            }
+                        }
+                        if (program_id != 0 && (program_id & 0xFFF) == 0) {
+                            addEntry(loader, program_id);
+                        } else if (program_id != 0) {
+                            addEntry(loader, program_id & 0xFFFFFFFFFFFFF000ULL);
+                        }
                     }
                 }
             } catch (const std::exception& e) {

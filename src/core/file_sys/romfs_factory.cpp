@@ -23,9 +23,15 @@ namespace FileSys {
 RomFSFactory::RomFSFactory(Loader::AppLoader& app_loader, ContentProvider& provider,
                            Service::FileSystem::FileSystemController& controller)
     : content_provider{provider}, filesystem_controller{controller} {
+    base_nca = app_loader.GetNCA();
+
     // Load the RomFS from the app
     if (app_loader.ReadRomFS(file) != Loader::ResultStatus::Success) {
-        LOG_WARNING(Service_FS, "Unable to read base RomFS");
+        if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
+            file = base_nca->GetRomFS();
+        } else {
+            LOG_WARNING(Service_FS, "Unable to read base RomFS");
+        }
     }
 
     updatable = app_loader.IsRomFSUpdatable();
@@ -44,9 +50,11 @@ VirtualFile RomFSFactory::OpenCurrentProcess(u64 current_process_title_id) const
 
     const auto type = ContentRecordType::Program;
     const auto nca = content_provider.GetEntry(current_process_title_id, type);
+    const NCA* nca_ptr = nca != nullptr ? nca.get() : base_nca.get();
+
     const PatchManager patch_manager{current_process_title_id, filesystem_controller,
                                      content_provider};
-    return patch_manager.PatchRomFS(nca.get(), file, ContentRecordType::Program, packed_update_raw);
+    return patch_manager.PatchRomFS(nca_ptr, file, ContentRecordType::Program, packed_update_raw);
 }
 
 VirtualFile RomFSFactory::OpenPatchedRomFS(u64 title_id, ContentRecordType type) const {

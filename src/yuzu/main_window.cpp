@@ -3276,6 +3276,14 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         QtCommon::system->HIDCore().ReloadInputDevices();
         QtCommon::system->ApplySettings();
         UpdateStatusButtons();
+
+        const bool fix_applied = Core::GameFixDatabase::IsFixApplied(title_id, target_ini) ||
+                                 Core::GameFixDatabase::IsFixApplied(title_id, (custom_path / (legacy_config + ".ini")).string());
+        if (fix_applied) {
+            statusBar()->showMessage(tr("⚡ Оптимизации STORM EDEN: Применено"), 8000);
+        } else if (profile != nullptr) {
+            statusBar()->showMessage(tr("⚠️ Оптимизации STORM EDEN: Не применено"), 8000);
+        }
     }
 
     Settings::LogSettings();
@@ -4310,7 +4318,10 @@ void MainWindow::OnMenuInstallToNAND() {
         QFuture<ContentManager::InstallResult> future;
         ContentManager::InstallResult result;
 
-        if (file.endsWith(QStringLiteral("nsp"), Qt::CaseInsensitive)) {
+        if (file.endsWith(QStringLiteral("nsp"), Qt::CaseInsensitive) ||
+            file.endsWith(QStringLiteral("nsz"), Qt::CaseInsensitive) ||
+            file.endsWith(QStringLiteral("xci"), Qt::CaseInsensitive) ||
+            file.endsWith(QStringLiteral("xcz"), Qt::CaseInsensitive)) {
             const auto progress_callback = [this](size_t size, size_t progress) {
                 emit UpdateInstallProgress();
                 if (install_progress->wasCanceled()) {
@@ -4459,14 +4470,16 @@ void MainWindow::OnStartGame() {
 
     const bool enable_floating = UISettings::values.enable_floating_translate_button.GetValue();
     if (enable_floating) {
+        QWidget* target_parent = render_window ? static_cast<QWidget*>(render_window) : static_cast<QWidget*>(this);
         if (!floating_translate_button) {
-            floating_translate_button = new FloatingTranslateButton(this);
+            floating_translate_button = new FloatingTranslateButton(target_parent);
             connect(floating_translate_button, &FloatingTranslateButton::TranslateRequested, this, &MainWindow::OnTranslateScreen);
             connect(floating_translate_button, &FloatingTranslateButton::OpenSettingsRequested, this, &MainWindow::OnOpenTranslatorSettings);
+        } else if (render_window && floating_translate_button->parent() != render_window) {
+            floating_translate_button->setParent(render_window);
         }
         if (render_window) {
-            QPoint p = render_window->mapToGlobal(QPoint(std::max(10, render_window->width() - 80), std::max(10, render_window->height() - 120)));
-            floating_translate_button->move(p);
+            floating_translate_button->move(std::max(10, render_window->width() - 76), std::max(10, render_window->height() - 110));
         }
         floating_translate_button->SetVisibleState(true);
     } else if (floating_translate_button) {

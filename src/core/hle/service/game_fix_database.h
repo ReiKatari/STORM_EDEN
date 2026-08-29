@@ -31,6 +31,7 @@ public:
     static const std::vector<GameFixProfile>& GetAllProfiles();
     static bool ApplyProfileToPerGameConfig(u64 title_id, const std::string& config_file_path);
     static bool ApplyProfileDirectly(u64 title_id);
+    static bool IsFixApplied(u64 title_id, const std::string& config_file_path);
     static void SetDontAskAgain(u64 title_id, const std::string& config_file_path);
 };
 

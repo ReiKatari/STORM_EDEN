@@ -619,8 +619,9 @@ std::vector<Core::Memory::CheatEntry> PatchManager::CreateCheatList(const BuildI
                         } else if (has_explicit_enabled_tags) {
                             is_active = std::find(disabled.cbegin(), disabled.cend(), "__ENABLED__:" + cheat_name) != disabled.cend();
                         } else {
-                            // If no enabled_cheats.txt filter exists, activate parsed cheats by default
-                            is_active = true;
+                            // Do NOT blindly activate cheats from external/atmosphere files by default.
+                            // Cheats must be explicitly activated by the user in the Cheats dialog or enabled_cheats.txt.
+                            is_active = false;
                         }
 
                         if (is_active) {
@@ -727,6 +728,15 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
     }
 
     auto romfs = base_romfs;
+    if (romfs == nullptr && base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
+        romfs = base_nca->GetRomFS();
+    }
+    if (romfs == nullptr) {
+        const auto entry = content_provider.GetEntry(title_id, type);
+        if (entry != nullptr && entry->GetRomFS() != nullptr) {
+            romfs = entry->GetRomFS();
+        }
+    }
 
     // Game Updates (only apply to Program content)
     if (type == ContentRecordType::Program) {
@@ -818,27 +828,54 @@ VirtualFile PatchManager::PatchRomFS(const NCA* base_nca, VirtualFile base_romfs
             }
         }
 
-        if (!update_disabled && update_raw != nullptr && base_nca != nullptr) {
-            const auto new_nca = std::make_shared<NCA>(update_raw, base_nca);
+        const NCA* effective_base_nca = base_nca;
+        std::shared_ptr<NCA> fallback_base_nca = nullptr;
+        if (effective_base_nca == nullptr) {
+            fallback_base_nca = content_provider.GetEntry(title_id, type);
+            if (fallback_base_nca != nullptr) {
+                effective_base_nca = fallback_base_nca.get();
+            }
+        }
+
+        if (!update_disabled && update_raw != nullptr && effective_base_nca != nullptr) {
+            const auto new_nca = std::make_shared<NCA>(update_raw, effective_base_nca);
             if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
                 new_nca->GetRomFS() != nullptr) {
                 LOG_INFO(Loader, "    RomFS: Update ({}) applied successfully",
                          enabled_version.has_value() ? FormatTitleVersion(*enabled_version) :
                          FormatTitleVersion(content_provider.GetEntryVersion(update_tid).value_or(0)));
                 romfs = new_nca->GetRomFS();
+            } else {
+                LOG_WARNING(Loader, "    RomFS: Update failed to construct delta RomFS, falling back to base RomFS");
             }
-        } else if (!update_disabled && packed_update_raw != nullptr && base_nca != nullptr) {
-            const auto new_nca = std::make_shared<NCA>(packed_update_raw, base_nca);
+        } else if (!update_disabled && packed_update_raw != nullptr && effective_base_nca != nullptr) {
+            const auto new_nca = std::make_shared<NCA>(packed_update_raw, effective_base_nca);
             if (new_nca->GetStatus() == Loader::ResultStatus::Success &&
                 new_nca->GetRomFS() != nullptr) {
                 LOG_INFO(Loader, "    RomFS: Update (PACKED) applied successfully");
                 romfs = new_nca->GetRomFS();
+            } else {
+                LOG_WARNING(Loader, "    RomFS: Packed update failed to construct delta RomFS, falling back to base RomFS");
+            }
+        }
+    }
+
+    // Safety fallback: ensure romfs is never nullptr if any base RomFS is accessible
+    if (romfs == nullptr) {
+        if (base_romfs != nullptr) {
+            romfs = base_romfs;
+        } else if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
+            romfs = base_nca->GetRomFS();
+        } else {
+            const auto entry = content_provider.GetEntry(title_id, type);
+            if (entry != nullptr && entry->GetRomFS() != nullptr) {
+                romfs = entry->GetRomFS();
             }
         }
     }
 
     // LayeredFS
-    if (apply_layeredfs) {
+    if (apply_layeredfs && romfs != nullptr) {
         ApplyLayeredFS(romfs, title_id, type, fs_controller);
     }
 
@@ -999,15 +1036,22 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
         });
         if (!has_update && update_raw != nullptr) {
             bool update_disabled = std::find(disabled.cbegin(), disabled.cend(), "Update") != disabled.cend();
+            std::string ver_str = "PACKED";
+            u32 num_ver = 0;
+            const auto meta_ver = content_provider.GetEntryVersion(update_tid);
+            if (meta_ver.has_value() && *meta_ver > 0) {
+                num_ver = *meta_ver;
+                ver_str = FormatTitleVersion(num_ver);
+            }
             out.push_back({
                 .enabled = !update_disabled,
                 .name = "Update",
-                .version = "PACKED",
+                .version = ver_str,
                 .type = PatchType::Update,
                 .program_id = title_id,
                 .title_id = update_tid,
                 .source = PatchSource::Packed,
-                .numeric_version = 0,
+                .numeric_version = num_ver,
             });
         }
     } else {
@@ -1040,7 +1084,14 @@ std::vector<Patch> PatchManager::GetPatches(VirtualFile update_raw) const {
                     out.push_back(update_patch);
                 }
             } else if (update_raw != nullptr) {
-                update_patch.version = "PACKED";
+                const auto meta_ver = content_provider.GetEntryVersion(update_tid);
+                if (meta_ver.has_value() && *meta_ver > 0) {
+                    update_patch.version = FormatTitleVersion(*meta_ver);
+                    update_patch.numeric_version = *meta_ver;
+                } else {
+                    update_patch.version = "PACKED";
+                    update_patch.numeric_version = 0;
+                }
                 update_patch.source = PatchSource::Packed;
                 out.push_back(update_patch);
             }

@@ -490,30 +490,34 @@ void LANDiscovery::ReceivePacket(const Network::LDNPacket& packet) {
     case Network::LDNPacketType::ScanResp: {
         LOG_INFO(Frontend, "ScanResp packet received!");
 
-        NetworkInfo info{};
-        std::memcpy(&info, packet.data.data(), sizeof(NetworkInfo));
-        scan_results.insert({info.common.bssid, info});
-
+        if (packet.data.size() >= sizeof(NetworkInfo)) {
+            NetworkInfo info{};
+            std::memcpy(&info, packet.data.data(), sizeof(NetworkInfo));
+            scan_results.insert_or_assign(info.common.bssid, info);
+        }
         break;
     }
     case Network::LDNPacketType::Connect: {
         LOG_INFO(Frontend, "Connect packet received!");
 
-        NodeInfo info{};
-        std::memcpy(&info, packet.data.data(), sizeof(NodeInfo));
+        if (packet.data.size() >= sizeof(NodeInfo)) {
+            NodeInfo info{};
+            std::memcpy(&info, packet.data.data(), sizeof(NodeInfo));
 
-        connected_clients.push_back(packet.local_ip);
-
-        for (LanStation& station : stations) {
-            if (station.status != NodeStatus::Connected) {
-                *station.node_info = info;
-                station.status = NodeStatus::Connected;
-                break;
+            if (std::find(connected_clients.begin(), connected_clients.end(), packet.local_ip) == connected_clients.end()) {
+                connected_clients.push_back(packet.local_ip);
             }
+
+            for (LanStation& station : stations) {
+                if (station.status != NodeStatus::Connected) {
+                    *station.node_info = info;
+                    station.status = NodeStatus::Connected;
+                    break;
+                }
+            }
+
+            UpdateNodes();
         }
-
-        UpdateNodes();
-
         break;
     }
     case Network::LDNPacketType::Disconnect: {
@@ -523,17 +527,18 @@ void LANDiscovery::ReceivePacket(const Network::LDNPacket& packet) {
             std::remove(connected_clients.begin(), connected_clients.end(), packet.local_ip),
             connected_clients.end());
 
-        NodeInfo info{};
-        std::memcpy(&info, packet.data.data(), sizeof(NodeInfo));
+        if (packet.data.size() >= sizeof(NodeInfo)) {
+            NodeInfo info{};
+            std::memcpy(&info, packet.data.data(), sizeof(NodeInfo));
 
-        for (LanStation& station : stations) {
-            if (station.status == NodeStatus::Connected &&
-                station.node_info->mac_address == info.mac_address) {
-                station.OnClose();
-                break;
+            for (LanStation& station : stations) {
+                if (station.status == NodeStatus::Connected &&
+                    station.node_info->mac_address == info.mac_address) {
+                    station.OnClose();
+                    break;
+                }
             }
         }
-
         break;
     }
     case Network::LDNPacketType::DestroyNetwork: {
@@ -544,10 +549,11 @@ void LANDiscovery::ReceivePacket(const Network::LDNPacket& packet) {
     case Network::LDNPacketType::SyncNetwork: {
         if (state == State::StationOpened || state == State::StationConnected) {
             LOG_INFO(Frontend, "SyncNetwork packet received!");
-            NetworkInfo info{};
-            std::memcpy(&info, packet.data.data(), sizeof(NetworkInfo));
-
-            OnSyncNetwork(info);
+            if (packet.data.size() >= sizeof(NetworkInfo)) {
+                NetworkInfo info{};
+                std::memcpy(&info, packet.data.data(), sizeof(NetworkInfo));
+                OnSyncNetwork(info);
+            }
         } else {
             LOG_INFO(Frontend, "SyncNetwork packet received but in wrong State!");
         }

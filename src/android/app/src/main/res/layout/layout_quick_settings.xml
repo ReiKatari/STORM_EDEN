@@ -13,6 +13,11 @@
         android:padding="8dp"
         android:fitsSystemWindows="true">
 
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:id="@+id/drag_handle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/quick_settings_toolbar"
             style="@style/SynthwaveText.Title"

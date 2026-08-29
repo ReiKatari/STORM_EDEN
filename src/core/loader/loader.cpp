@@ -75,12 +75,27 @@ bool HasApplicationProgramContent(const std::shared_ptr<FileSys::NSP>& nsp) {
         return false;
     }
 
+    if (!nsp->GetProgramTitleIDs().empty()) {
+        return true;
+    }
+
+    if (nsp->GetProgramTitleID() != 0 && (nsp->GetProgramTitleID() & 0x800) == 0) {
+        return true;
+    }
+
     const auto& ncas = nsp->GetNCAs();
+    if (ncas.empty() && nsp->GetProgramStatus() == ResultStatus::Success) {
+        return true;
+    }
+
     return std::any_of(ncas.cbegin(), ncas.cend(), [](const auto& title_entry) {
         const auto& nca_map = title_entry.second;
-        return nca_map.find(
-                   {FileSys::TitleType::Application, FileSys::ContentRecordType::Program}) !=
-               nca_map.end();
+        for (const auto& [key, nca_ptr] : nca_map) {
+            if (key.second == FileSys::ContentRecordType::Program && nca_ptr != nullptr) {
+                return true;
+            }
+        }
+        return false;
     });
 }
 

@@ -109,6 +109,9 @@ public:
 
     bool HasProgramNCA() const;
     VirtualFile GetProgramNCAFile() const;
+    std::shared_ptr<NCA> GetProgramNCA() const {
+        return program;
+    }
     const std::vector<std::shared_ptr<NCA>>& GetNCAs() const;
     std::shared_ptr<NCA> GetNCAByType(NCAContentType type) const;
     VirtualFile GetNCAFileByType(NCAContentType type) const;

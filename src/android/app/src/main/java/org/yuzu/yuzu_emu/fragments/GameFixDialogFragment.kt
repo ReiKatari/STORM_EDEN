@@ -33,6 +33,24 @@ class GameFixDialogFragment : DialogFragment() {
         }
     }
 
+    private fun sanitizeText(str: String): String {
+        if (str.isEmpty()) return str
+        if (str.contains("вЂ") || str.contains("вњ") || str.contains("Р") || str.contains("С")) {
+            return try {
+                val bytes = str.toByteArray(Charsets.ISO_8859_1)
+                val decoded = String(bytes, Charsets.UTF_8)
+                if (decoded.contains("•") || decoded.contains("✓") || decoded.any { it in 'а'..'я' || it in 'А'..'Я' }) {
+                    decoded
+                } else {
+                    str
+                }
+            } catch (_: Exception) {
+                str
+            }
+        }
+        return str
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogGameFixBinding.inflate(layoutInflater)
 
@@ -46,8 +64,10 @@ class GameFixDialogFragment : DialogFragment() {
             GameIconUtils.loadGameIcon(currentGame, binding.imageGameFixIcon)
 
             val isRu = Locale.getDefault().language == "ru"
-            binding.textGameFixIssues.text = if (isRu) profile.issuesRu else profile.issuesEn
-            binding.textGameFixRecommended.text = if (isRu) profile.fixesRu else profile.fixesEn
+            val issues = if (isRu) profile.issuesRu else profile.issuesEn
+            val fixes = if (isRu) profile.fixesRu else profile.fixesEn
+            binding.textGameFixIssues.text = sanitizeText(issues)
+            binding.textGameFixRecommended.text = sanitizeText(fixes)
         }
 
         binding.btnApplyGameFix.setOnClickListener {
@@ -58,7 +78,7 @@ class GameFixDialogFragment : DialogFragment() {
                 }
                 GameFixDatabase.applyFix(currentGame)
                 if (ctx != null) {
-                    Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN применены!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN: Применено", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 // Log and continue launching
@@ -73,6 +93,9 @@ class GameFixDialogFragment : DialogFragment() {
             try {
                 if (binding.cbDontAskAgain.isChecked && ctx != null) {
                     GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
+                }
+                if (ctx != null) {
+                    Toast.makeText(ctx, "⚠️ Оптимизации STORM EDEN: Не применено", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {}
             val cb = onLaunchCallback

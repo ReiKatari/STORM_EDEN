@@ -61,6 +61,8 @@ public:
 
     ResultStatus ReadNSOModules(Modules& modules) override;
 
+    std::shared_ptr<FileSys::NCA> GetNCA() const override;
+
 private:
     std::unique_ptr<FileSys::NSP> nsp;
     std::unique_ptr<AppLoader> secondary_loader;

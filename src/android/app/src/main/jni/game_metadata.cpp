@@ -37,17 +37,32 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         loader->ReadProgramId(entry.programId);
         loader->ReadIcon(entry.icon);
 
+        const u64 raw_pid = entry.programId;
+        const u64 base_tid = FileSys::GetBaseTitleID(raw_pid);
+        const u64 update_tid = FileSys::GetUpdateTitleID(base_tid);
+        entry.programId = base_tid;
+
         FileSys::NACP nacp{};
         bool has_embedded_nacp = (loader->ReadControlData(nacp) == Loader::ResultStatus::Success);
 
         const FileSys::PatchManager pm{
-            entry.programId,
+            base_tid,
             instance.System().GetFileSystemController(),
             instance.System().GetContentProvider()
         };
         const auto control = pm.GetControlMetadata();
         const auto game_version = pm.GetGameVersion();
 
+        // 1. Resolve internal numeric version directly from ContentProvider (Update TID / Base TID / PM)
+        u32 internal_ver = instance.System().GetContentProvider().GetEntryVersion(update_tid).value_or(0);
+        if (internal_ver == 0 && game_version.has_value() && *game_version > 0) {
+            internal_ver = *game_version;
+        }
+        if (internal_ver == 0) {
+            internal_ver = instance.System().GetContentProvider().GetEntryVersion(base_tid).value_or(0);
+        }
+
+        // 2. Resolve developer and display version from Control Metadata (Update NACP / Embedded NACP)
         if (control.first != nullptr && !control.first->GetVersionString().empty()) {
             entry.developer = control.first->GetDeveloperName();
             entry.version = control.first->GetVersionString();
@@ -59,20 +74,6 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
             entry.version = "1.0.0";
         }
 
-        // Check if filename contains paired display version and internal version (e.g. "(1.5.1 - 262144 - ...)")
-        std::regex pair_ver_regex(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))");
-        std::smatch pair_match;
-        if (std::regex_search(path, pair_match, pair_ver_regex) && pair_match.size() > 2) {
-            entry.version = pair_match[1].str();
-        } else {
-            // Check if filename contains standalone version like [1.0.1], (1.0.1), [v1.0.1], (v1.0.1)
-            std::regex ver_tag_regex(R"([\[\(]v?([0-9]+\.[0-9]+(?:\.[0-9]+)*)[\]\)])", std::regex::icase);
-            std::smatch ver_match;
-            if (std::regex_search(path, ver_match, ver_tag_regex) && ver_match.size() > 1) {
-                entry.version = ver_match[1].str();
-            }
-        }
-
         // Clean version string: remove leading 'v' / 'V'
         while (entry.version.starts_with('v') || entry.version.starts_with('V')) {
             entry.version = entry.version.substr(1);
@@ -81,61 +82,46 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
             entry.version = "1.0.0";
         }
 
-        // Accurate internal version: numeric string without 'v' (e.g. 65536, 393216, 0)
-        u32 internal_ver = 0;
-        if (pair_match.size() > 2) {
-            try {
-                internal_ver = static_cast<u32>(std::stoul(pair_match[2].str()));
-            } catch (...) {}
-        }
-
-        if (internal_ver == 0) {
-            std::regex num_ver_regex(R"([\[\(_]v(\d+)[\]\)])", std::regex::icase);
-            std::smatch match;
-            if (std::regex_search(path, match, num_ver_regex) && match.size() > 1) {
-                try {
-                    internal_ver = static_cast<u32>(std::stoul(match[1].str()));
-                } catch (...) {}
-            }
-        }
-
-        if (internal_ver == 0) {
-            if (game_version.has_value() && *game_version > 0) {
-                internal_ver = *game_version;
-            } else {
-                internal_ver = instance.System().GetContentProvider().GetEntryVersion(entry.programId).value_or(0);
-            }
-        }
-
-        // If internal_ver is still 0, calculate from display version string e.g. "1.2.0"
-        if (internal_ver == 0 && !entry.version.empty() && entry.version != "1.0.0" && entry.version != "1.0") {
-            int major = 1, minor = 0, patch = 0;
-            if (std::sscanf(entry.version.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {
-                if (major >= 1) {
-                    internal_ver = static_cast<u32>((major - 1) * 655360 + minor * 65536 + (patch * 65536) / 10);
-                }
-            }
-        }
-
-        // If display version is default 1.0.0 but we have an installed patch version (e.g. 655360 -> 1.0.10)
+        // 3. Format display version from internal numeric version if default 1.0.0
         if (entry.version == "1.0.0" && internal_ver > 0) {
             u32 update_num = internal_ver / 65536;
             if (update_num > 0) {
                 entry.version = fmt::format("1.0.{}", update_num);
+            } else {
+                u32 major = (internal_ver >> 16) & 0xFF;
+                u32 minor = (internal_ver >> 8) & 0xFF;
+                u32 patch = internal_ver & 0xFF;
+                entry.version = fmt::format("{}.{}.{}", major, minor, patch);
+            }
+        }
+
+        // 4. If internal_ver is 0 but display version is known (e.g. 1.0.10), calculate accurate internal version
+        if (internal_ver == 0 && !entry.version.empty() && entry.version != "1.0.0" && entry.version != "1.0") {
+            int major = 1, minor = 0, patch = 0;
+            if (std::sscanf(entry.version.c_str(), "%d.%d.%d", &major, &minor, &patch) >= 2) {
+                if (major == 1 && minor == 0 && patch > 0) {
+                    internal_ver = static_cast<u32>(patch * 65536);
+                } else if (major >= 1) {
+                    internal_ver = static_cast<u32>((major - 1) * 655360 + minor * 65536 + patch);
+                }
             }
         }
 
         entry.internal_version = std::to_string(internal_ver);
 
-        // Count DLC / Addons for this game from ContentProvider
+        // Count DLC / Addons for this game from ContentProvider with cache
         int aoc_count = 0;
-        const u64 base_tid = FileSys::GetBaseTitleID(entry.programId);
-        const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
-            FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
-        for (const auto& dlc : dlc_entries) {
-            if (FileSys::GetBaseTitleID(dlc.title_id) == base_tid) {
-                aoc_count++;
+        if (auto it_aoc = m_aoc_count_cache.find(base_tid); it_aoc != m_aoc_count_cache.end()) {
+            aoc_count = it_aoc->second;
+        } else {
+            const auto dlc_entries = instance.System().GetContentProvider().ListEntriesFilter(
+                FileSys::TitleType::AOC, FileSys::ContentRecordType::Data);
+            for (const auto& dlc : dlc_entries) {
+                if (FileSys::GetBaseTitleID(dlc.title_id) == base_tid) {
+                    aoc_count++;
+                }
             }
+            m_aoc_count_cache[base_tid] = aoc_count;
         }
         if (aoc_count == 0) {
             auto prev_it = m_rom_metadata_cache.find(path);
@@ -189,10 +175,27 @@ jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsValid(JNIEnv* env, jobj
                 !Loader::IsBootableGameContainer(file, file_type))
                 return false;
             u64 program_id = 0;
-            if (loader->ReadProgramId(program_id) != Loader::ResultStatus::Success || program_id == 0)
+            if (loader->ReadProgramId(program_id) != Loader::ResultStatus::Success || program_id == 0) {
+                std::vector<u64> pids;
+                loader->ReadProgramIds(pids);
+                if (!pids.empty()) {
+                    for (const auto id : pids) {
+                        if ((id & 0xFFF) == 0) {
+                            program_id = id;
+                            break;
+                        }
+                    }
+                    if (program_id == 0) {
+                        program_id = pids[0];
+                    }
+                }
+            }
+            if (program_id == 0) {
                 return false;
-            if ((program_id & 0xFFF) != 0)
-                return false; // Exclude standalone DLCs and Updates
+            }
+            if ((program_id & 0xFFF) != 0 && (program_id & 0x800) != 0) {
+                return false; // Exclude standalone Updates
+            }
             return true;
         }
     }

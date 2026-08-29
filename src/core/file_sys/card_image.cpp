@@ -63,26 +63,25 @@ XCI::XCI(VirtualFile file_, u64 program_id, size_t program_index)
         main_hfs.GetFile(partition_names[static_cast<std::size_t>(XCIPartition::Secure)]),
         program_id, program_index);
 
-    ncas = secure_partition->GetNCAsCollapsed();
-    program =
-        secure_partition->GetNCA(secure_partition->GetProgramTitleID(), ContentRecordType::Program);
-    program_nca_status = secure_partition->GetProgramStatus();
-    if (program_nca_status == Loader::ResultStatus::ErrorNSPMissingProgramNCA) {
-        program_nca_status = Loader::ResultStatus::ErrorXCIMissingProgramNCA;
-    }
-
-    auto result = AddNCAFromPartition(XCIPartition::Normal);
-    if (result != Loader::ResultStatus::Success) {
-        status = result;
-        return;
-    }
-
-    if (GetFormatVersion() >= 0x2) {
-        result = AddNCAFromPartition(XCIPartition::Logo);
-        if (result != Loader::ResultStatus::Success) {
-            status = result;
-            return;
+    if (secure_partition != nullptr && secure_partition->GetStatus() == Loader::ResultStatus::Success) {
+        ncas = secure_partition->GetNCAsCollapsed();
+        program =
+            secure_partition->GetNCA(secure_partition->GetProgramTitleID(), ContentRecordType::Program);
+        program_nca_status = secure_partition->GetProgramStatus();
+        if (program_nca_status == Loader::ResultStatus::ErrorNSPMissingProgramNCA) {
+            program_nca_status = Loader::ResultStatus::ErrorXCIMissingProgramNCA;
         }
+    }
+
+    // Optional partitions (e.g. Normal, Logo, Update in trimmed or converted dumps)
+    AddNCAFromPartition(XCIPartition::Normal);
+    if (GetFormatVersion() >= 0x2) {
+        AddNCAFromPartition(XCIPartition::Logo);
+    }
+
+    if (secure_partition == nullptr || secure_partition->GetStatus() != Loader::ResultStatus::Success) {
+        status = secure_partition ? secure_partition->GetStatus() : Loader::ResultStatus::ErrorXCIMissingPartition;
+        return;
     }
 
     status = Loader::ResultStatus::Success;
@@ -288,7 +287,7 @@ Loader::ResultStatus XCI::AddNCAFromPartition(XCIPartition part) {
     const auto partition = GetPartition(part);
 
     if (partition == nullptr) {
-        return Loader::ResultStatus::ErrorXCIMissingPartition;
+        return Loader::ResultStatus::Success;
     }
 
     for (const VirtualFile& partition_file : partition->GetFiles()) {
@@ -316,9 +315,9 @@ Loader::ResultStatus XCI::AddNCAFromPartition(XCIPartition part) {
             ncas.push_back(std::move(nca));
         } else {
             const u16 error_id = static_cast<u16>(nca->GetStatus());
-            LOG_CRITICAL(Loader, "Could not load NCA {}/{}, failed with error code {:04X} ({})",
-                         partition_names[partition_index], nca->GetName(), error_id,
-                         nca->GetStatus());
+            LOG_DEBUG(Loader, "Could not load NCA {}/{}, code {:04X} ({})",
+                      partition_names[partition_index], nca->GetName(), error_id,
+                      nca->GetStatus());
         }
     }
 
@@ -326,40 +325,47 @@ Loader::ResultStatus XCI::AddNCAFromPartition(XCIPartition part) {
 }
 
 Loader::ResultStatus XCI::TryReadHeader() {
-    constexpr size_t CardInitialDataRegionSize = 0x1000;
+    const size_t card_image_size = file->GetSize();
+    if (card_image_size < sizeof(GamecardHeader)) {
+        return Loader::ResultStatus::ErrorBadXCIHeader;
+    }
 
-    // Define the function we'll use to determine if we read a valid header.
-    const auto ReadCardHeader = [&]() {
-        // Ensure we can read the entire header. If we can't, we can't read the card image.
-        if (file->ReadObject(&header) != sizeof(GamecardHeader)) {
-            return Loader::ResultStatus::ErrorBadXCIHeader;
+    const auto ReadCardHeaderAt = [&](size_t offset) -> bool {
+        if (card_image_size < offset + sizeof(GamecardHeader)) {
+            return false;
         }
-
-        // Ensure the header magic matches. If it doesn't, this isn't a card image header.
-        if (header.magic != Common::MakeMagic('H', 'E', 'A', 'D')) {
-            return Loader::ResultStatus::ErrorBadXCIHeader;
+        GamecardHeader temp_header{};
+        if (file->Read(reinterpret_cast<u8*>(&temp_header), sizeof(GamecardHeader), offset) != sizeof(GamecardHeader)) {
+            return false;
         }
-
-        // We read a card image header.
-        return Loader::ResultStatus::Success;
+        if (temp_header.magic == Common::MakeMagic('H', 'E', 'A', 'D')) {
+            header = temp_header;
+            if (offset > 0) {
+                file = std::make_shared<OffsetVfsFile>(file, card_image_size - offset, offset);
+            }
+            return true;
+        }
+        // Also check if magic is at offset 0 of the buffer (signature-stripped dump)
+        u32 direct_magic = 0;
+        std::memcpy(&direct_magic, &temp_header, sizeof(u32));
+        if (direct_magic == Common::MakeMagic('H', 'E', 'A', 'D')) {
+            std::memset(&header, 0, sizeof(GamecardHeader));
+            std::memcpy(reinterpret_cast<u8*>(&header) + 0x100, &temp_header, sizeof(GamecardHeader) - 0x100);
+            if (offset > 0) {
+                file = std::make_shared<OffsetVfsFile>(file, card_image_size - offset, offset);
+            }
+            return true;
+        }
+        return false;
     };
 
-    // Try to read the header directly.
-    if (ReadCardHeader() == Loader::ResultStatus::Success) {
-        return Loader::ResultStatus::Success;
+    // Try common offsets where XCI headers or cart dumps begin
+    for (size_t candidate_offset : {0x0ULL, 0x1000ULL, 0x200ULL, 0x2000ULL, 0x10000ULL, 0x8000ULL}) {
+        if (ReadCardHeaderAt(candidate_offset)) {
+            return Loader::ResultStatus::Success;
+        }
     }
 
-    // Get the size of the file.
-    const size_t card_image_size = file->GetSize();
-
-    // If we are large enough to have a key area, offset past the key area and retry.
-    if (card_image_size >= CardInitialDataRegionSize) {
-        file = std::make_shared<OffsetVfsFile>(file, card_image_size - CardInitialDataRegionSize,
-                                               CardInitialDataRegionSize);
-        return ReadCardHeader();
-    }
-
-    // We had no header and aren't large enough to have a key area, so this can't be parsed.
     return Loader::ResultStatus::ErrorBadXCIHeader;
 }
 

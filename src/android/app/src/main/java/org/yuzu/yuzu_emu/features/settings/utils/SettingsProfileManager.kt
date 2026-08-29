@@ -5,11 +5,9 @@ package org.yuzu.yuzu_emu.features.settings.utils
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.core.content.FileProvider
 import org.json.JSONObject
 import org.yuzu.yuzu_emu.R
-import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
 import org.yuzu.yuzu_emu.features.settings.model.ShortSetting
@@ -74,36 +72,6 @@ object SettingsProfileManager {
         return dir
     }
 
-    fun getBuiltinPresets(): List<SettingsProfile> {
-        val ctx = YuzuApplication.appContext
-        return listOf(
-            SettingsProfile(
-                id = "preset_fast",
-                name = ctx.getString(R.string.profile_preset_fast_title),
-                description = ctx.getString(R.string.profile_preset_fast_desc),
-                isPreset = true
-            ),
-            SettingsProfile(
-                id = "preset_balanced",
-                name = ctx.getString(R.string.profile_preset_balanced_title),
-                description = ctx.getString(R.string.profile_preset_balanced_desc),
-                isPreset = true
-            ),
-            SettingsProfile(
-                id = "preset_accurate",
-                name = ctx.getString(R.string.profile_preset_accurate_title),
-                description = ctx.getString(R.string.profile_preset_accurate_desc),
-                isPreset = true
-            ),
-            SettingsProfile(
-                id = "preset_saver",
-                name = ctx.getString(R.string.profile_preset_saver_title),
-                description = ctx.getString(R.string.profile_preset_saver_desc),
-                isPreset = true
-            )
-        )
-    }
-
     fun getCustomProfiles(): List<SettingsProfile> {
         val dir = getProfilesDirectory()
         val files = dir.listFiles { f -> f.isFile && f.name.endsWith(FILE_EXTENSION) } ?: return emptyList()
@@ -124,10 +92,6 @@ object SettingsProfileManager {
         return list
     }
 
-    fun getAllProfiles(): List<SettingsProfile> {
-        return getBuiltinPresets() + getCustomProfiles()
-    }
-
     fun saveCurrentSettingsAsProfile(name: String, description: String = ""): SettingsProfile? {
         try {
             val safeName = name.trim().ifEmpty { "Profile_" + System.currentTimeMillis() }
@@ -138,7 +102,7 @@ object SettingsProfileManager {
             json.put("id", id)
             json.put("name", safeName)
             json.put("description", description.trim())
-            json.put("version", "4.9.1")
+            json.put("version", "4.9.2")
             json.put("timestamp", System.currentTimeMillis())
 
             val boolObj = JSONObject()
@@ -170,9 +134,6 @@ object SettingsProfileManager {
 
     fun applyProfile(profile: SettingsProfile): Boolean {
         try {
-            if (profile.isPreset) {
-                return applyPreset(profile.id)
-            }
             val file = profile.file ?: return false
             if (!file.exists()) return false
 
@@ -209,95 +170,6 @@ object SettingsProfileManager {
             return true
         } catch (e: Exception) {
             Log.error("[SettingsProfileManager] Failed to apply profile: ${e.message}")
-            return false
-        }
-    }
-
-    fun applyPreset(presetId: String): Boolean {
-        try {
-            when (presetId) {
-                "preset_fast" -> {
-                    IntSetting.RENDERER_BACKEND.setInt(1)
-                    IntSetting.RENDERER_RESOLUTION.setInt(1) // 0.75X
-                    IntSetting.RENDERER_ACCURACY.setInt(0) // Normal
-                    IntSetting.RENDERER_DYNA_STATE.setInt(1) // EDS1
-                    IntSetting.ASTC_RECOMPRESSION.setInt(1) // BC1/BC3
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(80)
-                    IntSetting.CPU_ACCURACY.setInt(1) // Auto
-                    IntSetting.MEMORY_LAYOUT.setInt(1) // 6GB DRAM
-                    IntSetting.FAST_GPU_TIME.setInt(1)
-                    IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(1)
-                    BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                    BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                    BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                    BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
-                    BooleanSetting.FASTMEM.setBoolean(true)
-                    BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
-                    ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
-                }
-                "preset_balanced" -> {
-                    IntSetting.RENDERER_BACKEND.setInt(1)
-                    IntSetting.RENDERER_RESOLUTION.setInt(2) // 1.0X
-                    IntSetting.RENDERER_ACCURACY.setInt(0) // Normal
-                    IntSetting.RENDERER_DYNA_STATE.setInt(1) // EDS1
-                    IntSetting.ASTC_RECOMPRESSION.setInt(0) // Uncompressed
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
-                    IntSetting.CPU_ACCURACY.setInt(1) // Auto
-                    IntSetting.MEMORY_LAYOUT.setInt(1) // 6GB DRAM
-                    IntSetting.FAST_GPU_TIME.setInt(1)
-                    IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(0)
-                    BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                    BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                    BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                    BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
-                    BooleanSetting.FASTMEM.setBoolean(true)
-                    BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
-                    ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
-                }
-                "preset_accurate" -> {
-                    IntSetting.RENDERER_BACKEND.setInt(1)
-                    IntSetting.RENDERER_RESOLUTION.setInt(2) // 1.0X
-                    IntSetting.RENDERER_ACCURACY.setInt(1) // High
-                    IntSetting.RENDERER_DYNA_STATE.setInt(1) // EDS1
-                    IntSetting.ASTC_RECOMPRESSION.setInt(0) // Uncompressed
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(90)
-                    IntSetting.CPU_ACCURACY.setInt(1) // Auto
-                    IntSetting.MEMORY_LAYOUT.setInt(2) // 8GB DRAM
-                    IntSetting.FAST_GPU_TIME.setInt(0)
-                    IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(0)
-                    BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                    BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                    BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                    BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
-                    BooleanSetting.FASTMEM.setBoolean(true)
-                    BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
-                    ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
-                }
-                "preset_saver" -> {
-                    IntSetting.RENDERER_BACKEND.setInt(1)
-                    IntSetting.RENDERER_RESOLUTION.setInt(1) // 0.75X
-                    IntSetting.RENDERER_ACCURACY.setInt(0) // Normal
-                    IntSetting.RENDERER_DYNA_STATE.setInt(1) // EDS1
-                    IntSetting.ASTC_RECOMPRESSION.setInt(1) // BC1/BC3
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(75)
-                    IntSetting.CPU_ACCURACY.setInt(1) // Auto
-                    IntSetting.MEMORY_LAYOUT.setInt(1) // 6GB DRAM
-                    IntSetting.FAST_GPU_TIME.setInt(1)
-                    IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(1)
-                    BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                    BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                    BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                    BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
-                    BooleanSetting.FASTMEM.setBoolean(true)
-                    BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
-                    ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
-                }
-            }
-            NativeConfig.saveGlobalConfig()
-            Log.info("[SettingsProfileManager] Applied preset profile: $presetId")
-            return true
-        } catch (e: Exception) {
-            Log.error("[SettingsProfileManager] Failed to apply preset: ${e.message}")
             return false
         }
     }

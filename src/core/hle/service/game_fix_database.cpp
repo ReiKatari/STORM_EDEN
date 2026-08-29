@@ -68,23 +68,45 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
             {"Renderer\\fsr_sharpening_slider", "80"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
-    {
+        {
         0x0100916014D8C000ULL,
         "Diablo II: Resurrected",
-        "• Вылет при продолжении игры / загрузке сохранения (OOM/память)\n• Нагрев SoC и троттлинг в джунглях Кураста\n• Сбои заклинаний огня и таймеров GPU",
-        "• Crash when continuing game / loading save (OOM)\n• SoC heating and throttling in Kurast\n• Fire spell glitches and GPU timer race",
-        "✓ Память: 8GB DRAM (устраняет вылет сохранения!)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ FSR: 80%",
-        "✓ Memory Layout: 8GB DRAM (Fixes save crash!)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ FSR: 80%",
+        "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
+        "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СЃС‚Р°Р±РёР»СЊРЅР°СЏ Р·Р°РіСЂСѓР·РєР°!)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled (Stable loading!)\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
-            {"Renderer\\fsr_sharpening_slider", "80"},
-            {"Cpu\\cpuopt_fastmem", "true"}
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"}
+        }
+    },
+    {
+        0x0100726014352000ULL,
+        "Diablo II: Resurrected (Alt)",
+        "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
+        "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
+        {
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"}
         }
     },
     {
@@ -259,7 +281,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -310,7 +332,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\resolution_setup", "1"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -344,7 +366,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 6GB DRAM (предотвращение вылетов Unity)\n✓ Сжатие ASTC: Отключено\n✓ Динамическое состояние: Базовое\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Реактивная очистка: Включено",
         "✓ Memory Layout: 6GB DRAM (Prevents Unity OOM crashes)\n✓ ASTC Recompression: Uncompressed (Max art fidelity)\n✓ Dynamic State: EDS1\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Reactive Flushing: Enabled",
         {
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\dyna_state", "0"},
             {"Renderer\\gpu_accuracy", "1"},
@@ -362,7 +384,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ CPU Accuracy: Accurate\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS1",
         {
             {"Cpu\\cpu_accuracy", "0"},
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\dyna_state", "0"}
         }
     },
@@ -377,7 +399,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\dyna_state", "2"},
             {"Renderer\\astc_recompression", "0"},
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\use_fast_gpu_time", "true"}
         }
     },
@@ -391,7 +413,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\dyna_state", "2"},
             {"Renderer\\astc_recompression", "0"},
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\use_fast_gpu_time", "true"}
         }
     },
@@ -404,7 +426,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ ASTC Recompression: BC3\n✓ Memory Layout: 6GB DRAM\n✓ Dynamic State: EDS2\n✓ GPU Accuracy: High",
         {
             {"Renderer\\astc_recompression", "0"},
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\dyna_state", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_fast_gpu_time", "true"}
@@ -418,7 +440,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 6GB DRAM\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено\n✓ Быстрое время GPU: Включено\n✓ Реактивная очистка: Включено",
         "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Enabled\n✓ Reactive Flushing: Enabled",
         {
-            {"Core\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "1"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_fast_gpu_time", "true"},
@@ -435,7 +457,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\astc_recompression", "0"}
         }
     },
@@ -466,7 +488,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_reactive_flushing", "true"},
             {"Renderer\\astc_recompression", "0"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -521,7 +543,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_reactive_flushing", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -572,7 +594,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -586,7 +608,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\max_anisotropy", "5"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -600,7 +622,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\use_reactive_flushing", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -614,7 +636,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_reactive_flushing", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -667,7 +689,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -681,7 +703,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\use_fast_gpu_time", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -695,7 +717,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_reactive_flushing", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -748,7 +770,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -759,7 +781,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Сжатие ASTC: Отключено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Высокая",
         "✓ Memory Layout: 8GB DRAM\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: High",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\gpu_accuracy", "1"}
@@ -828,7 +850,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -842,7 +864,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\max_anisotropy", "5"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -856,7 +878,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -869,7 +891,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\max_anisotropy", "5"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -897,20 +919,45 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
+        }
+    },
+        {
+        0x0100916014D8C000ULL,
+        "Diablo II: Resurrected",
+        "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
+        "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СЃС‚Р°Р±РёР»СЊРЅР°СЏ Р·Р°РіСЂСѓР·РєР°!)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled (Stable loading!)\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
+        {
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"}
         }
     },
     {
-        0x0100916014D8C000ULL,
-        "Diablo II: Resurrected",
-        "• Нагрев и просадки кадров в джунглях Кураста\n• Сбои заклинаний огня волшебницы",
-        "• Kurast jungle thermal throttling and stutter\n• Sorceress fire spell lighting glitches",
-        "✓ Асинхронные шейдеры: Включено\n✓ Быстрая память: Включено\n✓ Точность GPU: Высокая",
-        "✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled\n✓ GPU Accuracy: High",
+        0x0100726014352000ULL,
+        "Diablo II: Resurrected (Alt)",
+        "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
+        "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
         {
-            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\use_reactive_flushing", "false"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Renderer\\gpu_accuracy", "1"}
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"}
         }
     },
     {
@@ -924,7 +971,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\max_anisotropy", "5"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -977,7 +1024,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -991,7 +1038,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "true"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -1028,7 +1075,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Асинхронные шейдеры: Включено\n✓ Реактивная очистка: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Reactive Flushing: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\use_reactive_flushing", "true"}
@@ -1042,7 +1089,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}
@@ -1121,7 +1168,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"}
         }
@@ -1147,7 +1194,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность CPU: Точная\n✓ Асинхронные шейдеры: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Accurate\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Cpu\\cpu_accuracy", "0"},
             {"Renderer\\use_asynchronous_shaders", "true"}
         }
@@ -1160,7 +1207,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}
@@ -1191,7 +1238,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\max_anisotropy", "5"},
-            {"Core\\memory_layout_mode", "2"}
+            {"System\\memory_layout_mode", "2"}
         }
     },
     {
@@ -1255,7 +1302,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Асинхронные шейдеры: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_asynchronous_shaders", "true"}
         }
@@ -1321,7 +1368,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая\n✓ Обратные циклы барьеров: Включено\n✓ Асинхронные шейдеры: Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Barrier Feedback Loops: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}
@@ -1953,22 +2000,44 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\max_anisotropy", "5"}
         }
     },
-    {
-        0x0100D2800D5C2000ULL,
-        "Mortal Kombat 1",
-        "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
-        "• Instant crash on launch (UE4 TaskGraph / atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
-        "✓ Память: 8GB DRAM (критично для предотвращения вылета!)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Memory Layout: 8GB DRAM (Critical to prevent OOM crash!)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"Core\\memory_layout_mode", "2"},
+        0x010066B019E0E000ULL,
+        "Mortal Kombat 1",
+        "вЂў РњРіРЅРѕРІРµРЅРЅС‹Р№ РІС‹Р»РµС‚ РїСЂРё Р·Р°РїСѓСЃРєРµ (UE4 TaskGraph / Р°С‚РѕРјРёРєРё РїРѕС‚РѕРєРѕРІ)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РЅР° Р·Р°СЃС‚Р°РІРєРµ WB Games Рё РІС‹Р»РµС‚ РїРѕ РЅРµС…РІР°С‚РєРµ РїР°РјСЏС‚Рё (OOM)\nвЂў РЎР±РѕРё Extended Dynamic State РІ С€РµР№РґРµСЂР°С… Р°СЂРµРЅС‹",
+        "вЂў Instant crash on launch (UE4 TaskGraph / thread atomics)\nвЂў WB Games intro freeze and Out of Memory crash\nвЂў Extended Dynamic State arena shader crashes",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РїСѓСЃРєР° Р±РµР· РІС‹Р»РµС‚Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє СЃРµСЂРІРµСЂРѕРІ WB Play)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СѓСЃС‚СЂР°РЅСЏРµС‚ deadlock UE4)\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ CPU: РђРІС‚Рѕ (Р±РµР·РѕРїР°СЃРЅС‹Рµ РјРѕРЅРёС‚РѕСЂС‹ РїРѕС‚РѕРєРѕРІ)\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РђСЃРёРЅС…СЂРѕРЅРЅС‹Рµ С€РµР№РґРµСЂС‹: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: РћР±С‹С‡РЅР°СЏ",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for launch without crash!)\nвњ“ Airplane Mode: Enabled (Bypasses WB Play online check)\nвњ“ Fast GPU Time: Disabled (Fixes UE4 deadlock)\nвњ“ Dynamic State: Basic (EDS1)\nвњ“ CPU Accuracy: Auto (Safe thread monitors)\nвњ“ Fastmem: Enabled\nвњ“ Asynchronous Shaders: Enabled\nвњ“ GPU Accuracy: Normal",
+        {
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
             {"Cpu\\cpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\astc_recompression", "0"},
-            {"Renderer\\gpu_accuracy", "0"}
+            {"Renderer\\gpu_accuracy", "0"},
+            {"System\\use_docked_mode", "false"}
+        }
+    },
+    {
+        0x0100D2800D5C2000ULL,
+        "Mortal Kombat 1 (Alt)",
+        "вЂў РњРіРЅРѕРІРµРЅРЅС‹Р№ РІС‹Р»РµС‚ РїСЂРё Р·Р°РїСѓСЃРєРµ (UE4 TaskGraph / Р°С‚РѕРјРёРєРё РїРѕС‚РѕРєРѕРІ)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РЅР° Р·Р°СЃС‚Р°РІРєРµ WB Games Рё РІС‹Р»РµС‚ РїРѕ РЅРµС…РІР°С‚РєРµ РїР°РјСЏС‚Рё (OOM)\nвЂў РЎР±РѕРё Extended Dynamic State РІ С€РµР№РґРµСЂР°С… Р°СЂРµРЅС‹",
+        "вЂў Instant crash on launch (UE4 TaskGraph / thread atomics)\nвЂў WB Games intro freeze and Out of Memory crash\nвЂў Extended Dynamic State arena shader crashes",
+        "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РїСѓСЃРєР° Р±РµР· РІС‹Р»РµС‚Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє СЃРµСЂРІРµСЂРѕРІ WB Play)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СѓСЃС‚СЂР°РЅСЏРµС‚ deadlock UE4)\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ CPU: РђРІС‚Рѕ (Р±РµР·РѕРїР°СЃРЅС‹Рµ РјРѕРЅРёС‚РѕСЂС‹ РїРѕС‚РѕРєРѕРІ)\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РђСЃРёРЅС…СЂРѕРЅРЅС‹Рµ С€РµР№РґРµСЂС‹: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: РћР±С‹С‡РЅР°СЏ",
+        "вњ“ Memory Layout: 8GB DRAM (Critical for launch without crash!)\nвњ“ Airplane Mode: Enabled (Bypasses WB Play online check)\nвњ“ Fast GPU Time: Disabled (Fixes UE4 deadlock)\nвњ“ Dynamic State: Basic (EDS1)\nвњ“ CPU Accuracy: Auto (Safe thread monitors)\nвњ“ Fastmem: Enabled\nвњ“ Asynchronous Shaders: Enabled\nвњ“ GPU Accuracy: Normal",
+        {
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"System\\use_docked_mode", "false"}
         }
     },
     {
@@ -3414,7 +3483,7 @@ bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
         } else if (full_key == "System\\airplane_mode") {
             Settings::values.airplane_mode.SetValue(val == "true");
             Settings::values.airplane_mode.SetGlobal(false);
-        } else if (full_key == "Core\\memory_layout_mode") {
+        } else if (full_key == "System\\memory_layout_mode") {
             Settings::values.memory_layout_mode.SetValue(static_cast<Settings::MemoryLayout>(std::stoi(val)));
             Settings::values.memory_layout_mode.SetGlobal(false);
         } else if (full_key == "Cpu\\cpuopt_fastmem") {

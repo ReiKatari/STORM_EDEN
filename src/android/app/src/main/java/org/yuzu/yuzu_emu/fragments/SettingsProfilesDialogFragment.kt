@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
@@ -19,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.yuzu.yuzu_emu.R
+import org.yuzu.yuzu_emu.databinding.DialogGameFixBinding
+import org.yuzu.yuzu_emu.databinding.DialogSaveProfileBinding
 import org.yuzu.yuzu_emu.databinding.DialogSettingsProfilesBinding
 import org.yuzu.yuzu_emu.databinding.ItemSettingsProfileBinding
 import org.yuzu.yuzu_emu.features.settings.utils.SettingsProfile
@@ -115,49 +116,63 @@ class SettingsProfilesDialogFragment : DialogFragment() {
 
     private fun refreshProfiles() {
         profilesList.clear()
-        profilesList.addAll(SettingsProfileManager.getAllProfiles())
+        profilesList.addAll(SettingsProfileManager.getCustomProfiles())
         adapter?.notifyDataSetChanged()
     }
 
     private fun showSaveProfileDialog() {
-        val editText = EditText(requireContext()).apply {
-            hint = getString(R.string.profile_name_hint)
-            setPadding(40, 20, 40, 20)
-        }
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.profile_create_title)
-            .setMessage(R.string.profile_create_msg)
-            .setView(editText)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val name = editText.text.toString().trim()
-                if (name.isNotEmpty()) {
-                    val saved = SettingsProfileManager.saveCurrentSettingsAsProfile(name)
-                    if (saved != null) {
-                        Toast.makeText(requireContext(), getString(R.string.profile_saved_toast, name), Toast.LENGTH_SHORT).show()
-                        refreshProfiles()
-                    }
+        val dialogBinding = DialogSaveProfileBinding.inflate(layoutInflater)
+        dialogBinding.textSaveProfileTitle.text = getString(R.string.profile_create_title)
+        dialogBinding.textSaveProfileMsg.text = getString(R.string.profile_create_msg)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogBinding.btnCancelSaveProfile.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnConfirmSaveProfile.setOnClickListener {
+            val name = dialogBinding.editProfileName.text?.toString()?.trim().orEmpty()
+            if (name.isNotEmpty()) {
+                val saved = SettingsProfileManager.saveCurrentSettingsAsProfile(name)
+                if (saved != null) {
+                    Toast.makeText(requireContext(), getString(R.string.profile_saved_toast, name), Toast.LENGTH_SHORT).show()
+                    refreshProfiles()
+                    dialog.dismiss()
                 }
+            } else {
+                dialogBinding.inputLayoutProfileName.error = getString(R.string.profile_name_hint)
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     private fun showRenameProfileDialog(profile: SettingsProfile) {
-        val editText = EditText(requireContext()).apply {
-            setText(profile.name)
-            setPadding(40, 20, 40, 20)
-        }
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.profile_rename_title)
-            .setView(editText)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val newName = editText.text.toString().trim()
-                if (newName.isNotEmpty() && SettingsProfileManager.renameProfile(profile, newName)) {
-                    refreshProfiles()
-                }
+        val dialogBinding = DialogSaveProfileBinding.inflate(layoutInflater)
+        dialogBinding.textSaveProfileTitle.text = getString(R.string.profile_rename_title)
+        dialogBinding.textSaveProfileMsg.text = ""
+        dialogBinding.editProfileName.setText(profile.name)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogBinding.btnCancelSaveProfile.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnConfirmSaveProfile.setOnClickListener {
+            val newName = dialogBinding.editProfileName.text?.toString()?.trim().orEmpty()
+            if (newName.isNotEmpty() && SettingsProfileManager.renameProfile(profile, newName)) {
+                refreshProfiles()
+                dialog.dismiss()
+            } else {
+                dialogBinding.inputLayoutProfileName.error = getString(R.string.profile_name_hint)
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     private fun showDeleteProfileDialog(profile: SettingsProfile) {

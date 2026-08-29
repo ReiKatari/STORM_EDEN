@@ -9,6 +9,7 @@ import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
+import org.yuzu.yuzu_emu.features.settings.model.ShortSetting
 import org.yuzu.yuzu_emu.features.settings.model.Settings
 import org.yuzu.yuzu_emu.overlay.model.OverlayControlData
 import org.yuzu.yuzu_emu.overlay.model.OverlayControl
@@ -98,6 +99,20 @@ object DirectoryInitialization {
         if (hapticFeedback != null) {
             BooleanSetting.HAPTIC_FEEDBACK.setBoolean(hapticFeedback)
             saveConfig = true
+        }
+
+        val hasMigratedSpeedLimit = preferences.getBoolean("migrated_speed_limit_489", false)
+        if (!hasMigratedSpeedLimit) {
+            val curSpeedLimit = ShortSetting.RENDERER_SPEED_LIMIT.getShort(true)
+            if (curSpeedLimit <= 0 || curSpeedLimit > 1000) {
+                ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
+                saveConfig = true
+            }
+            if (!BooleanSetting.RENDERER_USE_SPEED_LIMIT.getBoolean(true)) {
+                BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
+                saveConfig = true
+            }
+            preferences.edit().putBoolean("migrated_speed_limit_489", true).apply()
         }
 
         val showPerformanceOverlay =

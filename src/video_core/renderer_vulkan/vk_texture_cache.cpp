@@ -1777,49 +1777,6 @@ bool TextureCacheRuntime::CanReportMemoryUsage() const {
 }
 
 
-void TextureCacheRuntime::FlushDeferredClear() {
-    scheduler.FlushDeferredClear();
-}
-
-VkImage TextureCacheRuntime::AcquireMsaaScratchImage(const VkImageCreateInfo& image_ci) {
-    const MsaaScratchKey key{
-        .format = image_ci.format,
-        .type = image_ci.imageType,
-        .width = image_ci.extent.width,
-        .height = image_ci.extent.height,
-        .depth = image_ci.extent.depth,
-        .levels = image_ci.mipLevels,
-        .layers = image_ci.arrayLayers,
-        .usage = image_ci.usage,
-        .flags = image_ci.flags,
-    };
-    for (MsaaScratchImage& scratch : msaa_scratch_images) {
-        if (scratch.key != key || !scheduler.IsFree(scratch.tick)) {
-            continue;
-        }
-        scratch.tick = (std::numeric_limits<u64>::max)();
-        scratch.unused_frames = 0;
-        return *scratch.image;
-    }
-    MsaaScratchImage scratch{
-        .key = key,
-        .image = memory_allocator.CreateImage(image_ci),
-        .tick = (std::numeric_limits<u64>::max)(),
-        .unused_frames = 0,
-    };
-    const VkImage handle = *scratch.image;
-    msaa_scratch_images.push_back(std::move(scratch));
-    return handle;
-}
-
-void TextureCacheRuntime::ReleaseMsaaScratchImage(VkImage image) {
-    for (MsaaScratchImage& scratch : msaa_scratch_images) {
-        if (*scratch.image == image) {
-            scratch.tick = scheduler.CurrentTick();
-            return;
-        }
-}
-
 void TextureCacheRuntime::TickFrame() {
     std::erase_if(pending_msaa_images, [this](const auto& pending) {
         return scheduler.IsFree(pending.first);

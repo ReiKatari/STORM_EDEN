@@ -220,6 +220,7 @@ struct ColorConsoleBackend final : public Backend {
                 case Level::Critical: return "[1;35m"; // Bright magenta
                 default: return "[1;30m"; // Grey
                 }
+            }();
             auto const df = GetDirectFormatArgs(entry);
             // more restrictive, because take for example this simple prelude:
             // [  50.872256] Config <Info> common/settings.cpp:142:LogSettings:

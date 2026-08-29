@@ -19,7 +19,7 @@ if (DEFINED GIT_RELEASE)
     set(GIT_REFSPEC "${GIT_RELEASE}")
     set(IS_DEV_BUILD false)
 else()
-    set(BUILD_VERSION "4.8.8")
+    set(BUILD_VERSION "4.8.9")
     set(IS_DEV_BUILD false)
 endif()
 

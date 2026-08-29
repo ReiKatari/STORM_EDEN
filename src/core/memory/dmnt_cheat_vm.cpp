@@ -674,12 +674,24 @@ u64 DmntCheatVm::GetCheatProcessAddress(const CheatProcessMetadata& metadata,
     switch (mem_type) {
     case MemoryAccessType::MainNso:
     default:
+        if (metadata.main_nso_extents.base == 0) {
+            return 0;
+        }
         return metadata.main_nso_extents.base + rel_address;
     case MemoryAccessType::Heap:
+        if (metadata.heap_extents.base == 0) {
+            return 0;
+        }
         return metadata.heap_extents.base + rel_address;
     case MemoryAccessType::Alias:
+        if (metadata.alias_extents.base == 0) {
+            return 0;
+        }
         return metadata.alias_extents.base + rel_address;
     case MemoryAccessType::Aslr:
+        if (metadata.aslr_extents.base == 0) {
+            return 0;
+        }
         return metadata.aslr_extents.base + rel_address;
     }
 }

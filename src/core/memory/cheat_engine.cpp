@@ -58,7 +58,9 @@ void StandardVmCallbacks::MemoryWriteUnsafe(VAddr address, const void* data, u64
 
     if (system.ApplicationMemory().WriteBlockUnsafe(address, data, size)) {
         auto* proc = system.ApplicationProcess();
-        if (proc) {
+        if (proc && metadata.main_nso_extents.base != 0 &&
+            address >= metadata.main_nso_extents.base &&
+            address < metadata.main_nso_extents.base + metadata.main_nso_extents.size) {
             Core::InvalidateInstructionCacheRange(proc, address, size);
         }
     }
@@ -107,20 +109,17 @@ bool StandardVmCallbacks::IsAddressInRange(VAddr in) const {
     if (in == 0) {
         return false;
     }
-    if (system.ApplicationMemory().IsValidVirtualAddress(in)) {
-        return true;
-    }
-    if ((in >= metadata.main_nso_extents.base &&
+    if ((metadata.main_nso_extents.base != 0 && in >= metadata.main_nso_extents.base &&
          in < metadata.main_nso_extents.base + metadata.main_nso_extents.size) ||
-        (in >= metadata.heap_extents.base &&
+        (metadata.heap_extents.base != 0 && in >= metadata.heap_extents.base &&
          in < metadata.heap_extents.base + metadata.heap_extents.size) ||
-        (in >= metadata.alias_extents.base &&
+        (metadata.alias_extents.base != 0 && in >= metadata.alias_extents.base &&
          in < metadata.alias_extents.base + metadata.alias_extents.size) ||
-        (in >= metadata.aslr_extents.base &&
+        (metadata.aslr_extents.base != 0 && in >= metadata.aslr_extents.base &&
          in < metadata.aslr_extents.base + metadata.aslr_extents.size)) {
         return true;
     }
-    return false;
+    return system.ApplicationMemory().IsValidVirtualAddress(in);
 }
 
 CheatParser::~CheatParser() = default;

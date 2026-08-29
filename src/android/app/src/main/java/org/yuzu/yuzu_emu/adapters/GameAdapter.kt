@@ -314,7 +314,8 @@ class GameAdapter(private val activity: AppCompatActivity) :
 
             val checkGameFixAndLaunch: () -> Unit = {
                 if (GameFixDatabase.hasFix(game) &&
-                    !GameFixDatabase.isDontAskAgain(activity, game)) {
+                    !GameFixDatabase.isDontAskAgain(activity, game) &&
+                    !GameFixDatabase.isFixApplied(game)) {
                     val dialog = GameFixDialogFragment.newInstance(game) { wasApplied ->
                         launch(wasApplied)
                     }

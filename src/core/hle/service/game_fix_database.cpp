@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "core/hle/service/game_fix_database.h"
@@ -3053,6 +3053,30 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("mortal kombat") != std::string::npos && (lower.find("mortal kombat") != std::string::npos || lower.find("mk11") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("gothic") != std::string::npos && lower.find("gothic") != std::string::npos) {
+            return &profile;
+        }
+        if (game_lower.find("prince of persia") != std::string::npos && (lower.find("prince") != std::string::npos || lower.find("lost crown") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("echoes of wisdom") != std::string::npos && (lower.find("echoes") != std::string::npos || lower.find("wisdom") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("luigi's mansion 3") != std::string::npos && (lower.find("mansion 3") != std::string::npos || lower.find("lm3") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("no man's sky") != std::string::npos && (lower.find("no man") != std::string::npos || lower.find("nms") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("batman") != std::string::npos && (lower.find("batman") != std::string::npos || lower.find("arkham") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("kingdom come") != std::string::npos && (lower.find("kingdom come") != std::string::npos || lower.find("kcd") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("tomb raider") != std::string::npos && lower.find("tomb raider") != std::string::npos) {
             return &profile;
         }
         if (game_lower.find("borderlands") != std::string::npos && lower.find("borderlands") != std::string::npos) {

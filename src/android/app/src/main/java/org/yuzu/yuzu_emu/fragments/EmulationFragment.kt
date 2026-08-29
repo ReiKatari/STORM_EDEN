@@ -1152,6 +1152,15 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 quickSettings.addPerGameConfigStatusIndicator(container)
             }
 
+            quickSettings.addButton(
+                R.string.settings_profiles_title,
+                R.drawable.ic_folder_open,
+                container
+            ) {
+                SettingsProfilesDialogFragment.newInstance()
+                    .show(childFragmentManager, SettingsProfilesDialogFragment.TAG)
+            }
+
             lateinit var slowSpeed: MaterialSwitch
             lateinit var turboSpeed: MaterialSwitch
 

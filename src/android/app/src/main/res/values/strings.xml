@@ -2051,5 +2051,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="game_fix_dont_ask_again">Don\'t ask again for this game</string>
     <string name="game_fix_apply_and_launch">⚡ Apply Fixes &amp; Launch</string>
     <string name="game_fix_skip_and_launch">Launch Without Changes</string>
+
+    <!-- Settings Profiles -->
+    <string name="settings_profiles_title">Settings Profiles</string>
+    <string name="settings_profiles_description">Create, save, quickly load, rename, export and share settings profiles.</string>
+    <string name="profile_preset_fast_title">⚡ Fast (Maximum FPS &amp; Low Temp)</string>
+    <string name="profile_preset_fast_desc">0.75X resolution, fast JIT, async shaders, disabled reactive flushing, 6GB DRAM, cool SoC.</string>
+    <string name="profile_preset_balanced_title">⚖️ Balanced (Recommended)</string>
+    <string name="profile_preset_balanced_desc">1.0X (720p/1080p), FSR 85%, fast JIT, async shaders, EDS1 dynamic state, 6GB DRAM.</string>
+    <string name="profile_preset_accurate_title">💎 High Quality (Accurate)</string>
+    <string name="profile_preset_accurate_desc">1.0X-1.5X, high GPU accuracy, strict sync, FXAA/SMAA, 8GB DRAM.</string>
+    <string name="profile_preset_saver_title">🔋 Battery Saver &amp; Cool SoC</string>
+    <string name="profile_preset_saver_desc">0.75X resolution, 100% speed limit, battery-efficient VRAM, minimum thermal output.</string>
+    <string name="profile_btn_apply">Apply</string>
+    <string name="profile_btn_share">Share</string>
+    <string name="profile_btn_rename">Rename</string>
+    <string name="profile_btn_delete">Delete</string>
+    <string name="profile_btn_create">Save Current</string>
+    <string name="profile_btn_import">Import</string>
+    <string name="profile_create_title">Save Settings Profile</string>
+    <string name="profile_create_msg">Enter a name for the new profile to save current emulator settings:</string>
+    <string name="profile_name_hint">Profile name</string>
+    <string name="profile_rename_title">Rename Profile</string>
+    <string name="profile_delete_title">Delete Profile</string>
+    <string name="profile_delete_confirmation">Are you sure you want to delete profile \"%1$s\"?</string>
+    <string name="profile_applied_toast">⚡ Profile \"%1$s\" applied successfully!</string>
+    <string name="profile_apply_failed">Failed to apply settings profile.</string>
+    <string name="profile_saved_toast">Profile \"%1$s\" saved!</string>
+    <string name="profile_share_title">Share Settings Profile</string>
+    <string name="profile_import_success">Profile \"%1$s\" imported successfully!</string>
+    <string name="profile_import_failed">Failed to import profile. Invalid file format.</string>
 </resources>
 

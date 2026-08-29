@@ -51,21 +51,33 @@ class GameFixDialogFragment : DialogFragment() {
         }
 
         binding.btnApplyGameFix.setOnClickListener {
-            if (binding.cbDontAskAgain.isChecked) {
-                GameFixDatabase.setDontAskAgain(requireContext(), currentGame, true)
+            val ctx = context
+            try {
+                if (binding.cbDontAskAgain.isChecked && ctx != null) {
+                    GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
+                }
+                GameFixDatabase.applyFix(currentGame)
+                if (ctx != null) {
+                    Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN применены!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                // Log and continue launching
             }
-            GameFixDatabase.applyFix(currentGame)
-            Toast.makeText(requireContext(), "⚡ Оптимизации STORM EDEN применены!", Toast.LENGTH_SHORT).show()
-            dismiss()
-            onLaunchCallback?.invoke(true)
+            val cb = onLaunchCallback
+            dismissAllowingStateLoss()
+            cb?.invoke(true)
         }
 
         binding.btnSkipGameFix.setOnClickListener {
-            if (binding.cbDontAskAgain.isChecked) {
-                GameFixDatabase.setDontAskAgain(requireContext(), currentGame, true)
-            }
-            dismiss()
-            onLaunchCallback?.invoke(false)
+            val ctx = context
+            try {
+                if (binding.cbDontAskAgain.isChecked && ctx != null) {
+                    GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
+                }
+            } catch (e: Exception) {}
+            val cb = onLaunchCallback
+            dismissAllowingStateLoss()
+            cb?.invoke(false)
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())

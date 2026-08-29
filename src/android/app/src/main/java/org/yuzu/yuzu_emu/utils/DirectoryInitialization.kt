@@ -101,8 +101,8 @@ object DirectoryInitialization {
             saveConfig = true
         }
 
-        val hasMigratedSpeedLimit = preferences.getBoolean("migrated_speed_limit_490", false)
-        if (!hasMigratedSpeedLimit) {
+        val hasMigratedDefaults491 = preferences.getBoolean("migrated_defaults_491", false)
+        if (!hasMigratedDefaults491) {
             val curSpeedLimit = ShortSetting.RENDERER_SPEED_LIMIT.getShort(true)
             if (curSpeedLimit <= 0 || curSpeedLimit > 1000) {
                 ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
@@ -112,7 +112,19 @@ object DirectoryInitialization {
                 BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
                 saveConfig = true
             }
-            preferences.edit().putBoolean("migrated_speed_limit_490", true).apply()
+            if (!BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.getBoolean(true)) {
+                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
+                saveConfig = true
+            }
+            if (!BooleanSetting.FASTMEM.getBoolean(true)) {
+                BooleanSetting.FASTMEM.setBoolean(true)
+                saveConfig = true
+            }
+            if (IntSetting.RENDERER_DYNA_STATE.getInt(true) == 0) {
+                IntSetting.RENDERER_DYNA_STATE.setInt(1)
+                saveConfig = true
+            }
+            preferences.edit().putBoolean("migrated_defaults_491", true).apply()
         }
 
         val showPerformanceOverlay =

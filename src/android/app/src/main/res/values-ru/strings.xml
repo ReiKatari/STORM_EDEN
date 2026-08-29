@@ -1430,5 +1430,35 @@
     <string name="frame_generation_support">Генерация кадров (LSFG)</string>
     <string name="frame_generation_supported">Поддерживается</string>
     <string name="frame_generation_unsupported">Не поддерживается (требуется Vulkan Memory Model)</string>
+
+    <!-- Профили настроек -->
+    <string name="settings_profiles_title">Профили настроек</string>
+    <string name="settings_profiles_description">Создание, сохранение, быстрая загрузка, переименование и экспорт профилей настроек</string>
+    <string name="profile_preset_fast_title">⚡ Быстрый (Макс. FPS и низкий нагрев)</string>
+    <string name="profile_preset_fast_desc">0.75X разрешение, быстрый JIT, асинхронные шейдеры, отключенная реактивная очистка, 6 ГБ DRAM, холодный SoC.</string>
+    <string name="profile_preset_balanced_title">⚖️ Сбалансированный (Рекомендуемый)</string>
+    <string name="profile_preset_balanced_desc">1.0X (720p/1080p), FSR 85%, быстрый JIT, асинхронные шейдеры, базовая динамика EDS1, 6 ГБ DRAM.</string>
+    <string name="profile_preset_accurate_title">💎 Высокое качество (Accurate)</string>
+    <string name="profile_preset_accurate_desc">1.0X-1.5X, высокая точность GPU, строгая синхронизация, FXAA/SMAA, 8 ГБ DRAM.</string>
+    <string name="profile_preset_saver_title">🔋 Энергосбережение и холодный SoC</string>
+    <string name="profile_preset_saver_desc">0.75X разрешение, лимит 100% скорости, экономный VRAM, минимальный нагрев аккумулятора.</string>
+    <string name="profile_btn_apply">Применить</string>
+    <string name="profile_btn_share">Поделиться</string>
+    <string name="profile_btn_rename">Переименовать</string>
+    <string name="profile_btn_delete">Удалить</string>
+    <string name="profile_btn_create">Сохранить текущие</string>
+    <string name="profile_btn_import">Импорт</string>
+    <string name="profile_create_title">Сохранить профиль настроек</string>
+    <string name="profile_create_msg">Введите название для нового профиля, чтобы сохранить текущую конфигурацию эмулятора:</string>
+    <string name="profile_name_hint">Название профиля</string>
+    <string name="profile_rename_title">Переименовать профиль</string>
+    <string name="profile_delete_title">Удаление профиля</string>
+    <string name="profile_delete_confirmation">Вы действительно хотите удалить профиль «%1$s»?</string>
+    <string name="profile_applied_toast">⚡ Профиль настроек «%1$s» успешно применен!</string>
+    <string name="profile_apply_failed">Не удалось применить профиль настроек.</string>
+    <string name="profile_saved_toast">Профиль «%1$s» успешно сохранен!</string>
+    <string name="profile_share_title">Поделиться профилем настроек</string>
+    <string name="profile_import_success">Профиль «%1$s» успешно импортирован!</string>
+    <string name="profile_import_failed">Ошибка импорта профиля. Неверный формат файла.</string>
 </resources>
 

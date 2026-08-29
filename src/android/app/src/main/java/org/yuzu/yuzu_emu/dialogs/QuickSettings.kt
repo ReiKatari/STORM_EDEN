@@ -237,4 +237,19 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         val dividerView = inflater.inflate(R.layout.item_quick_settings_divider, container, false)
         container.addView(dividerView)
     }
+
+    fun addButton(
+        title: Int,
+        icon: Int,
+        container: ViewGroup,
+        onClick: () -> Unit
+    ) {
+        val inflater = LayoutInflater.from(emulationFragment.requireContext())
+        val itemView = inflater.inflate(R.layout.item_quick_settings_button, container, false)
+        val btn = itemView.findViewById<com.google.android.material.button.MaterialButton>(R.id.quick_settings_btn)
+        btn.setText(title)
+        btn.setIconResource(icon)
+        btn.setOnClickListener { onClick() }
+        container.addView(itemView)
+    }
 }

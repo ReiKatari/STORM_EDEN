@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.model
@@ -3036,6 +3036,14 @@ object GameFixDatabase {
                 nameLower.contains("nitro-fueled") -> listOf("nitro", "ctr", "0100f7a00b704000")
                 nameLower.contains("mortal kombat 1") || nameLower.contains("mk1") -> listOf("mortal kombat 1", "mk1", "0100d2800d5c2000")
                 nameLower.contains("mortal kombat") -> listOf("mortal kombat", "mk11", "0100b1100c4d0000")
+                nameLower.contains("gothic") -> listOf("gothic", "010041201a5ec000", "01007e101bb46000")
+                nameLower.contains("prince of persia") || nameLower.contains("lost crown") -> listOf("prince of persia", "lost crown", "01008c1019972000")
+                nameLower.contains("echoes of wisdom") -> listOf("echoes of wisdom", "wisdom", "01008cf01ba04000")
+                nameLower.contains("luigi's mansion 3") || nameLower.contains("lm3") -> listOf("luigi's mansion 3", "lm3", "0100dca0064a6000")
+                nameLower.contains("no man's sky") || nameLower.contains("nms") -> listOf("no man's sky", "nms", "0100de801648e000")
+                nameLower.contains("batman") || nameLower.contains("arkham") -> listOf("batman", "arkham", "010039b0182da000")
+                nameLower.contains("kingdom come") || nameLower.contains("kcd") -> listOf("kingdom come", "kcd", "010062c015792000")
+                nameLower.contains("tomb raider") -> listOf("tomb raider", "0100c4d018a0e000")
                 nameLower.contains("borderlands") -> listOf("borderlands", "01007e300b70c000")
                 nameLower.contains("diablo iii") -> listOf("diablo iii", "diablo 3", "d3", "01001b700a654000")
                 nameLower.contains("demon slayer") -> listOf("demon slayer", "hinokami", "01005e4017c7a000")

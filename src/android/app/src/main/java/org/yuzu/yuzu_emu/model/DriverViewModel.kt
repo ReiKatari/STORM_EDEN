@@ -28,7 +28,7 @@ import java.io.File
 
 class DriverViewModel : ViewModel() {
     private val _areDriversLoading = MutableStateFlow(false)
-    private val _isDriverReady = MutableStateFlow(true)
+    private val _isDriverReady = MutableStateFlow(false)
     private val _isDeletingDrivers = MutableStateFlow(false)
 
     val isInteractionAllowed: StateFlow<Boolean> =
@@ -129,10 +129,18 @@ class DriverViewModel : ViewModel() {
 
         if (position == 0) {
             StringSetting.DRIVER_PATH.setString("")
+            if (activeGame == null) {
+                GpuDriverHelper.installDefaultDriver()
+            }
         } else {
-            StringSetting.DRIVER_PATH.setString(driverData[position - 1].first)
+            val driverFile = File(driverData[position - 1].first)
+            StringSetting.DRIVER_PATH.setString(driverFile.path)
+            if (activeGame == null && driverFile.exists()) {
+                GpuDriverHelper.installCustomDriver(driverFile)
+            }
         }
         previousDriverPath = newDriverPath
+        updateName()
     }
 
     fun onDriverShaderDialogDismissed(dontShowAgain: Boolean) {
@@ -194,6 +202,17 @@ class DriverViewModel : ViewModel() {
             updateDriverNameForGame(game)
             if (game == null) {
                 NativeConfig.saveGlobalConfig()
+                val globalDriverPath = StringSetting.DRIVER_PATH.getString(needsGlobal = true)
+                val globalDriverFile = File(globalDriverPath)
+                if (globalDriverPath.isEmpty() || !globalDriverFile.exists()) {
+                    GpuDriverHelper.installDefaultDriver()
+                } else {
+                    val installedMeta = GpuDriverHelper.installedCustomDriverData
+                    val targetMeta = GpuDriverHelper.getMetadataFromZip(globalDriverFile)
+                    if (installedMeta != targetMeta) {
+                        GpuDriverHelper.installCustomDriver(globalDriverFile)
+                    }
+                }
             } else {
                 NativeConfig.savePerGameConfig()
                 NativeConfig.unloadPerGameConfig()
@@ -218,23 +237,27 @@ class DriverViewModel : ViewModel() {
     fun onLaunchGame() {
         _isDriverReady.value = false
 
-        val selectedDriverFile = File(StringSetting.DRIVER_PATH.getString())
-        val selectedDriverMetadata = GpuDriverHelper.customDriverSettingData
-        if (GpuDriverHelper.installedCustomDriverData == selectedDriverMetadata) {
-            setDriverReady()
-            return
-        }
-
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (selectedDriverMetadata.name == null) {
-                    GpuDriverHelper.installDefaultDriver()
-                    setDriverReady()
-                    return@withContext
-                }
+                val selectedDriverPath = StringSetting.DRIVER_PATH.getString()
+                val selectedDriverFile = File(selectedDriverPath)
+                val selectedDriverMetadata = GpuDriverHelper.customDriverSettingData
+                val installedMetadata = GpuDriverHelper.installedCustomDriverData
 
-                if (selectedDriverFile.exists()) {
-                    GpuDriverHelper.installCustomDriver(selectedDriverFile)
+                if (selectedDriverPath.isEmpty() || selectedDriverMetadata.name == null) {
+                    if (installedMetadata.name != null) {
+                        GpuDriverHelper.installDefaultDriver()
+                    } else {
+                        GpuDriverHelper.initializeDriverParameters()
+                    }
+                } else if (selectedDriverFile.exists()) {
+                    val libName = installedMetadata.libraryName
+                    val libFile = if (!libName.isNullOrEmpty()) File(GpuDriverHelper.driverInstallationPath, libName) else null
+                    if (installedMetadata != selectedDriverMetadata || libFile == null || !libFile.exists()) {
+                        GpuDriverHelper.installCustomDriver(selectedDriverFile)
+                    } else {
+                        GpuDriverHelper.initializeDriverParameters()
+                    }
                 } else {
                     GpuDriverHelper.installDefaultDriver()
                 }

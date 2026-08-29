@@ -809,25 +809,26 @@ Errno BSD::SetSockOptImpl(s32 fd, u32 level, OptName optname, std::span<const u8
     Network::SocketBase* const socket = file_descriptors[fd]->socket.get();
 
     if (optname == OptName::LINGER) {
-        ASSERT(optval.size() == sizeof(Linger));
+        if (optval.size() < sizeof(Linger)) {
+            return Errno::INVAL;
+        }
         auto linger = GetValue<Linger>(optval);
-        ASSERT(linger.onoff == 0 || linger.onoff == 1);
-
         return Translate(socket->SetLinger(linger.onoff != 0, linger.linger));
     }
 
-    ASSERT(optval.size() == sizeof(u32));
-    auto value = GetValue<u32>(optval);
+    u32 value = 0;
+    if (optval.size() >= sizeof(u32)) {
+        value = GetValue<u32>(optval);
+    } else if (!optval.empty()) {
+        value = static_cast<u32>(optval[0]);
+    }
 
     switch (optname) {
     case OptName::REUSEADDR:
-        ASSERT(value == 0 || value == 1);
         return Translate(socket->SetReuseAddr(value != 0));
     case OptName::KEEPALIVE:
-        ASSERT(value == 0 || value == 1);
         return Translate(socket->SetKeepAlive(value != 0));
     case OptName::BROADCAST:
-        ASSERT(value == 0 || value == 1);
         return Translate(socket->SetBroadcast(value != 0));
     case OptName::SNDBUF:
         return Translate(socket->SetSndBuf(value));
@@ -841,7 +842,7 @@ Errno BSD::SetSockOptImpl(s32 fd, u32 level, OptName optname, std::span<const u8
         LOG_WARNING(Service, "(STUBBED) setting NOSIGPIPE to {}", value);
         return Errno::SUCCESS;
     default:
-        UNIMPLEMENTED_MSG("Unimplemented optname={}", optname);
+        LOG_WARNING(Service, "(STUBBED) setsockopt unimplemented optname={}", optname);
         return Errno::SUCCESS;
     }
 }

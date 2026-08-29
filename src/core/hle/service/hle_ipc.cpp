@@ -69,7 +69,7 @@ Result SessionRequestManager::CompleteSyncRequest(Kernel::KServerSession* server
             result = this->SessionHandler().HandleSyncRequest(*server_session, context);
         }
     } else {
-        ASSERT_MSG(false, "Session handler is invalid, stubbing response!");
+        LOG_WARNING(IPC, "Session handler is invalid, stubbing response!");
         IPC::ResponseBuilder rb(context, 2);
         rb.Push(ResultSuccess);
     }

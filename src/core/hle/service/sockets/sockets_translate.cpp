@@ -41,11 +41,19 @@ Errno Translate(Network::Errno value) {
         return Errno::CONNRESET;
     case Network::Errno::INPROGRESS:
         return Errno::INPROGRESS;
-    case Network::Errno::ISCONN:
-        return Errno::ISCONN;
+    case Network::Errno::HOSTUNREACH:
+        return Errno::HOSTUNREACH;
+    case Network::Errno::NETDOWN:
+        return Errno::NETDOWN;
+    case Network::Errno::NETUNREACH:
+        return Errno::NETUNREACH;
+    case Network::Errno::MSGSIZE:
+        return Errno::MSGSIZE;
+    case Network::Errno::OTHER:
+        return Errno::INVAL;
     default:
         LOG_WARNING(Service, "Unimplemented errno={}", static_cast<u32>(value));
-        return Errno::SUCCESS;
+        return Errno::INVAL;
     }
 }
 

@@ -101,8 +101,8 @@ object DirectoryInitialization {
             saveConfig = true
         }
 
-        val hasMigratedDefaults498 = preferences.getBoolean("migrated_defaults_498", false)
-        if (!hasMigratedDefaults498) {
+        val hasMigratedDefaults499 = preferences.getBoolean("migrated_defaults_499", false)
+        if (!hasMigratedDefaults499) {
             val curSpeedLimit = ShortSetting.RENDERER_SPEED_LIMIT.getShort(true)
             if (curSpeedLimit <= 0 || curSpeedLimit > 1000) {
                 ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
@@ -110,6 +110,11 @@ object DirectoryInitialization {
             }
             if (!BooleanSetting.RENDERER_USE_SPEED_LIMIT.getBoolean(true)) {
                 BooleanSetting.RENDERER_USE_SPEED_LIMIT.setBoolean(true)
+                saveConfig = true
+            }
+            // Enforce low-latency Mailbox VSync Mode (1)
+            if (IntSetting.RENDERER_VSYNC.getInt(true) != 1) {
+                IntSetting.RENDERER_VSYNC.setInt(1)
                 saveConfig = true
             }
             if (!BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.getBoolean(true)) {
@@ -129,7 +134,7 @@ object DirectoryInitialization {
                 IntSetting.CPU_ACCURACY.setInt(1)
                 saveConfig = true
             }
-            preferences.edit().putBoolean("migrated_defaults_498", true).apply()
+            preferences.edit().putBoolean("migrated_defaults_499", true).apply()
         }
 
         val showPerformanceOverlay =

@@ -22,14 +22,18 @@ enum class Errno : u32 {
     INVAL = 22,
     MFILE = 24,
     PIPE = 32,
+    DESTADDRREQ = 89,
     MSGSIZE = 90,
+    NETDOWN = 100,
+    NETUNREACH = 101,
     CONNABORTED = 103,
     CONNRESET = 104,
+    ISCONN = 106,
     NOTCONN = 107,
     TIMEDOUT = 110,
     CONNREFUSED = 111,
+    HOSTUNREACH = 113,
     INPROGRESS = 115,
-    ISCONN = 106,
 };
 
 enum class GetAddrInfoError : s32 {

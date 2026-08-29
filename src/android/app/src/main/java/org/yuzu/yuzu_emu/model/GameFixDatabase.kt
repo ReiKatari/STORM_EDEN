@@ -33,7 +33,7 @@ object GameFixDatabase {
             "✓ GPU Accuracy: High (32-bit depth precision — fixes missing graphics in Shrines)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dynamic_state" to "1",
+                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
@@ -50,7 +50,7 @@ object GameFixDatabase {
             "✓ GPU Accuracy: High (Full depth buffer stability)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dynamic_state" to "1",
+                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
@@ -176,7 +176,7 @@ object GameFixDatabase {
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\dynamic_state" to "1",
+                "Renderer\\dyna_state" to "1",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -196,7 +196,7 @@ object GameFixDatabase {
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\astc_recompression" to "0",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Renderer\\dynamic_state" to "1"
+                "Renderer\\dyna_state" to "1"
             )
         ),
         GameFixProfile(

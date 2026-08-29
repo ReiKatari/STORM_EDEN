@@ -21,7 +21,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ GPU Accuracy: High (32-bit depth precision — fixes missing graphics in Shrines)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\dynamic_state", "1"},
+            {"Renderer\\dyna_state", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
@@ -38,7 +38,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ GPU Accuracy: High (Full depth buffer stability)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\dynamic_state", "1"},
+            {"Renderer\\dyna_state", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
@@ -164,7 +164,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
             {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_fast_gpu_time", "false"},
-            {"Renderer\\dynamic_state", "1"},
+            {"Renderer\\dyna_state", "1"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
@@ -184,7 +184,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\gpu_accuracy", "0"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Renderer\\dynamic_state", "1"}
+            {"Renderer\\dyna_state", "1"}
         }
     },
     {

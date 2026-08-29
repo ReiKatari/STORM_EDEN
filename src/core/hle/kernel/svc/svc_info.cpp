@@ -243,6 +243,21 @@ Result GetInfo(Core::System& system, u64* result, InfoType info_id_type, Handle 
         *result = system.Kernel().CurrentScheduler()->GetIdleThread()->GetCpuTime();
         R_SUCCEED();
     }
+    case InfoType::MesosphereMeta: {
+        // Atmosphere Mesosphere meta info query
+        R_UNLESS(handle == InvalidHandle, ResultInvalidHandle);
+        switch (info_sub_id) {
+        case 0: // MesosphereApiVersion
+            *result = 0x00010000;
+            R_SUCCEED();
+        case 1: // MesosphereTargetFirmware
+            *result = 0x00120000;
+            R_SUCCEED();
+        default:
+            *result = 0;
+            R_SUCCEED();
+        }
+    }
     case InfoType::MesosphereCurrentProcess: {
         // Verify the input handle is invalid.
         R_UNLESS(handle == InvalidHandle, ResultInvalidHandle);

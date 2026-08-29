@@ -200,6 +200,23 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
+            0x0100650017170000L,
+            "Animal Well",
+            "• Вылет при старте или загрузке локаций из-за сбоев в кастомных 2D-шейдерах жидкости и света\n• Зависание звукового буфера Cubeb при переходе между экранами\n• Графические артефакты сканирующих линий (CRT scanlines)",
+            "• Crash on startup or room transitions due to fluid simulation and light shaders\n• Cubeb audio buffer freeze on room transitions\n• CRT scanline and lighting texture artifacts",
+            "✓ Точность GPU: Высокая (High, стабильный расчет пиксельных буферов света и физики)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено (чистая 2D-пиксельная графика и свет)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность CPU: Безопасная (Auto)",
+            "✓ GPU Accuracy: High (Fixes 2D fluid & lighting shader buffer calculations)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed (Crisp pixel art & CRT filters)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ CPU Accuracy: Auto/Safe",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\astc_recompression" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpu_accuracy" to "1"
+            )
+        ),
+        GameFixProfile(
             0x0100D870045B6000L,
             "Luigi's Mansion 3",
             "• Растягивание полигонов (взрывы геометрии)\n• Невидимый луч фонарика и зависания в лифте",
@@ -3273,6 +3290,7 @@ object GameFixDatabase {
                 nameLower.contains("luigi's mansion 3") || nameLower.contains("lm3") -> listOf("luigi's mansion 3", "lm3", "0100dca0064a6000")
                 nameLower.contains("no man's sky") || nameLower.contains("nms") -> listOf("no man's sky", "nms", "0100ae801844e000", "0100de801648e000")
                 nameLower.contains("alan wake") -> listOf("alan wake", "alan_wake", "0100623017a58000")
+                nameLower.contains("animal well") -> listOf("animal well", "animal_well", "0100650017170000", "0100650017170800")
                 nameLower.contains("gta v") || nameLower.contains("gta 5") || nameLower.contains("grand theft auto") -> listOf("gta v", "gta 5", "grand theft auto v", "gtav", "010000000000100d")
                 nameLower.contains("batman") || nameLower.contains("arkham") -> listOf("batman", "arkham", "010039b0182da000")
                 nameLower.contains("kingdom come") || nameLower.contains("kcd") -> listOf("kingdom come", "kcd", "010062c015792000")

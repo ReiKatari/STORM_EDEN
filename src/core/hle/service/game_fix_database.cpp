@@ -188,6 +188,23 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
+        0x0100650017170000ULL,
+        "Animal Well",
+        "• Вылет при старте или загрузке локаций из-за сбоев в кастомных 2D-шейдерах жидкости и света\n• Зависание звукового буфера Cubeb при переходе между экранами\n• Графические артефакты сканирующих линий (CRT scanlines)",
+        "• Crash on startup or room transitions due to fluid simulation and light shaders\n• Cubeb audio buffer freeze on room transitions\n• CRT scanline and lighting texture artifacts",
+        "✓ Точность GPU: Высокая (High, стабильный расчет пиксельных буферов света и физики)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено (чистая 2D-пиксельная графика и свет)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность CPU: Безопасная (Auto)",
+        "✓ GPU Accuracy: High (Fixes 2D fluid & lighting shader buffer calculations)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed (Crisp pixel art & CRT filters)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ CPU Accuracy: Auto/Safe",
+        {
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dyna_state", "1"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpu_accuracy", "1"}
+        }
+    },
+    {
         0x0100D870045B6000ULL,
         "Luigi's Mansion 3",
         "• Растягивание полигонов (взрывы геометрии)\n• Невидимый луч фонарика и зависания в лифте",
@@ -3288,6 +3305,9 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("alan wake") != std::string::npos && (lower.find("alan wake") != std::string::npos || lower.find("alan_wake") != std::string::npos)) {
+            return &profile;
+        }
+        if (game_lower.find("animal well") != std::string::npos && (lower.find("animal well") != std::string::npos || lower.find("animal_well") != std::string::npos)) {
             return &profile;
         }
         if ((game_lower.find("gta v") != std::string::npos || game_lower.find("gta 5") != std::string::npos || game_lower.find("grand theft auto") != std::string::npos) &&

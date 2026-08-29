@@ -90,7 +90,7 @@ class SystemInfoDialogFragment : DialogFragment() {
                 append("• Версия драйвера: ").append(if (vulkanDriver.isNotEmpty()) vulkanDriver else "Vulkan Hardware Driver").append("\n")
 
                 val frameGen = NativeLibrary.supportsFrameGeneration()
-                append("• Генерация кадров (LSFG): ").append(if (frameGen) "Поддерживается" else "Не поддерживается")
+                append("• Генерация кадров: ").append(if (frameGen) "Поддерживается" else "Не поддерживается")
             } catch (e: Exception) {
                 append("• Статус: ").append(e.message)
             }

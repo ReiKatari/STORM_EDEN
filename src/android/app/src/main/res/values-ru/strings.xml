@@ -1367,8 +1367,8 @@
     <string name="game_fix_apply_and_launch">⚡ Применить исправления и запустить</string>
     <string name="game_fix_skip_and_launch">Запустить без изменений</string>
 
-    <!-- Lossless Scaling и генерация кадров -->
-    <string name="lossless_scaling">Lossless Scaling</string>
+    <!-- Генерация кадров -->
+    <string name="lossless_scaling">Генерация кадров</string>
     <string name="lossless_scaling_description">Установка библиотеки Lossless.dll для аппаратной генерации промежуточных кадров</string>
     <string name="lossless_scaling_setup_description">Необязательно. Установите вашу копию Lossless.dll для включения генерации кадров</string>
     <string name="lossless_scaling_install">Установить Lossless.dll</string>
@@ -1381,7 +1381,7 @@
     <string name="lossless_scaling_remove_description">Удалить установленный Lossless.dll и подготовленный кэш шейдеров</string>
     <string name="lossless_scaling_remove_confirmation">Генерация кадров будет отключена до повторной установки Lossless.dll. Исходный файл не изменится.</string>
     <string name="lossless_scaling_missing">Lossless.dll не установлен</string>
-    <string name="lossless_scaling_missing_description">Установите библиотеку в меню Настройки › Lossless Scaling для работы генерации кадров.</string>
+    <string name="lossless_scaling_missing_description">Установите библиотеку в меню Настройки › Генерация кадров для работы генерации кадров.</string>
     <string name="lossless_scaling_locked">Сначала закройте игру</string>
     <string name="lossless_scaling_locked_description">Файл Lossless.dll нельзя изменять или заменять во время работы игры.</string>
     <string name="lossless_scaling_remove_unavailable">Нечего удалять</string>
@@ -1396,7 +1396,7 @@
     <string name="error_lossless_translation_failed">Не удалось транслировать шейдеры генерации кадров. Эта версия Lossless Scaling пока не поддерживается.</string>
     <string name="error_lossless_cache_failed">Не удалось записать скомпилированные шейдеры в хранилище. Проверьте свободное место.</string>
 
-    <string name="frame_gen">Генерация кадров (LSFG)</string>
+    <string name="frame_gen">Генерация кадров</string>
     <string name="frame_gen_per_game_description">Настройка генерации промежуточных кадров для этой игры</string>
     <string name="frame_gen_description">Вставка интерполированных кадров между отрисованными с помощью Lossless Scaling. При включении автоматически активирует режим FIFO для идеальной синхронизации.</string>
     <string name="frame_gen_multiplier">Множитель кадров</string>
@@ -1427,7 +1427,7 @@
     <string name="frame_gen_dump_flow_description">Сохранить уровни оптического потока и интерполированный кадр в папку lossless/debug для диагностики</string>
     <string name="frame_gen_unsupported">Генерация кадров недоступна</string>
     <string name="frame_gen_unsupported_description">Текущий GPU драйвер не поддерживает Vulkan Memory Model, необходимый для работы шейдеров Lossless Scaling.</string>
-    <string name="frame_generation_support">Генерация кадров (LSFG)</string>
+    <string name="frame_generation_support">Генерация кадров</string>
     <string name="frame_generation_supported">Поддерживается</string>
     <string name="frame_generation_unsupported">Не поддерживается (требуется Vulkan Memory Model)</string>
 

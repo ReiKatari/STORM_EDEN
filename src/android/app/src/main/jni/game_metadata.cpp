@@ -48,13 +48,10 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         const auto control = pm.GetControlMetadata();
         const auto game_version = pm.GetGameVersion();
 
-        if (has_embedded_nacp && !nacp.GetVersionString().empty()) {
-            entry.developer = nacp.GetDeveloperName();
-            entry.version = nacp.GetVersionString();
-        } else if (control.first != nullptr) {
+        if (control.first != nullptr && !control.first->GetVersionString().empty()) {
             entry.developer = control.first->GetDeveloperName();
             entry.version = control.first->GetVersionString();
-        } else if (has_embedded_nacp) {
+        } else if (has_embedded_nacp && !nacp.GetVersionString().empty()) {
             entry.developer = nacp.GetDeveloperName();
             entry.version = nacp.GetVersionString();
         } else {
@@ -117,6 +114,14 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
                 if (major >= 1) {
                     internal_ver = static_cast<u32>((major - 1) * 655360 + minor * 65536 + (patch * 65536) / 10);
                 }
+            }
+        }
+
+        // If display version is default 1.0.0 but we have an installed patch version (e.g. 655360 -> 1.0.10)
+        if (entry.version == "1.0.0" && internal_ver > 0) {
+            u32 update_num = internal_ver / 65536;
+            if (update_num > 0) {
+                entry.version = fmt::format("1.0.{}", update_num);
             }
         }
 

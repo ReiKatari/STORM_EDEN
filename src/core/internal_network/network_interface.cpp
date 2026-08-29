@@ -229,13 +229,7 @@ std::optional<Network::NetworkInterface> GetSelectedNetworkInterface() {
             return iface.name == sel_if;
         }); res != ifaces.end())
             return *res;
-        // Only print the error once to avoid log spam
-        static bool print_error = true;
-        if (print_error) {
-            LOG_WARNING(Network, "Couldn't find interface \"{}\"", sel_if);
-            print_error = false;
-        }
-        return std::nullopt;
+        return ifaces[0];
     }
     LOG_WARNING(Network, "No interfaces");
     return std::nullopt;

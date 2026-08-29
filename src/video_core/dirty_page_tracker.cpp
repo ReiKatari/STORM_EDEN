@@ -23,7 +23,7 @@ void DirtyPageTracker::Initialize(size_t total_memory_bytes) {
 
 void DirtyPageTracker::Reset() {
     std::unique_lock lock(mutex);
-    std::fill(page_bitmap.begin(), page_bitmap.end(), 0);
+    std::fill(page_bitmap.begin(), page_bitmap.end(), u8{0});
     dirty_pages_count = 0;
 }
 

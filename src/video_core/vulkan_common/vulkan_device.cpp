@@ -517,6 +517,8 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
         features.shader_atomic_int64.shaderBufferInt64Atomics = false;
         features.shader_atomic_int64.shaderSharedInt64Atomics = false;
         features.features.shaderInt64 = false;
+        LOG_WARNING(Render_Vulkan, "Qualcomm drivers have broken shader float controls.");
+        RemoveExtension(extensions.shader_float_controls, VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
         LOG_WARNING(Render_Vulkan, "Qualcomm drivers have broken workgroup memory explicit layout.");
         RemoveExtensionFeature(extensions.workgroup_memory_explicit_layout,
                                features.workgroup_memory_explicit_layout,

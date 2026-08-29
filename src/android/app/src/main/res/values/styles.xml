@@ -173,23 +173,23 @@
     </style>
 
     <style name="EdenMaterialDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="colorPrimary">@color/eden_primary</item>
-        <item name="colorSurface">@color/eden_card_background</item>
-        <item name="colorSurfaceContainerHigh">@color/eden_card_background</item>
-        <item name="colorOnSurface">@color/eden_on_surface</item>
-        <item name="colorOnSurfaceVariant">@color/eden_on_surface</item>
-        <item name="colorSecondary">@color/eden_secondary</item>
-        <item name="android:textColorPrimary">@color/eden_on_surface</item>
-        <item name="android:textColorSecondary">@color/eden_on_surface</item>
-        <item name="android:colorBackground">@color/eden_card_background</item>
+        <item name="colorPrimary">?attr/colorPrimary</item>
+        <item name="colorSurface">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurfaceVariant</item>
+        <item name="colorOnSurface">?attr/colorOnSurface</item>
+        <item name="colorOnSurfaceVariant">?attr/colorOnSurfaceVariant</item>
+        <item name="colorSecondary">?attr/colorSecondary</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
         <item name="buttonBarPositiveButtonStyle">@style/EdenButton.Dialog</item>
         <item name="buttonBarNegativeButtonStyle">@style/EdenButton.Dialog</item>
         <item name="buttonBarNeutralButtonStyle">@style/EdenButton.Dialog</item>
     </style>
 
     <style name="EdenButton.Dialog" parent="Widget.Material3.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/eden_primary</item>
-        <item name="rippleColor">@color/eden_glow_pink</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="rippleColor">?attr/colorPrimary</item>
     </style>
 
     <style name="Widget.Eden.TransparentTopAppBarLayout" parent="">

@@ -13,6 +13,7 @@
 #include "core/file_sys/control_metadata.h"
 #include "core/file_sys/patch_manager.h"
 #include "core/file_sys/registered_cache.h"
+#include "core/file_sys/romfs_factory.h"
 #include "core/file_sys/submission_package.h"
 #include "core/hle/kernel/k_process.h"
 #include "core/hle/service/filesystem/filesystem.h"
@@ -37,6 +38,12 @@ AppLoader_XCI::AppLoader_XCI(FileSys::VirtualFile file_,
             const FileSys::PatchManager pm{xci->GetProgramTitleID(), fsc, content_provider};
             return pm.ParseControlNCA(*control_nca);
         }();
+    } else if (xci->GetSecurePartitionNSP() != nullptr) {
+        const auto nca_file = xci->GetSecurePartitionNSP()->GetNCA(xci->GetProgramTitleID(), FileSys::ContentRecordType::Control);
+        if (nca_file != nullptr && nca_file->GetStatus() == ResultStatus::Success) {
+            const FileSys::PatchManager pm{xci->GetProgramTitleID(), fsc, content_provider};
+            std::tie(nacp_file, icon_file) = pm.ParseControlNCA(*nca_file);
+        }
     }
 }
 
@@ -83,6 +90,17 @@ AppLoader_XCI::LoadResult AppLoader_XCI::Load(Kernel::KProcess& process, Core::S
         return result;
     }
 
+    u64 program_id{};
+    ReadProgramId(program_id);
+    if (program_id == 0 && xci) {
+        program_id = xci->GetProgramTitleID();
+    }
+
+    system.GetFileSystemController().RegisterProcess(
+        process.GetProcessId(), program_id,
+        std::make_shared<FileSys::RomFSFactory>(*this, system.GetContentProvider(),
+                                                system.GetFileSystemController()));
+
     FileSys::VirtualFile update_raw;
     if (ReadUpdateRaw(update_raw) == ResultStatus::Success && update_raw != nullptr) {
         system.GetFileSystemController().SetPackedUpdate(process.GetProcessId(),
@@ -128,7 +146,28 @@ ResultStatus AppLoader_XCI::VerifyIntegrity(std::function<bool(size_t, size_t)> 
 }
 
 ResultStatus AppLoader_XCI::ReadRomFS(FileSys::VirtualFile& out_file) {
-    return nca_loader->ReadRomFS(out_file);
+    if (xci == nullptr) {
+        return ResultStatus::ErrorNotInitialized;
+    }
+    auto base_nca = xci->GetProgramNCA();
+    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+        out_file = base_nca->GetRomFS();
+        return ResultStatus::Success;
+    }
+    if (xci->GetSecurePartitionNSP() != nullptr) {
+        for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                nca_item->GetStatus() == ResultStatus::Success &&
+                nca_item->GetRomFS() != nullptr) {
+                out_file = nca_item->GetRomFS();
+                return ResultStatus::Success;
+            }
+        }
+    }
+    if (nca_loader) {
+        return nca_loader->ReadRomFS(out_file);
+    }
+    return ResultStatus::ErrorNoRomFS;
 }
 
 ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
@@ -145,7 +184,8 @@ ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     }
 
     const auto nca_test = std::make_shared<FileSys::NCA>(read);
-    if (nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
+    if (nca_test->GetStatus() != ResultStatus::Success &&
+        nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
         return nca_test->GetStatus();
     }
 
@@ -153,40 +193,83 @@ ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     return ResultStatus::Success;
 }
 
+std::shared_ptr<FileSys::NCA> AppLoader_XCI::GetNCA() const {
+    if (xci == nullptr) {
+        return nullptr;
+    }
+    auto base_nca = xci->GetProgramNCA();
+    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+        return base_nca;
+    }
+    if (xci->GetSecurePartitionNSP() != nullptr) {
+        for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                nca_item->GetStatus() == ResultStatus::Success &&
+                nca_item->GetRomFS() != nullptr) {
+                return nca_item;
+            }
+        }
+    }
+    return base_nca;
+}
+
 ResultStatus AppLoader_XCI::ReadProgramId(u64& out_program_id) {
-    return nca_loader->ReadProgramId(out_program_id);
+    if (nca_loader && nca_loader->ReadProgramId(out_program_id) == ResultStatus::Success && out_program_id != 0) {
+        return ResultStatus::Success;
+    }
+    if (xci && xci->GetStatus() == ResultStatus::Success) {
+        out_program_id = xci->GetProgramTitleID();
+        if (out_program_id != 0) {
+            return ResultStatus::Success;
+        }
+        const auto ids = xci->GetProgramTitleIDs();
+        if (!ids.empty() && ids[0] != 0) {
+            out_program_id = ids[0];
+            return ResultStatus::Success;
+        }
+    }
+    return ResultStatus::ErrorXCIMissingProgramNCA;
 }
 
 ResultStatus AppLoader_XCI::ReadProgramIds(std::vector<u64>& out_program_ids) {
-    out_program_ids = xci->GetProgramTitleIDs();
-    return ResultStatus::Success;
+    if (xci && xci->GetStatus() == ResultStatus::Success) {
+        out_program_ids = xci->GetProgramTitleIDs();
+        if (!out_program_ids.empty()) {
+            return ResultStatus::Success;
+        }
+    }
+    if (nca_loader) {
+        return nca_loader->ReadProgramIds(out_program_ids);
+    }
+    return ResultStatus::ErrorXCIMissingProgramNCA;
 }
 
 ResultStatus AppLoader_XCI::ReadIcon(std::vector<u8>& buffer) {
-    if (icon_file == nullptr) {
-        return ResultStatus::ErrorNoControl;
+    if (icon_file != nullptr) {
+        buffer = icon_file->ReadAllBytes();
+        if (!buffer.empty()) {
+            return ResultStatus::Success;
+        }
     }
-
-    buffer = icon_file->ReadAllBytes();
-    return ResultStatus::Success;
+    return ResultStatus::ErrorNoControl;
 }
 
 ResultStatus AppLoader_XCI::ReadTitle(std::string& title) {
-    if (nacp_file == nullptr) {
-        return ResultStatus::ErrorNoControl;
+    if (nacp_file != nullptr) {
+        title = nacp_file->GetApplicationName();
+        if (!title.empty()) {
+            return ResultStatus::Success;
+        }
     }
-
-    title = nacp_file->GetApplicationName();
-    return ResultStatus::Success;
+    return ResultStatus::ErrorNoControl;
 }
 
 ResultStatus AppLoader_XCI::ReadControlData(FileSys::NACP& control) {
-    if (nacp_file == nullptr) {
-        return ResultStatus::ErrorNoControl;
+    if (nacp_file != nullptr) {
+        control = *nacp_file;
+        return ResultStatus::Success;
     }
-
-    control = *nacp_file;
-    return ResultStatus::Success;
+    return ResultStatus::ErrorNoControl;
 }
 
 ResultStatus AppLoader_XCI::ReadManualRomFS(FileSys::VirtualFile& out_file) {

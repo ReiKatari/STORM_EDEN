@@ -224,12 +224,16 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         return result;
     }
 
-    if (nsp->IsExtractedType()) {
-        system.GetFileSystemController().RegisterProcess(
-            process.GetProcessId(), {},
-            std::make_shared<FileSys::RomFSFactory>(*this, system.GetContentProvider(),
-                                                    system.GetFileSystemController()));
+    u64 program_id{};
+    ReadProgramId(program_id);
+    if (program_id == 0 && nsp) {
+        program_id = nsp->GetProgramTitleID();
     }
+
+    system.GetFileSystemController().RegisterProcess(
+        process.GetProcessId(), program_id,
+        std::make_shared<FileSys::RomFSFactory>(*this, system.GetContentProvider(),
+                                                system.GetFileSystemController()));
 
     FileSys::VirtualFile update_raw;
     if (ReadUpdateRaw(update_raw) == ResultStatus::Success && update_raw != nullptr) {
@@ -278,7 +282,29 @@ ResultStatus AppLoader_NSP::VerifyIntegrity(std::function<bool(size_t, size_t)> 
 }
 
 ResultStatus AppLoader_NSP::ReadRomFS(FileSys::VirtualFile& out_file) {
-    return secondary_loader->ReadRomFS(out_file);
+    if (nsp == nullptr) {
+        return ResultStatus::ErrorNotInitialized;
+    }
+    // 1. Try base program NCA RomFS
+    auto base_nca = nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
+    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+        out_file = base_nca->GetRomFS();
+        return ResultStatus::Success;
+    }
+    // 2. Try any collapsed program NCA with valid RomFS
+    for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+        if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+            nca_item->GetStatus() == ResultStatus::Success &&
+            nca_item->GetRomFS() != nullptr) {
+            out_file = nca_item->GetRomFS();
+            return ResultStatus::Success;
+        }
+    }
+    // 3. Fallback to secondary loader
+    if (secondary_loader) {
+        return secondary_loader->ReadRomFS(out_file);
+    }
+    return ResultStatus::ErrorNoRomFS;
 }
 
 ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
@@ -294,12 +320,31 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     }
 
     const auto nca_test = std::make_shared<FileSys::NCA>(read);
-    if (nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
+    if (nca_test->GetStatus() != ResultStatus::Success &&
+        nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
         return nca_test->GetStatus();
     }
 
     out_file = read;
     return ResultStatus::Success;
+}
+
+std::shared_ptr<FileSys::NCA> AppLoader_NSP::GetNCA() const {
+    if (nsp == nullptr) {
+        return nullptr;
+    }
+    auto base_nca = nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
+    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+        return base_nca;
+    }
+    for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+        if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+            nca_item->GetStatus() == ResultStatus::Success &&
+            nca_item->GetRomFS() != nullptr) {
+            return nca_item;
+        }
+    }
+    return base_nca != nullptr ? base_nca : nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
 }
 
 ResultStatus AppLoader_NSP::ReadProgramId(u64& out_program_id) {

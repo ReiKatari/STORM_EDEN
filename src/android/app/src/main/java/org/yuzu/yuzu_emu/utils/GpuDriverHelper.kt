@@ -50,6 +50,24 @@ object GpuDriverHelper {
         hookLibPath = YuzuApplication.appContext.applicationInfo.nativeLibraryDir + "/"
         NativeFreedrenoConfig.reloadFreedrenoConfig()
 
+        // Auto-restore selected driver from config if installation folder is missing files
+        val activeDriverZipPath = try { StringSetting.DRIVER_PATH.getString() } catch (_: Exception) { "" }
+        if (installedCustomDriverData.libraryName.isNullOrEmpty() && activeDriverZipPath.isNotEmpty()) {
+            val activeDriverFile = File(activeDriverZipPath)
+            if (activeDriverFile.exists()) {
+                val metadata = getMetadataFromZip(activeDriverFile)
+                if (metadata.name != null && metadata.minApi <= Build.VERSION.SDK_INT) {
+                    try {
+                        FileUtil.unzipToInternalStorage(
+                            activeDriverFile.path,
+                            File(driverInstallationPath!!)
+                        )
+                    } catch (_: Exception) {
+                    }
+                }
+            }
+        }
+
         val isA830Device = android.os.Build.MODEL.contains("S938", ignoreCase = true) ||
                            android.os.Build.HARDWARE.contains("sun", ignoreCase = true) ||
                            android.os.Build.BOARD.contains("sun", ignoreCase = true) ||

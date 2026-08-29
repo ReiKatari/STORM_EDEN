@@ -101,8 +101,8 @@ object DirectoryInitialization {
             saveConfig = true
         }
 
-        val hasMigratedDefaults492 = preferences.getBoolean("migrated_defaults_492", false)
-        if (!hasMigratedDefaults492) {
+        val hasMigratedDefaults493 = preferences.getBoolean("migrated_defaults_493", false)
+        if (!hasMigratedDefaults493) {
             val curSpeedLimit = ShortSetting.RENDERER_SPEED_LIMIT.getShort(true)
             if (curSpeedLimit <= 0 || curSpeedLimit > 1000) {
                 ShortSetting.RENDERER_SPEED_LIMIT.setShort(100.toShort())
@@ -124,7 +124,12 @@ object DirectoryInitialization {
                 IntSetting.RENDERER_DYNA_STATE.setInt(1)
                 saveConfig = true
             }
-            preferences.edit().putBoolean("migrated_defaults_492", true).apply()
+            // Ensure CPU Accuracy is Auto (1) to prevent unsafe 64-bit tagged pointer crashes
+            if (IntSetting.CPU_ACCURACY.getInt(true) == 2) {
+                IntSetting.CPU_ACCURACY.setInt(1)
+                saveConfig = true
+            }
+            preferences.edit().putBoolean("migrated_defaults_493", true).apply()
         }
 
         val showPerformanceOverlay =

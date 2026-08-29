@@ -262,7 +262,7 @@ struct Values {
 #endif
                                                     "cpu_backend",
                                                     Category::Cpu};
-    SwitchableSetting<CpuAccuracy, true> cpu_accuracy{linkage, CpuAccuracy::Unsafe,
+    SwitchableSetting<CpuAccuracy, true> cpu_accuracy{linkage, CpuAccuracy::Auto,
                                                       "cpu_accuracy", Category::Cpu};
     SwitchableSetting<CpuClock> cpu_clock{linkage,
                                               CpuClock::Normal,
@@ -328,7 +328,7 @@ struct Values {
     SwitchableSetting<bool> cpuopt_unsafe_inaccurate_nan{
                                                          linkage, false, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_fastmem_check{
-                                                        linkage, true, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
+                                                        linkage, false, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_global_monitor{
                                                                 linkage, false, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
 

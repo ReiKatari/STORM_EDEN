@@ -32,12 +32,12 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/image_game_fix_icon"
                     android:layout_width="54dp"
                     android:layout_height="54dp"
-                    android:src="@drawable/ic_settings"
-                    app:tint="?attr/colorPrimary"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
                     android:layout_marginEnd="14dp" />
 
                 <LinearLayout
@@ -127,7 +127,7 @@
                         android:id="@+id/text_game_fix_issues"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="вЂў РџСЂРѕР±Р»РµРјС‹ Рё Р±Р°РіРё"
+                        tools:text="• Известные проблемы и сбои игры"
                         android:textSize="12.5sp"
                         android:lineSpacingExtra="4dp"
                         android:textColor="#fca5a5" />
@@ -181,7 +181,7 @@
                         android:id="@+id/text_game_fix_recommended"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="вњ“ РћРїС‚РёРјРёР·Р°С†РёРё STORM EDEN"
+                        tools:text="✓ Рекомендуемые настройки STORM EDEN"
                         android:textSize="12.5sp"
                         android:lineSpacingExtra="4dp"
                         android:textColor="#6ee7b7" />

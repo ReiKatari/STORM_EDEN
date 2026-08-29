@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.model
@@ -86,10 +86,10 @@ object GameFixDatabase {
                 GameFixProfile(
             0x0100916014D8C000L,
             "Diablo II: Resurrected",
-            "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
-            "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
-            "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СЃС‚Р°Р±РёР»СЊРЅР°СЏ Р·Р°РіСЂСѓР·РєР°!)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
-            "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled (Stable loading!)\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
+            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
+            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
+            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
+            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
             mapOf(
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
@@ -105,10 +105,10 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100726014352000L,
             "Diablo II: Resurrected (Alt)",
-            "вЂў Р’С‹Р»РµС‚ РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹ / Р·Р°РіСЂСѓР·РєРµ РїРµСЂСЃРѕРЅР°Р¶Р° (OOM)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РїСЂРё РѕРїСЂРѕСЃРµ СЃРµСЂРІРµСЂРѕРІ Battle.net\nвЂў РќР°РіСЂРµРІ SoC Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ С‚Р°Р№РјРµСЂРѕРІ GPU",
-            "вЂў Character load / continue game crash (OOM)\nвЂў Battle.net server handshake hang\nвЂў SoC heating and GPU timer race",
-            "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РіСЂСѓР·РєРё РїРµСЂСЃРѕРЅР°Р¶Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє Battle.net)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: Р’С‹СЃРѕРєР°СЏ\nвњ“ Р РµР°РєС‚РёРІРЅР°СЏ РѕС‡РёСЃС‚РєР°: РћС‚РєР»СЋС‡РµРЅРѕ\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)",
-            "вњ“ Memory Layout: 8GB DRAM (Critical for character loading!)\nвњ“ Airplane Mode: Enabled (Bypasses Battle.net)\nвњ“ Fast GPU Time: Disabled (Stable loading!)\nвњ“ GPU Accuracy: High\nвњ“ Reactive Flushing: Disabled\nвњ“ Fastmem: Enabled\nвњ“ Dynamic State: Basic (EDS1)",
+            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
+            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
+            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
+            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
             mapOf(
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
@@ -1956,10 +1956,10 @@ object GameFixDatabase {
                 GameFixProfile(
             0x010066B019E0E000L,
             "Mortal Kombat 1",
-            "вЂў РњРіРЅРѕРІРµРЅРЅС‹Р№ РІС‹Р»РµС‚ РїСЂРё Р·Р°РїСѓСЃРєРµ (UE4 TaskGraph / Р°С‚РѕРјРёРєРё РїРѕС‚РѕРєРѕРІ)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РЅР° Р·Р°СЃС‚Р°РІРєРµ WB Games Рё РІС‹Р»РµС‚ РїРѕ РЅРµС…РІР°С‚РєРµ РїР°РјСЏС‚Рё (OOM)\nвЂў РЎР±РѕРё Extended Dynamic State РІ С€РµР№РґРµСЂР°С… Р°СЂРµРЅС‹",
-            "вЂў Instant crash on launch (UE4 TaskGraph / thread atomics)\nвЂў WB Games intro freeze and Out of Memory crash\nвЂў Extended Dynamic State arena shader crashes",
-            "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РїСѓСЃРєР° Р±РµР· РІС‹Р»РµС‚Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє СЃРµСЂРІРµСЂРѕРІ WB Play)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СѓСЃС‚СЂР°РЅСЏРµС‚ deadlock UE4)\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ CPU: РђРІС‚Рѕ (Р±РµР·РѕРїР°СЃРЅС‹Рµ РјРѕРЅРёС‚РѕСЂС‹ РїРѕС‚РѕРєРѕРІ)\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РђСЃРёРЅС…СЂРѕРЅРЅС‹Рµ С€РµР№РґРµСЂС‹: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: РћР±С‹С‡РЅР°СЏ",
-            "вњ“ Memory Layout: 8GB DRAM (Critical for launch without crash!)\nвњ“ Airplane Mode: Enabled (Bypasses WB Play online check)\nвњ“ Fast GPU Time: Disabled (Fixes UE4 deadlock)\nвњ“ Dynamic State: Basic (EDS1)\nвњ“ CPU Accuracy: Auto (Safe thread monitors)\nвњ“ Fastmem: Enabled\nвњ“ Asynchronous Shaders: Enabled\nвњ“ GPU Accuracy: Normal",
+            "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
+            "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
+            "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
@@ -1976,10 +1976,10 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100D2800D5C2000L,
             "Mortal Kombat 1 (Alt)",
-            "вЂў РњРіРЅРѕРІРµРЅРЅС‹Р№ РІС‹Р»РµС‚ РїСЂРё Р·Р°РїСѓСЃРєРµ (UE4 TaskGraph / Р°С‚РѕРјРёРєРё РїРѕС‚РѕРєРѕРІ)\nвЂў Р—Р°РІРёСЃР°РЅРёРµ РЅР° Р·Р°СЃС‚Р°РІРєРµ WB Games Рё РІС‹Р»РµС‚ РїРѕ РЅРµС…РІР°С‚РєРµ РїР°РјСЏС‚Рё (OOM)\nвЂў РЎР±РѕРё Extended Dynamic State РІ С€РµР№РґРµСЂР°С… Р°СЂРµРЅС‹",
-            "вЂў Instant crash on launch (UE4 TaskGraph / thread atomics)\nвЂў WB Games intro freeze and Out of Memory crash\nвЂў Extended Dynamic State arena shader crashes",
-            "вњ“ РџР°РјСЏС‚СЊ: 8GB DRAM (РєСЂРёС‚РёС‡РЅРѕ РґР»СЏ Р·Р°РїСѓСЃРєР° Р±РµР· РІС‹Р»РµС‚Р°!)\nвњ“ Р РµР¶РёРј РїРѕР»С‘С‚Р°: Р’РєР»СЋС‡РµРЅРѕ (РїСЂРѕРїСѓСЃРє СЃРµСЂРІРµСЂРѕРІ WB Play)\nвњ“ Р‘С‹СЃС‚СЂРѕРµ РІСЂРµРјСЏ GPU: РћС‚РєР»СЋС‡РµРЅРѕ (СѓСЃС‚СЂР°РЅСЏРµС‚ deadlock UE4)\nвњ“ Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ: Р‘Р°Р·РѕРІРѕРµ (EDS1)\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ CPU: РђРІС‚Рѕ (Р±РµР·РѕРїР°СЃРЅС‹Рµ РјРѕРЅРёС‚РѕСЂС‹ РїРѕС‚РѕРєРѕРІ)\nвњ“ Р‘С‹СЃС‚СЂР°СЏ РїР°РјСЏС‚СЊ: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РђСЃРёРЅС…СЂРѕРЅРЅС‹Рµ С€РµР№РґРµСЂС‹: Р’РєР»СЋС‡РµРЅРѕ\nвњ“ РўРѕС‡РЅРѕСЃС‚СЊ GPU: РћР±С‹С‡РЅР°СЏ",
-            "вњ“ Memory Layout: 8GB DRAM (Critical for launch without crash!)\nвњ“ Airplane Mode: Enabled (Bypasses WB Play online check)\nвњ“ Fast GPU Time: Disabled (Fixes UE4 deadlock)\nвњ“ Dynamic State: Basic (EDS1)\nвњ“ CPU Accuracy: Auto (Safe thread monitors)\nвњ“ Fastmem: Enabled\nвњ“ Asynchronous Shaders: Enabled\nвњ“ GPU Accuracy: Normal",
+            "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
+            "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
+            "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",

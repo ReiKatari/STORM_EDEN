@@ -86,14 +86,17 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100916014D8C000L,
             "Diablo II: Resurrected",
-            "• Быстрый нагрев устройства (>46°C за 5 минут)\n• Термальный троттлинг и просадка FPS с 30 до 22",
-            "• Rapid SoC heating (>46°C in 5 min)\n• Thermal throttling dropping FPS from 30 to 22",
-            "✓ Разрешение: Handheld 0.75X-1.0X + FSR 80%\n✓ Сжатие ASTC: Отключено/BC3\n✓ Реактивная очистка: Отключено",
-            "✓ Resolution: Handheld 0.75X-1.0X + FSR 80%\n✓ ASTC Recompression: BC1/BC3\n✓ Reactive Flushing: Disabled",
+            "• Вылет при продолжении игры / загрузке сохранения (OOM/память)\n• Нагрев SoC и троттлинг в джунглях Кураста\n• Сбои заклинаний огня и таймеров GPU",
+            "• Crash when continuing game / loading save (OOM)\n• SoC heating and throttling in Kurast\n• Fire spell glitches and GPU timer race",
+            "✓ Память: 8GB DRAM (устраняет вылет сохранения!)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ FSR: 80%",
+            "✓ Memory Layout: 8GB DRAM (Fixes save crash!)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ FSR: 80%",
             mapOf(
-                "Renderer\\astc_recompression" to "0",
+                "Core\\memory_layout_mode" to "2",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\fsr_sharpening_slider" to "80"
+                "Renderer\\fsr_sharpening_slider" to "80",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
         GameFixProfile(
@@ -1929,6 +1932,24 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
+            0x0100D2800D5C2000L,
+            "Mortal Kombat 1",
+            "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
+            "• Instant crash on launch (UE4 TaskGraph / atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
+            "✓ Память: 8GB DRAM (критично для предотвращения вылета!)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical to prevent OOM crash!)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "2",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\gpu_accuracy" to "0"
+            )
+        ),
+        GameFixProfile(
             0x0100B1100C4D0000L,
             "Mortal Kombat 11",
             "• Зависание на титульном экране при синхронизации WB Play / Башен Времени\n• Утечки VRAM в кинематографичных фаталити",
@@ -3013,6 +3034,7 @@ object GameFixDatabase {
                 nameLower.contains("live a live") -> listOf("live a live", "live_a_live", "0100780016140000")
                 nameLower.contains("tony hawk") -> listOf("tony hawk", "thps", "01000bd00e756000")
                 nameLower.contains("nitro-fueled") -> listOf("nitro", "ctr", "0100f7a00b704000")
+                nameLower.contains("mortal kombat 1") || nameLower.contains("mk1") -> listOf("mortal kombat 1", "mk1", "0100d2800d5c2000")
                 nameLower.contains("mortal kombat") -> listOf("mortal kombat", "mk11", "0100b1100c4d0000")
                 nameLower.contains("borderlands") -> listOf("borderlands", "01007e300b70c000")
                 nameLower.contains("diablo iii") -> listOf("diablo iii", "diablo 3", "d3", "01001b700a654000")

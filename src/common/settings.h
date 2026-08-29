@@ -326,11 +326,11 @@ struct Values {
     SwitchableSetting<bool> cpuopt_unsafe_ignore_standard_fpcr{
                                                                linkage, true, "cpuopt_unsafe_ignore_standard_fpcr", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_inaccurate_nan{
-                                                         linkage, true, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
+                                                         linkage, false, "cpuopt_unsafe_inaccurate_nan", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_fastmem_check{
                                                         linkage, true, "cpuopt_unsafe_fastmem_check", Category::CpuUnsafe};
     SwitchableSetting<bool> cpuopt_unsafe_ignore_global_monitor{
-                                                                linkage, true, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
+                                                                linkage, false, "cpuopt_unsafe_ignore_global_monitor", Category::CpuUnsafe};
 
     // Renderer
     SwitchableSetting<RendererBackend, true> renderer_backend{linkage,

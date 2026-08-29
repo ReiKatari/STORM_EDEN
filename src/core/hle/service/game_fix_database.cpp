@@ -74,13 +74,17 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x0100916014D8C000ULL,
         "Diablo II: Resurrected",
-        "• Быстрый нагрев устройства (>46°C за 5 минут)\n• Термальный троттлинг и просадка FPS с 30 до 22",
-        "• Rapid SoC heating (>46°C in 5 min)\n• Thermal throttling dropping FPS from 30 to 22",
-        "✓ Разрешение: Handheld 0.75X-1.0X + FSR 80%\n✓ Реактивная очистка: Отключено\n✓ Защита от троттлинга GPU: Включено",
-        "✓ Resolution: Handheld 0.75X-1.0X + FSR 80%\n✓ Reactive Flushing: Disabled\n✓ GPU Thermal Floor Clamp: Enabled",
+        "• Вылет при продолжении игры / загрузке сохранения (OOM/память)\n• Нагрев SoC и троттлинг в джунглях Кураста\n• Сбои заклинаний огня и таймеров GPU",
+        "• Crash when continuing game / loading save (OOM)\n• SoC heating and throttling in Kurast\n• Fire spell glitches and GPU timer race",
+        "✓ Память: 8GB DRAM (устраняет вылет сохранения!)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ FSR: 80%",
+        "✓ Memory Layout: 8GB DRAM (Fixes save crash!)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ FSR: 80%",
         {
+            {"Core\\memory_layout_mode", "2"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\gpu_accuracy", "1"},
             {"Renderer\\use_reactive_flushing", "false"},
-            {"Renderer\\fsr_sharpening_slider", "80"}
+            {"Renderer\\fsr_sharpening_slider", "80"},
+            {"Cpu\\cpuopt_fastmem", "true"}
         }
     },
     {
@@ -1950,6 +1954,24 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
+        0x0100D2800D5C2000ULL,
+        "Mortal Kombat 1",
+        "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
+        "• Instant crash on launch (UE4 TaskGraph / atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
+        "✓ Память: 8GB DRAM (критично для предотвращения вылета!)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 8GB DRAM (Critical to prevent OOM crash!)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"Core\\memory_layout_mode", "2"},
+            {"Renderer\\use_fast_gpu_time", "false"},
+            {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\gpu_accuracy", "0"}
+        }
+    },
+    {
         0x0100B1100C4D0000ULL,
         "Mortal Kombat 11",
         "• Зависание на титульном экране при синхронизации WB Play / Башен Времени\n• Утечки VRAM в кинематографичных фаталити",
@@ -3025,6 +3047,9 @@ const GameFixProfile* GameFixDatabase::GetProfileByTitleOrPath(u64 title_id, con
             return &profile;
         }
         if (game_lower.find("nitro-fueled") != std::string::npos && (lower.find("nitro") != std::string::npos || lower.find("ctr") != std::string::npos)) {
+            return &profile;
+        }
+        if ((game_lower.find("mortal kombat 1") != std::string::npos || game_lower.find("mk1") != std::string::npos) && (lower.find("mortal kombat 1") != std::string::npos || lower.find("mk1") != std::string::npos)) {
             return &profile;
         }
         if (game_lower.find("mortal kombat") != std::string::npos && (lower.find("mortal kombat") != std::string::npos || lower.find("mk11") != std::string::npos)) {

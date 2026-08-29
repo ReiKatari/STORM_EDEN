@@ -379,7 +379,7 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    return "4.8.7"
+    return "4.8.8"
 }
 
 afterEvaluate {

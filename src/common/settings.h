@@ -262,7 +262,7 @@ struct Values {
 #endif
                                                     "cpu_backend",
                                                     Category::Cpu};
-    SwitchableSetting<CpuAccuracy, true> cpu_accuracy{linkage, CpuAccuracy::Auto,
+    SwitchableSetting<CpuAccuracy, true> cpu_accuracy{linkage, CpuAccuracy::Unsafe,
                                                       "cpu_accuracy", Category::Cpu};
     SwitchableSetting<CpuClock> cpu_clock{linkage,
                                               CpuClock::Normal,

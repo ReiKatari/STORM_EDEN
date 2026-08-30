@@ -21,6 +21,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Transparent Shrine fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
             {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dyna_state", "2"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\astc_recompression", "0"},
@@ -34,16 +35,18 @@ static const std::vector<GameFixProfile> s_profiles = {
         "The Legend of Zelda: Tears of the Kingdom",
         "• Черный силуэт персонажей и тени в Кавернах\n• Бирюзовая сетка и артефакты Z-буфера на водных поверхностях\n• Утечки VRAM в конструкторе Ультраруки",
         "• Character silhouette and shadow artifacts in Depths\n• Water surface and depth bias cyan grid artifacts\n• Ultrahand VRAM pressure",
-        "✓ Точность GPU: Высокая (исправление теней и освещения)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрое время GPU: Отключено\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-        "✓ GPU Accuracy: High (Fixes character shadows and lighting)\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+        "✓ Точность GPU: Высокая (исправление теней и освещения)\n✓ Расширенное динамическое состояние: EDS2\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрое время GPU: Отключено\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+        "✓ GPU Accuracy: High (Fixes character shadows and lighting)\n✓ Dynamic State: EDS2\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
         {
             {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dyna_state", "2"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\astc_recompression", "0"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"System\\memory_layout_mode", "2"}
+
         }
     },
     {

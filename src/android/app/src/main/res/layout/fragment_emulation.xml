@@ -255,7 +255,6 @@
         app:itemShapeInsetEnd="10dp"
         app:itemShapeInsetTop="2dp"
         app:itemShapeInsetBottom="2dp"
-        app:itemShapeCornerRadius="12dp"
         tools:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

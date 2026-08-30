@@ -123,7 +123,7 @@ void TextureCache<P>::RunGarbageCollector() {
     const auto Configure = [&](bool allow_aggressive) {
         high_priority_mode = (total_used_memory >= expected_memory) || vram_gc;
         aggressive_mode = allow_aggressive && total_used_memory >= critical_memory;
-        ticks_to_destroy = aggressive_mode ? 8ULL : (vram_gc ? 15ULL : (high_priority_mode ? 25ULL : 50ULL));
+        ticks_to_destroy = aggressive_mode ? 30ULL : (vram_gc ? 60ULL : (high_priority_mode ? 90ULL : 180ULL));
         num_iterations = aggressive_mode ? 40 : (vram_gc ? 30 : (high_priority_mode ? 20 : 10));
     };
     const auto Cleanup = [this, &num_iterations, &high_priority_mode, &aggressive_mode](ImageId image_id) {

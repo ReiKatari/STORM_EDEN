@@ -1327,16 +1327,10 @@ void RasterizerVulkan::UpdateDepthBias(Tegra::Engines::Maxwell3D::Regs& regs) {
     static constexpr const u64* end = NEEDS_D24 + length;
 
     const u64 base_prog_id = program_id & ~0x1FFFULL;
-    const bool needs_d24 = std::any_of(start, end, [this, base_prog_id](u64 id) {
-        return id == program_id || (id & ~0x1FFFULL) == base_prog_id;
-    });
-
-    if (is_d24 && (needs_d24 || !device.SupportsD24DepthBuffer())) {
-        // Maxwell Z24 UNORM has an LSB of 2^-24 in [0, 1].
-        // When emulated on D32_SFLOAT, scale units by 2^(32-24) = 256.0f
-        // so coplanar polygons (shrines, water, decals, fog bounding quads)
-        // separate reliably across all camera angles and distances without z-fighting.
-        units *= 256.0f;
+    if (is_d24 && !device.SupportsD24DepthBuffer()) {
+        // When D24 UNORM is not natively supported by host GPU and emulated on D32_SFLOAT,
+        // adjust precision difference appropriately.
+        units /= 256.0f;
     }
 
     scheduler.Record([constant = units, clamp = regs.depth_bias_clamp,

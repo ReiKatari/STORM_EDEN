@@ -182,6 +182,9 @@ Ticket Ticket::SynthesizeCommon(Key128 title_key, const std::array<u8, 16>& righ
 }
 
 Ticket Ticket::Read(const FileSys::VirtualFile& file) {
+    if (file == nullptr) {
+        return Ticket{std::monostate()};
+    }
     // Attempt to read up to the largest ticket size, and make sure we read at least a signature
     // type.
     std::array<u8, sizeof(RSA4096Ticket)> raw_data{};
@@ -190,7 +193,24 @@ Ticket Ticket::Read(const FileSys::VirtualFile& file) {
         LOG_WARNING(Crypto, "Attempted to read ticket file with invalid size {}.", read_size);
         return Ticket{std::monostate()};
     }
-    return Read(std::span{raw_data});
+    auto ticket = Read(std::span{raw_data});
+    if (ticket.IsValid() && ticket.GetData().rights_id == Key128{}) {
+        std::string fname = file->GetName();
+        if (fname.size() >= 4 && (fname.ends_with(".tik") || fname.ends_with(".TIK"))) {
+            fname = fname.substr(0, fname.size() - 4);
+        }
+        if (fname.size() == 32) {
+            const bool all_hex = std::all_of(fname.begin(), fname.end(), [](char c) {
+                return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+            });
+            if (all_hex) {
+                const auto rid_bytes = Common::HexStringToArray<16>(fname);
+                ticket.GetData().rights_id = rid_bytes;
+                LOG_INFO(Crypto, "Derived RightsID from ticket filename {}: {}", file->GetName(), fname);
+            }
+        }
+    }
+    return ticket;
 }
 
 Ticket Ticket::Read(std::span<const u8> raw_data) {
@@ -489,6 +509,9 @@ std::optional<Key128> KeyManager::ParseTicketTitleKey(const Ticket& ticket) {
     }
 
     if (ticket.GetData().rights_id == Key128{}) {
+        if (ticket.GetData().type == TitleKeyType::Common && ticket.GetData().title_key_common != Key128{}) {
+            return ticket.GetData().title_key_common;
+        }
         LOG_WARNING(Crypto, "Attempted to parse title key of ticket with no rights ID.");
         return std::nullopt;
     }

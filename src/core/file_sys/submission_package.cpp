@@ -213,7 +213,8 @@ void NSP::SetTicketKeys(const std::vector<VirtualFile>& files) {
             continue;
         }
 
-        if (ticket_file->GetExtension() != "tik") {
+        const auto ext = ticket_file->GetExtension();
+        if (ext != "tik" && ext != "TIK") {
             continue;
         }
 

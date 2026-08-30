@@ -1292,7 +1292,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             )
 
             quickSettings.addIntSetting(
-                R.string.extended_dynamic_state_title,
+                R.string.dyna_state,
                 container,
                 IntSetting.RENDERER_DYNA_STATE,
                 R.array.dynaStateEntries,
@@ -1310,13 +1310,13 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             quickSettings.addIntSetting(
                 R.string.renderer_vsync,
                 container,
-                IntSetting.RENDERER_VSYNC_MODE,
+                IntSetting.RENDERER_VSYNC,
                 R.array.rendererVSyncNames,
                 R.array.rendererVSyncValues
             )
 
             quickSettings.addBooleanSetting(
-                R.string.renderer_async_shaders,
+                R.string.renderer_asynchronous_shaders,
                 container,
                 BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS
             )
@@ -1334,7 +1334,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             )
 
             quickSettings.addBooleanSetting(
-                R.string.audio_muted,
+                R.string.mute,
                 container,
                 BooleanSetting.AUDIO_MUTED
             )
@@ -1352,21 +1352,21 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
 
             quickSettings.addBooleanSetting(
-                R.string.haptic_feedback,
+                R.string.emulation_haptics,
                 container,
                 BooleanSetting.HAPTIC_FEEDBACK
             )
 
             quickSettings.addBooleanSetting(
-                R.string.performance_overlay,
+                R.string.enable_stats_overlay_,
                 container,
-                BooleanSetting.SHOW_STATS_OVERLAY
+                BooleanSetting.SHOW_PERFORMANCE_OVERLAY
             ) { isVisible ->
                 binding.showStatsOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
             }
 
             quickSettings.addBooleanSetting(
-                R.string.soc_overlay,
+                R.string.show_soc_overlay,
                 container,
                 BooleanSetting.SHOW_SOC_OVERLAY
             ) { isVisible ->
@@ -1374,9 +1374,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
 
             quickSettings.addBooleanSetting(
-                R.string.applet_overlay,
+                R.string.show_device_load_overlay,
                 container,
-                BooleanSetting.SHOW_APPLET_OVERLAY
+                BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY
             ) { isVisible ->
                 binding.showLoadOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
             }
@@ -2067,6 +2067,20 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         sb.append(String.format("$prefix %d $suffix", shadersBuilding))
                     }
 
+                    if (sessionStartTime == 0L) {
+                        sessionStartTime = android.os.SystemClock.elapsedRealtime()
+                    }
+                    val elapsedSecs = ((android.os.SystemClock.elapsedRealtime() - sessionStartTime) / 1000).coerceAtLeast(0)
+                    val hours = elapsedSecs / 3600
+                    val mins = (elapsedSecs % 3600) / 60
+                    val secs = elapsedSecs % 60
+                    val playtimeText = String.format("⏱️ Время игры: %02d:%02d:%02d", hours, mins, secs)
+                    if (sb.isNotEmpty()) {
+                        sb.append("\n").append(playtimeText)
+                    } else {
+                        sb.append(playtimeText)
+                    }
+
                     if (BooleanSetting.PERF_OVERLAY_BACKGROUND.getBoolean(needsGlobal)) {
                         binding.showStatsOverlayText.setBackgroundResource(
                             R.color.yuzu_transparent_black
@@ -2607,6 +2621,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             emulationState.clearSurface()
         }
         emulationStarted = false
+        sessionStartTime = 0L
     }
 
     private fun hasNewerEmulationFragment(): Boolean {

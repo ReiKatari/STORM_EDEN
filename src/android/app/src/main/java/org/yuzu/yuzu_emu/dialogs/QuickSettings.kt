@@ -34,7 +34,6 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
             NativeConfig.saveGlobalConfig()
         }
         try {
-            NativeConfig.reloadSettings()
             NativeLibrary.applySettings()
         } catch (_: Throwable) {}
     }

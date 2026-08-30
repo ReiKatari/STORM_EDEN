@@ -150,14 +150,21 @@ ResultStatus AppLoader_XCI::ReadRomFS(FileSys::VirtualFile& out_file) {
         return ResultStatus::ErrorNotInitialized;
     }
     auto base_nca = xci->GetProgramNCA();
-    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+    if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
         out_file = base_nca->GetRomFS();
         return ResultStatus::Success;
     }
     if (xci->GetSecurePartitionNSP() != nullptr) {
         for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
             if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
-                nca_item->GetStatus() == ResultStatus::Success &&
+                (nca_item->GetTitleId() & 0x800) == 0 &&
+                nca_item->GetRomFS() != nullptr) {
+                out_file = nca_item->GetRomFS();
+                return ResultStatus::Success;
+            }
+        }
+        for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
                 nca_item->GetRomFS() != nullptr) {
                 out_file = nca_item->GetRomFS();
                 return ResultStatus::Success;
@@ -173,24 +180,35 @@ ResultStatus AppLoader_XCI::ReadRomFS(FileSys::VirtualFile& out_file) {
 ResultStatus AppLoader_XCI::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     u64 program_id{};
     nca_loader->ReadProgramId(program_id);
+    if (program_id == 0 && xci) {
+        program_id = xci->GetProgramTitleID();
+    }
     if (program_id == 0) {
         return ResultStatus::ErrorXCIMissingProgramNCA;
     }
 
-    const auto read = xci->GetSecurePartitionNSP()->GetNCAFile(
-        FileSys::GetUpdateTitleID(program_id), FileSys::ContentRecordType::Program);
-    if (read == nullptr) {
-        return ResultStatus::ErrorNoPackedUpdate;
+    if (xci->GetSecurePartitionNSP() != nullptr) {
+        const auto read = xci->GetSecurePartitionNSP()->GetNCAFile(
+            FileSys::GetUpdateTitleID(program_id), FileSys::ContentRecordType::Program);
+        if (read != nullptr) {
+            const auto nca_test = std::make_shared<FileSys::NCA>(read);
+            if (nca_test->GetStatus() == ResultStatus::Success ||
+                nca_test->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS) {
+                out_file = read;
+                return ResultStatus::Success;
+            }
+        }
+        for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+                ((nca_item->GetTitleId() & 0x800) != 0 ||
+                 nca_item->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+                out_file = nca_item->GetBaseFile();
+                return ResultStatus::Success;
+            }
+        }
     }
 
-    const auto nca_test = std::make_shared<FileSys::NCA>(read);
-    if (nca_test->GetStatus() != ResultStatus::Success &&
-        nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
-        return nca_test->GetStatus();
-    }
-
-    out_file = read;
-    return ResultStatus::Success;
+    return ResultStatus::ErrorNoPackedUpdate;
 }
 
 std::shared_ptr<FileSys::NCA> AppLoader_XCI::GetNCA() const {
@@ -198,13 +216,19 @@ std::shared_ptr<FileSys::NCA> AppLoader_XCI::GetNCA() const {
         return nullptr;
     }
     auto base_nca = xci->GetProgramNCA();
-    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+    if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
         return base_nca;
     }
     if (xci->GetSecurePartitionNSP() != nullptr) {
         for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
             if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
-                nca_item->GetStatus() == ResultStatus::Success &&
+                (nca_item->GetTitleId() & 0x800) == 0 &&
+                nca_item->GetRomFS() != nullptr) {
+                return nca_item;
+            }
+        }
+        for (const auto& nca_item : xci->GetSecurePartitionNSP()->GetNCAsCollapsed()) {
+            if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
                 nca_item->GetRomFS() != nullptr) {
                 return nca_item;
             }

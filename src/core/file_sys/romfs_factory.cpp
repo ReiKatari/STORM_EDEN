@@ -44,8 +44,13 @@ void RomFSFactory::SetPackedUpdate(VirtualFile update_raw_file) {
 }
 
 VirtualFile RomFSFactory::OpenCurrentProcess(u64 current_process_title_id) const {
+    VirtualFile effective_file = file;
+    if (effective_file == nullptr && base_nca != nullptr) {
+        effective_file = base_nca->GetRomFS();
+    }
+
     if (!updatable) {
-        return file;
+        return effective_file;
     }
 
     const auto type = ContentRecordType::Program;
@@ -54,7 +59,7 @@ VirtualFile RomFSFactory::OpenCurrentProcess(u64 current_process_title_id) const
 
     const PatchManager patch_manager{current_process_title_id, filesystem_controller,
                                      content_provider};
-    return patch_manager.PatchRomFS(nca_ptr, file, ContentRecordType::Program, packed_update_raw);
+    return patch_manager.PatchRomFS(nca_ptr, effective_file, ContentRecordType::Program, packed_update_raw);
 }
 
 VirtualFile RomFSFactory::OpenPatchedRomFS(u64 title_id, ContentRecordType type) const {

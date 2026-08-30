@@ -79,6 +79,6 @@
 ## 4. Автоматическая поддержка будущих проектов
 - При создании любого нового проекта или клонировании репозитория в рабочую область:
   1. Автоматически устанавливается имя и email автора: `ReiKatari <45316432+ReiKatari@users.noreply.github.com>`.
-  2. Разворачивается каталог `.agents/skills/` с полным набором навыков (`skill-doctor`, `storm-release-manager`, `storm-readme-auditor`, `storm-repo-hygiene`).
+  2. Разворачивается каталог `.agents/skills/` с полным набором навыков (`skill-doctor`, `storm-rejudge`, `storm-release-manager`, `storm-readme-auditor`, `storm-repo-hygiene`).
   3. Копируется файл `AGENTS.md` и `.agents/rules/release_and_git_guidelines.md`.
   4. Применяется защитный `.gitignore` (исключение секретов, токенов, сборок и дампов).

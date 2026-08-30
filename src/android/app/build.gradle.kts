@@ -379,8 +379,9 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    return "6.0.5"
+    return "6.0.6"
 }
+
 
 afterEvaluate {
     val artifactsDir = layout.projectDirectory.dir("${edenDir}/artifacts")

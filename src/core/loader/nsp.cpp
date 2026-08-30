@@ -244,9 +244,10 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
     if (program_id == 0 && nsp) {
         program_id = nsp->GetProgramTitleID();
     }
+    const u64 base_program_id = FileSys::GetBaseTitleID(program_id);
 
     system.GetFileSystemController().RegisterProcess(
-        process.GetProcessId(), program_id,
+        process.GetProcessId(), base_program_id,
         std::make_shared<FileSys::RomFSFactory>(*this, system.GetContentProvider(),
                                                 system.GetFileSystemController()));
 
@@ -255,6 +256,7 @@ AppLoader_NSP::LoadResult AppLoader_NSP::Load(Kernel::KProcess& process, Core::S
         system.GetFileSystemController().SetPackedUpdate(process.GetProcessId(),
                                                          std::move(update_raw));
     }
+
 
     is_loaded = true;
     return result;

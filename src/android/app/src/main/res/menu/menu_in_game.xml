@@ -76,7 +76,8 @@
         <item
             android:id="@+id/menu_lock_drawer"
             android:icon="@drawable/ic_unlock"
-            android:title="@string/emulation_input_overlay" />
+            android:title="@string/lock_drawer" />
+
     </group>
 
     <group android:id="@+id/group_exit">

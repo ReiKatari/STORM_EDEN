@@ -28,8 +28,9 @@ import java.io.File
 
 class DriverViewModel : ViewModel() {
     private val _areDriversLoading = MutableStateFlow(false)
-    private val _isDriverReady = MutableStateFlow(false)
+    private val _isDriverReady = MutableStateFlow(true)
     private val _isDeletingDrivers = MutableStateFlow(false)
+
 
     val isInteractionAllowed: StateFlow<Boolean> =
         combine(

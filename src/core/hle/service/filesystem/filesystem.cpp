@@ -353,11 +353,11 @@ Result FileSystemController::RegisterProcess(
     std::shared_ptr<FileSys::RomFSFactory>&& romfs_factory) {
     std::scoped_lock lk{registration_lock};
 
-    registrations.emplace(process_id, Registration{
-                                          .program_id = program_id,
-                                          .romfs_factory = std::move(romfs_factory),
-                                          .save_data_factory = CreateSaveDataFactory(program_id),
-                                      });
+    registrations.insert_or_assign(process_id, Registration{
+                                                  .program_id = program_id,
+                                                  .romfs_factory = std::move(romfs_factory),
+                                                  .save_data_factory = CreateSaveDataFactory(program_id),
+                                              });
 
     LOG_DEBUG(Service_FS, "Registered for process {}", process_id);
     return ResultSuccess;

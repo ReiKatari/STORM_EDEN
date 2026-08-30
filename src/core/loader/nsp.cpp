@@ -287,20 +287,28 @@ ResultStatus AppLoader_NSP::ReadRomFS(FileSys::VirtualFile& out_file) {
     }
     // 1. Try base program NCA RomFS
     auto base_nca = nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
-    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+    if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
         out_file = base_nca->GetRomFS();
         return ResultStatus::Success;
     }
-    // 2. Try any collapsed program NCA with valid RomFS
+    // 2. Try any base program NCA (title ID not ending in 0x800) with valid RomFS
     for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
         if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
-            nca_item->GetStatus() == ResultStatus::Success &&
+            (nca_item->GetTitleId() & 0x800) == 0 &&
             nca_item->GetRomFS() != nullptr) {
             out_file = nca_item->GetRomFS();
             return ResultStatus::Success;
         }
     }
-    // 3. Fallback to secondary loader
+    // 3. Try any program NCA with valid RomFS
+    for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+        if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+            nca_item->GetRomFS() != nullptr) {
+            out_file = nca_item->GetRomFS();
+            return ResultStatus::Success;
+        }
+    }
+    // 4. Fallback to secondary loader
     if (secondary_loader) {
         return secondary_loader->ReadRomFS(out_file);
     }
@@ -315,18 +323,26 @@ ResultStatus AppLoader_NSP::ReadUpdateRaw(FileSys::VirtualFile& out_file) {
     const auto read = nsp->GetNCAFile(FileSys::GetUpdateTitleID(nsp->GetProgramTitleID()),
                                       FileSys::ContentRecordType::Program);
 
-    if (read == nullptr) {
-        return ResultStatus::ErrorNoPackedUpdate;
+    if (read != nullptr) {
+        const auto nca_test = std::make_shared<FileSys::NCA>(read);
+        if (nca_test->GetStatus() == ResultStatus::Success ||
+            nca_test->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS) {
+            out_file = read;
+            return ResultStatus::Success;
+        }
     }
 
-    const auto nca_test = std::make_shared<FileSys::NCA>(read);
-    if (nca_test->GetStatus() != ResultStatus::Success &&
-        nca_test->GetStatus() != ResultStatus::ErrorMissingBKTRBaseRomFS) {
-        return nca_test->GetStatus();
+    // Fallback: search across all collapsed NCAs in the 1G+1U container for update NCA
+    for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+        if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
+            ((nca_item->GetTitleId() & 0x800) != 0 ||
+             nca_item->GetStatus() == ResultStatus::ErrorMissingBKTRBaseRomFS)) {
+            out_file = nca_item->GetBaseFile();
+            return ResultStatus::Success;
+        }
     }
 
-    out_file = read;
-    return ResultStatus::Success;
+    return ResultStatus::ErrorNoPackedUpdate;
 }
 
 std::shared_ptr<FileSys::NCA> AppLoader_NSP::GetNCA() const {
@@ -334,12 +350,18 @@ std::shared_ptr<FileSys::NCA> AppLoader_NSP::GetNCA() const {
         return nullptr;
     }
     auto base_nca = nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
-    if (base_nca != nullptr && base_nca->GetStatus() == ResultStatus::Success && base_nca->GetRomFS() != nullptr) {
+    if (base_nca != nullptr && base_nca->GetRomFS() != nullptr) {
         return base_nca;
     }
     for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
         if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
-            nca_item->GetStatus() == ResultStatus::Success &&
+            (nca_item->GetTitleId() & 0x800) == 0 &&
+            nca_item->GetRomFS() != nullptr) {
+            return nca_item;
+        }
+    }
+    for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
+        if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Program &&
             nca_item->GetRomFS() != nullptr) {
             return nca_item;
         }

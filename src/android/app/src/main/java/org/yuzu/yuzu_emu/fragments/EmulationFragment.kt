@@ -56,6 +56,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -155,6 +156,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     private var perfStatsRunnable: Runnable? = null
     private var socRunnable: Runnable? = null
+    private var sessionStartTime: Long = 0L
     private var isAmiiboPickerOpen = false
     private var amiiboLoadJob: Job? = null
 
@@ -320,11 +322,23 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 shouldUseCustom = true
                 SettingsFile.loadCustomConfig(gameToUse)
                 Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")
+                activity?.runOnUiThread {
+                    context?.let { ctx ->
+                        Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN: Применено", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
                 shouldUseCustom = false
                 NativeConfig.unloadPerGameConfig()
                 NativeConfig.reloadGlobalConfig()
                 Log.info("[EmulationFragment] Using clean global config for ${gameToUse.title}")
+                if (GameFixDatabase.hasFix(gameToUse)) {
+                    activity?.runOnUiThread {
+                        context?.let { ctx ->
+                            Toast.makeText(ctx, "⚠️ Оптимизации STORM EDEN: Не применено", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error loading configuration: ${e.message}")
@@ -696,10 +710,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 binding.inGameMenu.requestFocus()
                 emulationViewModel.setDrawerOpen(true)
                 updateQuickOverlayMenuEntry(BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean())
-                if (drawerView == binding.inGameMenu) {
-                    binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
-                } else if (drawerView == binding.quickSettingsSheet) {
-                    binding.drawerLayout.closeDrawer(binding.inGameMenu)
+                val behavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+                if (behavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                    behavior.state = BottomSheetBehavior.STATE_HIDDEN
                 }
             }
 
@@ -713,13 +726,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
         })
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-
-        if (!BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean()) {
-            binding.drawerLayout.setDrawerLockMode(
-                DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                binding.quickSettingsSheet
-            )
-        }
 
         updateGameTitle()
 
@@ -799,7 +805,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         Settings.MenuTag.SECTION_ROOT
                     )
                     binding.inGameMenu.requestFocus()
-                    binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
+                    binding.drawerLayout.close()
+                    val behavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+                    if (behavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    }
                     binding.root.findNavController().navigate(action)
                     true
                 }
@@ -815,7 +825,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         Settings.MenuTag.SECTION_ROOT
                     )
                     binding.inGameMenu.requestFocus()
-                    binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
+                    binding.drawerLayout.close()
+                    val behavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+                    if (behavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    }
                     binding.root.findNavController().navigate(action)
                     true
                 }
@@ -925,22 +939,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
         addQuickSettings()
 
-        binding.drawerLayout.addDrawerListener(object : DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                // no op
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                if (drawerView == binding.quickSettingsSheet) {
+        val quickSettingsBehavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+        quickSettingsBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        quickSettingsBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED || newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     isQuickSettingsMenuOpen = true
-                    if (shouldUseCustom) {
+                    if (shouldUseCustom && game != null) {
                         SettingsFile.loadCustomConfig(game!!)
                     }
-                }
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-                if (drawerView == binding.quickSettingsSheet) {
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                     isQuickSettingsMenuOpen = false
                     if (shouldUseCustom) {
                         NativeConfig.unloadPerGameConfig()
@@ -948,8 +956,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 }
             }
 
-            override fun onDrawerStateChanged(newState: Int) {
-                // No op
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // no op
             }
         })
 
@@ -960,6 +968,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (!NativeLibrary.isRunning()) {
+                        return
+                    }
+                    val behavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+                    if (behavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                        behavior.state = BottomSheetBehavior.STATE_HIDDEN
                         return
                     }
                     emulationViewModel.setDrawerOpen(!binding.drawerLayout.isOpen)
@@ -1161,6 +1174,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     .show(childFragmentManager, SettingsProfilesDialogFragment.TAG)
             }
 
+            // --- Performance & Speed Section ---
             lateinit var slowSpeed: MaterialSwitch
             lateinit var turboSpeed: MaterialSwitch
 
@@ -1220,22 +1234,22 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
             quickSettings.addDivider(container)
 
+            // --- Graphics & Resolution Section ---
             quickSettings.addIntSetting(
-                R.string.renderer_accuracy,
+                R.string.renderer_resolution,
                 container,
-                IntSetting.RENDERER_ACCURACY,
-                R.array.rendererAccuracyNames,
-                R.array.rendererAccuracyValues
+                IntSetting.RENDERER_RESOLUTION,
+                R.array.rendererResolutionNames,
+                R.array.rendererResolutionValues
             )
 
             quickSettings.addIntSetting(
-                R.string.astc_recompression,
+                R.string.renderer_aspect_ratio,
                 container,
-                IntSetting.ASTC_RECOMPRESSION,
-                R.array.astcRecompressionNames,
-                R.array.astcRecompressionValues
+                IntSetting.RENDERER_ASPECT_RATIO,
+                R.array.rendererAspectRatioNames,
+                R.array.rendererAspectRatioValues
             )
-
 
             quickSettings.addIntSetting(
                 R.string.renderer_scaling_filter,
@@ -1268,6 +1282,115 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 R.array.rendererAntiAliasingNames,
                 R.array.rendererAntiAliasingValues
             )
+
+            quickSettings.addIntSetting(
+                R.string.renderer_accuracy,
+                container,
+                IntSetting.RENDERER_ACCURACY,
+                R.array.rendererAccuracyNames,
+                R.array.rendererAccuracyValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.dyna_state,
+                container,
+                IntSetting.RENDERER_DYNA_STATE,
+                R.array.dynaStateEntries,
+                R.array.dynaStateValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.astc_recompression,
+                container,
+                IntSetting.ASTC_RECOMPRESSION,
+                R.array.astcRecompressionNames,
+                R.array.astcRecompressionValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.renderer_vsync,
+                container,
+                IntSetting.RENDERER_VSYNC,
+                R.array.rendererVSyncNames,
+                R.array.rendererVSyncValues
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.renderer_asynchronous_shaders,
+                container,
+                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS
+            )
+
+            quickSettings.addDivider(container)
+
+            // --- Audio Section ---
+            quickSettings.addSliderSetting(
+                R.string.audio_volume,
+                container,
+                org.yuzu.yuzu_emu.features.settings.model.ByteSetting.AUDIO_VOLUME,
+                minValue = 0,
+                maxValue = 100,
+                units = "%"
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.mute,
+                container,
+                BooleanSetting.AUDIO_MUTED
+            )
+
+            quickSettings.addDivider(container)
+
+            // --- Controls & Overlays Section ---
+            quickSettings.addBooleanSetting(
+                R.string.emulation_show_overlay,
+                container,
+                BooleanSetting.SHOW_INPUT_OVERLAY
+            ) { isVisible ->
+                toggleOverlay(isVisible)
+                updateQuickOverlayMenuEntry(isVisible)
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.emulation_haptics,
+                container,
+                BooleanSetting.HAPTIC_FEEDBACK
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.enable_stats_overlay_,
+                container,
+                BooleanSetting.SHOW_PERFORMANCE_OVERLAY
+            ) { isVisible ->
+                binding.showStatsOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.show_soc_overlay,
+                container,
+                BooleanSetting.SHOW_SOC_OVERLAY
+            ) { isVisible ->
+                binding.showSocOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.show_device_load_overlay,
+                container,
+                BooleanSetting.SHOW_DEVICE_LOAD_OVERLAY
+            ) { isVisible ->
+                binding.showLoadOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addDivider(container)
+
+            // --- System & CPU Section ---
+            quickSettings.addIntSetting(
+                R.string.cpu_backend,
+                container,
+                IntSetting.CPU_BACKEND,
+                R.array.cpuBackendArm64Names,
+                R.array.cpuBackendArm64Values
+            )
         }
     }
 
@@ -1291,15 +1414,28 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             .toSet()
     }
 
-    private fun openQuickSettingsMenu() {
-        binding.drawerLayout.closeDrawer(binding.inGameMenu)
-        binding.drawerLayout.openDrawer(binding.quickSettingsSheet)
+    fun isQuickSettingsOpen(): Boolean {
+        val b = _binding ?: return false
+        val behavior = BottomSheetBehavior.from(b.quickSettingsSheet)
+        return behavior.state != BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    fun openQuickSettingsMenu() {
+        val b = _binding ?: return
+        b.drawerLayout.closeDrawer(b.inGameMenu)
+        addQuickSettings()
+        val behavior = BottomSheetBehavior.from(b.quickSettingsSheet)
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     fun closeDrawers() {
         val b = _binding ?: return
         try {
             b.drawerLayout.closeDrawers()
+            val behavior = BottomSheetBehavior.from(b.quickSettingsSheet)
+            if (behavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                behavior.state = BottomSheetBehavior.STATE_HIDDEN
+            }
         } catch (_: Exception) {}
     }
 
@@ -1931,6 +2067,20 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         sb.append(String.format("$prefix %d $suffix", shadersBuilding))
                     }
 
+                    if (sessionStartTime == 0L) {
+                        sessionStartTime = android.os.SystemClock.elapsedRealtime()
+                    }
+                    val elapsedSecs = ((android.os.SystemClock.elapsedRealtime() - sessionStartTime) / 1000).coerceAtLeast(0)
+                    val hours = elapsedSecs / 3600
+                    val mins = (elapsedSecs % 3600) / 60
+                    val secs = elapsedSecs % 60
+                    val playtimeText = String.format("⏱️ Время игры: %02d:%02d:%02d", hours, mins, secs)
+                    if (sb.isNotEmpty()) {
+                        sb.append("\n").append(playtimeText)
+                    } else {
+                        sb.append(playtimeText)
+                    }
+
                     if (BooleanSetting.PERF_OVERLAY_BACKGROUND.getBoolean(needsGlobal)) {
                         binding.showStatsOverlayText.setBackgroundResource(
                             R.color.yuzu_transparent_black
@@ -1952,10 +2102,45 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     private fun updateStatsPosition(position: Int) {
         updateOverlayPosition(binding.showStatsOverlayText, position)
+        updateSocPosition(IntSetting.SOC_OVERLAY_POSITION.getInt(NativeConfig.isPerGameConfigLoaded()))
     }
 
     private fun updateSocPosition(position: Int) {
-        updateOverlayPosition(binding.showSocOverlayText, position)
+        val params = binding.showSocOverlayText.layoutParams as FrameLayout.LayoutParams
+        val statsPos = IntSetting.PERF_OVERLAY_POSITION.getInt(NativeConfig.isPerGameConfigLoaded())
+        val isSamePos = position == statsPos
+        val offset = if (isSamePos && BooleanSetting.SHOW_PERFORMANCE_OVERLAY.getBoolean(NativeConfig.isPerGameConfigLoaded())) {
+            resources.getDimensionPixelSize(R.dimen.spacing_xtralarge) + 16
+        } else {
+            0
+        }
+
+        when (position) {
+            0 -> {
+                params.gravity = (Gravity.TOP or Gravity.START)
+                params.setMargins(resources.getDimensionPixelSize(R.dimen.spacing_large), offset, 0, 0)
+            }
+            1 -> {
+                params.gravity = (Gravity.TOP or Gravity.CENTER_HORIZONTAL)
+                params.setMargins(0, offset, 0, 0)
+            }
+            2 -> {
+                params.gravity = (Gravity.TOP or Gravity.END)
+                params.setMargins(0, offset, resources.getDimensionPixelSize(R.dimen.spacing_large), 0)
+            }
+            3 -> {
+                params.gravity = (Gravity.BOTTOM or Gravity.START)
+                params.setMargins(resources.getDimensionPixelSize(R.dimen.spacing_large), 0, 0, offset)
+            }
+            4 -> {
+                params.gravity = (Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+                params.setMargins(0, 0, 0, offset)
+            }
+            5 -> {
+                params.gravity = (Gravity.BOTTOM or Gravity.END)
+                params.setMargins(0, 0, resources.getDimensionPixelSize(R.dimen.spacing_large), offset)
+            }
+        }
     }
 
     private fun updateOverlayPosition(overlay: MaterialTextView, position: Int) {
@@ -2076,6 +2261,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         )
                     ) {
                         appendWithPipe(fwVersion)
+                    }
+
+                    if (sessionStartTime > 0L) {
+                        val elapsedMillis = SystemClock.elapsedRealtime() - sessionStartTime
+                        val totalSecs = elapsedMillis / 1000L
+                        val hours = totalSecs / 3600L
+                        val minutes = (totalSecs % 3600L) / 60L
+                        val seconds = totalSecs % 60L
+                        val timeFormatted = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                        appendWithPipe(timeFormatted)
                     }
 
                     binding.showSocOverlayText.text = sb.toString()
@@ -2426,6 +2621,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             emulationState.clearSurface()
         }
         emulationStarted = false
+        sessionStartTime = 0L
     }
 
     private fun hasNewerEmulationFragment(): Boolean {

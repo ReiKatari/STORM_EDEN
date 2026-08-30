@@ -368,8 +368,6 @@ void FixedPipelineState::DynamicState::Refresh3(const Maxwell& regs,
     }
     if (!features.has_dynamic_state3_depth_clamp_enable) {
         depth_clamp_disabled.Assign(regs.viewport_clip_control.geometry_clip ==
-                                        Maxwell::ViewportClipControl::GeometryClip::Passthrough ||
-                                    regs.viewport_clip_control.geometry_clip ==
                                         Maxwell::ViewportClipControl::GeometryClip::FrustumXYZ ||
                                     regs.viewport_clip_control.geometry_clip ==
                                         Maxwell::ViewportClipControl::GeometryClip::FrustumZ);

@@ -25,6 +25,7 @@ class System;
 
 namespace FileSys {
 class NACP;
+class NCA;
 } // namespace FileSys
 
 namespace Kernel {
@@ -292,6 +293,15 @@ public:
      */
     virtual ResultStatus ReadUpdateRaw(FileSys::VirtualFile& out_file) {
         return ResultStatus::ErrorNotImplemented;
+    }
+
+    /**
+     * Get the base NCA of the application, if available
+     *
+     * @return shared pointer to the base NCA
+     */
+    virtual std::shared_ptr<FileSys::NCA> GetNCA() const {
+        return nullptr;
     }
 
     /**

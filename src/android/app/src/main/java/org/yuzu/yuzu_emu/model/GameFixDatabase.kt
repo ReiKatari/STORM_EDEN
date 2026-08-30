@@ -27,35 +27,35 @@ object GameFixDatabase {
         GameFixProfile(
             0x01007EF00011E000L,
             "The Legend of Zelda: Breath of the Wild",
-            "• Исчезновение графики, геометрии и темнота в Святилищах (Джа-Баиж, Кам-Ятак и др.)\n• Непрозрачный/темный туман при реактивной очистке\n• Микрофризы в лесах Короков",
-            "• Disappearing graphics, missing floor/walls geometry and dark shrines (Ja Baij, Kam Urog etc.)\n• Dark opaque volumetric fog caused by reactive flushing\n• Korok Forest micro-stutters",
-            "✓ Точность GPU: Высокая (High, 32-bit depth — восстанавливает графику в Святилищах)\n✓ Динамическое состояние: EDS1 (стабильный конвейер Adreno)\n✓ Реактивная очистка: Отключено (исправление тумана)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: High (32-bit depth precision — fixes missing graphics in Shrines)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled (Fixes Shrine volumetric fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах и на воде\n• Микрофризы в лесах Короков",
+            "• Link black silhouette caused by unsynced lighting and stencil buffers\n• Shrine and water surface depth bias / cyan grid artifacts\n• Korok Forest micro-stutters",
+            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (прозрачный туман в Святилищах)\n✓ Сжатие ASTC: Отключено (максимальная четкость)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Transparent Shrine fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "System\\memory_layout_mode" to "1"
+                "System\\memory_layout_mode" to "2"
             )
         ),
         GameFixProfile(
             0x0100F2C0115B6000L,
             "The Legend of Zelda: Tears of the Kingdom",
-            "• Утечки VRAM в Кавернах и конструкторе Ультраруки\n• Микрофризы и артефакты геометрии в святилищах",
-            "• VRAM memory pressure in Depths and Ultrahand construction\n• Geometry clipping and micro-stutters in Shrines",
-            "✓ Точность GPU: Высокая (High, стабильный рендеринг глубины)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: High (Full depth buffer stability)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "• Черный силуэт персонажей и тени в Кавернах\n• Бирюзовая сетка и артефакты Z-буфера на водных поверхностях\n• Утечки VRAM в конструкторе Ультраруки",
+            "• Character silhouette and shadow artifacts in Depths\n• Water surface and depth bias cyan grid artifacts\n• Ultrahand VRAM pressure",
+            "✓ Точность GPU: Высокая (исправление теней и освещения)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено\n✓ Быстрое время GPU: Отключено\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
+            "✓ GPU Accuracy: High (Fixes character shadows and lighting)\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "System\\memory_layout_mode" to "1"
+                "System\\memory_layout_mode" to "2"
             )
         ),
         GameFixProfile(
@@ -74,6 +74,20 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100B5B0112F8000L,
             "Hogwarts Legacy",
+            "• Вылет из-за нехватки памяти при загрузке замка Хогвартс\n• Высокое потребление ОЗУ (>8.5 ГБ) на мобильных чипах",
+            "• Out of memory (OOM) crash when loading Hogwarts Castle\n• High RAM consumption (>8.5 GB) on mobile SoCs",
+            "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: Отключено\n✓ Режим памяти: 8GB DRAM",
+            "✓ Resolution: Handheld 0.75X + FSR 80%\n✓ ASTC Recompression: BC1 (lowers RAM to 4.8 GB)\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\resolution_setup" to "1",
+                "Renderer\\fsr_sharpening_slider" to "80",
+                "System\\memory_layout_mode" to "2"
+            )
+        ),
+        GameFixProfile(
+            0x0100D1801648E000L,
+            "Hogwarts Legacy (Alt)",
             "• Вылет из-за нехватки памяти при загрузке замка Хогвартс\n• Высокое потребление ОЗУ (>8.5 ГБ) на мобильных чипах",
             "• Out of memory (OOM) crash when loading Hogwarts Castle\n• High RAM consumption (>8.5 GB) on mobile SoCs",
             "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: Отключено\n✓ Режим памяти: 8GB DRAM",
@@ -164,56 +178,6 @@ object GameFixDatabase {
             mapOf(
                 "Cpu\\cpu_accuracy" to "0",
                 "Renderer\\sync_memory_operations" to "false"
-            )
-        ),
-        GameFixProfile(
-            0x0100623017A58000L,
-            "Alan Wake Remastered",
-            "• Фонарик светит рассеянным плоским лучом без освещения окружения\n• Просадки FPS и разрывы кадров при динамическом свете\n• Графические артефакты на лицах и поверхностях",
-            "• Flashlight renders flat diffuse cone without illuminating environment\n• Frame drops and stuttering under dynamic lighting\n• Surface and skin lighting artifacts",
-            "✓ Точность GPU: Высокая (High, правильный расчет буфера освещения и луча фонарика)\n✓ Быстрое время GPU: Отключено (синхронизация отложенного освещения)\n✓ Динамическое состояние: EDS1\n✓ Сжатие ASTC: Отключено (чистые карты нормалей и HDR-куки света)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: High (Fixes deferred lighting volume & flashlight beam)\n✓ Fast GPU Time: Disabled (Syncs deferred lighting passes)\n✓ Extended Dynamic State: EDS1\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\dyna_state" to "1",
-                "Renderer\\astc_recompression" to "0",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "System\\memory_layout_mode" to "1"
-            )
-        ),
-        GameFixProfile(
-            0x010000000000100DL,
-            "Grand Theft Auto V (Homebrew)",
-            "• Критический вылет при старте (Userspace PANIC! info2=0x4 / svcBreak) из-за нехватки памяти\n• Сбои инициализации RAGE Engine при стандартном лимите 4GB DRAM\n• Зависания аудиопотоков при смене радиостанций",
-            "• Critical crash on startup (Userspace PANIC! info2=0x4 / svcBreak) due to memory allocation failure\n• RAGE Engine initialization failure on standard 4GB DRAM\n• Audio thread deadlocks on radio station switches",
-            "✓ Режим памяти: 8GB DRAM (критично для пулов аллокации RAGE Engine и архивов RPF)\n✓ Точность CPU: Безопасная (Auto/Safe, предотвращение tagged pointer сбоев)\n✓ Быстрая память (Fastmem): Включено\n✓ Точность GPU: Обычная (Normal, стабильный FPS)\n✓ Сжатие ASTC: Отключено (чистые текстуры Лос-Сантоса)\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 8GB DRAM (Crucial for RAGE memory pools & RPF archives)\n✓ CPU Accuracy: Auto/Safe (Prevents tagged pointer traps)\n✓ Fastmem: Enabled\n✓ GPU Accuracy: Normal (Smoothest framerate)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Enabled",
-            mapOf(
-                "System\\memory_layout_mode" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\astc_recompression" to "0",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Renderer\\dyna_state" to "1"
-            )
-        ),
-        GameFixProfile(
-            0x0100650017170000L,
-            "Animal Well",
-            "• Вылет при старте или загрузке локаций из-за сбоев в кастомных 2D-шейдерах жидкости и света\n• Зависание звукового буфера Cubeb при переходе между экранами\n• Графические артефакты сканирующих линий (CRT scanlines)",
-            "• Crash on startup or room transitions due to fluid simulation and light shaders\n• Cubeb audio buffer freeze on room transitions\n• CRT scanline and lighting texture artifacts",
-            "✓ Точность GPU: Высокая (High, стабильный расчет пиксельных буферов света и физики)\n✓ Динамическое состояние: EDS1\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено (чистая 2D-пиксельная графика и свет)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность CPU: Безопасная (Auto)",
-            "✓ GPU Accuracy: High (Fixes 2D fluid & lighting shader buffer calculations)\n✓ Extended Dynamic State: EDS1\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed (Crisp pixel art & CRT filters)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ CPU Accuracy: Auto/Safe",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\astc_recompression" to "0",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpu_accuracy" to "1"
             )
         ),
         GameFixProfile(
@@ -399,19 +363,74 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
-            0x0100C9E01B854000L,
+            0x010020D01AD24000L,
             "Animal Well",
-            "• Чёрный экран и пропадание звуковых дорожек",
-            "• Black screen and missing audio tracks on startup",
-            "✓ Аудио-движок: Cubeb 48kHz\n✓ Асинхронные шейдеры: Включено",
-            "✓ Audio Engine: Cubeb 48kHz\n✓ Asynchronous Shaders: Enabled",
+            "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
+            "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Async Shaders: Enabled",
             mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100C9E01B854000L,
+            "Animal Well (Alt)",
+            "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
+            "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Async Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true"
             )
         ),
         GameFixProfile(
             0x0100C88011246000L,
             "Disco Elysium: The Final Cut",
+            "• Утечка памяти и вылеты при смене локаций\n• Размытие и мерцание текста диалогов TextMeshPro\n• Цветовые артефакты акварельных портретов и фонов",
+            "• Out of memory (OOM) crash on zone transitions\n• TextMeshPro dialogue font blur and jitter\n• Color compression artifacts on painted portraits and backdrops",
+            "✓ Память: 6GB DRAM (предотвращение вылетов Unity)\n✓ Сжатие ASTC: Отключено\n✓ Динамическое состояние: Базовое\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Реактивная очистка: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents Unity OOM crashes)\n✓ ASTC Recompression: Uncompressed (Max art fidelity)\n✓ Dynamic State: EDS1\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Reactive Flushing: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\dyna_state" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_reactive_flushing" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01008C300F7F0000L,
+            "Disco Elysium: The Final Cut (WW)",
+            "• Утечка памяти и вылеты при смене локаций\n• Размытие и мерцание текста диалогов TextMeshPro\n• Цветовые артефакты акварельных портретов и фонов",
+            "• Out of memory (OOM) crash on zone transitions\n• TextMeshPro dialogue font blur and jitter\n• Color compression artifacts on painted portraits and backdrops",
+            "✓ Память: 6GB DRAM (предотвращение вылетов Unity)\n✓ Сжатие ASTC: Отключено\n✓ Динамическое состояние: Базовое\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Реактивная очистка: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents Unity OOM crashes)\n✓ ASTC Recompression: Uncompressed (Max art fidelity)\n✓ Dynamic State: EDS1\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Reactive Flushing: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\dyna_state" to "0",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_reactive_flushing" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100E26014466000L,
+            "Disco Elysium: The Final Cut (Asia)",
             "• Утечка памяти и вылеты при смене локаций\n• Размытие и мерцание текста диалогов TextMeshPro\n• Цветовые артефакты акварельных портретов и фонов",
             "• Out of memory (OOM) crash on zone transitions\n• TextMeshPro dialogue font blur and jitter\n• Color compression artifacts on painted portraits and backdrops",
             "✓ Память: 6GB DRAM (предотвращение вылетов Unity)\n✓ Сжатие ASTC: Отключено\n✓ Динамическое состояние: Базовое\n✓ Точность GPU: Высокая\n✓ Быстрая память: Включено\n✓ Реактивная очистка: Включено",
@@ -2006,7 +2025,7 @@ object GameFixDatabase {
             )
         ),
                 GameFixProfile(
-            0x010066B019E0E000L,
+            0x01006560184E6000L,
             "Mortal Kombat 1",
             "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
             "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
@@ -2912,157 +2931,6 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
-            0x01002C001B6B2000L,
-            "Luigi's Mansion 2 HD",
-            "• Зависание на загрузке особняка и артефакты шейдера фонарика\n• Утечки VRAM в многоэтажных локациях",
-            "• Mansion loading stall and flashlight shader artifacts\n• VRAM pressure in multi-floor corridors",
-            "✓ Точность GPU: Высокая (High, стабильный рендеринг теней)\n✓ Быстрое время GPU: Отключено (исправление катсцен)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High (Accurate shadow and light rendering)\n✓ Fast GPU Time: Disabled (Fixes cutscene hangs)\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x01004C6008E60000L,
-            "Paper Mario: The Origami King",
-            "• Просадки FPS при раскладывании конфетти\n• Черные текстуры оригами-боссов при агрессивной реактивной очистке",
-            "• Framerate drops during confetti tossing\n• Black origami boss textures with aggressive reactive flushing",
-            "✓ Точность GPU: Высокая (High)\n✓ Реактивная очистка: Отключено\n✓ Сжатие ASTC: Отключено (чистые текстуры)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено",
-            "✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ ASTC Recompression: Uncompressed\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\astc_recompression" to "0",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x0100FF500E34A000L,
-            "Xenoblade Chronicles: Definitive Edition",
-            "• Утечки VRAM на локациях Колония 9 и Болота Сатори\n• Микрофризы при динамической смене погоды",
-            "• VRAM exhaustion in Colony 9 and Satori Marsh\n• Micro-stutters during dynamic weather transitions",
-            "✓ Память: 8GB DRAM (критично для больших локаций)\n✓ Сжатие ASTC: BC1 (экономия VRAM на мобильных GPU)\n✓ Точность GPU: Обычная (Normal, стабильный FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 8GB DRAM (Critical for large open world)\n✓ ASTC Recompression: BC1 (VRAM reduction)\n✓ GPU Accuracy: Normal (Stable FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
-            mapOf(
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\astc_recompression" to "1",
-                "Renderer\\gpu_accuracy" to "0",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x01007300020FA000L,
-            "Astral Chain",
-            "• Рассинхрон аудио в экшен-сценах при быстром тайминге GPU\n• Мерцание неонового освещения города",
-            "• Audio desync in action cutscenes caused by GPU fast timer\n• City neon bloom flickering",
-            "✓ Быстрое время GPU: Отключено (идеальная синхронизация аудио)\n✓ Точность GPU: Высокая (High)\n✓ Расширенное динамическое состояние (EDS1): Включено\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено",
-            "✓ Fast GPU Time: Disabled (Fixes cutscene and audio sync)\n✓ GPU Accuracy: High\n✓ Extended Dynamic State (EDS1): Enabled\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled",
-            mapOf(
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\renderer_dyna_state" to "1",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x0100AE801844E000L,
-            "No Man's Sky",
-            "• Вылет по нехватке памяти (OOM) при генерации планет\n• Высокая нагрузка на VRAM при процедурном текстурировании",
-            "• Out of memory (OOM) crashes during planetary generation\n• High VRAM consumption from procedural textures",
-            "✓ Память: 8GB DRAM (обязательно для генерации планет)\n✓ Сжатие ASTC: BC3 (баланс качества и VRAM)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ Memory Layout: 8GB DRAM (Required for terrain generation)\n✓ ASTC Recompression: BC3 (VRAM optimization)\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\astc_recompression" to "2",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\gpu_accuracy" to "0"
-            )
-        ),
-        GameFixProfile(
-            0x0100B870126CE000L,
-            "Shin Megami Tensei V",
-            "• Фризы в песчаных бурях Даата и на экранах слияния демонов\n• Размытие постобработки Unreal Engine 4",
-            "• Micro-stutters in Da'at sandstorms and demon fusion\n• UE4 post-processing blur",
-            "✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Расширенное динамическое состояние (EDS1): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Extended Dynamic State (EDS1): Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\renderer_dyna_state" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x01005CA00F966000L,
-            "Mario + Rabbids Sparks of Hope",
-            "• Зависание анимации тактических ходов при быстром тайминге GPU\n• Артефакты освещения на планетах",
-            "• Tactical turn animation softlock with GPU fast timer\n• Planet planetary lighting anomalies",
-            "✓ Быстрое время GPU: Отключено (исправление зависания ходов)\n✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ Fast GPU Time: Disabled (Prevents combat softlocks)\n✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\gpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x010098A01633E000L,
-            "Crisis Core: Final Fantasy VII Reunion",
-            "• Сбой при активации рулетки DMW (Digital Mind Wave)\n• Микрофризы в боях на Unreal Engine 4",
-            "• DMW (Digital Mind Wave) summon roulette crash\n• Combat micro-stutters on Unreal Engine 4",
-            "✓ Точность CPU: Безопасная (Safe, устранение вылета DMW)\n✓ Память: 8GB DRAM\n✓ Точность GPU: Обычная (Normal)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Accuracy: Safe (Prevents DMW roulette crashes)\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Cpu\\cpu_accuracy" to "0",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x01006C300E9F0000L,
-            "Dragon Quest XI S: Echoes of an Elusive Age",
-            "• Микрофризы при переходе между открытыми локациями\n• Мерцание динамических теней в городах",
-            "• Micro-stutters during open world region transitions\n• City dynamic shadow shimmering",
-            "✓ Точность GPU: Высокая (High)\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
-            0x01005C9014168000L,
-            "NieR:Automata The End of YoRHa Edition",
-            "• Мерцание текстур песка в пустыне\n• Просадки FPS в секциях 2D-полетов",
-            "• Desert sand texture shimmering\n• Framerate drops in 2D flight unit combat",
-            "✓ Точность GPU: Высокая (High)\n✓ Анизотропная фильтрация: 16x\n✓ Память: 8GB DRAM\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High\n✓ Anisotropic Filtering: 16x\n✓ Memory Layout: 8GB DRAM\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
-            mapOf(
-                "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\max_anisotropy" to "5",
-                "System\\memory_layout_mode" to "1",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
-            )
-        ),
-        GameFixProfile(
             0x0100000000003000L,
             "Homebrew Utilities & Overlays (NX-Shell, DBI, Goldleaf, JKSV, Checkpoint, EdiZon, Tesla)",
             "• Системные Homebrew-утилиты Switch для управления сейвами, файлами и оверлеями\n• Мгновенный отклик файловой системы и стабильная работа",
@@ -3072,6 +2940,261 @@ object GameFixDatabase {
             mapOf(
                 "Cpu\\cpu_accuracy" to "1",
                 "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000055L,
+            "Grand Theft Auto V (GTA V Homebrew Port / PC Wrapper)",
+            "• Высокие требования к памяти потоков и текстурам открытого мира Лос-Сантоса\n• Зависание сетевых сокетов и многопоточных вызовов IPC",
+            "• High thread memory pressure and Los Santos open-world texture bandwidth\n• Network socket handshake and multithreaded IPC freezes",
+            "✓ Память: 8GB DRAM (критично для стабильной работы открытого мира)\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT, максимальный FPS)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Режим полёта: Включено (пропуск сетевых хуков)\n✓ Авто-заглушки: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical for open-world stability)\n✓ CPU Accuracy: Auto / Unsafe (Max FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Airplane Mode: Enabled\n✓ Auto Stub: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "2",
+                "Cpu\\cpu_accuracy" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0",
+                "System\\airplane_mode" to "true",
+                "Debugging\\use_auto_stub" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100000000000034L,
+            "Grand Theft Auto: The Trilogy / GTA III / VC / SA (re3 / reVC / Homebrew Ports)",
+            "• Просадки частоты кадров при рендере геометрии города\n• Рассинхронизация аудио-потоков радио",
+            "• City geometry rendering framerate dips\n• Radio station audio stream desynchronization",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность CPU: Авто / Unsafe JIT\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpu_accuracy" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\astc_recompression" to "0"
+            )
+        ),
+        GameFixProfile(
+            0x01002EF01A316000L,
+            "Brotato",
+            "• Просадки FPS при спавне волн врагов\n• Микрофризы расчёта физики снарядов",
+            "• Framerate drops during massive horde waves\n• Projectile physics calculation micro-stutters",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная (Normal)",
+            "✓ Memory Layout: 6GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "0"
+            )
+        ),
+        GameFixProfile(
+            0x010089A0197E4000L,
+            "Vampire Survivors",
+            "• Микрофризы и просадки кадров на 25+ минуте при тысячах спрайтов на экране\n• Утечки памяти движка Phaser",
+            "• Micro-stutters and framerate drops at 25+ min with thousands of sprites\n• Phaser engine memory leaks",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная (Normal)",
+            "✓ Memory Layout: 6GB DRAM\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "0"
+            )
+        ),
+        GameFixProfile(
+            0x010097F018538000L,
+            "Dave the Diver",
+            "• Просадки кадровой частоты во время ночной охоты и шторма\n• Утечки VRAM в суши-баре Bancho Sushi",
+            "• Framerate drops during stormy dives and night hunting\n• VRAM memory spikes in Bancho Sushi restaurant",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010093801237C000L,
+            "Metroid Dread",
+            "• Микрофризы при входе в зоны E.M.M.I.\n• Сбои размытия в катсценах и шейдеров тепловизора",
+            "• E.M.M.I. zone transition micro-stutters\n• Cutscene motion blur and thermal vision shader glitches",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010042D00D900000L,
+            "LEGO Star Wars: The Skywalker Saga",
+            "• Падение FPS на открытых планетах (Корусант, Татуин)\n• Утечки видеопамяти при смене планет",
+            "• Open-world planet performance drops (Coruscant, Tatooine)\n• Hyperdrive transition VRAM spikes",
+            "✓ Память: 8GB DRAM\n✓ Точность GPU: Обычная (Normal)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: Normal\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\gpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100307018934000L,
+            "Signalis",
+            "• Сбои кинематографичных ретро-шейдеров ЭЛТ и дизеринга\n• Зависание инвентаря",
+            "• CRT retro-filter and dithering shader glitches\n• Inventory UI freeze",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100EC9010258000L,
+            "Streets of Rage 4",
+            "• Рассинхронизация кадров в битвах с боссами\n• Разрывы спрайтовой анимации",
+            "• Boss fight frame pacing desync\n• Sprite animation tearing",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100E65002BB8000L,
+            "Stardew Valley",
+            "• Микрофризы при смене дней и сохранении на ферме\n• Просадки FPS во время дождя и фестивалей",
+            "• Day transition and farm autosave micro-stutters\n• Rain particles and festival FPS drops",
+            "✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная (Normal)",
+            "✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            mapOf(
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "0"
+            )
+        ),
+        GameFixProfile(
+            0x01002FC00412C000L,
+            "Little Nightmares: Complete Edition",
+            "• Вылеты на движке Unreal Engine 4 в Чреве\n• Сбои динамических теней фонарика",
+            "• Unreal Engine 4 Maw transition crashes\n• Flashlight dynamic shadow artifacts",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010097100EDD6000L,
+            "Little Nightmares II",
+            "• Вылеты из-за нехватки памяти (OOM) в Бледном городе\n• Артефакты тумана и объемного света",
+            "• Pale City memory pressure (OOM) crashes\n• Volumetric fog and lighting artifacts",
+            "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010066101A55A000L,
+            "Little Nightmares III",
+            "• Высокие требования к DRAM и шейдерам спирали\n• Сбои многопоточности Unreal Engine 5",
+            "• High DRAM and Spiral shader complexity\n• Unreal Engine 5 multithreading synchronization",
+            "✓ Память: 8GB DRAM\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01000B900D8B0000L,
+            "Cadence of Hyrule: Crypt of the NecroDancer",
+            "• Рассинхронизация ритмического аудио-движка\n• Задержка обработки ввода стрелок",
+            "• Rhythm audio engine timing desynchronization\n• Beat input delay",
+            "✓ Аудио-движок: Cubeb\n✓ Точность CPU: Точная (Accurate)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb\n✓ CPU Accuracy: Accurate\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100CEA007D08000L,
+            "Crypt of the NecroDancer: Nintendo Switch Edition",
+            "• Рассинхронизация такта ударов и музыки в подземелье\n• Задержка аудио-буфера",
+            "• Beat synchronization jitter in procedural dungeons\n• Audio buffer latency",
+            "✓ Аудио-движок: Cubeb\n✓ Точность CPU: Точная (Accurate)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb\n✓ CPU Accuracy: Accurate\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100BDA01AABC000L,
+            "Rift of the NecroDancer",
+            "• Рассинхронизация дорожек ритм-битв в мини-играх\n• Инпут-лаг комбо",
+            "• Rhythm lane timing desync during minigames\n• Combo input response latency",
+            "✓ Аудио-движок: Cubeb\n✓ Точность CPU: Точная (Accurate)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb\n✓ CPU Accuracy: Accurate\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "Cpu\\cpu_accuracy" to "0",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100D59022590000L,
+            "Scott Pilgrim vs. The World: The Game - Complete Edition",
+            "• Зависание на заставке Ubisoft Connect\n• Рассинхронизация спрайтов 4 игроков",
+            "• Ubisoft Connect handshake freeze on boot\n• 4-player sprite synchronization jitter",
+            "✓ Режим полёта: Включено (пропуск сетевого опроса Ubisoft)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Высокая (High)",
+            "✓ Airplane Mode: Enabled (Bypasses Ubisoft Connect)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: High",
+            mapOf(
+                "System\\airplane_mode" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\gpu_accuracy" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x010094D023A28000L,
+            "Drill Core",
+            "• Зависание при процедурной генерации буровых платформ\n• Утечки памяти при спавне сотен монстров",
+            "• Procedural platform generation freeze\n• Swarm particle memory buildup",
+            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Auto Stub: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true"
             )
@@ -3184,14 +3307,14 @@ object GameFixDatabase {
         return profiles.firstOrNull { profile ->
             val nameLower = profile.gameName.lowercase(java.util.Locale.ROOT)
             val keywords = when {
-                nameLower.contains("disco elysium") -> listOf("disco elysium", "elysium", "0100c88011246000")
+                nameLower.contains("disco elysium") -> listOf("disco elysium", "elysium", "0100c88011246000", "01008c300f7f0000", "0100e26014466000")
                 nameLower.contains("xenoblade") -> listOf("xenoblade", "0100ff500e34a000", "0100e95004038000", "010074f013262000")
                 nameLower.contains("witcher") -> listOf("witcher", "wild hunt", "0100e67012924000", "01003d100e9c6000")
                 nameLower.contains("arkham city") -> listOf("arkham city", "01003ae017db0000")
                 nameLower.contains("breath of the wild") -> listOf("breath of the wild", "botw", "01007ef00011e000")
                 nameLower.contains("tears of the kingdom") -> listOf("tears of the kingdom", "totk", "0100f2c0115b6000")
                 nameLower.contains("paper mario") -> listOf("paper mario", "thousand-year", "01004d701742a000")
-                nameLower.contains("hogwarts legacy") -> listOf("hogwarts", "0100b5b0112f8000")
+                nameLower.contains("hogwarts legacy") -> listOf("hogwarts", "0100b5b0112f8000", "0100d1801648e000")
                 nameLower.contains("diablo ii") -> listOf("diablo ii", "diablo 2", "resurrected", "0100916014d8c000")
                 nameLower.contains("mechanicus") -> listOf("mechanicus", "warhammer", "0100c6000eea8000")
                 nameLower.contains("skywalker saga") -> listOf("skywalker saga", "lego star wars", "0100923008c54000")
@@ -3202,8 +3325,9 @@ object GameFixDatabase {
                 nameLower.contains("violet") -> listOf("violet", "01008f6008c5e000")
                 nameLower.contains("arkham knight") -> listOf("arkham knight", "010023a017e94000")
                 nameLower.contains("doom eternal") -> listOf("doom eternal", "0100bb600dc30000")
-                nameLower.contains("lost crown") -> listOf("lost crown", "prince of persia", "0100bb70144f8000")
-                nameLower.contains("animal well") -> listOf("animal well", "010092c01d9f8000")
+                nameLower.contains("animal well") -> listOf("animal well", "010020d01ad24000", "010092c01d9f8000", "0100c9e01b854000")
+                nameLower.contains("mortal kombat 1") || nameLower.contains("mk1") -> listOf("mortal kombat 1", "mk1", "01006560184e6000", "0100d2800d5c2000", "010066b019e0e000")
+                nameLower.contains("mortal kombat") -> listOf("mortal kombat", "mk11", "0100b1100c4d0000")
                 nameLower.contains("hot pursuit") || nameLower.contains("need for speed") -> listOf("need for speed", "hot pursuit", "nfs", "010074600ee26000", "0100b9000d000000")
                 nameLower.contains("kingdom battle") -> listOf("kingdom battle", "mario + rabbids", "mario rabbids", "010067300059a000")
                 nameLower.contains("sparks of hope") -> listOf("sparks of hope", "01005ca00f966000")
@@ -3286,18 +3410,15 @@ object GameFixDatabase {
                 nameLower.contains("gothic") -> listOf("gothic", "010041201a5ec000", "01007e101bb46000")
                 nameLower.contains("prince of persia") || nameLower.contains("lost crown") -> listOf("prince of persia", "lost crown", "01008c1019972000")
                 nameLower.contains("echoes of wisdom") -> listOf("echoes of wisdom", "wisdom", "01008cf01ba04000")
-                nameLower.contains("luigi's mansion 2") || nameLower.contains("dark moon") -> listOf("luigi's mansion 2", "dark moon", "01002c001b6b2000")
                 nameLower.contains("luigi's mansion 3") || nameLower.contains("lm3") -> listOf("luigi's mansion 3", "lm3", "0100dca0064a6000")
-                nameLower.contains("no man's sky") || nameLower.contains("nms") -> listOf("no man's sky", "nms", "0100ae801844e000", "0100de801648e000")
-                nameLower.contains("alan wake") -> listOf("alan wake", "alan_wake", "0100623017a58000")
-                nameLower.contains("animal well") -> listOf("animal well", "animal_well", "0100650017170000", "0100650017170800")
-                nameLower.contains("gta v") || nameLower.contains("gta 5") || nameLower.contains("grand theft auto") -> listOf("gta v", "gta 5", "grand theft auto v", "gtav", "010000000000100d")
+                nameLower.contains("no man's sky") || nameLower.contains("nms") -> listOf("no man's sky", "nms", "0100de801648e000")
                 nameLower.contains("batman") || nameLower.contains("arkham") -> listOf("batman", "arkham", "010039b0182da000")
                 nameLower.contains("kingdom come") || nameLower.contains("kcd") -> listOf("kingdom come", "kcd", "010062c015792000")
                 nameLower.contains("tomb raider") -> listOf("tomb raider", "0100c4d018a0e000")
                 nameLower.contains("borderlands") -> listOf("borderlands", "01007e300b70c000")
-                nameLower.contains("diablo iii") -> listOf("diablo iii", "diablo 3", "d3", "01001b700a654000")
                 nameLower.contains("demon slayer") -> listOf("demon slayer", "hinokami", "01005e4017c7a000")
+                nameLower.contains("gta v") || nameLower.contains("gta 5") || nameLower.contains("gtav") -> listOf("gta v", "gta 5", "grand theft auto v", "0100000000000055")
+                nameLower.contains("gta") || nameLower.contains("grand theft auto") || nameLower.contains("re3") || nameLower.contains("revc") -> listOf("gta", "grand theft auto", "san andreas", "vice city", "re3", "revc", "0100000000000034")
                 nameLower.contains("monster hunter") -> listOf("monster hunter", "mhr", "sunbreak", "0100830007780000")
                 nameLower.contains("burnout paradise") -> listOf("burnout", "paradise", "010052900fa62000")
                 nameLower.contains("overcooked") -> listOf("overcooked", "0100650012270000")

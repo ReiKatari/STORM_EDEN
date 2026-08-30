@@ -655,7 +655,13 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
     }
 
     const auto dyna_state = Settings::values.dyna_state.GetValue();
-    switch (dyna_state) {
+    auto effective_dyna_state = dyna_state;
+    if ((is_turnip || is_qualcomm) && effective_dyna_state == Settings::ExtendedDynamicState::EDS3) {
+        LOG_INFO(Render_Vulkan, "Adreno/Turnip auto-optimization: Clamping ExtendedDynamicState to EDS1 to ensure pipeline stability and prevent hangs on Homebrew/Adreno 830");
+        effective_dyna_state = Settings::ExtendedDynamicState::EDS1;
+    }
+
+    switch (effective_dyna_state) {
     case Settings::ExtendedDynamicState::Disabled:
         // Level 0: Disable all extended dynamic state extensions
         RemoveExtensionFeature(extensions.extended_dynamic_state, features.extended_dynamic_state,

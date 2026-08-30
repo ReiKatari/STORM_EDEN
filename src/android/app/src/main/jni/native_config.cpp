@@ -72,6 +72,12 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_savePerGameConfig(JNIEnv* env, j
     per_game_config->AndroidConfig::SaveAllValues();
 }
 
+void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_reloadPerGameConfig(JNIEnv* env, jobject obj) {
+    if (per_game_config != nullptr) {
+        per_game_config->AndroidConfig::ReloadAllValues();
+    }
+}
+
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_unloadPerGameConfig(JNIEnv* env, jobject obj) {
     per_game_config.reset();
 }

@@ -10,6 +10,7 @@
 #include "common/common_types.h"
 #include "common/literals.h"
 #include "core/core.h"
+#include "core/file_sys/card_image.h"
 #include "core/file_sys/common_funcs.h"
 #include "core/file_sys/content_archive.h"
 #include "core/file_sys/fs_filesystem.h"
@@ -163,10 +164,20 @@ inline InstallResult InstallNSP(Core::System& system, FileSys::VfsFilesystem& vf
 
     std::shared_ptr<FileSys::NSP> nsp;
     FileSys::VirtualFile file = vfs.OpenFile(filename, FileSys::OpenMode::Read);
+    if (!file) {
+        return InstallResult::Failure;
+    }
     const auto lower_name = boost::to_lower_copy(file->GetName());
     if (lower_name.ends_with("nsp") || lower_name.ends_with("nsz")) {
         nsp = std::make_shared<FileSys::NSP>(file);
         if (nsp->IsExtractedType()) {
+            return InstallResult::Failure;
+        }
+    } else if (lower_name.ends_with("xci") || lower_name.ends_with("xcz")) {
+        FileSys::XCI xci{file};
+        if (xci.GetStatus() == Loader::ResultStatus::Success && xci.GetSecurePartitionNSP() != nullptr) {
+            nsp = xci.GetSecurePartitionNSP();
+        } else {
             return InstallResult::Failure;
         }
     } else {

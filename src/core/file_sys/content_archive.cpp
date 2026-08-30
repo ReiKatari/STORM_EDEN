@@ -135,8 +135,10 @@ NCA::NCA(VirtualFile file_, const NCA* base_nca)
 
     RightsId rights_id{};
     reader->GetRightsId(rights_id.data(), rights_id.size());
+    Core::Crypto::Key128 raw_titlekey{};
+    Core::Crypto::Key128 decrypted_titlekey{};
+
     if (rights_id != RightsId{}) {
-        // External decryption key required; provide it here.
         u128 rights_id_u128;
         std::memcpy(rights_id_u128.data(), rights_id.data(), sizeof(rights_id));
 
@@ -151,54 +153,77 @@ NCA::NCA(VirtualFile file_, const NCA* base_nca)
             is_fallback_key = true;
         }
 
-        const auto raw_titlekey = titlekey;
+        raw_titlekey = titlekey;
+        decrypted_titlekey = titlekey;
+
         if (!is_fallback_key) {
             if (keys.HasKey(Core::Crypto::S128KeyType::Titlekek, master_key_id)) {
                 auto titlekek = keys.GetKey(Core::Crypto::S128KeyType::Titlekek, master_key_id);
                 Core::Crypto::AESCipher<Core::Crypto::Key128> cipher(titlekek, Core::Crypto::Mode::ECB);
-                cipher.Transcode(titlekey.data(), titlekey.size(), titlekey.data(),
+                cipher.Transcode(decrypted_titlekey.data(), decrypted_titlekey.size(), decrypted_titlekey.data(),
                                  Core::Crypto::Op::Decrypt);
             }
         }
-
-        reader->SetExternalDecryptionKey(titlekey.data(), titlekey.size());
     }
 
     const s32 fs_count = reader->GetFsCount();
-    NcaFileSystemDriver fs(base_nca ? base_nca->reader : nullptr, reader);
-    std::vector<VirtualFile> filesystems(fs_count);
-    for (s32 i = 0; i < fs_count; i++) {
-        NcaFsHeaderReader header_reader;
-        Result rc = fs.OpenStorage(&filesystems[i], &header_reader, i);
-        if (R_FAILED(rc)) {
-            LOG_WARNING(Loader, "NcaFileSystemDriver OpenStorage failed for fs_index={} with rc={:08X}", i, rc.raw);
-            continue;
+    auto TryOpenFilesystems = [&](const Core::Crypto::Key128& key) -> bool {
+        files.clear();
+        dirs.clear();
+        romfs = nullptr;
+        exefs = nullptr;
+        logo = nullptr;
+        is_update = false;
+
+        if (rights_id != RightsId{}) {
+            reader->SetExternalDecryptionKey(key.data(), key.size());
         }
 
-        if (header_reader.GetFsType() == NcaFsHeader::FsType::RomFs) {
-            files.push_back(filesystems[i]);
-            romfs = files.back();
-        }
+        NcaFileSystemDriver fs(base_nca ? base_nca->reader : nullptr, reader);
+        std::vector<VirtualFile> filesystems(fs_count);
+        for (s32 i = 0; i < fs_count; i++) {
+            NcaFsHeaderReader header_reader;
+            Result rc = fs.OpenStorage(&filesystems[i], &header_reader, i);
+            if (R_FAILED(rc)) {
+                continue;
+            }
 
-        if (header_reader.GetFsType() == NcaFsHeader::FsType::PartitionFs) {
-            auto npfs = std::make_shared<PartitionFilesystem>(filesystems[i]);
-            if (npfs->GetStatus() == Loader::ResultStatus::Success) {
-                dirs.push_back(npfs);
-                if (IsDirectoryExeFS(npfs)) {
-                    exefs = dirs.back();
-                } else if (IsDirectoryLogoPartition(npfs)) {
-                    logo = dirs.back();
-                } else {
-                    if (exefs == nullptr && (npfs->GetFile("main.npdm") != nullptr || npfs->GetFile("main") != nullptr)) {
+            if (header_reader.GetFsType() == NcaFsHeader::FsType::RomFs) {
+                files.push_back(filesystems[i]);
+                romfs = files.back();
+            }
+
+            if (header_reader.GetFsType() == NcaFsHeader::FsType::PartitionFs) {
+                auto npfs = std::make_shared<PartitionFilesystem>(filesystems[i]);
+                if (npfs->GetStatus() == Loader::ResultStatus::Success) {
+                    dirs.push_back(npfs);
+                    if (IsDirectoryExeFS(npfs)) {
                         exefs = dirs.back();
+                    } else if (IsDirectoryLogoPartition(npfs)) {
+                        logo = dirs.back();
+                    } else {
+                        if (exefs == nullptr && (npfs->GetFile("main.npdm") != nullptr || npfs->GetFile("main") != nullptr)) {
+                            exefs = dirs.back();
+                        }
                     }
                 }
             }
-        }
 
-        if (header_reader.GetEncryptionType() == NcaFsHeader::EncryptionType::AesCtrEx) {
-            is_update = true;
+            if (header_reader.GetEncryptionType() == NcaFsHeader::EncryptionType::AesCtrEx) {
+                is_update = true;
+            }
         }
+        return !files.empty() || !dirs.empty() || is_update;
+    };
+
+    if (rights_id != RightsId{}) {
+        bool success = TryOpenFilesystems(decrypted_titlekey);
+        if (!success && decrypted_titlekey != raw_titlekey) {
+            LOG_INFO(Loader, "NCA: Decrypted TitleKey failed, falling back to raw pre-decrypted TitleKey");
+            success = TryOpenFilesystems(raw_titlekey);
+        }
+    } else {
+        TryOpenFilesystems({});
     }
 
     if (is_update && base_nca == nullptr) {

@@ -902,8 +902,6 @@ void RasterizerOpenGL::SyncDepthClamp() {
     flags[Dirty::DepthClampEnabled] = false;
 
     bool depth_clamp_disabled{maxwell3d->regs.viewport_clip_control.geometry_clip ==
-                                  Maxwell::ViewportClipControl::GeometryClip::Passthrough ||
-                              maxwell3d->regs.viewport_clip_control.geometry_clip ==
                                   Maxwell::ViewportClipControl::GeometryClip::FrustumXYZ ||
                               maxwell3d->regs.viewport_clip_control.geometry_clip ==
                                   Maxwell::ViewportClipControl::GeometryClip::FrustumZ};

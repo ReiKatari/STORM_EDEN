@@ -54,6 +54,7 @@ private:
     VirtualFile packed_update_raw;
 
     VirtualFile base;
+    std::shared_ptr<NCA> base_nca;
 
     bool updatable;
 

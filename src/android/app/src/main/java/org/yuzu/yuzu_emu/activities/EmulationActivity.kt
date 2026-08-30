@@ -910,14 +910,27 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         }
     }
 
+    private var twoFingerStartY0 = 0f
+    private var twoFingerStartY1 = 0f
+    private var twoFingerStartX0 = 0f
+    private var twoFingerStartX1 = 0f
+    private var twoFingerStartTime = 0L
+    private var isTwoFingerGestureCandidate = false
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
         val emulationFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull() as? org.yuzu.yuzu_emu.fragments.EmulationFragment
 
         emulationFragment?.let { fragment ->
-            when (event.action) {
+            val dm = resources.displayMetrics
+            val screenHeight = dm.heightPixels.toFloat()
+            val bottomThreshold = (screenHeight - (160 * dm.density)).coerceAtLeast(screenHeight * 0.75f)
+
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     touchDownTime = System.currentTimeMillis()
+                    isTwoFingerGestureCandidate = false
+
                     // show overlay immediately on touch and cancel timer when only auto-hide is enabled
                     if (!emulationViewModel.drawerOpen.value &&
                         BooleanSetting.ENABLE_INPUT_OVERLAY_AUTO_HIDE.getBoolean() &&
@@ -926,7 +939,48 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
                         fragment.toggleOverlay(true)
                     }
                 }
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (event.pointerCount >= 2) {
+                        twoFingerStartY0 = event.getY(0)
+                        twoFingerStartY1 = event.getY(1)
+                        twoFingerStartX0 = event.getX(0)
+                        twoFingerStartX1 = event.getX(1)
+                        twoFingerStartTime = System.currentTimeMillis()
+                        // Both or either finger starts in the bottom region
+                        val avgY = (twoFingerStartY0 + twoFingerStartY1) / 2f
+                        isTwoFingerGestureCandidate = (avgY >= bottomThreshold || twoFingerStartY0 >= bottomThreshold || twoFingerStartY1 >= bottomThreshold)
+                    }
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (isTwoFingerGestureCandidate && event.pointerCount >= 2) {
+                        val deltaY0 = twoFingerStartY0 - event.getY(0)
+                        val deltaY1 = twoFingerStartY1 - event.getY(1)
+                        val deltaX0 = Math.abs(event.getX(0) - twoFingerStartX0)
+                        val deltaX1 = Math.abs(event.getX(1) - twoFingerStartX1)
+                        val elapsed = System.currentTimeMillis() - twoFingerStartTime
+
+                        // Upward swipe strictly requiring BOTH fingers to swipe up simultaneously
+                        val minSwipeDistance = 35 * dm.density
+                        val maxHorizontalDrift = 150 * dm.density
+
+                        if (deltaY0 > minSwipeDistance && deltaY1 > minSwipeDistance &&
+                            deltaX0 < maxHorizontalDrift && deltaX1 < maxHorizontalDrift &&
+                            elapsed < 1000) {
+                            if (!fragment.isQuickSettingsOpen() && !emulationViewModel.drawerOpen.value) {
+                                fragment.openQuickSettingsMenu()
+                                isTwoFingerGestureCandidate = false
+                                return true
+                            }
+                        }
+                    }
+                }
+                MotionEvent.ACTION_POINTER_UP -> {
+                    if (event.pointerCount <= 2) {
+                        isTwoFingerGestureCandidate = false
+                    }
+                }
                 MotionEvent.ACTION_UP -> {
+                    isTwoFingerGestureCandidate = false
                     if (!emulationViewModel.drawerOpen.value) {
                         val touchDuration = System.currentTimeMillis() - touchDownTime
 
@@ -937,6 +991,9 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
                             fragment.handleScreenTap(true)
                         }
                     }
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    isTwoFingerGestureCandidate = false
                 }
             }
         }

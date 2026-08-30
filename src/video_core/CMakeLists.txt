@@ -261,6 +261,20 @@ add_library(video_core STATIC
     textures/texture.h
     textures/workers.cpp
     textures/workers.h
+    dirty_page_tracker.cpp
+    dirty_page_tracker.h
+    draw_call_sorter.cpp
+    draw_call_sorter.h
+    shader_speculator.cpp
+    shader_speculator.h
+    renderer_vulkan/adaptive_scaler.cpp
+    renderer_vulkan/adaptive_scaler.h
+    renderer_vulkan/mipmap_generator.cpp
+    renderer_vulkan/mipmap_generator.h
+    renderer_vulkan/ui_layer_detector.cpp
+    renderer_vulkan/ui_layer_detector.h
+    textures/gpu_texture_decoder.cpp
+    textures/gpu_texture_decoder.h
     transform_feedback.cpp
     transform_feedback.h
     video_core.cpp

@@ -1322,38 +1322,20 @@ void RasterizerVulkan::UpdateDepthBias(Tegra::Engines::Maxwell3D::Regs& regs) {
                         regs.zeta.format == Tegra::DepthFormat::S8Z24_UNORM ||
                         regs.zeta.format == Tegra::DepthFormat::V8Z24_UNORM;
 
+    static constexpr const size_t length = sizeof(NEEDS_D24) / sizeof(NEEDS_D24[0]);
+    static constexpr const u64* start = NEEDS_D24;
+    static constexpr const u64* end = NEEDS_D24 + length;
+
+    const u64 base_prog_id = program_id & ~0x1FFFULL;
     if (is_d24 && !device.SupportsD24DepthBuffer()) {
-        static constexpr const size_t length = sizeof(NEEDS_D24) / sizeof(NEEDS_D24[0]);
-
-        static constexpr const u64* start = NEEDS_D24;
-        static constexpr const u64* end = NEEDS_D24 + length;
-
-        const u64* it = std::find(start, end, program_id);
-
-        if (it != end) {
-            // the base formulas can be obtained from here:
-            //   https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-output-merger-stage-depth-bias
-            const double rescale_factor =
-                static_cast<double>(1ULL << (32 - 24)) / (static_cast<double>(0x1.ep+127));
-            units = static_cast<float>(static_cast<double>(units) * rescale_factor);
-        }
+        // When D24 UNORM is not natively supported by host GPU and emulated on D32_SFLOAT,
+        // adjust precision difference appropriately.
+        units /= 256.0f;
     }
 
     scheduler.Record([constant = units, clamp = regs.depth_bias_clamp,
-                      factor = regs.slope_scale_depth_bias, this](vk::CommandBuffer cmdbuf) {
-        if (device.IsExtDepthBiasControlSupported()) {
-            static VkDepthBiasRepresentationInfoEXT bias_info{
-                .sType = VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT,
-                .pNext = nullptr,
-                .depthBiasRepresentation =
-                    VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORCE_UNORM_EXT,
-                .depthBiasExact = VK_FALSE,
-            };
-
-            cmdbuf.SetDepthBias(constant, clamp, factor, &bias_info);
-        } else {
-            cmdbuf.SetDepthBias(constant, clamp, factor);
-        }
+                      factor = regs.slope_scale_depth_bias](vk::CommandBuffer cmdbuf) {
+        cmdbuf.SetDepthBias(constant, clamp, factor);
     });
 }
 
@@ -1686,12 +1668,10 @@ void RasterizerVulkan::UpdateDepthClampEnable(Tegra::Engines::Maxwell3D::Regs& r
     if (!device.SupportsDynamicState3DepthClampEnable()) {
         return;
     }
-    bool is_enabled = !(regs.viewport_clip_control.geometry_clip ==
-                            Maxwell::ViewportClipControl::GeometryClip::Passthrough ||
-                        regs.viewport_clip_control.geometry_clip ==
-                            Maxwell::ViewportClipControl::GeometryClip::FrustumXYZ ||
-                        regs.viewport_clip_control.geometry_clip ==
-                            Maxwell::ViewportClipControl::GeometryClip::FrustumZ);
+    const bool is_enabled = (regs.viewport_clip_control.geometry_clip !=
+                                 Maxwell::ViewportClipControl::GeometryClip::FrustumXYZ &&
+                             regs.viewport_clip_control.geometry_clip !=
+                                 Maxwell::ViewportClipControl::GeometryClip::FrustumZ);
     scheduler.Record(
         [is_enabled](vk::CommandBuffer cmdbuf) { cmdbuf.SetDepthClampEnableEXT(is_enabled); });
 }

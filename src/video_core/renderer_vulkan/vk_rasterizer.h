@@ -147,6 +147,41 @@ private:
         0x01006A800016E000ULL, // SSBU
         0x0100E95004038000ULL, // XC2
         0x0100A6301214E000ULL, // FE:Engage
+        0x01007EF00011E000ULL, // Zelda: Breath of the Wild (Shrines & open world depth bias fix)
+        0x0100F2C0115B6000ULL, // Zelda: Tears of the Kingdom
+        0x01008CF01BAAC000ULL, // Zelda: Echoes of Wisdom
+        0x01008CF01BA04000ULL, // Zelda: Echoes of Wisdom (Alt)
+        0x01006BB00C6F0000ULL, // Zelda: Link's Awakening
+        0x01002DA013484000ULL, // Zelda: Skyward Sword HD
+        0x01000B900D8B0000ULL, // Cadence of Hyrule
+        0x0100D7C000B02000ULL, // Luigi's Mansion 3
+        0x0100D870045B6000ULL, // Luigi's Mansion 3 (Alt)
+        0x0100DCA0064A6000ULL, // Luigi's Mansion 3 (Alt 2)
+        0x010093801237C000ULL, // Metroid Dread
+        0x01005AF00BA7A000ULL, // Metroid Dread (Alt)
+        0x0100121014688000ULL, // Metroid Prime Remastered
+        0x010020D01AD24000ULL, // Animal Well
+        0x01006560184E6000ULL, // Mortal Kombat 1
+        0x0100726014352000ULL, // Diablo II: Resurrected
+        0x0100916014D8C000ULL, // Diablo II: Resurrected (Alt)
+        0x010097F018538000ULL, // Dave the Diver
+        0x01002EF01A316000ULL, // Brotato
+        0x010089A0197E4000ULL, // Vampire Survivors
+        0x0100307018934000ULL, // Signalis
+        0x0100EC9010258000ULL, // Streets of Rage 4
+        0x0100E65002BB8000ULL, // Stardew Valley
+        0x01002FC00412C000ULL, // Little Nightmares
+        0x010097100EDD6000ULL, // Little Nightmares II
+        0x010066101A55A000ULL, // Little Nightmares III
+        0x010042D00D900000ULL, // LEGO Star Wars: The Skywalker Saga
+        0x0100CEA007D08000ULL, // Crypt of the NecroDancer
+        0x0100BDA01AABC000ULL, // Rift of the NecroDancer
+        0x0100D59022590000ULL, // Scott Pilgrim vs. The World
+        0x010094D023A28000ULL, // Drill Core
+        0x0100000000010000ULL, // Super Mario Odyssey
+        0x010028600EBDA000ULL, // Super Mario 3D World + Bowser's Fury
+        0x01004D701742A000ULL, // Paper Mario: The Thousand-Year Door
+        0x010015100B514000ULL, // Persona 5 Royal
     };
     static constexpr size_t MAX_TEXTURES = 192;
     static constexpr size_t MAX_IMAGES = 48;

@@ -222,20 +222,23 @@
 
         </FrameLayout>
 
+        <FrameLayout
+            android:id="@+id/quick_settings_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@drawable/eden_bottom_sheet_background"
+            app:behavior_hideable="true"
+            app:behavior_peekHeight="0dp"
+            app:behavior_skipCollapsed="true"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            tools:visibility="gone">
+
+            <include layout="@layout/layout_quick_settings" />
+
+        </FrameLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <FrameLayout
-        android:id="@+id/quick_settings_sheet"
-        android:layout_width="320dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:focusedByDefault="true"
-        android:background="?attr/colorSurface"
-        tools:visibility="gone">
-
-        <include layout="@layout/layout_quick_settings" />
-
-    </FrameLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/in_game_menu"
@@ -245,11 +248,13 @@
         android:focusedByDefault="true"
         app:headerLayout="@layout/header_in_game"
         app:menu="@menu/menu_in_game"
-        android:background="?attr/colorSurface"
+        android:background="@drawable/eden_sidebar_background"
         app:itemTextColor="?attr/colorOnSurface"
         app:itemIconTint="?attr/colorPrimary"
-        app:itemShapeInsetStart="12dp"
-        app:itemShapeInsetEnd="12dp"
+        app:itemShapeInsetStart="10dp"
+        app:itemShapeInsetEnd="10dp"
+        app:itemShapeInsetTop="2dp"
+        app:itemShapeInsetBottom="2dp"
         tools:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

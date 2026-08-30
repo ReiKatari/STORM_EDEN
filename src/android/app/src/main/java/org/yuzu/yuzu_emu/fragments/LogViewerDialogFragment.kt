@@ -96,11 +96,15 @@ class LogViewerDialogFragment : DialogFragment() {
         val progId = game?.programIdHex ?: ""
         binding.textLogSubtitle.text = "$gameName ${if (progId.isNotEmpty()) "[$progId]" else ""} | ${if (isRunning) "⚡ В игре" else "⚪ Оффлайн"}"
 
-        binding.btnClose.setOnClickListener { dismiss() }
-        binding.btnRefreshLog.setOnClickListener { loadLogFile(true) }
+        binding.btnClose.setOnClickListener { dismissAllowingStateLoss() }
+        binding.btnRefreshLog.setOnClickListener {
+            Toast.makeText(requireContext(), "🔄 Обновление журнала...", Toast.LENGTH_SHORT).show()
+            loadLogFile(true)
+        }
         binding.btnCopyLog.setOnClickListener { copyLogToClipboard() }
+        binding.btnSaveLog.setOnClickListener { saveLogToFile() }
         binding.btnShareLog.setOnClickListener { shareLogFile() }
-        binding.btnShareMessenger.setOnClickListener { shareLogFile() }
+        binding.btnShareMessenger.setOnClickListener { sendToTelegramOrMessenger() }
 
         binding.chipFilterAll.setOnClickListener { setFilter(FILTER_ALL) }
         binding.chipFilterErrors.setOnClickListener { setFilter(FILTER_ERRORS) }
@@ -130,8 +134,8 @@ class LogViewerDialogFragment : DialogFragment() {
         dialog?.window?.let { window ->
             val dm = resources.displayMetrics
             val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-            val width = if (isLandscape) (dm.widthPixels * 0.94).toInt().coerceIn(600, 1600) else (dm.widthPixels * 0.96).toInt()
-            val height = if (isLandscape) (dm.heightPixels * 0.94).toInt().coerceIn(360, 950) else (dm.heightPixels * 0.92).toInt()
+            val width = if (isLandscape) (dm.widthPixels * 0.94).toInt().coerceIn(650, 1650) else (dm.widthPixels * 0.96).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.94).toInt().coerceIn(400, 1000) else (dm.heightPixels * 0.92).toInt()
             window.setLayout(width, height)
             window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window.setGravity(android.view.Gravity.CENTER)
@@ -153,7 +157,7 @@ class LogViewerDialogFragment : DialogFragment() {
             val logFile = getActiveLogFile()
             val lines = if (logFile != null && logFile.exists()) {
                 try {
-                    logFile.readLines(Charsets.UTF_8).takeLast(2000)
+                    logFile.readLines(Charsets.UTF_8).takeLast(2500)
                 } catch (_: Exception) {
                     emptyList()
                 }
@@ -239,7 +243,41 @@ class LogViewerDialogFragment : DialogFragment() {
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("STORM EDEN Log", text)
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(requireContext(), "📋 Лог скопирован в буфер обмена", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "📋 Лог скопирован в буфер обмена (${filteredLogLines.size} строк)", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun saveLogToFile() {
+        val textToSave = if (filteredLogLines.isNotEmpty()) {
+            filteredLogLines.joinToString("\n")
+        } else {
+            rawLogLines.joinToString("\n")
+        }
+
+        if (textToSave.isBlank()) {
+            Toast.makeText(requireContext(), "Лог пуст, нечего сохранять", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val timeStamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(java.util.Date())
+                val targetDir = File(requireContext().getExternalFilesDir(null), "logs").apply { mkdirs() }
+                val targetFile = File(targetDir, "STORM_EDEN_log_$timeStamp.txt")
+                targetFile.writeText(textToSave, Charsets.UTF_8)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "💾 Лог успешно сохранён:\n${targetFile.name}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Ошибка при сохранении лога: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun shareLogFile() {
@@ -276,10 +314,10 @@ class LogViewerDialogFragment : DialogFragment() {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_STREAM, uri)
                         putExtra(Intent.EXTRA_SUBJECT, "STORM EDEN Log - ${game?.title ?: "Switch"}$filterSuffix")
-                        putExtra(Intent.EXTRA_TEXT, textToShare.take(5000))
+                        putExtra(Intent.EXTRA_TEXT, textToShare.take(4000))
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    val chooser = Intent.createChooser(intent, "Направить лог в Telegram / MAX / Мессенджеры")
+                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM EDEN")
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(chooser)
                 }
@@ -289,7 +327,57 @@ class LogViewerDialogFragment : DialogFragment() {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, textToShare)
                     }
-                    val chooser = Intent.createChooser(intent, "Направить лог в Telegram / MAX / Мессенджеры")
+                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM EDEN")
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(chooser)
+                }
+            }
+        }
+    }
+
+    private fun sendToTelegramOrMessenger() {
+        val textToShare = if (filteredLogLines.isNotEmpty()) {
+            filteredLogLines.joinToString("\n")
+        } else {
+            rawLogLines.joinToString("\n")
+        }
+
+        if (textToShare.isBlank()) {
+            Toast.makeText(requireContext(), "Лог пуст", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val cacheDir = requireContext().cacheDir
+                val shareFile = File(cacheDir, "storm_eden_log.txt")
+                shareFile.writeText(textToShare, Charsets.UTF_8)
+
+                val uri: Uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.fileprovider",
+                    shareFile
+                )
+
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        putExtra(Intent.EXTRA_SUBJECT, "STORM EDEN Log - ${game?.title ?: "Switch"}")
+                        putExtra(Intent.EXTRA_TEXT, "📊 Журнал работы STORM EDEN (Игра: ${game?.title ?: "Switch"})\n\n" + textToShare.take(3000))
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    val chooser = Intent.createChooser(intent, "🚀 Отправить лог в Telegram / MAX")
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(chooser)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, textToShare)
+                    }
+                    val chooser = Intent.createChooser(intent, "🚀 Отправить лог в Telegram / MAX")
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(chooser)
                 }
@@ -302,3 +390,4 @@ class LogViewerDialogFragment : DialogFragment() {
         _binding = null
     }
 }
+

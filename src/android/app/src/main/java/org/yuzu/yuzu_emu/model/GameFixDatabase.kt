@@ -367,15 +367,15 @@ object GameFixDatabase {
             "Animal Well",
             "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
             "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 6GB DRAM\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Async Shaders: Enabled",
+            "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
+            "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Cpu\\cpu_accuracy" to "0",
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "true"
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Renderer\\reactive_flushing" to "true"
             )
         ),
         GameFixProfile(
@@ -383,17 +383,18 @@ object GameFixDatabase {
             "Animal Well (Alt)",
             "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
             "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-            "✓ Конфигурация памяти: 6 ГБ DRAM\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 6GB DRAM\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Dynamic State: Basic (EDS1)\n✓ Fastmem: Enabled\n✓ Async Shaders: Enabled",
+            "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
+            "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Cpu\\cpu_accuracy" to "0",
                 "Renderer\\gpu_accuracy" to "1",
-                "Renderer\\dyna_state" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "true"
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Renderer\\reactive_flushing" to "true"
             )
         ),
+
         GameFixProfile(
             0x0100C88011246000L,
             "Disco Elysium: The Final Cut",

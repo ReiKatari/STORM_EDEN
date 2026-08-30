@@ -300,15 +300,37 @@ object GameHelper {
         }
 
         val rawVersion = GameMetadata.getVersion(filePath, false)
-        val cleanVersion = rawVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "1.0.0" }
+        var cleanVersion = rawVersion.trim().removePrefix("v").removePrefix("V").ifEmpty { "1.0.0" }
         var rawInternalVersion = GameMetadata.getInternalVersion(filePath).trim().removePrefix("v").removePrefix("V")
         if (rawInternalVersion.isEmpty() || rawInternalVersion == "0") {
-            val match = Regex("[\\[\\(_]v(\\d+)[\\]\\)]", RegexOption.IGNORE_CASE).find(filePath)
+            val match = Regex("[\\[\\(_]v?(\\d+)[\\]\\)]", RegexOption.IGNORE_CASE).find(filePath)
             if (match != null) {
                 rawInternalVersion = match.groupValues[1]
             }
         }
-        val cleanInternalVersion = rawInternalVersion.ifEmpty { "0" }
+        var cleanInternalVersion = rawInternalVersion.ifEmpty { "0" }
+
+        // Fallback: If metadata returned default 1.0.0 / 0, extract version numbers from file name (e.g. 1_0_10_655360 or 1.0.10)
+        if (cleanVersion == "1.0.0" && (cleanInternalVersion == "0" || cleanInternalVersion.isEmpty())) {
+            val fullMatch = Regex("(?<!\\d)(\\d+)[._](\\d+)[._](\\d+)(?:[._](\\d{5,}))?", RegexOption.IGNORE_CASE).find(filePath)
+            if (fullMatch != null) {
+                val maj = fullMatch.groupValues[1].toIntOrNull() ?: 1
+                val min = fullMatch.groupValues[2].toIntOrNull() ?: 0
+                val pat = fullMatch.groupValues[3].toIntOrNull() ?: 0
+                val intVer = fullMatch.groupValues.getOrNull(4)?.toIntOrNull()
+                if (maj > 1 || min > 0 || pat > 0) {
+                    cleanVersion = "$maj.$min.$pat"
+                    cleanInternalVersion = if (intVer != null && intVer > 0) {
+                        intVer.toString()
+                    } else if (maj == 1 && min == 0 && pat > 0) {
+                        (pat * 65536).toString()
+                    } else {
+                        ((maj - 1) * 655360 + min * 65536 + pat).toString()
+                    }
+                }
+            }
+        }
+
         val addonCount = GameMetadata.getAddonCount(filePath)
         val finalAddonCount = if (addonCount > 0) {
             addonCount
@@ -326,6 +348,7 @@ object GameHelper {
             GameMetadata.getIsHomebrew(filePath),
             finalAddonCount
         )
+
 
         if (addedToLibrary) {
             val addedTime = preferences.getLong(newGame.keyAddedToLibraryTime, 0L)

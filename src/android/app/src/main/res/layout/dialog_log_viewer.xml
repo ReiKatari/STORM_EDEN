@@ -61,46 +61,51 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_refresh_log"
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 app:icon="@drawable/ic_refresh"
                 app:iconSize="18dp"
                 android:layout_marginEnd="4dp"
+                android:tooltipText="Обновить"
                 app:backgroundTint="#2D3748"
                 app:iconTint="#00F2FE" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_share_log"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                app:icon="@drawable/ic_share"
-                app:iconSize="18dp"
-                android:layout_marginEnd="4dp"
-                app:backgroundTint="#2D3748"
-                app:iconTint="#4FD1C5" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_copy_log"
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 app:icon="@drawable/ic_export"
                 app:iconSize="18dp"
                 android:layout_marginEnd="4dp"
+                android:tooltipText="Скопировать"
                 app:backgroundTint="#2D3748"
                 app:iconTint="#FEB2B2" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share_log"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                app:icon="@drawable/ic_share"
+                app:iconSize="18dp"
+                android:layout_marginEnd="4dp"
+                android:tooltipText="Поделиться"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#4FD1C5" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_close"
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 app:icon="@drawable/ic_clear"
                 app:iconSize="18dp"
+                android:tooltipText="Закрыть"
                 app:backgroundTint="#2D3748"
                 app:iconTint="#FFFFFF" />
         </LinearLayout>
+
 
         <!-- Search Bar -->
         <LinearLayout
@@ -244,6 +249,20 @@
                 tools:text="Строк: 450 | Размер: 32 КБ" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_log"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="💾 Сохранить"
+                android:textColor="#4FD1C5"
+                android:textSize="11sp"
+                android:layout_marginEnd="6dp"
+                app:icon="@drawable/ic_export"
+                app:iconSize="14dp"
+                app:iconTint="#4FD1C5"
+                app:backgroundTint="#1A202C" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_share_messenger"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
@@ -258,3 +277,4 @@
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
+

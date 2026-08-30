@@ -8,6 +8,7 @@
 
 #include "common/common_types.h"
 #include "core/core.h"
+#include "core/file_sys/common_funcs.h"
 #include "core/file_sys/content_archive.h"
 #include "core/file_sys/control_metadata.h"
 #include "core/file_sys/nca_metadata.h"
@@ -36,24 +37,38 @@ AppLoader_NSP::AppLoader_NSP(FileSys::VirtualFile file_,
     if (nsp->IsExtractedType()) {
         secondary_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(nsp->GetExeFS(), false);
     } else {
-        auto control_nca =
-            nsp->GetNCA(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Control);
+        // In multi-content / 1G+1U containers, prefer the Update Control NCA (TitleID with bit 0x800)
+        // so that the title, version (e.g. 1.0.10 / 655360), and icon reflect the latest content.
+        const u64 base_tid = FileSys::GetBaseTitleID(nsp->GetProgramTitleID());
+        const u64 update_tid = FileSys::GetUpdateTitleID(base_tid);
+
+        auto control_nca = nsp->GetNCA(update_tid, FileSys::ContentRecordType::Control);
+        if (control_nca == nullptr || control_nca->GetStatus() != ResultStatus::Success) {
+            control_nca = nsp->GetNCA(base_tid, FileSys::ContentRecordType::Control);
+        }
         if (control_nca == nullptr || control_nca->GetStatus() != ResultStatus::Success) {
             for (const auto& nca_item : nsp->GetNCAsCollapsed()) {
                 if (nca_item && nca_item->GetType() == FileSys::NCAContentType::Control &&
                     nca_item->GetStatus() == ResultStatus::Success) {
-                    control_nca = nca_item;
-                    break;
+                    if ((nca_item->GetTitleId() & 0x800) != 0) {
+                        control_nca = nca_item;
+                        break;
+                    }
+                    if (!control_nca) {
+                        control_nca = nca_item;
+                    }
                 }
             }
         }
 
         if (control_nca != nullptr && control_nca->GetStatus() == ResultStatus::Success) {
-            std::tie(nacp_file, icon_file) = [this, &content_provider, &control_nca, &fsc] {
-                const FileSys::PatchManager pm{nsp->GetProgramTitleID(), fsc, content_provider};
+            std::tie(nacp_file, icon_file) = [&content_provider, &control_nca, &fsc, base_tid] {
+                const FileSys::PatchManager pm{base_tid, fsc, content_provider};
                 return pm.ParseControlNCA(*control_nca);
             }();
         }
+
+
 
         auto program_file = nsp->GetNCAFile(nsp->GetProgramTitleID(), FileSys::ContentRecordType::Program);
         if (program_file == nullptr) {

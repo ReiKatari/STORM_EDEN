@@ -2263,17 +2263,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         appendWithPipe(fwVersion)
                     }
 
-                    if (sessionStartTime > 0L) {
-                        val elapsedMillis = SystemClock.elapsedRealtime() - sessionStartTime
-                        val totalSecs = elapsedMillis / 1000L
-                        val hours = totalSecs / 3600L
-                        val minutes = (totalSecs % 3600L) / 60L
-                        val seconds = totalSecs % 60L
-                        val timeFormatted = String.format("%02d:%02d:%02d", hours, minutes, seconds)
-                        appendWithPipe(timeFormatted)
-                    }
-
                     binding.showSocOverlayText.text = sb.toString()
+
+
 
                     if (BooleanSetting.SOC_OVERLAY_BACKGROUND.getBoolean(
                             NativeConfig.isPerGameConfigLoaded()

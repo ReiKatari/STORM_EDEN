@@ -75,12 +75,24 @@
                 style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
-                app:icon="@drawable/ic_export"
+                app:icon="@drawable/ic_copy"
                 app:iconSize="18dp"
                 android:layout_marginEnd="4dp"
                 android:tooltipText="Скопировать"
                 app:backgroundTint="#2D3748"
                 app:iconTint="#FEB2B2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_log"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                app:icon="@drawable/ic_save"
+                app:iconSize="18dp"
+                android:layout_marginEnd="4dp"
+                android:tooltipText="Сохранить в файл"
+                app:backgroundTint="#2D3748"
+                app:iconTint="#4FD1C5" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_share_log"
@@ -92,7 +104,7 @@
                 android:layout_marginEnd="4dp"
                 android:tooltipText="Поделиться"
                 app:backgroundTint="#2D3748"
-                app:iconTint="#4FD1C5" />
+                app:iconTint="#F6E05E" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_close"
@@ -105,6 +117,7 @@
                 app:backgroundTint="#2D3748"
                 app:iconTint="#FFFFFF" />
         </LinearLayout>
+
 
 
         <!-- Search Bar -->
@@ -249,25 +262,11 @@
                 tools:text="Строк: 450 | Размер: 32 КБ" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_save_log"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="💾 Сохранить"
-                android:textColor="#4FD1C5"
-                android:textSize="11sp"
-                android:layout_marginEnd="6dp"
-                app:icon="@drawable/ic_export"
-                app:iconSize="14dp"
-                app:iconTint="#4FD1C5"
-                app:backgroundTint="#1A202C" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_share_messenger"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="Отправить в Telegram / MAX"
+                android:text="Telegram / MAX"
                 android:textColor="#00F2FE"
                 android:textSize="11sp"
                 app:icon="@drawable/ic_share"
@@ -275,6 +274,7 @@
                 app:iconTint="#00F2FE"
                 app:backgroundTint="#1A202C" />
         </LinearLayout>
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 

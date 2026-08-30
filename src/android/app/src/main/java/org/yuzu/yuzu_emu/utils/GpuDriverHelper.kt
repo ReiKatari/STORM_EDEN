@@ -241,9 +241,13 @@ object GpuDriverHelper {
                 val entries = zf.entries()
                 while (entries.hasMoreElements()) {
                     val entry = entries.nextElement()
-                    if (!entry.isDirectory && entry.name.lowercase().contains(".json")) {
+                    val entryName = entry.name.substringAfterLast('/')
+                    if (!entry.isDirectory && (entryName.equals("meta.json", ignoreCase = true) || (entryName.endsWith(".json", ignoreCase = true) && !entryName.contains(".metadata.")))) {
                         zf.getInputStream(entry).use {
-                            return GpuDriverMetadata(it, entry.size)
+                            val meta = GpuDriverMetadata(it, entry.size)
+                            if (meta.name != null) {
+                                return meta
+                            }
                         }
                     }
                 }
@@ -252,6 +256,7 @@ object GpuDriverHelper {
         } catch (_: FileNotFoundException) {
         }
         return GpuDriverMetadata()
+
     }
 
     external fun supportsCustomDriverLoading(): Boolean

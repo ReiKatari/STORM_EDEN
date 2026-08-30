@@ -160,12 +160,17 @@ bool ArmNce::HandleGuestAlignmentFault(GuestContext* guest_ctx, void* raw_info, 
 bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, void* raw_context) {
     auto* info = static_cast<siginfo_t*>(raw_info);
 
-    // Try to handle an invalid access.
-    // TODO: handle accesses which split a page?
-    const Common::ProcessAddress addr =
-        (reinterpret_cast<u64>(info->si_addr) & ~Memory::YUZU_PAGEMASK);
+    const u64 fault_addr = reinterpret_cast<u64>(info->si_addr);
+    const Common::ProcessAddress addr = (fault_addr & ~Memory::YUZU_PAGEMASK);
     auto& memory = guest_ctx->parent->m_running_thread->GetOwnerProcess()->GetMemory();
-    if (memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE)) {
+
+    bool handled = memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE);
+    // Handle accesses which split a page boundary (e.g. unaligned 128-bit vector / atomic access)
+    if ((fault_addr + 16) > (addr + Memory::YUZU_PAGESIZE)) {
+        handled |= memory.InvalidateNCE(addr + Memory::YUZU_PAGESIZE, Memory::YUZU_PAGESIZE);
+    }
+
+    if (handled) {
         // We handled the access successfully and are returning to guest code.
         return true;
     }
@@ -173,6 +178,7 @@ bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, voi
     // We couldn't handle the access.
     return HandleFailedGuestFault(guest_ctx, raw_info, raw_context);
 }
+
 
 void ArmNce::HandleHostAlignmentFault(int sig, void* raw_info, void* raw_context) {
     return g_orig_bus_action.sa_sigaction(sig, static_cast<siginfo_t*>(raw_info), raw_context);

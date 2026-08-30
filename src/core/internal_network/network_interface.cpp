@@ -157,7 +157,24 @@ std::vector<Network::NetworkInterface> GetAvailableNetworkInterfaces() {
         });
     }
     freeifaddrs(ifaddr);
+#ifdef __ANDROID__
+    if (ifaces.empty()) {
+        struct in_addr ip{}, mask{}, gw{};
+        ip.s_addr = 0x0100007f; // 127.0.0.1
+        mask.s_addr = 0x000000ff; // 255.0.0.0
+        gw.s_addr = 0x0100007f; // 127.0.0.1
+        ifaces.emplace_back(Network::NetworkInterface{
+            .name = "wlan0",
+            .ip_address = ip,
+            .subnet_mask = mask,
+            .gateway = gw,
+        });
+    }
+#endif
+
     return ifaces;
+
+
 #elif defined(__FreeBSD__)
     std::vector<Network::NetworkInterface> ifaces;
     int fd = ::socket(PF_ROUTE, SOCK_RAW, AF_UNSPEC);

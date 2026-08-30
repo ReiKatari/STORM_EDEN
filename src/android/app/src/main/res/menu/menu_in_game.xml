@@ -16,8 +16,9 @@
 
         <item
             android:id="@+id/menu_toggle_translate_button"
-            android:icon="@drawable/ic_languages"
+            android:icon="@drawable/ic_translate_floating"
             android:title="@string/translator_enable_floating_button" />
+
 
         <item
             android:id="@+id/menu_load_amiibo"

@@ -1174,6 +1174,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     .show(childFragmentManager, SettingsProfilesDialogFragment.TAG)
             }
 
+            // --- Performance & Speed Section ---
             lateinit var slowSpeed: MaterialSwitch
             lateinit var turboSpeed: MaterialSwitch
 
@@ -1233,22 +1234,22 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
             quickSettings.addDivider(container)
 
+            // --- Graphics & Resolution Section ---
             quickSettings.addIntSetting(
-                R.string.renderer_accuracy,
+                R.string.renderer_resolution,
                 container,
-                IntSetting.RENDERER_ACCURACY,
-                R.array.rendererAccuracyNames,
-                R.array.rendererAccuracyValues
+                IntSetting.RENDERER_RESOLUTION,
+                R.array.rendererResolutionNames,
+                R.array.rendererResolutionValues
             )
 
             quickSettings.addIntSetting(
-                R.string.astc_recompression,
+                R.string.renderer_aspect_ratio,
                 container,
-                IntSetting.ASTC_RECOMPRESSION,
-                R.array.astcRecompressionNames,
-                R.array.astcRecompressionValues
+                IntSetting.RENDERER_ASPECT_RATIO,
+                R.array.rendererAspectRatioNames,
+                R.array.rendererAspectRatioValues
             )
-
 
             quickSettings.addIntSetting(
                 R.string.renderer_scaling_filter,
@@ -1281,6 +1282,115 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 R.array.rendererAntiAliasingNames,
                 R.array.rendererAntiAliasingValues
             )
+
+            quickSettings.addIntSetting(
+                R.string.renderer_accuracy,
+                container,
+                IntSetting.RENDERER_ACCURACY,
+                R.array.rendererAccuracyNames,
+                R.array.rendererAccuracyValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.extended_dynamic_state_title,
+                container,
+                IntSetting.RENDERER_DYNA_STATE,
+                R.array.dynaStateEntries,
+                R.array.dynaStateValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.astc_recompression,
+                container,
+                IntSetting.ASTC_RECOMPRESSION,
+                R.array.astcRecompressionNames,
+                R.array.astcRecompressionValues
+            )
+
+            quickSettings.addIntSetting(
+                R.string.renderer_vsync,
+                container,
+                IntSetting.RENDERER_VSYNC_MODE,
+                R.array.rendererVSyncNames,
+                R.array.rendererVSyncValues
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.renderer_async_shaders,
+                container,
+                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS
+            )
+
+            quickSettings.addDivider(container)
+
+            // --- Audio Section ---
+            quickSettings.addSliderSetting(
+                R.string.audio_volume,
+                container,
+                org.yuzu.yuzu_emu.features.settings.model.ByteSetting.AUDIO_VOLUME,
+                minValue = 0,
+                maxValue = 100,
+                units = "%"
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.audio_muted,
+                container,
+                BooleanSetting.AUDIO_MUTED
+            )
+
+            quickSettings.addDivider(container)
+
+            // --- Controls & Overlays Section ---
+            quickSettings.addBooleanSetting(
+                R.string.emulation_show_overlay,
+                container,
+                BooleanSetting.SHOW_INPUT_OVERLAY
+            ) { isVisible ->
+                toggleOverlay(isVisible)
+                updateQuickOverlayMenuEntry(isVisible)
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.haptic_feedback,
+                container,
+                BooleanSetting.HAPTIC_FEEDBACK
+            )
+
+            quickSettings.addBooleanSetting(
+                R.string.performance_overlay,
+                container,
+                BooleanSetting.SHOW_STATS_OVERLAY
+            ) { isVisible ->
+                binding.showStatsOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.soc_overlay,
+                container,
+                BooleanSetting.SHOW_SOC_OVERLAY
+            ) { isVisible ->
+                binding.showSocOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addBooleanSetting(
+                R.string.applet_overlay,
+                container,
+                BooleanSetting.SHOW_APPLET_OVERLAY
+            ) { isVisible ->
+                binding.showLoadOverlayText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            }
+
+            quickSettings.addDivider(container)
+
+            // --- System & CPU Section ---
+            quickSettings.addIntSetting(
+                R.string.cpu_backend,
+                container,
+                IntSetting.CPU_BACKEND,
+                R.array.cpuBackendArm64Names,
+                R.array.cpuBackendArm64Values
+            )
         }
     }
 
@@ -1304,9 +1414,17 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             .toSet()
     }
 
-    private fun openQuickSettingsMenu() {
-        binding.drawerLayout.closeDrawer(binding.inGameMenu)
-        val behavior = BottomSheetBehavior.from(binding.quickSettingsSheet)
+    fun isQuickSettingsOpen(): Boolean {
+        val b = _binding ?: return false
+        val behavior = BottomSheetBehavior.from(b.quickSettingsSheet)
+        return behavior.state != BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    fun openQuickSettingsMenu() {
+        val b = _binding ?: return
+        b.drawerLayout.closeDrawer(b.inGameMenu)
+        addQuickSettings()
+        val behavior = BottomSheetBehavior.from(b.quickSettingsSheet)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 

@@ -910,20 +910,48 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         }
     }
 
+    private var swipeStartY = 0f
+    private var swipeStartX = 0f
+    private var swipeStartTime = 0L
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? NavHostFragment
         val emulationFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull() as? org.yuzu.yuzu_emu.fragments.EmulationFragment
 
         emulationFragment?.let { fragment ->
-            when (event.action) {
+            val dm = resources.displayMetrics
+            val screenHeight = dm.heightPixels.toFloat()
+            val bottomThreshold = (screenHeight - (140 * dm.density)).coerceAtLeast(screenHeight * 0.78f)
+
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     touchDownTime = System.currentTimeMillis()
+                    swipeStartY = event.rawY
+                    swipeStartX = event.rawX
+                    swipeStartTime = touchDownTime
+
                     // show overlay immediately on touch and cancel timer when only auto-hide is enabled
                     if (!emulationViewModel.drawerOpen.value &&
                         BooleanSetting.ENABLE_INPUT_OVERLAY_AUTO_HIDE.getBoolean() &&
                         !BooleanSetting.HIDE_OVERLAY_ON_CONTROLLER_INPUT.getBoolean()) {
                         fragment.handler.removeCallbacksAndMessages(null)
                         fragment.toggleOverlay(true)
+                    }
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (swipeStartY >= bottomThreshold) {
+                        val deltaY = swipeStartY - event.rawY
+                        val deltaX = Math.abs(event.rawX - swipeStartX)
+                        val elapsed = System.currentTimeMillis() - swipeStartTime
+
+                        // Upward swipe starting near bottom edge
+                        if (deltaY > (45 * dm.density) && deltaX < (120 * dm.density) && elapsed < 800) {
+                            if (!fragment.isQuickSettingsOpen() && !emulationViewModel.drawerOpen.value) {
+                                fragment.openQuickSettingsMenu()
+                                swipeStartY = 0f // reset trigger
+                                return true
+                            }
+                        }
                     }
                 }
                 MotionEvent.ACTION_UP -> {

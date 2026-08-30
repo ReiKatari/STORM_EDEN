@@ -12,15 +12,19 @@ import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.materialswitch.MaterialSwitch
+import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
+import org.yuzu.yuzu_emu.features.settings.model.ByteSetting
+import org.yuzu.yuzu_emu.features.settings.model.ShortSetting
 import org.yuzu.yuzu_emu.fragments.EmulationFragment
 import org.yuzu.yuzu_emu.utils.NativeConfig
 import org.yuzu.yuzu_emu.features.settings.model.AbstractSetting
 import org.yuzu.yuzu_emu.features.settings.model.AbstractShortSetting
 import org.yuzu.yuzu_emu.features.settings.model.AbstractIntSetting
+import org.yuzu.yuzu_emu.features.settings.model.AbstractByteSetting
 
 class QuickSettings(val emulationFragment: EmulationFragment) {
     private fun saveSettings() {
@@ -29,6 +33,10 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         } else {
             NativeConfig.saveGlobalConfig()
         }
+        try {
+            NativeConfig.reloadSettings()
+            NativeLibrary.applySettings()
+        } catch (_: Throwable) {}
     }
 
     fun addPerGameConfigStatusIndicator(container: ViewGroup) {
@@ -72,15 +80,16 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
 
         val names = emulationFragment.resources.getStringArray(namesArrayId)
         val values = emulationFragment.resources.getIntArray(valuesArrayId)
-        val currentIndex = values.indexOf(setting.getInt())
+        val currentValue = setting.getInt(needsGlobal = false)
+        val currentIndex = values.indexOf(currentValue)
 
-        valueView.text = if (currentIndex >= 0) names[currentIndex] else "Null"
+        valueView.text = if (currentIndex >= 0) names[currentIndex] else "Default"
         headerView.visibility = View.VISIBLE
 
         var isExpanded = false
-        names.forEachIndexed { index, name ->
+        names.forEachIndexed { index, optionName ->
             val radioButton = com.google.android.material.radiobutton.MaterialRadioButton(emulationFragment.requireContext())
-            radioButton.text = name
+            radioButton.text = optionName
             radioButton.id = View.generateViewId()
             radioButton.isChecked = index == currentIndex
             radioButton.setPadding(16, 8, 16, 8)
@@ -89,7 +98,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
                 if (isChecked) {
                     setting.setInt(values[index])
                     saveSettings()
-                    valueView.text = name
+                    valueView.text = optionName
                     onValueChanged?.invoke(values[index])
                 }
             }
@@ -112,9 +121,9 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
 
     fun addBooleanSetting(
         name: Int,
-
         container: ViewGroup,
-        setting: BooleanSetting
+        setting: BooleanSetting,
+        onValueChanged: ((Boolean) -> Unit)? = null
     ) {
         val inflater = LayoutInflater.from(emulationFragment.requireContext())
         val itemView = inflater.inflate(R.layout.item_quick_settings_menu, container, false)
@@ -125,11 +134,12 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
 
         titleView.text = YuzuApplication.appContext.getString(name)
         switchContainer.visibility = View.VISIBLE
-        switchView.isChecked = setting.getBoolean()
+        switchView.isChecked = setting.getBoolean(needsGlobal = false)
 
         switchView.setOnCheckedChangeListener { _, isChecked ->
             setting.setBoolean(isChecked)
             saveSettings()
+            onValueChanged?.invoke(isChecked)
         }
 
         switchContainer.setOnClickListener {
@@ -142,7 +152,6 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         name: Int,
         isChecked: Boolean,
         isEnabled: Boolean,
-
         container: ViewGroup,
         callback: (Boolean) -> Unit
     ): MaterialSwitch? {
@@ -157,6 +166,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         switchContainer.visibility = View.VISIBLE
 
         switchView.isChecked = isChecked
+        switchView.isEnabled = isEnabled
 
         switchView.setOnCheckedChangeListener { _, checked ->
             callback(checked)
@@ -164,7 +174,9 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         }
 
         switchContainer.setOnClickListener {
-            switchView.toggle()
+            if (switchView.isEnabled) {
+                switchView.toggle()
+            }
         }
         container.addView(itemView)
 
@@ -177,7 +189,8 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         setting: AbstractSetting,
         minValue: Int = 0,
         maxValue: Int = 100,
-        units: String = ""
+        units: String = "",
+        onValueChanged: ((Int) -> Unit)? = null
     ) {
         val inflater = LayoutInflater.from(emulationFragment.requireContext())
         val itemView = inflater.inflate(R.layout.item_quick_settings_menu, container, false)
@@ -186,7 +199,6 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         val titleView = itemView.findViewById<TextView>(R.id.slider_title)
         val valueDisplay = itemView.findViewById<TextView>(R.id.slider_value_display)
         val slider = itemView.findViewById<com.google.android.material.slider.Slider>(R.id.setting_slider)
-
 
         titleView.text = YuzuApplication.appContext.getString(name)
         sliderContainer.visibility = View.VISIBLE
@@ -197,6 +209,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         val currentValue = when (setting) {
             is AbstractShortSetting -> setting.getShort(needsGlobal = false).toInt()
             is AbstractIntSetting -> setting.getInt(needsGlobal = false)
+            is AbstractByteSetting -> setting.getByte(needsGlobal = false).toInt()
             else -> 0
         }
         slider.value = currentValue.toFloat().coerceIn(minValue.toFloat(), maxValue.toFloat())
@@ -204,15 +217,17 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         val displayValue = "${slider.value.toInt()}$units"
         valueDisplay.text = displayValue
 
-        slider.addOnChangeListener { _, value, chanhed ->
-            if (chanhed) {
+        slider.addOnChangeListener { _, value, changed ->
+            if (changed) {
                 val intValue = value.toInt()
                 when (setting) {
                     is AbstractShortSetting -> setting.setShort(intValue.toShort())
                     is AbstractIntSetting -> setting.setInt(intValue)
+                    is AbstractByteSetting -> setting.setByte(intValue.toByte())
                 }
                 saveSettings()
                 valueDisplay.text = "$intValue$units"
+                onValueChanged?.invoke(intValue)
             }
         }
 
@@ -252,4 +267,4 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         btn.setOnClickListener { onClick() }
         container.addView(itemView)
     }
-}
+}

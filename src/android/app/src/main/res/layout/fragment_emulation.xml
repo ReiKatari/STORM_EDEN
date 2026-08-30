@@ -227,7 +227,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="?attr/colorSurface"
+            android:background="@drawable/eden_bottom_sheet_background"
             app:behavior_hideable="true"
             app:behavior_peekHeight="0dp"
             app:behavior_skipCollapsed="true"
@@ -248,11 +248,14 @@
         android:focusedByDefault="true"
         app:headerLayout="@layout/header_in_game"
         app:menu="@menu/menu_in_game"
-        android:background="?attr/colorSurface"
+        android:background="@drawable/eden_sidebar_background"
         app:itemTextColor="?attr/colorOnSurface"
         app:itemIconTint="?attr/colorPrimary"
-        app:itemShapeInsetStart="12dp"
-        app:itemShapeInsetEnd="12dp"
+        app:itemShapeInsetStart="10dp"
+        app:itemShapeInsetEnd="10dp"
+        app:itemShapeInsetTop="2dp"
+        app:itemShapeInsetBottom="2dp"
+        app:itemShapeCornerRadius="12dp"
         tools:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

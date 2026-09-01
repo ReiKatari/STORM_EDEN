@@ -540,6 +540,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
     });
 
     QStringList args = QApplication::arguments();
+    LOG_INFO(Frontend, "Processing command line args (count={}): {}", args.size(), args.join(QStringLiteral(" | ")).toStdString());
 
     if (args.size() < 2) {
         return;
@@ -583,6 +584,10 @@ MainWindow::MainWindow(bool has_broken_vulkan)
         } else if (args[i] == QStringLiteral("-g") && i < args.size() - 1) {
             // Launch game at path
             game_path = args[++i];
+            while (i + 1 < args.size() && !args[i + 1].startsWith(QStringLiteral("-"))) {
+                game_path += QStringLiteral(" ") + args[++i];
+            }
+            game_path.remove(QLatin1Char('\"'));
             has_gamepath = true;
         } else if (args[i] == QStringLiteral("-input-profile") && i < args.size() - 1) {
             auto& players = Settings::values.players.GetValue();
@@ -593,8 +598,13 @@ MainWindow::MainWindow(bool has_broken_vulkan)
             should_launch_hlaunch = true;
         } else if (args[i] == QStringLiteral("-setup")) {
             should_launch_setup = true;
-        } else {
-            game_path = args[i];
+        } else if (!args[i].startsWith(QStringLiteral("-"))) {
+            if (game_path.isEmpty()) {
+                game_path = args[i];
+            } else {
+                game_path += QStringLiteral(" ") + args[i];
+            }
+            game_path.remove(QLatin1Char('\"'));
             has_gamepath = true;
         }
     }
@@ -608,6 +618,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
         LaunchFirmwareApplet(u64(Service::AM::AppletProgramId::Starter), std::nullopt);
     } else {
         if (!game_path.isEmpty()) {
+            LOG_INFO(Frontend, "Identified game path to boot: '{}'", game_path.toStdString());
             BootGame(game_path, ApplicationAppletParameters());
         } else if (should_launch_qlaunch) {
             LaunchFirmwareApplet(u64(Service::AM::AppletProgramId::QLaunch), std::nullopt);

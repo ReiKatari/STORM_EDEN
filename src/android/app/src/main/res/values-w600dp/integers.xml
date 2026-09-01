@@ -2,6 +2,6 @@
 <resources>
     <integer name="grid_columns">2</integer>
     <integer name="game_columns_list">2</integer>
-    <integer name="game_columns_grid">4</integer>
-    <integer name="game_columns_grid_compact">5</integer>
+    <integer name="game_columns_grid">5</integer>
+    <integer name="game_columns_grid_compact">7</integer>
 </resources>

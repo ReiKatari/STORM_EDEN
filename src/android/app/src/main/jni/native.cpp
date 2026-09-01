@@ -169,8 +169,8 @@ void EmulationSession::InitializeGpuDriver(const std::string& hook_lib_dir,
     const char* file_redirect_dir_{};
     int featureFlags{};
 
-    // Enable driver file redirection when renderer debugging is enabled.
-    if (Settings::values.renderer_debug && file_redirect_dir.size()) {
+    // Enable driver file redirection whenever file_redirect_dir is provided
+    if (file_redirect_dir.size()) {
         featureFlags |= ADRENOTOOLS_DRIVER_FILE_REDIRECT;
         file_redirect_dir_ = file_redirect_dir.c_str();
     }

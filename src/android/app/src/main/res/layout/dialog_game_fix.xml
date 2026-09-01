@@ -190,16 +190,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Checkbox: Don't ask again -->
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/cb_dont_ask_again"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/game_fix_dont_ask_again"
-                android:textSize="12.5sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="12dp" />
-
             <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"

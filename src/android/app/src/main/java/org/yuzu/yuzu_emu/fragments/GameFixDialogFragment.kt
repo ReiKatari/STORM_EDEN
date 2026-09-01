@@ -73,9 +73,6 @@ class GameFixDialogFragment : DialogFragment() {
         binding.btnApplyGameFix.setOnClickListener {
             val ctx = context
             try {
-                if (binding.cbDontAskAgain.isChecked && ctx != null) {
-                    GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
-                }
                 GameFixDatabase.applyFix(currentGame)
                 if (ctx != null) {
                     Toast.makeText(ctx, "⚡ Оптимизации STORM SWITCH: Применено", Toast.LENGTH_SHORT).show()
@@ -91,9 +88,6 @@ class GameFixDialogFragment : DialogFragment() {
         binding.btnSkipGameFix.setOnClickListener {
             val ctx = context
             try {
-                if (binding.cbDontAskAgain.isChecked && ctx != null) {
-                    GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
-                }
                 GameFixDatabase.clearActiveSessionFix()
                 if (ctx != null) {
                     Toast.makeText(ctx, "⚠️ Оптимизации STORM SWITCH: Не применено", Toast.LENGTH_SHORT).show()

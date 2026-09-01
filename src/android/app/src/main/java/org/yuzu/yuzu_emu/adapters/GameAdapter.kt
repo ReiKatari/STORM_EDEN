@@ -246,7 +246,7 @@ class GameAdapter(private val activity: AppCompatActivity) :
             GameIconUtils.loadGameIcon(model, carouselBinding.imageGameScreen)
 
             carouselBinding.badgeGameExtension?.text = model.extension
-            carouselBinding.badgeGameVersion?.text = model.version
+            carouselBinding.badgeGameVersion?.text = formatVersion(model)
             carouselBinding.badgeGameInternalVersion?.text = formatInternalVersion(model)
             carouselBinding.textGameAddons?.text = formatAddons(model)
 
@@ -313,14 +313,13 @@ class GameAdapter(private val activity: AppCompatActivity) :
             }
 
             val checkGameFixAndLaunch: () -> Unit = {
-                if (GameFixDatabase.hasFix(game) &&
-                    !GameFixDatabase.isDontAskAgain(activity, game)) {
+                if (GameFixDatabase.hasFix(game)) {
                     val dialog = GameFixDialogFragment.newInstance(game) { wasApplied ->
                         launch(wasApplied)
                     }
                     dialog.show(activity.supportFragmentManager, GameFixDialogFragment.TAG)
                 } else {
-                    launch(GameFixDatabase.isFixApplied(game))
+                    launch(false)
                 }
             }
 

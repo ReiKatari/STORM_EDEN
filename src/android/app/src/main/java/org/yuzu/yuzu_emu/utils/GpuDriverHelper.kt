@@ -79,6 +79,12 @@ object GpuDriverHelper {
         if (!customLib.isNullOrEmpty()) {
             val drircFile = File(driverInstallationPath, "drirc.xml")
             if (drircFile.exists()) {
+                try {
+                    val redirDir = File(fileRedirectionPath!!)
+                    if (!redirDir.exists()) redirDir.mkdirs()
+                    File(redirDir, "drirc.xml").writeBytes(drircFile.readBytes())
+                    File(redirDir, "drirc").writeBytes(drircFile.readBytes())
+                } catch (_: Throwable) {}
                 NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_FILE", drircFile.absolutePath)
             }
             

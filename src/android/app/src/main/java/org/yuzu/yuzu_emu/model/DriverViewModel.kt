@@ -284,14 +284,25 @@ class DriverViewModel : ViewModel() {
 
     private fun updateName() {
         val systemDriverTitle = YuzuApplication.appContext.getString(R.string.system_gpu_driver)
-        //val systemDriverVersion = GpuDriverHelper.getSystemDriverInfo()?.get(0) ?: systemDriverTitle //title as fallback just in case
         val systemDriverVersion = NativeLibrary.getVulkanDriverVersion().takeIf { !it.isNullOrEmpty() } ?: systemDriverTitle
         val customDriver = GpuDriverHelper.customDriverSettingData
 
-        _selectedDriverTitle.value = customDriver.name
-            ?: systemDriverTitle
-        _selectedDriverVersion.value = customDriver.version
-            ?: systemDriverVersion
+        val effectiveVer = customDriver.packageVersion?.takeIf { it.isNotBlank() }
+            ?: customDriver.version?.takeIf { it.isNotBlank() } ?: ""
+        val baseName = customDriver.name?.takeIf { it.isNotBlank() } ?: ""
+
+        val customDisplayTitle = if (baseName.isNotEmpty() && effectiveVer.isNotEmpty()) {
+            if (baseName.contains(effectiveVer)) baseName else "$baseName $effectiveVer"
+        } else if (baseName.isNotEmpty()) {
+            baseName
+        } else if (effectiveVer.isNotEmpty()) {
+            effectiveVer
+        } else {
+            null
+        }
+
+        _selectedDriverTitle.value = customDisplayTitle ?: systemDriverTitle
+        _selectedDriverVersion.value = if (effectiveVer.isNotEmpty()) "Версия: $effectiveVer" else systemDriverVersion
     }
 
     private fun setDriverReady() {

@@ -5,8 +5,8 @@
     <string name="notice_notification_channel_name">Уведомления и ошибки</string>
     <string name="notice_notification_channel_description">Показывает уведомления, когда что-то пошло не так</string>
     <string name="notification_permission_not_granted">Вы не предоставили разрешение на уведомления!</string>
-    <string name="app_notification_channel_description">Уведомления эмулятора switch STORM EDEN</string>
-    <string name="app_notification_running">STORM EDEN работает</string>
+    <string name="app_notification_channel_description">Уведомления эмулятора switch STORM SWITCH</string>
+    <string name="app_notification_running">STORM SWITCH работает</string>
     <string name="seconds">Секунды</string>
     <string name="copy_to_clipboard">Скопировать</string>
     <string name="view_logs">Журнал работы (Логи)</string>
@@ -241,7 +241,7 @@
     <string name="home_settings">Настройки</string>
     <string name="empty_gamelist">Не найдены файлы или еще не выбрана папка с играми.</string>
     <string name="manage_game_folders">Управление папками</string>
-    <string name="select_games_folder_description">Позволяет STORM EDEN заполнить список игр</string>
+    <string name="select_games_folder_description">Позволяет STORM SWITCH заполнить список игр</string>
     <string name="add_games_warning">Пропустить выбор папки с играми?</string>
     <string name="add_games_warning_description">Игры не будут отображаться в списке Игры, если папка не выбрана.</string>
     <string name="add_games_warning_help">https://yuzu-mirror.github.io/help/quickstart/#dumping-games</string>
@@ -297,8 +297,8 @@
     <string name="settings_description">Настройка параметров эмулятора</string>
     <string name="search_recently_played">Недавно сыгранные</string>
     <string name="search_recently_added">Недавно добавлено</string>
-    <string name="open_user_folder">Открыть папку STORM EDEN</string>
-    <string name="open_user_folder_description">Управление внутренними файлами STORM EDEN</string>
+    <string name="open_user_folder">Открыть папку STORM SWITCH</string>
+    <string name="open_user_folder_description">Управление внутренними файлами STORM SWITCH</string>
     <string name="app_settings_description">Изменяет поведение и внешний вид приложения</string>
     <string name="no_file_manager">Не найден файловый менеджер</string>
     <string name="notification_no_directory_link">Не удалось открыть папку Eden</string>
@@ -319,10 +319,10 @@
     <string name="firmware_installed_failure_description">Убедитесь что файлы прошивки nca находятся в корне zip-архива и повторите попытку.</string>
     <string name="firmware_uninstalled_failure">Не удалось удалить прошивку</string>
     <string name="share_log">Поделиться журналом отладки</string>
-    <string name="share_log_description">Поделиться журналом отладки STORM EDEN для устранения проблем</string>
+    <string name="share_log_description">Поделиться журналом отладки STORM SWITCH для устранения проблем</string>
     <string name="share_log_missing">Файл журнала не найден</string>
     <string name="share_gpu_log">Поделиться журналом ГПУ</string>
-    <string name="share_gpu_log_description">Поделиться журналом ГПУ STORM EDEN для отладки графики</string>
+    <string name="share_gpu_log_description">Поделиться журналом ГПУ STORM SWITCH для отладки графики</string>
     <string name="share_gpu_log_missing">Журнал ГПУ не найден</string>
     <string name="install_game_content">Установить игровой контент</string>
     <string name="install_game_content_description">Установить обновления игры или дополнений</string>
@@ -337,7 +337,7 @@
     <string name="install_game_content_help_link">https://yuzu-mirror.github.io/help/quickstart/#dumping-installed-updates</string>
     <string name="custom_driver_not_supported">Пользовательские драйверы не поддерживаются</string>
     <string name="custom_driver_not_supported_description">Загрузка пользовательского драйвера в настоящее время не поддерживается для этого устройства.\nПроверьте этот параметр в будущем чтобы узнать была ли добавлена ​​поддержка!</string>
-    <string name="manage_yuzu_data">Управление данными STORM EDEN</string>
+    <string name="manage_yuzu_data">Управление данными STORM SWITCH</string>
     <string name="manage_yuzu_data_description">Импортируйте/экспортируйте прошивку, ключи, пользовательские данные и многое другое!</string>
     <string name="game_folders">Папки с играми</string>
     <string name="deep_scan">Глубокий анализ</string>
@@ -399,20 +399,20 @@
     <!-- About screen strings -->
     <string name="gaia_is_not_real">Gaia не существует</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
-    <string name="about_app_description">STORM EDEN — передовой высокопроизводительный форк эмулятора Eden (Nintendo Switch)</string>
+    <string name="about_app_description">STORM SWITCH — передовой высокопроизводительный форк эмулятора Eden (Nintendo Switch)</string>
     <string name="about_fork_title">Форк проекта Eden</string>
-    <string name="about_fork_description">STORM EDEN — это оптимизированный форк эмулятора Eden. Он включает оптимизации ARM64 NCE под Android, продвинутое управление кастомными GPU-драйверами (Turnip/Mesa), встроенный каталог модов GameBanana, поддержку TitleDB и 10 фирменных тем оформления STORM.</string>
+    <string name="about_fork_description">STORM SWITCH — это оптимизированный форк эмулятора Eden. Он включает оптимизации ARM64 NCE под Android, продвинутое управление кастомными GPU-драйверами (Turnip/Mesa), встроенный каталог модов GameBanana, поддержку TitleDB и 10 фирменных тем оформления STORM.</string>
     <string name="special_thanks_title">Особая благодарность и признательность</string>
     <string name="special_thanks_description">• Eden Project &amp; Team — оригинальный проект и основа эмулятора\n• Yuzu &amp; Citra Teams — фундаментальная кодовая база эмуляции\n• Ryujinx Team — исследования и документация Switch HLE\n• Skyline / Strato Team — передовые наработки ARM64 NCE на Android\n• Mesa, Freedreno и Turnip (Bylaws, Danylo) — драйверы Vulkan под Adreno\n• Всему мировому сообществу открытой эмуляции</string>
     <string name="contributors">Контрибьюторы</string>
-    <string name="contributors_description">Разработчики и участники сообщества STORM EDEN и Eden</string>
+    <string name="contributors_description">Разработчики и участники сообщества STORM SWITCH и Eden</string>
     <string name="licenses_description">Лицензии открытого исходного кода и библиотеки (GPLv3.0+)</string>
     <string name="build">Сборка</string>
     <string name="user_data">Данные пользователя</string>
     <string name="user_data_description">Импорт/экспорт всех данных\n\nПри импорте все текущие данные будут удалены!\n\nИмпорт из Citron может вызвать ошибки. Рекомендуется ручной перенос.</string>
     <string name="exporting_user_data">Экспорт пользовательских данных…</string>
     <string name="importing_user_data">Импорт пользовательских данных…</string>
-    <string name="invalid_yuzu_backup">Неверная резервная копия STORM EDEN</string>
+    <string name="invalid_yuzu_backup">Неверная резервная копия STORM SWITCH</string>
     <string name="user_data_export_success">Пользовательские данные успешно экспортированы</string>
     <string name="user_data_import_success">Пользовательские данные успешно импортированы</string>
     <string name="user_data_export_cancelled">Экспорт отменен</string>
@@ -1135,7 +1135,7 @@
     <string name="app_language_description">Поменять язык интерфейса приложения</string>
     <string name="app_language_system">Следовать системе</string>
     <!-- Static Themes -->
-    <string name="static_theme_color">Тема оформления STORM EDEN</string>
+    <string name="static_theme_color">Тема оформления STORM SWITCH</string>
     <string name="theme_storm_night">STORM NIGHT (По умолчанию)</string>
     <string name="theme_storm_day">STORM DAY (Светлая)</string>
     <string name="theme_storm_midnight">STORM MIDNIGHT (Полночь)</string>
@@ -1362,7 +1362,7 @@
     <string name="show_device_load_overlay">Показывать оверлей нагрузки на устройство</string>
     <string name="show_device_load_overlay_description">Отображает в реальном времени нагрузку на ЦП, ГПУ, ОЗУ и 5-уровневый индикатор температуры устройства.</string>
     <string name="game_fix_issues_header">⚠️ Известные проблемы и сбои игры</string>
-    <string name="game_fix_recommended_header">⚡ Рекомендуемые настройки STORM EDEN</string>
+    <string name="game_fix_recommended_header">⚡ Рекомендуемые настройки STORM SWITCH</string>
     <string name="game_fix_dont_ask_again">Больше не спрашивать для этой игры</string>
     <string name="game_fix_apply_and_launch">⚡ Применить исправления и запустить</string>
     <string name="game_fix_skip_and_launch">Запустить без изменений</string>

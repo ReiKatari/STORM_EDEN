@@ -19,7 +19,7 @@ if (DEFINED GIT_RELEASE)
     set(GIT_REFSPEC "${GIT_RELEASE}")
     set(IS_DEV_BUILD false)
 else()
-    set(BUILD_VERSION "6.1.6")
+    set(BUILD_VERSION "6.1.7")
     set(IS_DEV_BUILD false)
 endif()
 
@@ -38,18 +38,18 @@ set(GIT_DESC "${BUILD_VERSION}")
 
 # Generate cpp with Git revision from template
 
-set(BUILD_AUTO_UPDATE_STABLE_REPO "ReiKatari/STORM_EDEN")
+set(BUILD_AUTO_UPDATE_STABLE_REPO "ReiKatari/STORM_SWITCH")
 set(BUILD_AUTO_UPDATE_STABLE_API "api.github.com")
 set(BUILD_AUTO_UPDATE_STABLE_API_PATH "/repos/")
 
 set(BUILD_AUTO_UPDATE_WEBSITE "https://github.com")
 set(BUILD_AUTO_UPDATE_API "api.github.com")
-set(BUILD_AUTO_UPDATE_API_PATH "/repos/ReiKatari/STORM_EDEN/releases/latest")
-set(BUILD_AUTO_UPDATE_REPO "ReiKatari/STORM_EDEN")
-set(REPO_NAME "STORM EDEN")
+set(BUILD_AUTO_UPDATE_API_PATH "/repos/ReiKatari/STORM_SWITCH/releases/latest")
+set(BUILD_AUTO_UPDATE_REPO "ReiKatari/STORM_SWITCH")
+set(REPO_NAME "STORM SWITCH")
 
-set(TITLE_BAR_FORMAT_IDLE "STORM EDEN ${BUILD_VERSION}")
-set(TITLE_BAR_FORMAT_RUNNING "STORM EDEN ${BUILD_VERSION} | {3}")
+set(TITLE_BAR_FORMAT_IDLE "STORM SWITCH ${BUILD_VERSION}")
+set(TITLE_BAR_FORMAT_RUNNING "STORM SWITCH ${BUILD_VERSION} | {3}")
 set(CXX_COMPILER "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
 configure_file(scm_rev.cpp.in scm_rev.cpp @ONLY)

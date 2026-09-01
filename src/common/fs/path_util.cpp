@@ -138,7 +138,7 @@ public:
 #undef LEGACY_PATH
 #elif __ANDROID__
         if (eden_path.empty()) {
-            eden_path = "/data/user/0/dev.eden.eden_emulator/files";
+            eden_path = "/data/user/0/dev.storm_switch/files";
         }
         eden_path_cache = eden_path / CACHE_DIR;
         eden_path_config = eden_path / CONFIG_DIR;

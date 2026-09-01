@@ -27,6 +27,8 @@ class GpuDriverMetadata {
             author = json.getString("author")
             vendor = json.getString("vendor")
             version = json.getString("driverVersion")
+            packageVersion = json.optString("packageVersion", "").takeIf { it.isNotBlank() }
+                ?: json.optString("version", "").takeIf { it.isNotBlank() }
             minApi = json.getInt("minApi")
             libraryName = json.getString("libraryName")
         } catch (e: JSONException) {
@@ -55,6 +57,8 @@ class GpuDriverMetadata {
             author = json.getString("author")
             vendor = json.getString("vendor")
             version = json.getString("driverVersion")
+            packageVersion = json.optString("packageVersion", "").takeIf { it.isNotBlank() }
+                ?: json.optString("version", "").takeIf { it.isNotBlank() }
             minApi = json.getInt("minApi")
             libraryName = json.getString("libraryName")
         } catch (e: JSONException) {
@@ -110,6 +114,7 @@ class GpuDriverMetadata {
     var author: String? = null
     var vendor: String? = null
     var version: String? = null
+    var packageVersion: String? = null
     var minApi = 0
     var libraryName: String? = null
 

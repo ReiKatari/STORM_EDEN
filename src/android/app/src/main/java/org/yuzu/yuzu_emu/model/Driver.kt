@@ -16,12 +16,24 @@ data class Driver(
     }
 
     companion object {
-        fun GpuDriverMetadata.toDriver(selected: Boolean = false): Driver =
-            Driver(
+        fun GpuDriverMetadata.toDriver(selected: Boolean = false): Driver {
+            val ver = packageVersion?.takeIf { it.isNotBlank() } ?: version?.takeIf { it.isNotBlank() } ?: ""
+            val baseName = name?.takeIf { it.isNotBlank() } ?: ""
+            val displayTitle = if (ver.isNotEmpty() && baseName.isNotEmpty()) {
+                if (baseName.contains(ver)) baseName else "$baseName $ver"
+            } else if (baseName.isNotEmpty()) {
+                baseName
+            } else if (ver.isNotEmpty()) {
+                ver
+            } else {
+                ""
+            }
+            return Driver(
                 selected,
-                this.name ?: "",
-                this.version ?: "",
-                this.description ?: ""
+                displayTitle,
+                ver,
+                description ?: ""
             )
+        }
     }
 }

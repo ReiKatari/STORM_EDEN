@@ -70,7 +70,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.eden.eden_emulator"
+        applicationId = "dev.storm_switch"
         minSdk = 24
         targetSdk = 36
         versionName = getGitVersion()
@@ -189,7 +189,7 @@ android {
     }
 
     // appNameBase is used for the primary identifier
-    // this should be "STORM EDEN <flavorName>"
+    // this should be "STORM SWITCH <flavorName>"
     flavorDimensions.add("version")
     productFlavors {
         create("mainline") {
@@ -197,8 +197,8 @@ android {
             isDefault = true
             minSdk = 33
 
-            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN")
-            resValue("string", "app_name_suffixed", "STORM EDEN")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH")
+            resValue("string", "app_name_suffixed", "STORM SWITCH")
 
             ndk {
                 abiFilters += listOf("arm64-v8a")
@@ -208,8 +208,8 @@ android {
         create("genshinSpoof") {
             dimension = "version"
             minSdk = 35
-            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN Optimized")
-            resValue("string", "app_name_suffixed", "STORM EDEN Optimized")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH Optimized")
+            resValue("string", "app_name_suffixed", "STORM SWITCH Optimized")
             applicationId = "com.miHoYo.Yuanshen"
 
             externalNativeBuild {
@@ -226,9 +226,9 @@ android {
         create("legacy") {
             dimension = "version"
             minSdk = 26
-            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN Legacy")
-            resValue("string", "app_name_suffixed", "STORM EDEN Legacy")
-            applicationId = "dev.legacy.eden_emulator"
+            manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH Legacy")
+            resValue("string", "app_name_suffixed", "STORM SWITCH Legacy")
+            applicationId = "dev.storm_switch.legacy"
 
             externalNativeBuild {
                 cmake {
@@ -249,8 +249,8 @@ android {
 
         create("chromeOS") {
             dimension = "version"
-            manifestPlaceholders += mapOf("appNameBase" to "STORM EDEN ChromeOS")
-            resValue("string", "app_name_suffixed", "STORM EDEN ChromeOS")
+            manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH ChromeOS")
+            resValue("string", "app_name_suffixed", "STORM SWITCH ChromeOS")
 
             ndk {
                 abiFilters += listOf("x86_64")
@@ -271,12 +271,12 @@ android {
     }
 
     productFlavors.all {
-        val currentName = manifestPlaceholders["appNameBase"] as? String ?: "STORM EDEN"
+        val currentName = manifestPlaceholders["appNameBase"] as? String ?: "STORM SWITCH"
         val suffix = if (isNightly) " Nightly" else ""
 
         // apply nightly suffix I/A
         resValue("string", "app_name_suffixed", "$currentName$suffix")
-        resValue("string", "app_name", "STORM EDEN$suffix")
+        resValue("string", "app_name", "STORM SWITCH$suffix")
     }
 }
 
@@ -379,7 +379,7 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    return "6.1.6"
+    return "6.1.7"
 }
 
 

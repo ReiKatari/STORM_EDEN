@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QAction>
@@ -24,8 +24,8 @@ FloatingTranslateButton::FloatingTranslateButton(QWidget* parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_ShowWithoutActivating);
     resize(60, 60);
-    setWindowTitle(QStringLiteral("STORM EDEN — Translate"));
-    setToolTip(tr("🌐 Перевод экрана STORM EDEN\n• Клик: мгновенный перевод экрана\n• Долгое нажатие / ПКМ: настройки и субтитры"));
+    setWindowTitle(QStringLiteral("STORM SWITCH — Translate"));
+    setToolTip(tr("🌐 Перевод экрана STORM SWITCH\n• Клик: мгновенный перевод экрана\n• Долгое нажатие / ПКМ: настройки и субтитры"));
 }
 
 FloatingTranslateButton::~FloatingTranslateButton() = default;

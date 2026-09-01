@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
@@ -68,7 +68,7 @@ void DefaultSoftwareKeyboardApplet::ShowNormalKeyboard() const {
     LOG_WARNING(Service_AM,
                 "(STUBBED) called, backend requested to show the normal software keyboard.");
 
-    SubmitNormalText(u"STORM EDEN");
+    SubmitNormalText(u"STORM SWITCH");
 }
 
 void DefaultSoftwareKeyboardApplet::ShowTextCheckDialog(
@@ -103,7 +103,7 @@ void DefaultSoftwareKeyboardApplet::ShowInlineKeyboard(
              appear_parameters.key_top_as_floating, appear_parameters.enable_backspace_button,
              appear_parameters.enable_return_button, appear_parameters.disable_cancel_button);
 
-    std::thread([this] { SubmitInlineText(u"STORM EDEN"); }).detach();
+    std::thread([this] { SubmitInlineText(u"STORM SWITCH"); }).detach();
 }
 
 void DefaultSoftwareKeyboardApplet::HideInlineKeyboard() const {

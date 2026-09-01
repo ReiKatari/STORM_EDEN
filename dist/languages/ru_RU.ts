@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <!DOCTYPE TS[]>
 <TS version="2.1" language="ru_RU" sourcelanguage="en_US">
   <context>
@@ -6,7 +6,7 @@
     <message>
       <location filename="../../src/yuzu/aboutdialog.ui" line="14" />
       <source>About Eden</source>
-      <translation>О программе STORM EDEN</translation>
+      <translation>О программе STORM SWITCH</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/aboutdialog.ui" line="72" />
@@ -6510,7 +6510,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/qt_common/config/uisettings.cpp" line="45" />
       <source>Exit Eden</source>
-      <translation>Выйти из STORM EDEN</translation>
+      <translation>Выйти из STORM SWITCH</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/uisettings.cpp" line="46" />

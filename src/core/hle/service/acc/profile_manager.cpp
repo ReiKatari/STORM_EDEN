@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -55,7 +55,7 @@ ProfileManager::ProfileManager() {
 
     // Create an user if none are present
     if (user_count == 0 || !profiles[0].user_uuid.IsValid()) {
-        CreateNewUser(UUID::MakeRandom(), "STORM EDEN");
+        CreateNewUser(UUID::MakeRandom(), "STORM SWITCH");
         WriteUserSaveFile();
     }
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QApplication>
@@ -112,8 +112,8 @@ int main(int argc, char* argv[]) {
 #endif
 
     // Init settings params
-    QCoreApplication::setOrganizationName(QStringLiteral("STORM EDEN"));
-    QCoreApplication::setApplicationName(QStringLiteral("STORM EDEN"));
+    QCoreApplication::setOrganizationName(QStringLiteral("STORM SWITCH"));
+    QCoreApplication::setApplicationName(QStringLiteral("STORM SWITCH"));
 
     // Increases the maximum open file limit.
     // TODO: This should be common to all frontends.

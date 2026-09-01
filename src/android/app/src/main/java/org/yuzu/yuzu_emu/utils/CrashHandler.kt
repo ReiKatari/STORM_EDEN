@@ -49,7 +49,7 @@ object CrashHandler {
                     defaultHandler?.uncaughtException(thread, throwable)
                 }
             }
-            Log.i(TAG, "STORM EDEN CrashHandler installed successfully")
+            Log.i(TAG, "STORM SWITCH CrashHandler installed successfully")
         }
     }
 
@@ -70,7 +70,7 @@ object CrashHandler {
 
         val sb = StringBuilder()
         sb.append("=======================================================\n")
-        sb.append("STORM EDEN Android - Emergency Crash Report\n")
+        sb.append("STORM SWITCH Android - Emergency Crash Report\n")
         sb.append("=======================================================\n")
         sb.append("Timestamp: ").append(dateStr).append("\n")
         sb.append("Package: ").append(context?.packageName ?: "dev.eden.eden_emulator").append("\n\n")

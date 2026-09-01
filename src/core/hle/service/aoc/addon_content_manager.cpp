@@ -57,8 +57,8 @@ static std::vector<u64> AccumulateAOCTitleIDs(Core::System& system) {
                     LOG_WARNING(Service_AOC, "DLC title_id={:016X} has empty/missing RomFS payload, ignoring to prevent crash", tid);
                     return true;
                 }
-                LOG_INFO(Service_AOC, "DLC title_id={:016X} verified and loaded successfully (RomFS size: {} bytes)",
-                         tid, romfs->GetSize());
+                LOG_DEBUG(Service_AOC, "Indexed DLC title_id={:016X} (RomFS size: {} bytes)",
+                          tid, romfs->GetSize());
                 return false;
             }),
         add_on_content.end());

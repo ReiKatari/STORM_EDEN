@@ -218,7 +218,7 @@ object SettingsProfileManager {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/octet-stream"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, "STORM EDEN Profile: ${profile.name}")
+                putExtra(Intent.EXTRA_SUBJECT, "STORM SWITCH Profile: ${profile.name}")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(Intent.createChooser(intent, context.getString(R.string.profile_share_title)))

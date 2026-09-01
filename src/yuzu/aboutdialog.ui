@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>AboutDialog</class>
  <widget class="QDialog" name="AboutDialog">
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>О STORM EDEN</string>
+   <string>О STORM SWITCH</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -69,7 +69,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:26pt; font-weight:bold; color:#00f0ff;&quot;&gt;STORM EDEN&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:26pt; font-weight:bold; color:#00f0ff;&quot;&gt;STORM SWITCH&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -100,7 +100,7 @@
 p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI', sans-serif; font-size:9.5pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10.5pt; color:#e0e6ed;&quot;&gt;STORM EDEN — это передовой высокопроизводительный форк эмулятора Eden (Nintendo Switch), созданный для максимальной производительности, глубокой кастомизации и стабильности.&lt;br /&gt;&lt;br /&gt;STORM EDEN распространяется под лицензией GPLv3.0+ и включает расширенные режимы графики, ускоренный запуск игр, многофункциональный подвал управления и полную поддержку DLC и обновлений.&lt;br /&gt;&lt;br /&gt;Данное программное обеспечение предназначено исключительно для запуска легально полученных копий игр.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10.5pt; color:#e0e6ed;&quot;&gt;STORM SWITCH — это передовой высокопроизводительный форк эмулятора Eden (Nintendo Switch), созданный для максимальной производительности, глубокой кастомизации и стабильности.&lt;br /&gt;&lt;br /&gt;STORM SWITCH распространяется под лицензией GPLv3.0+ и включает расширенные режимы графики, ускоренный запуск игр, многофункциональный подвал управления и полную поддержку DLC и обновлений.&lt;br /&gt;&lt;br /&gt;Данное программное обеспечение предназначено исключительно для запуска легально полученных копий игр.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -142,7 +142,7 @@ hr { height: 1px; border-width: 0; }
           </sizepolicy>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7.5pt; color:#7b8fa3;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; является зарегистрированным товарным знаком Nintendo. STORM EDEN не связан с Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7.5pt; color:#7b8fa3;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; является зарегистрированным товарным знаком Nintendo. STORM SWITCH не связан с Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
@@ -132,7 +132,7 @@ void LogSettings() {
             }
         }
     }
-    LOG_INFO(Config, "STORM EDEN Configuration:");
+    LOG_INFO(Config, "STORM SWITCH Configuration:");
     for (auto const& e : settings_list)
         LOG_INFO(Config, "{}", e);
 #define LOG_PATH(NAME) \

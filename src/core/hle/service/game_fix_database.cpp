@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "core/hle/service/game_fix_database.h"
@@ -130,8 +130,8 @@ static const std::vector<GameFixProfile> s_profiles = {
         "Warhammer 40,000: Mechanicus",
         "• Невозможно сохранить прогресс игры (ошибка сохранения)",
         "• Unable to save game progress (infinite save loop)",
-        "✓ Поддержка RenameDirectory в STORM EDEN 4.6.0+\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ RenameDirectory support in STORM EDEN 4.6.0+\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "✓ Поддержка RenameDirectory в STORM SWITCH 4.6.0+\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ RenameDirectory support in STORM SWITCH 4.6.0+\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}

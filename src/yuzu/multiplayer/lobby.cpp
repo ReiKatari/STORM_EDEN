@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2017 Citra Emulator Project
@@ -71,14 +71,14 @@ Lobby::Lobby(QWidget* parent, QStandardItemModel* list,
         QString::fromStdString(UISettings::values.multiplayer_nickname.GetValue()));
 
     // Try find the best nickname by default
-    if (ui->nickname->text().isEmpty() || ui->nickname->text() == QStringLiteral("STORM EDEN") || ui->nickname->text() == QStringLiteral("Eden")) {
+    if (ui->nickname->text().isEmpty() || ui->nickname->text() == QStringLiteral("STORM SWITCH") || ui->nickname->text() == QStringLiteral("Eden")) {
         if (!Settings::values.eden_username.GetValue().empty()) {
             ui->nickname->setText(
                 QString::fromStdString(Settings::values.eden_username.GetValue()));
         } else if (!GetProfileUsername().empty()) {
             ui->nickname->setText(QString::fromStdString(GetProfileUsername()));
         } else {
-            ui->nickname->setText(QStringLiteral("STORM EDEN"));
+            ui->nickname->setText(QStringLiteral("STORM SWITCH"));
         }
     }
 

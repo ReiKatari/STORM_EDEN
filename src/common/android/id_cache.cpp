@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <jni.h>
@@ -540,7 +540,7 @@ static void NativeCrashSignalHandler(int sig, siginfo_t* info, void* ucontext) {
     char buf[4096];
     snprintf(buf, sizeof(buf),
         "=======================================================\n"
-        "STORM EDEN Android - NATIVE CRASH REPORT\n"
+        "STORM SWITCH Android - NATIVE CRASH REPORT\n"
         "=======================================================\n"
         "Signal: %d (%s)\n"
         "Fault Address: %p\n"
@@ -576,7 +576,7 @@ static void CustomTerminateHandler() {
     char buf[4096];
     snprintf(buf, sizeof(buf),
         "=======================================================\n"
-        "STORM EDEN Android - UNCAUGHT C++ EXCEPTION REPORT\n"
+        "STORM SWITCH Android - UNCAUGHT C++ EXCEPTION REPORT\n"
         "=======================================================\n"
         "%s\n"
         "--- NATIVE BACKTRACE ---\n", exc_buf);

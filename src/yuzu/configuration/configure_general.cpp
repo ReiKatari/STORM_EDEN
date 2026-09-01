@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: 2016 Citra Emulator Project
@@ -98,7 +98,7 @@ void ConfigureGeneral::SetResetCallback(std::function<void()> callback) {
 
 void ConfigureGeneral::ResetDefaults() {
     QMessageBox::StandardButton answer = QMessageBox::question(
-        this, tr("STORM EDEN"),
+        this, tr("STORM SWITCH"),
         tr("This reset all settings and remove all per-game configurations. This will not delete "
            "game directories, profiles, or input profiles. Proceed?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);

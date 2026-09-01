@@ -14,6 +14,7 @@ endfunction()
 
 get_timestamp(BUILD_DATE)
 
+set(REPO_NAME "STORM SWITCH")
 set(BUILD_VERSION "6.2.6")
 set(GIT_TAG "6.2.6")
 set(GIT_REFSPEC "main")
@@ -35,10 +36,9 @@ set(BUILD_AUTO_UPDATE_WEBSITE "https://github.com")
 set(BUILD_AUTO_UPDATE_API "api.github.com")
 set(BUILD_AUTO_UPDATE_API_PATH "/repos/ReiKatari/STORM_SWITCH/releases/latest")
 set(BUILD_AUTO_UPDATE_REPO "ReiKatari/STORM_SWITCH")
-set(REPO_NAME "STORM SWITCH")
 
 set(TITLE_BAR_FORMAT_IDLE "STORM SWITCH ${BUILD_VERSION}")
-set(TITLE_BAR_FORMAT_RUNNING "STORM SWITCH ${BUILD_VERSION} | {3}")
+set(TITLE_BAR_FORMAT_RUNNING "STORM SWITCH ${BUILD_VERSION} | {3} | {1} | {2}")
 set(CXX_COMPILER "${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
 configure_file(scm_rev.cpp.in scm_rev.cpp @ONLY)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>STORM EDEN</string>
+   <string>STORM SWITCH</string>
   </property>
   <property name="windowIcon">
    <iconset resource="yuzu.qrc">
@@ -59,7 +59,7 @@
     </widget>
     <widget class="QMenu" name="menuOpen_Eden_Folders">
      <property name="title">
-      <string>Открыть папки STORM EDEN</string>
+      <string>Открыть папки STORM SWITCH</string>
      </property>
      <addaction name="action_Root_Data_Folder"/>
      <addaction name="action_NAND_Folder"/>
@@ -304,7 +304,7 @@
   </action>
   <action name="action_About">
    <property name="text">
-    <string>&amp;О STORM EDEN</string>
+    <string>&amp;О STORM SWITCH</string>
    </property>
   </action>
   <action name="action_Single_Window_Mode">
@@ -594,7 +594,7 @@
   </action>
   <action name="action_Eden_Dependencies">
    <property name="text">
-    <string>&amp;Зависимости STORM EDEN</string>
+    <string>&amp;Зависимости STORM SWITCH</string>
    </property>
   </action>
   <action name="action_Data_Manager">

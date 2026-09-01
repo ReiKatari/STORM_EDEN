@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -1032,7 +1032,7 @@ void Module::Interface::InitializeApplicationInfoV2(HLERequestContext& ctx) {
 
 void Module::Interface::BeginUserRegistration(HLERequestContext& ctx) {
     const auto user_id = Common::UUID::MakeRandom();
-    profile_manager->CreateNewUser(user_id, "STORM EDEN");
+    profile_manager->CreateNewUser(user_id, "STORM SWITCH");
 
     LOG_INFO(Service_ACC, "called, uuid={}", user_id.FormattedString());
 

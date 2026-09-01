@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // Static Qt on macOS doesn't use Vulkan
@@ -1562,7 +1562,7 @@ void MainWindow::InitializeWidgets() {
                 const FileSys::PatchManager pm(m_current_addons_title_id, QtCommon::system->GetFileSystemController(), QtCommon::system->GetContentProvider());
                 const auto pts = pm.GetPatches();
                 QStringList lines;
-                lines << QStringLiteral("STORM EDEN — Список дополнений");
+                lines << QStringLiteral("STORM SWITCH — Список дополнений");
                 lines << QStringLiteral("Игра: %1 (ID: 0x%2)").arg(m_current_addons_game_name, QStringLiteral("%1").arg(m_current_addons_title_id, 16, 16, QLatin1Char('0')).toUpper());
                 lines << QStringLiteral("------------------------------------------------------------");
                 int idx = 1;
@@ -3049,7 +3049,7 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
             tr("You are using the deconstructed ROM directory format for this game, which is an "
                "outdated format that has been superseded by others such as NCA, NAX, XCI, or "
                "NSP. Deconstructed ROM directories lack icons, metadata, and update "
-               "support.<br>For an explanation of the various Switch formats STORM EDEN supports, "
+               "support.<br>For an explanation of the various Switch formats STORM SWITCH supports, "
                "out our user handbook. This message will not be shown again."));
     }
 
@@ -3063,7 +3063,7 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
         case Core::SystemResultStatus::ErrorVideoCore:
             QMessageBox::critical(
                 this, tr("Ошибка инициализации видеоядра."),
-                tr("STORM EDEN столкнулся с ошибкой при запуске видеоядра GPU. "
+                tr("STORM SWITCH столкнулся с ошибкой при запуске видеоядра GPU. "
                    "Обычно это вызвано устаревшими драйверами видеокарты. "
                    "Пожалуйста, обновите графические драйверы."));
             break;
@@ -3115,7 +3115,7 @@ bool MainWindow::SelectAndSetCurrentUser(
 
 void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletParameters params,
                           StartGameType type) {
-    LOG_INFO(Frontend, "STORM EDEN starting...");
+    LOG_INFO(Frontend, "STORM SWITCH starting...");
 
     if (params.program_id == 0 ||
         params.program_id > static_cast<u64>(Service::AM::AppletProgramId::MaxProgramId)) {
@@ -3193,7 +3193,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
 
             if (!dont_ask) {
                 QDialog fixDialog(this);
-                fixDialog.setWindowTitle(tr("🔧 Оптимизация STORM EDEN: %1").arg(QString::fromStdString(profile->game_name)));
+                fixDialog.setWindowTitle(tr("🔧 Оптимизация STORM SWITCH: %1").arg(QString::fromStdString(profile->game_name)));
                 fixDialog.setWindowFlags(fixDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
                 fixDialog.setMinimumWidth(540);
 
@@ -3217,7 +3217,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
                 QString htmlText = QString::fromUtf8(
                     "<h3 style='margin:0 0 6px 0;'>🎮 %1</h3>"
                     "<p style='color:#ef4444; margin:4px 0;'><b>⚠️ Обнаружены известные проблемы в игре:</b><br>%2</p>"
-                    "<p style='color:#10b981; margin:4px 0;'><b>⚡ Рекомендуемые настройки STORM EDEN:</b><br>%3</p>"
+                    "<p style='color:#10b981; margin:4px 0;'><b>⚡ Рекомендуемые настройки STORM SWITCH:</b><br>%3</p>"
                     "<p style='margin:8px 0 0 0;'><b>Применить оптимизированные настройки для этой игры и сохранить их?</b></p>")
                     .arg(QString::fromStdString(profile->game_name))
                     .arg(issues_formatted)
@@ -3291,9 +3291,9 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         const bool fix_applied = Core::GameFixDatabase::IsFixApplied(title_id, target_ini) ||
                                  Core::GameFixDatabase::IsFixApplied(title_id, (custom_path / (legacy_config + ".ini")).string());
         if (fix_applied) {
-            statusBar()->showMessage(tr("⚡ Оптимизации STORM EDEN: Применено"), 8000);
+            statusBar()->showMessage(tr("⚡ Оптимизации STORM SWITCH: Применено"), 8000);
         } else if (profile != nullptr) {
-            statusBar()->showMessage(tr("⚠️ Оптимизации STORM EDEN: Не применено"), 8000);
+            statusBar()->showMessage(tr("⚠️ Оптимизации STORM SWITCH: Не применено"), 8000);
         }
     }
 
@@ -5602,7 +5602,7 @@ void MainWindow::OnCheckUpdates(bool manual_check) {
 
         if (is_newer) {
             QDialog dlg(this);
-            dlg.setWindowTitle(tr("Доступно обновление STORM EDEN"));
+            dlg.setWindowTitle(tr("Доступно обновление STORM SWITCH"));
             dlg.resize(650, 460);
             dlg.setStyleSheet(QStringLiteral(
                 "QDialog { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', sans-serif; }"
@@ -5652,8 +5652,8 @@ void MainWindow::OnCheckUpdates(bool manual_check) {
 
             dlg.exec();
         } else if (manual_check) {
-            QMessageBox::information(this, tr("STORM EDEN — Обновления"),
-                                     tr("У вас установлена последняя актуальная версия STORM EDEN (v%1).\nОбновлений не найдено.").arg(current_ver));
+            QMessageBox::information(this, tr("STORM SWITCH — Обновления"),
+                                     tr("У вас установлена последняя актуальная версия STORM SWITCH (v%1).\nОбновлений не найдено.").arg(current_ver));
         }
     });
 }
@@ -7278,8 +7278,8 @@ bool MainWindow::ConfirmClose() {
         UISettings::values.confirm_before_stopping.GetValue() == ConfirmStop::Ask_Based_On_Game)
         return true;
 
-    const auto text = tr("Вы действительно хотите закрыть STORM EDEN?");
-    return question(this, tr("STORM EDEN"), text);
+    const auto text = tr("Вы действительно хотите закрыть STORM SWITCH?");
+    return question(this, tr("STORM SWITCH"), text);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -7367,7 +7367,7 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event) {
 
 void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     if (title_id == 0) {
-        QMessageBox::information(this, QStringLiteral("STORM EDEN"), tr("Нет выделенной или запущенной игры."));
+        QMessageBox::information(this, QStringLiteral("STORM SWITCH"), tr("Нет выделенной или запущенной игры."));
         return;
     }
 
@@ -7382,7 +7382,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     const int target_height = std::clamp(static_cast<int>(parent_height * 0.90), 680, 1200);
 
     QDialog dlg(this);
-    dlg.setWindowTitle(tr("STORM EDEN — Менеджер дополнений"));
+    dlg.setWindowTitle(tr("STORM SWITCH — Менеджер дополнений"));
     dlg.resize(target_width, target_height);
     dlg.setMinimumSize(1300, 600);
     dlg.setStyleSheet(QStringLiteral(
@@ -7889,7 +7889,7 @@ void MainWindow::ShowDLCDialog(u64 title_id, const QString& game_name) {
     int row_idx = 0;
     QStringList copy_lines;
     copy_lines << QStringLiteral("============================================================");
-    copy_lines << QStringLiteral("STORM EDEN — Список дополнений и обновлений");
+    copy_lines << QStringLiteral("STORM SWITCH — Список дополнений и обновлений");
     copy_lines << QStringLiteral("Игра: %1 (ID: %2)").arg(full_display_name, tid_str);
     copy_lines << QStringLiteral("Версия игры: %1 | Дополнений в файле: %2 | В базе Tinfoil: %3 | Модов: %4")
         .arg(update_ver_str, QString::number(total_dlcs), QString::number(tinfoil_dlc_count), QString::number(total_mods));
@@ -8056,7 +8056,7 @@ bool MainWindow::ConfirmChangeGame() {
 
     // Use custom question to link controller navigation
     return question(
-        this, QStringLiteral("STORM EDEN"),
+        this, QStringLiteral("STORM SWITCH"),
         tr("Вы действительно хотите остановить эмуляцию?\nВсе несохраненные данные будут потеряны."),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 }
@@ -8065,10 +8065,10 @@ bool MainWindow::ConfirmForceLockedExit() {
     if (QtCommon::emu_thread == nullptr)
         return true;
 
-    const auto text = tr("Запущенное приложение запросило запрет на выход из STORM EDEN.\n\n"
+    const auto text = tr("Запущенное приложение запросило запрет на выход из STORM SWITCH.\n\n"
                          "Вы действительно хотите принудительно завершить работу и выйти?");
 
-    return question(this, QStringLiteral("STORM EDEN"), text);
+    return question(this, QStringLiteral("STORM SWITCH"), text);
 }
 
 void MainWindow::RequestGameExit() {

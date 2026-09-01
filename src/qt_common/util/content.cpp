@@ -43,7 +43,7 @@ void InstallFirmware(const QString& location, bool recursive) {
     // Initialize a progress dialog.
     auto progress =
         QtCommon::Frontend::newProgressDialog(tr("Установка прошивки..."), tr("Отмена"), 0, 100);
-    progress->setTitle(QStringLiteral("STORM EDEN"));
+    progress->setTitle(QStringLiteral("STORM SWITCH"));
     progress->show();
 
     QGuiApplication::processEvents();

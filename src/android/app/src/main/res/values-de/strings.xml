@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Diese Software führt Spiele für die Nintendo Switch-Konsole aus. Es sind keine Spiele oder Schlüssel enthalten. Suche, bevor du beginnst, deine <![CDATA[<b> prod.keys </b>]]>-Datei auf deinem Gerät.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Mehr Erfahren</a>]]></string>
@@ -1114,7 +1114,7 @@ Wirklich fortfahren?</string>
     <string name="memory_12gb_not_enough_ram">Der 12 GB DRAM-Modus erfordert ein Gerät mit mindestens 12 GB physischem RAM.</string>
     <string name="game_fix_apply_and_launch">⚡ Optimierungen anwenden &amp; starten</string>
     <string name="game_fix_dont_ask_again">Für dieses Spiel nicht mehr nachfragen</string>
-    <string name="game_fix_recommended_header">⚡ Empfohlene STORM EDEN Optimierungen</string>
+    <string name="game_fix_recommended_header">⚡ Empfohlene STORM SWITCH Optimierungen</string>
     <string name="game_fix_skip_and_launch">Ohne Änderungen starten</string>
     <string name="game_fix_issues_header">⚠️ Bekannte Probleme &amp; Fehler</string>
     <string name="memory_12gb">12 GB (Extrem)</string>

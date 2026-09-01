@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">本软件可以运行Nintendo Switch游戏主机的游戏，但自身并不包含任何游戏或密钥。<br /><br />请于开始之前选定位于你的设备存储空间中的<![CDATA[<b>prod.keys</b>]]>。<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">了解更多</a>]]></string>
@@ -1229,7 +1229,7 @@
     <string name="memory_12gb_not_enough_ram">12GB DRAM 模式需要至少 12GB 物理内存的设备。</string>
     <string name="game_fix_apply_and_launch">⚡ 应用修复并启动</string>
     <string name="game_fix_dont_ask_again">对此游戏不再提示</string>
-    <string name="game_fix_recommended_header">⚡ STORM EDEN 推荐设置</string>
+    <string name="game_fix_recommended_header">⚡ STORM SWITCH 推荐设置</string>
     <string name="game_fix_skip_and_launch">直接启动（不修改）</string>
     <string name="game_fix_issues_header">⚠️ 已知问题与错误</string>
     <string name="memory_12gb">12GB (极高风险)</string>

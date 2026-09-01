@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "yuzu/amiibo_browser_dialog.h"
@@ -44,7 +44,7 @@ AmiiboBrowserDialog::AmiiboBrowserDialog(QWidget* parent, Core::System& system)
 AmiiboBrowserDialog::~AmiiboBrowserDialog() = default;
 
 void AmiiboBrowserDialog::SetupUi() {
-    setWindowTitle(tr("Онлайн-база и менеджер Amiibo — STORM EDEN"));
+    setWindowTitle(tr("Онлайн-база и менеджер Amiibo — STORM SWITCH"));
     resize(980, 680);
     setMinimumSize(850, 560);
 

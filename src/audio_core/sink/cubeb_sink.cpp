@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -211,7 +211,7 @@ CubebSink::CubebSink(std::string_view target_device_name) {
     com_init_result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 #endif
 
-    if (cubeb_init(&ctx, "STORM EDEN", nullptr) != CUBEB_OK) {
+    if (cubeb_init(&ctx, "STORM SWITCH", nullptr) != CUBEB_OK) {
         LOG_CRITICAL(Audio_Sink, "cubeb_init failed");
         return;
     }

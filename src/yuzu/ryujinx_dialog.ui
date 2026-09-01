@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>RyujinxDialog</class>
  <widget class="QDialog" name="RyujinxDialog">
@@ -23,9 +23,9 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Linking save data to Ryujinx lets both Ryujinx and STORM EDEN reference the same save files for your games.
+      <string>Linking save data to Ryujinx lets both Ryujinx and STORM SWITCH reference the same save files for your games.
 
-By selecting &quot;From STORM EDEN&quot;, previous save data stored in Ryujinx will be deleted, and vice versa for &quot;From Ryujinx&quot;.</string>
+By selecting &quot;From STORM SWITCH&quot;, previous save data stored in Ryujinx will be deleted, and vice versa for &quot;From Ryujinx&quot;.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -37,7 +37,7 @@ By selecting &quot;From STORM EDEN&quot;, previous save data stored in Ryujinx w
      <item>
       <widget class="QPushButton" name="eden">
        <property name="text">
-        <string>From STORM EDEN</string>
+        <string>From STORM SWITCH</string>
        </property>
       </widget>
      </item>

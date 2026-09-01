@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: 2018 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -643,7 +643,7 @@ void SDLDriver::CloseJoysticks() {
 SDLDriver::SDLDriver(std::string input_engine_) : InputEngine(std::move(input_engine_)) {
     // Set our application name. Currently passed to DBus by SDL and visible to the user through
     // their desktop environment.
-    SDL_SetHint(SDL_HINT_APP_NAME, "STORM EDEN");
+    SDL_SetHint(SDL_HINT_APP_NAME, "STORM SWITCH");
 
     // Disable raw input. When enabled this setting causes SDL to die when a web applet opens
     SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, Settings::values.enable_raw_input ? "1" : "0");

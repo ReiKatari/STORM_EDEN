@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QApplication>
@@ -301,7 +301,7 @@ TranslatorHUDOverlay::TranslatorHUDOverlay(QWidget* parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_ShowWithoutActivating);
     resize(760, 120);
-    setWindowTitle(QStringLiteral("STORM EDEN HUD"));
+    setWindowTitle(QStringLiteral("STORM SWITCH HUD"));
 }
 
 void TranslatorHUDOverlay::SetSubtitleText(const QString& text) {
@@ -376,7 +376,7 @@ void TranslatorHUDOverlay::mouseMoveEvent(QMouseEvent* event) {
 
 GameTranslator::GameTranslator(Core::System& system, QWidget* parent)
     : QDialog(parent), m_system(system) {
-    setWindowTitle(tr("🌐 STORM EDEN — Авто-переводчик"));
+    setWindowTitle(tr("🌐 STORM SWITCH — Авто-переводчик"));
     resize(1120, 740);
     setMinimumSize(980, 640);
 

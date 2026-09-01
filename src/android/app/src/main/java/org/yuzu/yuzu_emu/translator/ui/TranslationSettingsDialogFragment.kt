@@ -172,7 +172,7 @@ class TranslationSettingsDialogFragment : DialogFragment() {
         binding.buttonTestTts.setOnClickListener {
             savePreferences()
             val target = prefs.getString("translator_target_lang", "ru") ?: "ru"
-            val phrase = if (target == "ru") "Голосовая озвучка STORM EDEN успешно активирована." else "STORM EDEN text-to-speech is ready."
+            val phrase = if (target == "ru") "Голосовая озвучка STORM SWITCH успешно активирована." else "STORM SWITCH text-to-speech is ready."
             ttsManager?.speak(phrase, "Zelda")
         }
 

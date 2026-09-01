@@ -93,7 +93,7 @@ static const constexpr frozen::map<StringKey, frozen::string, 29> strings = {
     {FwInstallFailedCopy, QT_TR_NOOP("Не удалось скопировать файлы прошивки в NAND.")},
     {FwInstallFailedCorrupted,
      QT_TR_NOOP(
-         "Установка прошивки отменена. Перезапустите STORM EDEN или повторите установку прошивки.")},
+         "Установка прошивки отменена. Перезапустите STORM SWITCH или повторите установку прошивки.")},
 
     {FwCheckErrorFirmwareMissing,
      QT_TR_NOOP(
@@ -104,9 +104,9 @@ static const constexpr frozen::map<StringKey, frozen::string, 29> strings = {
 
     // migrator
     // 17-22
-    {MigrationPromptPrefix, QT_TR_NOOP("STORM EDEN обнаружил данные следующих эмуляторов:")},
+    {MigrationPromptPrefix, QT_TR_NOOP("STORM SWITCH обнаружил данные следующих эмуляторов:")},
     {MigrationPrompt,
-     QT_TR_NOOP("Хотите перенести данные для использования в STORM EDEN?\n"
+     QT_TR_NOOP("Хотите перенести данные для использования в STORM SWITCH?\n"
                 "Выберите эмулятор для переноса данных.\n"
                 "Этот процесс может занять некоторое время.")},
     {MigrationTooltipClearShader, QT_TR_NOOP("Рекомендуется очистить кэш шейдеров.\nНе снимайте отметку, если не уверены.")},

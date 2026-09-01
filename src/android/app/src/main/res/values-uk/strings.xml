@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Цей застосунок запускає ігри для ігрової консолі Nintendo Switch. Він не містить ігор чи ключів.<br /><br />Перш ніж почати, укажіть розташування файлу <![CDATA[<b> prod.keys </b>]]> у пам’яті вашого пристрою.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Дізнатися більше</a>]]></string>
@@ -1217,7 +1217,7 @@
     <string name="memory_12gb_not_enough_ram">Для режиму 12 ГБ DRAM потрібен пристрій щонайменше з 12 ГБ фізичної оперативної пам\'яті.</string>
     <string name="game_fix_apply_and_launch">⚡ Застосувати виправлення та запустити</string>
     <string name="game_fix_dont_ask_again">Більше не запитувати для цієї гри</string>
-    <string name="game_fix_recommended_header">⚡ Рекомендовані налаштування STORM EDEN</string>
+    <string name="game_fix_recommended_header">⚡ Рекомендовані налаштування STORM SWITCH</string>
     <string name="game_fix_skip_and_launch">Запустити без змін</string>
     <string name="game_fix_issues_header">⚠️ Відомі проблеми та збої</string>
     <string name="memory_12gb">12 ГБ (Екстремально)</string>

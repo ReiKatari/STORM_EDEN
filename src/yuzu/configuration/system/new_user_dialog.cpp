@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <algorithm>
@@ -58,7 +58,7 @@ NewUserDialog::NewUserDialog(Common::UUID uuid, const std::string& username, con
 }
 
 NewUserDialog::NewUserDialog(QWidget* parent) : QDialog(parent) {
-    setup(Common::UUID::MakeRandom(), "STORM EDEN", tr("New User"));
+    setup(Common::UUID::MakeRandom(), "STORM SWITCH", tr("New User"));
 }
 
 void NewUserDialog::setup(Common::UUID uuid, const std::string& username, const QString& title) {

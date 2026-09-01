@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QAbstractButton>
@@ -27,7 +27,7 @@ WidgetsProgressDialog::WidgetsProgressDialog(const QString& labelText,
                                              int maximum, QWidget* parent, Qt::WindowFlags f)
     : QtProgressDialog(labelText, cancelButtonText, minimum, maximum, parent, f),
       m_dialog(new QProgressDialog(labelText, cancelButtonText, minimum, maximum, parent, f)) {
-    m_dialog->setWindowTitle(QStringLiteral("STORM EDEN"));
+    m_dialog->setWindowTitle(QStringLiteral("STORM SWITCH"));
     m_dialog->setAutoClose(false);
     m_dialog->setAutoReset(false);
     m_dialog->setMinimumDuration(100);

@@ -82,26 +82,24 @@ AppLoader_NCA::LoadResult AppLoader_NCA::Load(Kernel::KProcess& process, Core::S
 
     directory_loader = std::make_unique<AppLoader_DeconstructedRomDirectory>(exefs, true);
 
-    // Read heap size from main.npdm in ExeFS
-    u64 heap_size = 0;
+    // Read system resource size from main.npdm in ExeFS
+    u32 system_resource_size = 0;
 
     if (exefs) {
         const auto npdm_file = exefs->GetFile("main.npdm");
         if (npdm_file) {
-            auto npdm_data = npdm_file->ReadAllBytes();
-            if (npdm_data.size() >= 0x30) {
-                heap_size = *reinterpret_cast<const u64*>(&npdm_data[0x28]);
-                LOG_INFO(Loader, "Read heap size {:#x} bytes from main.npdm", heap_size);
-            } else {
-                LOG_WARNING(Loader, "main.npdm too small to read heap size!");
+            FileSys::ProgramMetadata metadata;
+            if (metadata.Load(npdm_file) == ResultStatus::Success) {
+                system_resource_size = metadata.GetSystemResourceSize();
+                LOG_INFO(Loader, "Read system resource size {:#x} bytes from main.npdm", system_resource_size);
             }
         } else {
             LOG_WARNING(Loader, "No main.npdm found in ExeFS!");
         }
     }
 
-    // Set pointer buffer size based on heap size
-    process.SetPointerBufferSize(CalculatePointerBufferSize(heap_size));
+    // Set pointer buffer size based on system resource size
+    process.SetPointerBufferSize(CalculatePointerBufferSize(system_resource_size));
 
     // Load modules
     const auto load_result = directory_loader->Load(process, system);
@@ -109,8 +107,8 @@ AppLoader_NCA::LoadResult AppLoader_NCA::Load(Kernel::KProcess& process, Core::S
         return load_result;
     }
 
-    LOG_INFO(Loader, "Set pointer buffer size to {:#x} bytes for ProgramID {:#018x} (Heap size: {:#x})",
-             process.GetPointerBufferSize(), nca->GetTitleId(), heap_size);
+    LOG_INFO(Loader, "Set pointer buffer size to {:#x} bytes for ProgramID {:#018x} (SystemResourceSize: {:#x})",
+             process.GetPointerBufferSize(), nca->GetTitleId(), system_resource_size);
 
     // Register the process in the file system controller
     system.GetFileSystemController().RegisterProcess(

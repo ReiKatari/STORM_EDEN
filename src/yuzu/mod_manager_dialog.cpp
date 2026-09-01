@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QDesktopServices>
@@ -26,7 +26,7 @@ ModManagerDialog::ModManagerDialog(QWidget* parent, Core::System& system_, u64 t
     const QString display_title = game_name.isEmpty()
         ? QStringLiteral("0x%1").arg(title_id, 16, 16, QLatin1Char('0')).toUpper()
         : game_name;
-    setWindowTitle(tr("🧩 STORM EDEN — Менеджер модов: %1").arg(display_title));
+    setWindowTitle(tr("🧩 STORM SWITCH — Менеджер модов: %1").arg(display_title));
     resize(1320, 760);
     setMinimumSize(1150, 680);
 

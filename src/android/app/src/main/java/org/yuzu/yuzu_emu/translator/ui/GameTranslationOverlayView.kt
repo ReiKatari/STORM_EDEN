@@ -306,7 +306,7 @@ class GameTranslationOverlayView @JvmOverloads constructor(
                 textSize = 24f
                 isFakeBoldText = true
             }
-            canvas.drawText("🌐 STORM EDEN (${blocks.size})", barRect.left + 20f, barRect.centerY() + 8f, titlePaint)
+            canvas.drawText("🌐 STORM SWITCH (${blocks.size})", barRect.left + 20f, barRect.centerY() + 8f, titlePaint)
 
             // Close Button (✕)
             closeButtonRect.set(barRect.right - 80f, barRect.top + 8f, barRect.right - 8f, barRect.bottom - 8f)

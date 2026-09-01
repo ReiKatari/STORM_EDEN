@@ -181,7 +181,7 @@
                         android:id="@+id/text_game_fix_recommended"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        tools:text="✓ Рекомендуемые настройки STORM EDEN"
+                        tools:text="✓ Рекомендуемые настройки STORM SWITCH"
                         android:textSize="12.5sp"
                         android:lineSpacingExtra="4dp"
                         android:textColor="#6ee7b7" />

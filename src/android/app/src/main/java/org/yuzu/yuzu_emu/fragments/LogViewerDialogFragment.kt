@@ -92,7 +92,7 @@ class LogViewerDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val isRunning = NativeLibrary.isRunning()
-        val gameName = game?.title?.ifBlank { null } ?: game?.programIdHex ?: "STORM EDEN"
+        val gameName = game?.title?.ifBlank { null } ?: game?.programIdHex ?: "STORM SWITCH"
         val progId = game?.programIdHex ?: ""
         binding.textLogSubtitle.text = "$gameName ${if (progId.isNotEmpty()) "[$progId]" else ""} | ${if (isRunning) "⚡ В игре" else "⚪ Оффлайн"}"
 
@@ -241,7 +241,7 @@ class LogViewerDialogFragment : DialogFragment() {
         }
 
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("STORM EDEN Log", text)
+        val clip = ClipData.newPlainText("STORM SWITCH Log", text)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(requireContext(), "📋 Лог скопирован в буфер обмена (${filteredLogLines.size} строк)", Toast.LENGTH_SHORT).show()
     }
@@ -313,11 +313,11 @@ class LogViewerDialogFragment : DialogFragment() {
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_STREAM, uri)
-                        putExtra(Intent.EXTRA_SUBJECT, "STORM EDEN Log - ${game?.title ?: "Switch"}$filterSuffix")
+                        putExtra(Intent.EXTRA_SUBJECT, "STORM SWITCH Log - ${game?.title ?: "Switch"}$filterSuffix")
                         putExtra(Intent.EXTRA_TEXT, textToShare.take(4000))
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM EDEN")
+                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM SWITCH")
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(chooser)
                 }
@@ -327,7 +327,7 @@ class LogViewerDialogFragment : DialogFragment() {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, textToShare)
                     }
-                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM EDEN")
+                    val chooser = Intent.createChooser(intent, "Поделиться журналом STORM SWITCH")
                     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(chooser)
                 }
@@ -363,8 +363,8 @@ class LogViewerDialogFragment : DialogFragment() {
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_STREAM, uri)
-                        putExtra(Intent.EXTRA_SUBJECT, "STORM EDEN Log - ${game?.title ?: "Switch"}")
-                        putExtra(Intent.EXTRA_TEXT, "📊 Журнал работы STORM EDEN (Игра: ${game?.title ?: "Switch"})\n\n" + textToShare.take(3000))
+                        putExtra(Intent.EXTRA_SUBJECT, "STORM SWITCH Log - ${game?.title ?: "Switch"}")
+                        putExtra(Intent.EXTRA_TEXT, "📊 Журнал работы STORM SWITCH (Игра: ${game?.title ?: "Switch"})\n\n" + textToShare.take(3000))
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                     val chooser = Intent.createChooser(intent, "🚀 Отправить лог в Telegram / MAX")

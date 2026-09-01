@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Este programa serve para rodar jogos do Nintendo Switch. Nenhum jogo ou chaves do sistema são inclusos<br /><br />Antes de começar, localize o seu <![CDATA[<b> prod.keys </b>]]> salvo no seu sistema.<br /><br /><![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Saiba mais</a>]]></string>
@@ -1007,7 +1007,7 @@
     <string name="memory_12gb_not_enough_ram">O modo 12 GB DRAM requer um dispositivo com pelo menos 12 GB de RAM física.</string>
     <string name="game_fix_apply_and_launch">⚡ Aplicar correções e iniciar</string>
     <string name="game_fix_dont_ask_again">Não perguntar novamente para este jogo</string>
-    <string name="game_fix_recommended_header">⚡ Configurações recomendadas do STORM EDEN</string>
+    <string name="game_fix_recommended_header">⚡ Configurações recomendadas do STORM SWITCH</string>
     <string name="game_fix_skip_and_launch">Iniciar sem alterações</string>
     <string name="game_fix_issues_header">⚠️ Problemas e erros conhecidos</string>
     <string name="memory_12gb">12 GB (Extremo)</string>

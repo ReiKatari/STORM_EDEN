@@ -49,7 +49,7 @@ class SystemInfoDialogFragment : DialogFragment() {
     }
 
     private fun populateSystemInfo() {
-        binding.textAppBuild.text = "STORM EDEN ${NativeLibrary.getBuildVersion()}"
+        binding.textAppBuild.text = "STORM SWITCH ${NativeLibrary.getBuildVersion()}"
 
         // 1. Device Info
         val deviceInfo = buildString {
@@ -115,7 +115,7 @@ class SystemInfoDialogFragment : DialogFragment() {
 
     private fun copyDiagnosticsToClipboard() {
         val fullInfo = buildString {
-            appendLine("=== STORM EDEN v${NativeLibrary.getBuildVersion()} System Diagnostics ===")
+            appendLine("=== STORM SWITCH v${NativeLibrary.getBuildVersion()} System Diagnostics ===")
             appendLine("Date: ${java.util.Date()}")
             appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
             appendLine("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}), Patch: ${Build.VERSION.SECURITY_PATCH}")
@@ -124,7 +124,7 @@ class SystemInfoDialogFragment : DialogFragment() {
             appendLine("RAM: ${binding.textRamInfo.text}")
         }
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("STORM EDEN System Info", fullInfo)
+        val clip = android.content.ClipData.newPlainText("STORM SWITCH System Info", fullInfo)
         clipboard.setPrimaryClip(clip)
         android.widget.Toast.makeText(requireContext(), R.string.copied_to_clipboard, android.widget.Toast.LENGTH_SHORT).show()
     }

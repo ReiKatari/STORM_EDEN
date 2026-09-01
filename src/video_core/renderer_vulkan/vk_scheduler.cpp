@@ -47,7 +47,6 @@ Scheduler::Scheduler(const Device& device_, StateTracker& state_tracker_)
       master_semaphore{std::make_unique<MasterSemaphore>(device)},
       command_pool{std::make_unique<CommandPool>(*master_semaphore, device)} {
 
-    chunk_reserve.reserve(64);
     AcquireNewChunk();
     AllocateWorkerCommandBuffer();
     worker_thread = std::jthread([this](std::stop_token token) { WorkerThread(token); });
@@ -306,10 +305,8 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
         {
             std::scoped_lock rl{reserve_mutex};
 
-            // Recycle the chunk back to the reserve if below max capacity.
-            if (chunk_reserve.size() < 64) {
-                chunk_reserve.emplace_back(std::move(work));
-            }
+            // Recycle the chunk back to the reserve.
+            chunk_reserve.emplace_back(std::move(work));
         }
     }
 }

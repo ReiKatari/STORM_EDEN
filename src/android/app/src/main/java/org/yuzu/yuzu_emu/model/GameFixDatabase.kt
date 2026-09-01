@@ -407,7 +407,7 @@ object GameFixDatabase {
         ),
         GameFixProfile(
             0x010028600EBDA000L,
-            "Super Mario Bros. Wonder",
+            "Super Mario 3D World + Bowser's Fury",
             "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
             "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
             "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
@@ -422,7 +422,7 @@ object GameFixDatabase {
         ),
         GameFixProfile(
             0x010015100B514000L,
-            "Super Mario Bros. Wonder (Alt)",
+            "Super Mario Bros. Wonder",
             "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
             "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
             "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",

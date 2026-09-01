@@ -181,7 +181,7 @@ private:
         0x0100000000010000ULL, // Super Mario Odyssey
         0x010028600EBDA000ULL, // Super Mario 3D World + Bowser's Fury
         0x01004D701742A000ULL, // Paper Mario: The Thousand-Year Door
-        0x010015100B514000ULL, // Persona 5 Royal
+        0x010015100B514000ULL, // Super Mario Bros. Wonder
     };
     static constexpr size_t MAX_TEXTURES = 192;
     static constexpr size_t MAX_IMAGES = 48;

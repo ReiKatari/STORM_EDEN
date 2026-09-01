@@ -45,17 +45,17 @@ struct I3dl2ReverbCommand : ICommand {
     bool Verify(const AudioRenderer::CommandListProcessor& processor) override;
 
     /// Input mix buffer offsets for each channel
-    std::array<s16, MaxChannels> inputs;
+    std::array<s16, MaxChannels> inputs{};
     /// Output mix buffer offsets for each channel
-    std::array<s16, MaxChannels> outputs;
+    std::array<s16, MaxChannels> outputs{};
     /// Input parameters
-    I3dl2ReverbInfo::ParameterVersion1 parameter;
+    I3dl2ReverbInfo::ParameterVersion1 parameter{};
     /// State, updated each call
-    CpuAddr state;
+    CpuAddr state{};
     /// Game-supplied workbuffer (Unused)
-    CpuAddr workbuffer;
+    CpuAddr workbuffer{};
     /// Is this effect enabled?
-    bool effect_enabled;
+    bool effect_enabled{};
 };
 
 } // namespace AudioCore::Renderer

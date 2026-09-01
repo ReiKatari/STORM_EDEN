@@ -27,12 +27,11 @@ static void UpdateLightLimiterEffectParameter(const LightLimiterInfo::ParameterV
  */
 static void InitializeLightLimiterEffect(const LightLimiterInfo::ParameterVersion2& params,
                                          LightLimiterInfo::State& state, const CpuAddr workbuffer) {
-    state = {};
     state.samples_average.fill(0.0f);
     state.compression_gain.fill(1.0f);
     state.look_ahead_sample_offsets.fill(0);
-    for (u32 i = 0; i < params.channel_count; i++) {
-        state.look_ahead_sample_buffers[i].resize(params.look_ahead_samples_max, 0.0f);
+    for (u32 i = 0; i < params.channel_count && i < MaxChannels; i++) {
+        state.look_ahead_sample_buffers[i].assign(params.look_ahead_samples_max, 0.0f);
     }
 }
 
@@ -153,14 +152,26 @@ void LightLimiterVersion1Command::Process(const AudioRenderer::CommandListProces
     std::array<std::span<const s32>, MaxChannels> input_buffers{};
     std::array<std::span<s32>, MaxChannels> output_buffers{};
 
-    for (u32 i = 0; i < parameter.channel_count; i++) {
-        input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
-                                                         processor.sample_count);
-        output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
-                                                          processor.sample_count);
+    const u32 channels = std::clamp<u32>(parameter.channel_count, 0, MaxChannels);
+    for (u32 i = 0; i < channels; i++) {
+        if (inputs[i] >= 0 &&
+            static_cast<size_t>(inputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
+                                                             processor.sample_count);
+        }
+        if (outputs[i] >= 0 &&
+            static_cast<size_t>(outputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
+                                                              processor.sample_count);
+        }
     }
 
     auto state_{reinterpret_cast<LightLimiterInfo::State*>(state)};
+    if (!state_) {
+        return;
+    }
 
     if (effect_enabled) {
         if (parameter.state == LightLimiterInfo::ParameterState::Updating) {
@@ -196,14 +207,26 @@ void LightLimiterVersion2Command::Process(const AudioRenderer::CommandListProces
     std::array<std::span<const s32>, MaxChannels> input_buffers{};
     std::array<std::span<s32>, MaxChannels> output_buffers{};
 
-    for (u32 i = 0; i < parameter.channel_count; i++) {
-        input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
-                                                         processor.sample_count);
-        output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
-                                                          processor.sample_count);
+    const u32 channels = std::clamp<u32>(parameter.channel_count, 0, MaxChannels);
+    for (u32 i = 0; i < channels; i++) {
+        if (inputs[i] >= 0 &&
+            static_cast<size_t>(inputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
+                                                             processor.sample_count);
+        }
+        if (outputs[i] >= 0 &&
+            static_cast<size_t>(outputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
+                                                              processor.sample_count);
+        }
     }
 
     auto state_{reinterpret_cast<LightLimiterInfo::State*>(state)};
+    if (!state_) {
+        return;
+    }
 
     if (effect_enabled) {
         if (parameter.state == LightLimiterInfo::ParameterState::Updating) {

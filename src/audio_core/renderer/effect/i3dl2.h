@@ -71,22 +71,27 @@ public:
     struct I3dl2DelayLine {
         void Initialize(const s32 delay_time) {
             max_delay = delay_time;
-            buffer.resize(delay_time + 1, 0);
-            buffer_end = &buffer[delay_time];
-            output = &buffer[0];
+            buffer.assign(static_cast<size_t>(delay_time) + 1, 0);
+            buffer_end = buffer.data() + buffer.size();
+            output = buffer.data();
             SetDelay(delay_time);
             wet_gain = 0.0f;
         }
 
         void SetDelay(const s32 delay_time) {
-            if (max_delay < delay_time) {
+            if (buffer.empty() || buffer.data() == nullptr || max_delay < delay_time) {
                 return;
             }
             delay = delay_time;
-            input = &buffer[(output - buffer.data() + delay) % (max_delay + 1)];
+            const auto output_offset =
+                (output && output >= buffer.data()) ? (output - buffer.data()) : 0;
+            input = &buffer[(output_offset + delay) % (max_delay + 1)];
         }
 
         Common::FixedPoint<50, 14> Tick(const Common::FixedPoint<50, 14> sample) {
+            if (buffer.empty() || output == nullptr || input == nullptr) {
+                return sample;
+            }
             Write(sample);
 
             auto out_sample{Read()};
@@ -100,10 +105,16 @@ public:
         }
 
         Common::FixedPoint<50, 14> Read() const {
+            if (buffer.empty() || output == nullptr) {
+                return 0;
+            }
             return *output;
         }
 
         void Write(const Common::FixedPoint<50, 14> sample) {
+            if (buffer.empty() || input == nullptr) {
+                return;
+            }
             *input = sample;
             input++;
             if (input >= buffer_end) {
@@ -112,9 +123,15 @@ public:
         }
 
         Common::FixedPoint<50, 14> TapOut(const s32 index) const {
+            if (buffer.empty() || input == nullptr || buffer.data() == nullptr) {
+                return 0;
+            }
             auto out{input - (index + 1)};
             if (out < buffer.data()) {
                 out += max_delay + 1;
+            }
+            if (out >= buffer_end || out < buffer.data()) {
+                return 0;
             }
             return *out;
         }

@@ -22,6 +22,23 @@ namespace AudioCore::Renderer {
  * @param type   - Type of the new effect to create.
  */
 static void ResetEffect(EffectInfoBase* effect, const EffectInfoBase::Type type) {
+    switch (effect->GetType()) {
+    case EffectInfoBase::Type::I3dl2Reverb:
+        std::destroy_at(reinterpret_cast<I3dl2ReverbInfo::State*>(effect->GetStateBuffer()));
+        break;
+    case EffectInfoBase::Type::Reverb:
+        std::destroy_at(reinterpret_cast<ReverbInfo::State*>(effect->GetStateBuffer()));
+        break;
+    case EffectInfoBase::Type::Delay:
+        std::destroy_at(reinterpret_cast<DelayInfo::State*>(effect->GetStateBuffer()));
+        break;
+    case EffectInfoBase::Type::LightLimiter:
+        std::destroy_at(reinterpret_cast<LightLimiterInfo::State*>(effect->GetStateBuffer()));
+        break;
+    default:
+        break;
+    }
+
     *effect = {};
 
     switch (type) {
@@ -39,14 +56,17 @@ static void ResetEffect(EffectInfoBase* effect, const EffectInfoBase::Type type)
         break;
     case EffectInfoBase::Type::Delay:
         std::construct_at<DelayInfo>(reinterpret_cast<DelayInfo*>(effect));
+        std::construct_at<DelayInfo::State>(reinterpret_cast<DelayInfo::State*>(effect->GetStateBuffer()));
         effect->SetType(EffectInfoBase::Type::Delay);
         break;
     case EffectInfoBase::Type::Reverb:
         std::construct_at<ReverbInfo>(reinterpret_cast<ReverbInfo*>(effect));
+        std::construct_at<ReverbInfo::State>(reinterpret_cast<ReverbInfo::State*>(effect->GetStateBuffer()));
         effect->SetType(EffectInfoBase::Type::Reverb);
         break;
     case EffectInfoBase::Type::I3dl2Reverb:
         std::construct_at<I3dl2ReverbInfo>(reinterpret_cast<I3dl2ReverbInfo*>(effect));
+        std::construct_at<I3dl2ReverbInfo::State>(reinterpret_cast<I3dl2ReverbInfo::State*>(effect->GetStateBuffer()));
         effect->SetType(EffectInfoBase::Type::I3dl2Reverb);
         break;
     case EffectInfoBase::Type::BiquadFilter:
@@ -55,6 +75,7 @@ static void ResetEffect(EffectInfoBase* effect, const EffectInfoBase::Type type)
         break;
     case EffectInfoBase::Type::LightLimiter:
         std::construct_at<LightLimiterInfo>(reinterpret_cast<LightLimiterInfo*>(effect));
+        std::construct_at<LightLimiterInfo::State>(reinterpret_cast<LightLimiterInfo::State*>(effect->GetStateBuffer()));
         effect->SetType(EffectInfoBase::Type::LightLimiter);
         break;
     case EffectInfoBase::Type::Capture:

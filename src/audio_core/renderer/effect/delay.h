@@ -55,11 +55,17 @@ public:
 
     struct DelayLine {
         Common::FixedPoint<50, 14> Read() const {
-            return buffer[buffer_pos];
+            if (buffer.empty()) {
+                return 0.0f;
+            }
+            return buffer[buffer_pos % buffer.size()];
         }
 
         void Write(const Common::FixedPoint<50, 14> value) {
-            buffer[buffer_pos] = value;
+            if (buffer.empty()) {
+                return;
+            }
+            buffer[buffer_pos % buffer.size()] = value;
             buffer_pos = static_cast<u32>((buffer_pos + 1) % buffer.size());
         }
 

@@ -34,9 +34,15 @@ static void SetDelayEffectParameter(const DelayInfo::ParameterVersion1& params,
 static void InitializeDelayEffect(const DelayInfo::ParameterVersion1& params,
                                   DelayInfo::State& state,
                                   [[maybe_unused]] const CpuAddr workbuffer) {
-    state = {};
+    state.unk_000.fill(0);
+    state.feedback_gain = 0.0f;
+    state.delay_feedback_gain = 0.0f;
+    state.delay_feedback_cross_gain = 0.0f;
+    state.lowpass_gain = 0.0f;
+    state.lowpass_feedback_gain = 0.0f;
+    state.lowpass_z.fill(0.0f);
 
-    for (u32 channel = 0; channel < params.channel_count; channel++) {
+    for (u32 channel = 0; channel < params.channel_count && channel < MaxChannels; channel++) {
         Common::FixedPoint<32, 32> sample_count_max{0.064f};
         sample_count_max *= params.sample_rate.to_int_floor() * params.delay_time_max;
 
@@ -50,10 +56,10 @@ static void InitializeDelayEffect(const DelayInfo::ParameterVersion1& params,
 
         state.delay_lines[channel].sample_count_max = sample_count_max.to_int_floor();
         state.delay_lines[channel].sample_count = sample_count.to_int_floor();
-        state.delay_lines[channel].buffer.resize(state.delay_lines[channel].sample_count, 0);
-        if (state.delay_lines[channel].sample_count == 0) {
-            state.delay_lines[channel].buffer.push_back(0);
-        }
+        state.delay_lines[channel].buffer.assign(state.delay_lines[channel].sample_count > 0
+                                                    ? state.delay_lines[channel].sample_count
+                                                    : 1,
+                                                0);
         state.delay_lines[channel].buffer_pos = 0;
         state.delay_lines[channel].decay_rate = 1.0f;
     }
@@ -211,19 +217,30 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
     std::array<std::span<const s32>, MaxChannels> input_buffers{};
     std::array<std::span<s32>, MaxChannels> output_buffers{};
 
-    for (s16 i = 0; i < parameter.channel_count; i++) {
-        input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
-                                                         processor.sample_count);
-        output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
-                                                          processor.sample_count);
+    const s16 channels = std::clamp<s16>(parameter.channel_count, 0, MaxChannels);
+    for (s16 i = 0; i < channels; i++) {
+        if (inputs[i] >= 0 &&
+            static_cast<size_t>(inputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
+                                                             processor.sample_count);
+        }
+        if (outputs[i] >= 0 &&
+            static_cast<size_t>(outputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
+                                                              processor.sample_count);
+        }
     }
 
     auto state_{reinterpret_cast<DelayInfo::State*>(state)};
     if (!state_) {
-        for (s16 channel = 0; channel < parameter.channel_count; channel++) {
-            if (input_buffers[channel].data() != output_buffers[channel].data()) {
+        for (s16 channel = 0; channel < channels; channel++) {
+            if (!input_buffers[channel].empty() && !output_buffers[channel].empty() &&
+                input_buffers[channel].data() != output_buffers[channel].data()) {
                 std::memcpy(output_buffers[channel].data(), input_buffers[channel].data(),
-                            processor.sample_count * sizeof(s32));
+                            (std::min)(output_buffers[channel].size_bytes(),
+                                       input_buffers[channel].size_bytes()));
             }
         }
         return;
@@ -241,6 +258,19 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
             InitializeDelayEffect(parameter, *state_, workbuffer);
         }
     }
+
+    if (!effect_enabled || state_->delay_lines[0].buffer.empty()) {
+        for (s16 channel = 0; channel < channels; channel++) {
+            if (input_buffers[channel].data() && output_buffers[channel].data() &&
+                input_buffers[channel].data() != output_buffers[channel].data()) {
+                std::memcpy(output_buffers[channel].data(), input_buffers[channel].data(),
+                            (std::min)(output_buffers[channel].size_bytes(),
+                                       input_buffers[channel].size_bytes()));
+            }
+        }
+        return;
+    }
+
     ApplyDelayEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,
                      processor.sample_count);
 }

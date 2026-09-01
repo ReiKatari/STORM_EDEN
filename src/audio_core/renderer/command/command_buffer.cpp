@@ -419,7 +419,12 @@ void CommandBuffer::GenerateDelayCommand(const s32 node_id, EffectInfoBase& effe
             cmd.effect_enabled = effect_info.IsEnabled();
             cmd.state = state_buffer;
             cmd.workbuffer = effect_info.GetWorkbuffer(-1);
+        } else {
+            cmd.parameter = parameter;
+            cmd.effect_enabled = false;
         }
+    } else {
+        cmd.effect_enabled = false;
     }
 
     GenerateEnd<DelayCommand>(cmd);
@@ -564,7 +569,12 @@ void CommandBuffer::GenerateReverbCommand(const s32 node_id, EffectInfoBase& eff
             cmd.state = state_buffer;
             cmd.workbuffer = effect_info.GetWorkbuffer(-1);
             cmd.long_size_pre_delay_supported = long_size_pre_delay_supported;
+        } else {
+            cmd.parameter = parameter;
+            cmd.effect_enabled = false;
         }
+    } else {
+        cmd.effect_enabled = false;
     }
 
     GenerateEnd<ReverbCommand>(cmd);
@@ -595,7 +605,12 @@ void CommandBuffer::GenerateI3dl2ReverbCommand(const s32 node_id, EffectInfoBase
             cmd.effect_enabled = effect_info.IsEnabled();
             cmd.state = state_buffer;
             cmd.workbuffer = effect_info.GetWorkbuffer(-1);
+        } else {
+            cmd.parameter = parameter;
+            cmd.effect_enabled = false;
         }
+    } else {
+        cmd.effect_enabled = false;
     }
 
     GenerateEnd<I3dl2ReverbCommand>(cmd);

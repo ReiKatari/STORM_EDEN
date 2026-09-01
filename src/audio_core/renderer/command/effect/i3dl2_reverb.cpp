@@ -75,7 +75,8 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
         return std::cos(degrees * std::numbers::pi_v<f32> / 180.0f);
     };
 
-    Common::FixedPoint<50, 14> delay{static_cast<f32>(params.sample_rate) / 1000.0f};
+    const f32 sample_rate = params.sample_rate > 0 ? static_cast<f32>(params.sample_rate) : 48000.0f;
+    Common::FixedPoint<50, 14> delay{sample_rate / 1000.0f};
 
     state.dry_gain = params.dry_gain;
     Common::FixedPoint<50, 14> early_gain{
@@ -90,8 +91,7 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
         state.lowpass_1 = 0.0f;
         state.lowpass_2 = 1.0f;
     } else {
-        const auto reference_hf{(params.reference_HF * 256.0f) /
-                                static_cast<f32>(params.sample_rate)};
+        const auto reference_hf{(params.reference_HF * 256.0f) / sample_rate};
         const Common::FixedPoint<50, 14> a{1.0f - hf_gain.to_float()};
         const Common::FixedPoint<50, 14> b{2.0f + (-cos(reference_hf) * (hf_gain * 2.0f))};
         const Common::FixedPoint<50, 14> c{
@@ -105,6 +105,10 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
         (((params.reflection_delay + params.late_reverb_delay_time) * 1000.0f) * delay).to_int();
     state.last_reverb_echo = params.late_reverb_diffusion * 0.6f * 0.01f;
 
+    const f32 decay_time = params.late_reverb_decay_time > 0.0001f ? params.late_reverb_decay_time : 1.0f;
+    const f32 hf_decay_ratio = params.late_reverb_HF_decay_ratio > 0.0001f ? params.late_reverb_HF_decay_ratio : 0.0001f;
+    const f32 ref_hf = params.reference_HF > 0.0f ? params.reference_HF : 5000.0f;
+
     for (u32 i = 0; i < I3dl2ReverbInfo::MaxDelayLines; i++) {
         auto curr_delay{
             ((MinDelayLineTimes[i] + (params.late_reverb_density / 100.0f) *
@@ -117,11 +121,12 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
             (static_cast<f32>(state.fdn_delay_lines[i].delay + state.decay_delay_lines0[i].delay +
                               state.decay_delay_lines1[i].delay) *
              -60.0f) /
-            (params.late_reverb_decay_time * static_cast<f32>(params.sample_rate))};
-        const auto b{a / params.late_reverb_HF_decay_ratio};
+            (decay_time * sample_rate)};
+        const auto b{a / hf_decay_ratio};
+        const f32 sin_val = sin(((ref_hf * 0.5f) * 128.0f) / sample_rate);
         const auto c{
-            cos(((params.reference_HF * 0.5f) * 128.0f) / static_cast<f32>(params.sample_rate)) /
-            sin(((params.reference_HF * 0.5f) * 128.0f) / static_cast<f32>(params.sample_rate))};
+            cos(((ref_hf * 0.5f) * 128.0f) / sample_rate) /
+            (std::abs(sin_val) > 0.00001f ? sin_val : 0.00001f)};
         const auto d{pow_10((b - a) / 40.0f)};
         const auto e{pow_10((b + a) / 40.0f) * 0.7071f};
 
@@ -137,12 +142,22 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
         state.shelf_filter.fill(0.0f);
         state.lowpass_0 = 0.0f;
         for (u32 i = 0; i < I3dl2ReverbInfo::MaxDelayLines; i++) {
-            std::ranges::fill(state.fdn_delay_lines[i].buffer, 0);
-            std::ranges::fill(state.decay_delay_lines0[i].buffer, 0);
-            std::ranges::fill(state.decay_delay_lines1[i].buffer, 0);
+            if (!state.fdn_delay_lines[i].buffer.empty()) {
+                std::ranges::fill(state.fdn_delay_lines[i].buffer, 0);
+            }
+            if (!state.decay_delay_lines0[i].buffer.empty()) {
+                std::ranges::fill(state.decay_delay_lines0[i].buffer, 0);
+            }
+            if (!state.decay_delay_lines1[i].buffer.empty()) {
+                std::ranges::fill(state.decay_delay_lines1[i].buffer, 0);
+            }
         }
-        std::ranges::fill(state.center_delay_line.buffer, 0);
-        std::ranges::fill(state.early_delay_line.buffer, 0);
+        if (!state.center_delay_line.buffer.empty()) {
+            std::ranges::fill(state.center_delay_line.buffer, 0);
+        }
+        if (!state.early_delay_line.buffer.empty()) {
+            std::ranges::fill(state.early_delay_line.buffer, 0);
+        }
     }
 
     const auto reflection_time{(params.late_reverb_delay_time * 0.9998f + 0.02f) * 1000.0f};
@@ -165,8 +180,22 @@ static void UpdateI3dl2ReverbEffectParameter(const I3dl2ReverbInfo::ParameterVer
  */
 static void InitializeI3dl2ReverbEffect(const I3dl2ReverbInfo::ParameterVersion1& params,
                                         I3dl2ReverbInfo::State& state, const CpuAddr workbuffer) {
-    state = {};
-    Common::FixedPoint<50, 14> delay{static_cast<f32>(params.sample_rate) / 1000};
+    state.lowpass_0 = 0.0f;
+    state.lowpass_1 = 0.0f;
+    state.lowpass_2 = 0.0f;
+    state.early_tap_steps.fill(0);
+    state.early_gain = 0.0f;
+    state.late_gain = 0.0f;
+    state.early_to_late_taps = 0;
+    state.last_reverb_echo = 0.0f;
+    for (auto& coeff : state.lowpass_coeff) {
+        coeff.fill(0.0f);
+    }
+    state.shelf_filter.fill(0.0f);
+    state.dry_gain = 0.0f;
+
+    const f32 sample_rate = params.sample_rate > 0 ? static_cast<f32>(params.sample_rate) : 48000.0f;
+    Common::FixedPoint<50, 14> delay{sample_rate / 1000.0f};
 
     for (u32 i = 0; i < I3dl2ReverbInfo::MaxDelayLines; i++) {
         auto fdn_delay_time{(MaxDelayLineTimes[i] * delay).to_uint_floor()};
@@ -199,9 +228,10 @@ static void InitializeI3dl2ReverbEffect(const I3dl2ReverbInfo::ParameterVersion1
 static void ApplyI3dl2ReverbEffectBypass(std::span<std::span<const s32>> inputs,
                                          std::span<std::span<s32>> outputs, const u32 channel_count,
                                          [[maybe_unused]] const u32 sample_count) {
-    for (u32 i = 0; i < channel_count; i++) {
-        if (inputs[i].data() != outputs[i].data()) {
-            std::memcpy(outputs[i].data(), inputs[i].data(), outputs[i].size_bytes());
+    for (u32 i = 0; i < channel_count && i < inputs.size() && i < outputs.size(); i++) {
+        if (!inputs[i].empty() && !outputs[i].empty() && inputs[i].data() != outputs[i].data()) {
+            std::memcpy(outputs[i].data(), inputs[i].data(),
+                        (std::min)(outputs[i].size_bytes(), inputs[i].size_bytes()));
         }
     }
 }
@@ -247,6 +277,18 @@ template <size_t NumChannels>
 static void ApplyI3dl2ReverbEffect(I3dl2ReverbInfo::State& state,
                                    std::span<std::span<const s32>> inputs,
                                    std::span<std::span<s32>> outputs, const u32 sample_count) {
+    if (state.early_delay_line.buffer.empty() || state.early_delay_line.input == nullptr ||
+        state.fdn_delay_lines[0].buffer.empty()) {
+        ApplyI3dl2ReverbEffectBypass(inputs, outputs, static_cast<u32>(NumChannels), sample_count);
+        return;
+    }
+    for (u32 c = 0; c < NumChannels; c++) {
+        if (inputs[c].size() < sample_count || outputs[c].size() < sample_count) {
+            ApplyI3dl2ReverbEffectBypass(inputs, outputs, static_cast<u32>(NumChannels), sample_count);
+            return;
+        }
+    }
+
     static constexpr std::array<u8, I3dl2ReverbInfo::MaxDelayTaps> OutTapIndexes1Ch{
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
@@ -414,32 +456,50 @@ void I3dl2ReverbCommand::Process(const AudioRenderer::CommandListProcessor& proc
     std::array<std::span<const s32>, MaxChannels> input_buffers{};
     std::array<std::span<s32>, MaxChannels> output_buffers{};
 
-    for (u32 i = 0; i < parameter.channel_count; i++) {
-        input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
-                                                         processor.sample_count);
-        output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
-                                                          processor.sample_count);
+    const u32 channels = std::clamp<u32>(parameter.channel_count, 0, MaxChannels);
+    for (u32 i = 0; i < channels; i++) {
+        if (inputs[i] >= 0 &&
+            static_cast<size_t>(inputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
+                                                             processor.sample_count);
+        }
+        if (outputs[i] >= 0 &&
+            static_cast<size_t>(outputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
+                                                              processor.sample_count);
+        }
     }
 
     auto state_{reinterpret_cast<I3dl2ReverbInfo::State*>(state)};
     if (!state_) {
-        ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, parameter.channel_count,
+        ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, channels,
                                      processor.sample_count);
         return;
     }
 
     if (effect_enabled) {
         if (parameter.state == I3dl2ReverbInfo::ParameterState::Updating) {
-            if (state_->early_delay_line.buffer.empty()) {
+            if (state_->early_delay_line.buffer.empty() || state_->early_delay_line.output == nullptr) {
                 InitializeI3dl2ReverbEffect(parameter, *state_, workbuffer);
             } else {
                 UpdateI3dl2ReverbEffectParameter(parameter, *state_, false);
             }
         } else if (parameter.state == I3dl2ReverbInfo::ParameterState::Initialized ||
-                   state_->early_delay_line.buffer.empty()) {
+                   state_->early_delay_line.buffer.empty() || state_->early_delay_line.output == nullptr) {
             InitializeI3dl2ReverbEffect(parameter, *state_, workbuffer);
         }
     }
+
+    if (!effect_enabled || state_->early_delay_line.buffer.empty() ||
+        state_->early_delay_line.output == nullptr ||
+        state_->decay_delay_lines0[0].output == nullptr) {
+        ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, channels,
+                                     processor.sample_count);
+        return;
+    }
+
     ApplyI3dl2ReverbEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,
                            processor.sample_count);
 }

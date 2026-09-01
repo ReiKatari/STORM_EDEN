@@ -66,23 +66,29 @@ public:
 
     struct ReverbDelayLine {
         void Initialize(const s32 delay_time, const f32 decay_rate) {
-            buffer.resize(delay_time + 1, 0);
-            buffer_end = &buffer[delay_time];
-            output = &buffer[0];
             decay = decay_rate;
             sample_count_max = delay_time;
+            buffer.assign(static_cast<size_t>(delay_time) + 1, 0);
+            buffer_end = buffer.data() + delay_time;
+            output = buffer.data();
             SetDelay(delay_time);
         }
 
         void SetDelay(const s32 delay_time) {
+            if (buffer.empty()) {
+                return;
+            }
             if (sample_count_max < delay_time) {
                 return;
             }
             sample_count = delay_time;
-            input = &buffer[0];
+            input = buffer.data();
         }
 
         Common::FixedPoint<50, 14> Tick(const Common::FixedPoint<50, 14> sample) {
+            if (buffer.empty() || output == nullptr || input == nullptr) {
+                return sample;
+            }
             auto out_sample{Read()};
 
             output++;
@@ -95,10 +101,16 @@ public:
         }
 
         Common::FixedPoint<50, 14> Read() const {
+            if (buffer.empty() || output == nullptr) {
+                return 0.0f;
+            }
             return *output;
         }
 
         void Write(const Common::FixedPoint<50, 14> sample) {
+            if (buffer.empty() || input == nullptr || buffer_end == nullptr) {
+                return;
+            }
             *input = sample;
             input++;
             if (input >= buffer_end) {
@@ -107,6 +119,9 @@ public:
         }
 
         Common::FixedPoint<50, 14> TapOut(const s32 index) const {
+            if (buffer.empty() || input == nullptr) {
+                return 0.0f;
+            }
             auto out{input - (index + 1)};
             if (out < buffer.data()) {
                 out += sample_count;

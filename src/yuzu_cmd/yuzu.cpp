@@ -185,6 +185,7 @@ struct SdlState {
 
 extern "C" SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     SdlState* state = new SdlState();
+    *appstate = state;
 
 #ifdef _WIN32
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
@@ -466,7 +467,7 @@ extern "C" SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv) {
     void(state->system.Run());
     if (state->system.DebuggerEnabled())
         state->system.InitializeDebugger();
-    return SDL_APP_SUCCESS;
+    return SDL_APP_CONTINUE;
 }
 extern "C" SDL_AppResult SDL_AppIterate(void *appstate) {
     SdlState *state = (SdlState *)appstate;

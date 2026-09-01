@@ -672,7 +672,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
-        0x010015100B514000ULL,
+        0x01000A10041EA000ULL,
         "Persona 5 Royal",
         "• Мерцание 2D UI портретов и шрифтов\n• Просадки FPS в людных районах Токио",
         "• 2D UI portrait flicker and font artifacts\n• Heavy crowds FPS drops in Shibuya and Shinjuku",

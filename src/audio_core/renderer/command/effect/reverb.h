@@ -45,19 +45,19 @@ struct ReverbCommand : ICommand {
     bool Verify(const AudioRenderer::CommandListProcessor& processor) override;
 
     /// Input mix buffer offsets for each channel
-    std::array<s16, MaxChannels> inputs;
+    std::array<s16, MaxChannels> inputs{};
     /// Output mix buffer offsets for each channel
-    std::array<s16, MaxChannels> outputs;
+    std::array<s16, MaxChannels> outputs{};
     /// Input parameters
-    ReverbInfo::ParameterVersion2 parameter;
+    ReverbInfo::ParameterVersion2 parameter{};
     /// State, updated each call
-    CpuAddr state;
+    CpuAddr state{};
     /// Game-supplied workbuffer (Unused)
-    CpuAddr workbuffer;
+    CpuAddr workbuffer{};
     /// Is this effect enabled?
-    bool effect_enabled;
+    bool effect_enabled{};
     /// Is a longer pre-delay time supported?
-    bool long_size_pre_delay_supported;
+    bool long_size_pre_delay_supported{};
 };
 
 } // namespace AudioCore::Renderer

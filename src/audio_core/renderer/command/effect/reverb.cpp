@@ -205,7 +205,12 @@ static void UpdateReverbEffectParameter(const ReverbInfo::ParameterVersion2& par
 static void InitializeReverbEffect(const ReverbInfo::ParameterVersion2& params,
                                    ReverbInfo::State& state, const CpuAddr workbuffer,
                                    const bool long_size_pre_delay_supported) {
-    state = {};
+    state.early_delay_times.fill(0);
+    state.early_gains.fill(0);
+    state.pre_delay_time = 0;
+    state.hf_decay_gain.fill(0);
+    state.hf_decay_prev_gain.fill(0);
+    state.prev_feedback_output.fill(0);
 
     auto delay{Common::FixedPoint<50, 14>::from_base(params.sample_rate)};
 
@@ -227,11 +232,19 @@ static void InitializeReverbEffect(const ReverbInfo::ParameterVersion2& params,
     UpdateReverbEffectParameter(params, state);
 
     for (u32 i = 0; i < ReverbInfo::MaxDelayLines; i++) {
-        std::ranges::fill(state.fdn_delay_lines[i].buffer, 0);
-        std::ranges::fill(state.decay_delay_lines[i].buffer, 0);
+        if (!state.fdn_delay_lines[i].buffer.empty()) {
+            std::ranges::fill(state.fdn_delay_lines[i].buffer, 0);
+        }
+        if (!state.decay_delay_lines[i].buffer.empty()) {
+            std::ranges::fill(state.decay_delay_lines[i].buffer, 0);
+        }
     }
-    std::ranges::fill(state.center_delay_line.buffer, 0);
-    std::ranges::fill(state.pre_delay_line.buffer, 0);
+    if (!state.center_delay_line.buffer.empty()) {
+        std::ranges::fill(state.center_delay_line.buffer, 0);
+    }
+    if (!state.pre_delay_line.buffer.empty()) {
+        std::ranges::fill(state.pre_delay_line.buffer, 0);
+    }
 }
 
 /**
@@ -244,10 +257,11 @@ static void InitializeReverbEffect(const ReverbInfo::ParameterVersion2& params,
  */
 static void ApplyReverbEffectBypass(std::span<std::span<const s32>> inputs,
                                     std::span<std::span<s32>> outputs, const u32 channel_count,
-                                    const u32 sample_count) {
-    for (u32 i = 0; i < channel_count; i++) {
-        if (inputs[i].data() != outputs[i].data()) {
-            std::memcpy(outputs[i].data(), inputs[i].data(), outputs[i].size_bytes());
+                                    [[maybe_unused]] const u32 sample_count) {
+    for (u32 i = 0; i < channel_count && i < inputs.size() && i < outputs.size(); i++) {
+        if (!inputs[i].empty() && !outputs[i].empty() && inputs[i].data() != outputs[i].data()) {
+            std::memcpy(outputs[i].data(), inputs[i].data(),
+                        (std::min)(outputs[i].size_bytes(), inputs[i].size_bytes()));
         }
     }
 }
@@ -451,16 +465,25 @@ void ReverbCommand::Process(const AudioRenderer::CommandListProcessor& processor
     std::array<std::span<const s32>, MaxChannels> input_buffers{};
     std::array<std::span<s32>, MaxChannels> output_buffers{};
 
-    for (u32 i = 0; i < parameter.channel_count; i++) {
-        input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
-                                                         processor.sample_count);
-        output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
-                                                          processor.sample_count);
+    const u32 channels = std::clamp<u32>(parameter.channel_count, 0, MaxChannels);
+    for (u32 i = 0; i < channels; i++) {
+        if (inputs[i] >= 0 &&
+            static_cast<size_t>(inputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            input_buffers[i] = processor.mix_buffers.subspan(inputs[i] * processor.sample_count,
+                                                             processor.sample_count);
+        }
+        if (outputs[i] >= 0 &&
+            static_cast<size_t>(outputs[i] * processor.sample_count + processor.sample_count) <=
+                processor.mix_buffers.size()) {
+            output_buffers[i] = processor.mix_buffers.subspan(outputs[i] * processor.sample_count,
+                                                              processor.sample_count);
+        }
     }
 
     auto state_{reinterpret_cast<ReverbInfo::State*>(state)};
     if (!state_) {
-        ApplyReverbEffectBypass(input_buffers, output_buffers, parameter.channel_count,
+        ApplyReverbEffectBypass(input_buffers, output_buffers, channels,
                                 processor.sample_count);
         return;
     }
@@ -473,10 +496,19 @@ void ReverbCommand::Process(const AudioRenderer::CommandListProcessor& processor
                 UpdateReverbEffectParameter(parameter, *state_);
             }
         } else if (parameter.state == ReverbInfo::ParameterState::Initialized ||
-                   state_->fdn_delay_lines[0].buffer.empty()) {
+                   state_->fdn_delay_lines[0].buffer.empty() || state_->fdn_delay_lines[0].output == nullptr) {
             InitializeReverbEffect(parameter, *state_, workbuffer, long_size_pre_delay_supported);
         }
     }
+
+    if (!effect_enabled || state_->fdn_delay_lines[0].buffer.empty() ||
+        state_->fdn_delay_lines[0].output == nullptr ||
+        state_->decay_delay_lines[0].output == nullptr) {
+        ApplyReverbEffectBypass(input_buffers, output_buffers, channels,
+                                processor.sample_count);
+        return;
+    }
+
     ApplyReverbEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,
                       processor.sample_count);
 }

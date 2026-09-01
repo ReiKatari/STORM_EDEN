@@ -379,7 +379,14 @@ fun runGitCommand(command: List<String>): String {
 }
 
 fun getGitVersion(): String {
-    return "6.2.5"
+    val gitReleaseFile = File(project.rootDir, "../../GIT-RELEASE")
+    if (gitReleaseFile.exists()) {
+        val ver = gitReleaseFile.readText().trim()
+        if (ver.isNotEmpty()) {
+            return ver
+        }
+    }
+    return "6.2.8"
 }
 
 

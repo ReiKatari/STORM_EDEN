@@ -255,7 +255,7 @@ add_executable(yuzu
     translator/floating_translate_button.h translator/floating_translate_button.cpp
 )
 
-set_target_properties(yuzu PROPERTIES OUTPUT_NAME "storm_eden")
+set_target_properties(yuzu PROPERTIES OUTPUT_NAME "STORM_SWITCH")
 
 if (YUZU_CRASH_DUMPS)
     target_sources(yuzu PRIVATE

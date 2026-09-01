@@ -46,8 +46,36 @@ object DirectoryInitialization {
                 listOf("keys", "config", "config/custom", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
                     File(rootExternal, sub).mkdirs()
                 }
-                userPath = rootExternal.canonicalPath
-                NativeLibrary.setAppDirectory(userPath!!)
+                val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
+                migrateDirectoryIfMissing(internalBaseDir, rootExternal)
+            }
+        } catch (_: Throwable) {}
+    }
+
+    private fun migrateDirectoryIfMissing(sourceDir: File, targetDir: File) {
+        try {
+            if (!sourceDir.exists() || sourceDir.canonicalPath == targetDir.canonicalPath) {
+                return
+            }
+            val subdirs = listOf("keys", "config", "load", "nand", "amiibo", "cheats", "gpu_drivers", "profiles")
+            for (sub in subdirs) {
+                val srcSub = File(sourceDir, sub)
+                val dstSub = File(targetDir, sub)
+                if (srcSub.exists() && srcSub.isDirectory) {
+                    dstSub.mkdirs()
+                    srcSub.listFiles()?.forEach { file ->
+                        val targetFile = File(dstSub, file.name)
+                        if (!targetFile.exists()) {
+                            try {
+                                if (file.isDirectory) {
+                                    file.copyRecursively(targetFile, overwrite = false)
+                                } else {
+                                    file.copyTo(targetFile, overwrite = false)
+                                }
+                            } catch (_: Throwable) {}
+                        }
+                    }
+                }
             }
         } catch (_: Throwable) {}
     }
@@ -61,6 +89,9 @@ object DirectoryInitialization {
                     listOf("keys", "config", "config/custom", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
                         File(rootExternal, sub).mkdirs()
                     }
+                    val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
+                    migrateDirectoryIfMissing(internalBaseDir, rootExternal)
+
                     userPath = rootExternal.canonicalPath
                     NativeLibrary.setAppDirectory(userPath!!)
                     initialized = true

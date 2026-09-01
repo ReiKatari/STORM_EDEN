@@ -365,15 +365,15 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100650017170000L,
             "Animal Well",
-            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
-            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
-            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "2",
-                "Renderer\\gpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
@@ -382,15 +382,15 @@ object GameFixDatabase {
         GameFixProfile(
             0x010020D01AD24000L,
             "Animal Well (Alt 1)",
-            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
-            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
-            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "2",
-                "Renderer\\gpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
@@ -399,15 +399,15 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100C9E01B854000L,
             "Animal Well (Alt 2)",
-            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
-            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
-            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "2",
-                "Renderer\\gpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
@@ -3611,6 +3611,27 @@ object GameFixDatabase {
     fun applyFix(game: Game): Boolean {
         val fix = getFix(game) ?: return false
         activateSessionFix(game)
+        try {
+            for ((fullKey, value) in fix.settingsMap) {
+                val key = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
+                when (value.lowercase()) {
+                    "true", "false" -> {
+                        NativeConfig.setBoolean(key, value.toBoolean())
+                        NativeConfig.setGlobal(key, false)
+                    }
+                    else -> {
+                        val intVal = value.toIntOrNull()
+                        if (intVal != null) {
+                            NativeConfig.setInt(key, intVal)
+                            NativeConfig.setGlobal(key, false)
+                        } else {
+                            NativeConfig.setString(key, value)
+                            NativeConfig.setGlobal(key, false)
+                        }
+                    }
+                }
+            }
+        } catch (_: Throwable) {}
         return true
     }
 }

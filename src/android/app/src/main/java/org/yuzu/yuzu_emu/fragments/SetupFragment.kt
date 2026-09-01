@@ -250,8 +250,9 @@ class SetupFragment : Fragment() {
                             DirectoryInitialization.userDirectory + "/keys/prod.keys"
                         )
                         if (file.exists() && NativeLibrary.areKeysPresent() &&
-                            NativeLibrary.isFirmwareAvailable() && NativeConfig.getGameDirs()
-                                .isNotEmpty()
+                            NativeLibrary.isFirmwareAvailable() &&
+                            LosslessScalingHelper.isInstalled() &&
+                            NativeConfig.getGameDirs().isNotEmpty()
                         ) {
                             PageState.COMPLETE
                         } else {

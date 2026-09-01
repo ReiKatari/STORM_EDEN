@@ -20,6 +20,7 @@ import kotlinx.serialization.json.Json
 import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.YuzuApplication
+import org.yuzu.yuzu_emu.features.settings.model.Settings
 import org.yuzu.yuzu_emu.utils.GameHelper
 import org.yuzu.yuzu_emu.utils.NativeConfig
 import java.util.concurrent.atomic.AtomicBoolean
@@ -218,7 +219,20 @@ class GamesViewModel : ViewModel() {
     }
 
     private fun getGameDirsAndExternalContent(reloadList: Boolean = false) {
-        val gameDirs = NativeConfig.getGameDirs().distinctBy { it.uriString }.toMutableList()
+        var gameDirs = NativeConfig.getGameDirs().distinctBy { it.uriString }.toMutableList()
+        if (gameDirs.isEmpty()) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
+            val savedDirs = prefs.getStringSet("game_directories_backup", null)
+            if (!savedDirs.isNullOrEmpty()) {
+                val restoredDirs = savedDirs.map { GameDir(it, true, DirectoryType.GAME) }
+                NativeConfig.setGameDirs(restoredDirs.toTypedArray())
+                gameDirs = restoredDirs.toMutableList()
+            }
+        } else {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
+            val dirSet = gameDirs.filter { it.type == DirectoryType.GAME }.map { it.uriString }.toSet()
+            prefs.edit().putStringSet("game_directories_backup", dirSet).apply()
+        }
         val externalContentDirs = NativeConfig.getExternalContentDirs().distinct().map {
             GameDir(it, false, DirectoryType.EXTERNAL_CONTENT)
         }

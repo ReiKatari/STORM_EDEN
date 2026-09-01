@@ -306,7 +306,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         try {
             val gameToUse = game ?: return
             val hasCustom = (gameToUse == args.game && args.custom) ||
-                            GameFixDatabase.isFixApplied(gameToUse) ||
                             SettingsFile.getCustomSettingsFile(gameToUse).exists()
 
             if (intentGame != null) {
@@ -318,42 +317,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     }
             }
 
-            val sessionFix = GameFixDatabase.getActiveSessionFix(gameToUse)
-            if (sessionFix != null) {
-                if (hasCustom) {
-                    shouldUseCustom = true
-                    SettingsFile.loadCustomConfig(gameToUse)
-                } else {
-                    shouldUseCustom = false
-                    NativeConfig.unloadPerGameConfig()
-                    NativeConfig.reloadGlobalConfig()
-                }
-                for ((fullKey, value) in sessionFix.settingsMap) {
-                    val key = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
-                    when (value.lowercase()) {
-                        "true", "false" -> {
-                            NativeConfig.setBoolean(key, value.toBoolean())
-                            NativeConfig.setGlobal(key, false)
-                        }
-                        else -> {
-                            val intVal = value.toIntOrNull()
-                            if (intVal != null) {
-                                NativeConfig.setInt(key, intVal)
-                                NativeConfig.setGlobal(key, false)
-                            } else {
-                                NativeConfig.setString(key, value)
-                                NativeConfig.setGlobal(key, false)
-                            }
-                        }
-                    }
-                }
-                Log.info("[EmulationFragment] Applied in-memory session fix for ${gameToUse.title}")
-                activity?.runOnUiThread {
-                    context?.let { ctx ->
-                        Toast.makeText(ctx, "⚡ Оптимизации STORM SWITCH: Применено (Сессия)", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else if (hasCustom) {
+            if (hasCustom) {
                 shouldUseCustom = true
                 SettingsFile.loadCustomConfig(gameToUse)
                 Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")

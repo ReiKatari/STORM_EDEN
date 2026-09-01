@@ -88,7 +88,7 @@ class GameFixDialogFragment : DialogFragment() {
         binding.btnSkipGameFix.setOnClickListener {
             val ctx = context
             try {
-                GameFixDatabase.clearActiveSessionFix()
+                GameFixDatabase.clearActiveSessionFix(currentGame)
                 if (ctx != null) {
                     Toast.makeText(ctx, "⚠️ Оптимизации STORM SWITCH: Не применено", Toast.LENGTH_SHORT).show()
                 }

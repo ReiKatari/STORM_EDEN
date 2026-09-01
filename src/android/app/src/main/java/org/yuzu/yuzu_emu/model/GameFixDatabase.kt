@@ -9,6 +9,7 @@ import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.GameMetadata
 import org.yuzu.yuzu_emu.utils.Log
 import org.yuzu.yuzu_emu.utils.NativeConfig
+import org.yuzu.yuzu_emu.features.settings.utils.SettingsFile
 import java.io.File
 
 data class GameFixProfile(
@@ -367,11 +368,9 @@ object GameFixDatabase {
             "Animal Well",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "1",
-                "Cpu\\cpu_accuracy" to "1",
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -383,11 +382,9 @@ object GameFixDatabase {
             "Animal Well (Alt 1)",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "1",
-                "Cpu\\cpu_accuracy" to "1",
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -399,11 +396,9 @@ object GameFixDatabase {
             "Animal Well (Alt 2)",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "Cpu\\cpu_backend" to "1",
-                "Cpu\\cpu_accuracy" to "1",
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -3579,13 +3574,21 @@ object GameFixDatabase {
         val hex = getProgramIdHex(game)
         activeSessionProgramIdHex = hex
         activeSessionFix = fix
-        Log.info("[GameFixDatabase] Activated in-memory session fix for ${game.title} ($hex)")
+        Log.info("[GameFixDatabase] Activated session fix for ${game.title} ($hex)")
     }
 
-    fun clearActiveSessionFix() {
-        Log.info("[GameFixDatabase] Cleared active in-memory session fix")
-        activeSessionProgramIdHex = null
-        activeSessionFix = null
+    fun clearActiveSessionFix(game: Game? = null) {
+        try {
+            if (game != null) {
+                val file = SettingsFile.getCustomSettingsFile(game)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+            activeSessionProgramIdHex = null
+            activeSessionFix = null
+            Log.info("[GameFixDatabase] Cleared active fix for game")
+        } catch (_: Exception) {}
     }
 
     fun getActiveSessionFix(game: Game): GameFixProfile? {
@@ -3597,38 +3600,51 @@ object GameFixDatabase {
     }
 
     fun isSessionFixActive(game: Game): Boolean {
-        val hex = getProgramIdHex(game)
-        return hex.isNotEmpty() && hex.equals(activeSessionProgramIdHex, ignoreCase = true) && activeSessionFix != null
+        return isFixApplied(game)
     }
 
     fun isFixApplied(game: Game): Boolean {
-        return isSessionFixActive(game)
+        return try {
+            SettingsFile.getCustomSettingsFile(game).exists()
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun applyFix(game: Game): Boolean {
         val fix = getFix(game) ?: return false
         activateSessionFix(game)
         try {
-            for ((fullKey, value) in fix.settingsMap) {
-                val key = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
-                when (value.lowercase()) {
-                    "true", "false" -> {
-                        NativeConfig.setBoolean(key, value.toBoolean())
-                        NativeConfig.setGlobal(key, false)
-                    }
-                    else -> {
-                        val intVal = value.toIntOrNull()
-                        if (intVal != null) {
-                            NativeConfig.setInt(key, intVal)
-                            NativeConfig.setGlobal(key, false)
-                        } else {
-                            NativeConfig.setString(key, value)
-                            NativeConfig.setGlobal(key, false)
-                        }
-                    }
-                }
+            val file = SettingsFile.getCustomSettingsFile(game)
+            val parent = file.parentFile
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs()
             }
-        } catch (_: Throwable) {}
-        return true
+
+            val sections = mutableMapOf<String, MutableMap<String, String>>()
+            for ((fullKey, value) in fix.settingsMap) {
+                val sectionName = if (fullKey.contains("\\")) fullKey.substringBefore("\\") else "Core"
+                val keyName = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
+                val section = sections.getOrPut(sectionName) { mutableMapOf() }
+                section[keyName] = value
+            }
+
+            val sb = StringBuilder()
+            for ((sectionName, map) in sections) {
+                sb.append("[$sectionName]\n")
+                for ((k, v) in map) {
+                    sb.append("$k = $v\n")
+                    sb.append("$k\\use_global = false\n")
+                }
+                sb.append("\n")
+            }
+
+            file.writeText(sb.toString())
+            Log.info("[GameFixDatabase] Successfully wrote custom config for ${game.title} at ${file.absolutePath}")
+            return true
+        } catch (e: Exception) {
+            Log.error("[GameFixDatabase] Failed to write custom config: ${e.message}")
+            return false
+        }
     }
 }

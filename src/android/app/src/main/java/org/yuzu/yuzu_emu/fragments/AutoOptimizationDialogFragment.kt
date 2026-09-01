@@ -292,7 +292,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         // 2. CPU / System Defaults
         BooleanSetting.USE_DOCKED_MODE.setBoolean(false) // Handheld for speed/efficiency
         IntSetting.CPU_BACKEND.setInt(1) // NCE
-        IntSetting.CPU_ACCURACY.setInt(2) // Unsafe JIT
+        IntSetting.CPU_ACCURACY.setInt(0) // Auto
         IntSetting.MEMORY_LAYOUT.setInt(0) // 4GB
         val cpuCores = Runtime.getRuntime().availableProcessors()
         IntSetting.ANDROID_PIPELINE_WORKERS.setInt((cpuCores - 2).coerceIn(2, 4))
@@ -387,7 +387,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.MAX_ANISOTROPY.setInt(0)
                 // CPU Backend: NCE (1)
                 IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(2)
+                IntSetting.CPU_ACCURACY.setInt(0) // Auto
                 // Memory Layout: 4GB (0)
                 IntSetting.MEMORY_LAYOUT.setInt(0)
                 // System / Docked: Handheld (false)
@@ -447,7 +447,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.MAX_ANISOTROPY.setInt(0)
                 // CPU Backend: NCE (1)
                 IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(2)
+                IntSetting.CPU_ACCURACY.setInt(0) // Auto
                 // Memory Layout: 6GB (1) if RAM >= 11GB, else 4GB (0)
                 IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship) 1 else 0)
                 // System / Docked: Handheld (false) for speed

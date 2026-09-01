@@ -1131,8 +1131,9 @@ void Module::Interface::LoadOpenContext(HLERequestContext& ctx) {
         profile_manager->OpenUser(uuid);
     }
 
-    IPC::ResponseBuilder rb{ctx, 2};
+    IPC::ResponseBuilder rb{ctx, 2, 0, 1};
     rb.Push(ResultSuccess);
+    rb.PushIpcInterface<IManagerForApplication>(ctx, system, profile_manager);
 }
 
 void Module::Interface::StoreSaveDataThumbnailApplication(HLERequestContext& ctx) {

@@ -14,8 +14,8 @@ endfunction()
 
 get_timestamp(BUILD_DATE)
 
-set(BUILD_VERSION "6.2.1")
-set(GIT_TAG "6.2.1")
+set(BUILD_VERSION "6.2.2")
+set(GIT_TAG "6.2.2")
 set(GIT_REFSPEC "main")
 set(IS_DEV_BUILD false)
 set(IS_NIGHTLY_BUILD false)

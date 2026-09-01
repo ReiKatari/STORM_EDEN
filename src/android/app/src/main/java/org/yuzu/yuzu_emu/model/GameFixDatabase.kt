@@ -29,8 +29,8 @@ object GameFixDatabase {
             "The Legend of Zelda: Breath of the Wild",
             "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах и на воде\n• Микрофризы в лесах Короков",
             "• Link black silhouette caused by unsynced lighting and stencil buffers\n• Shrine and water surface depth bias / cyan grid artifacts\n• Korok Forest micro-stutters",
-            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (прозрачный туман в Святилищах)\n✓ Сжатие ASTC: Отключено (максимальная четкость)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8GB DRAM",
-            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Transparent Shrine fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM",
+            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (прозрачный туман в Святилищах)\n✓ Сжатие ASTC: Отключено (максимальная четкость)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 4 ГБ DRAM",
+            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Transparent Shrine fog)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
@@ -38,7 +38,7 @@ object GameFixDatabase {
                 "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "System\\memory_layout_mode" to "2"
+                "System\\memory_layout_mode" to "0"
             )
         ),
         GameFixProfile(
@@ -367,14 +367,13 @@ object GameFixDatabase {
             "Animal Well",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
                 "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
             )
@@ -384,14 +383,13 @@ object GameFixDatabase {
             "Animal Well (Alt 1)",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
                 "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
             )
@@ -401,14 +399,13 @@ object GameFixDatabase {
             "Animal Well (Alt 2)",
             "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
             "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 6 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 6GB DRAM\n✓ GPU Accuracy: Normal\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность CPU: Авто\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ CPU Accuracy: Auto\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
                 "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpu_accuracy" to "1",
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
             )

@@ -90,6 +90,20 @@
                     android:textSize="9sp"
                     tools:text="196608" />
 
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/badge_game_addons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:background="@drawable/badge_pill_background"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="8sp"
+                    tools:text="Дополнений: 5" />
+
             </LinearLayout>
 
         </FrameLayout>
@@ -112,27 +126,8 @@
             app:layout_constraintTop_toBottomOf="@+id/image_wrapper"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/text_game_addons"
-            tools:text="Game Title" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/text_game_addons"
-            style="@style/SynthwaveText.Secondary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textAlignment="center"
-            android:textSize="11sp"
-            android:textColor="?attr/colorSecondary"
-            android:lines="1"
-            android:minLines="1"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintTop_toBottomOf="@+id/text_game_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="Дополнений: 5" />
+            tools:text="Game Title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </org.yuzu.yuzu_emu.views.GradientBorderCardView>

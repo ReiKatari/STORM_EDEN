@@ -248,7 +248,7 @@ class GameAdapter(private val activity: AppCompatActivity) :
             carouselBinding.badgeGameExtension?.text = model.extension
             carouselBinding.badgeGameVersion?.text = formatVersion(model)
             carouselBinding.badgeGameInternalVersion?.text = formatInternalVersion(model)
-            carouselBinding.textGameAddons?.text = formatAddons(model)
+            carouselBinding.badgeGameAddons?.text = formatAddons(model)
 
             carouselBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
             carouselBinding.textGameTitle.marquee()

@@ -48,6 +48,14 @@ object DirectoryInitialization {
                 }
                 val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
                 migrateDirectoryIfMissing(internalBaseDir, rootExternal)
+
+                val newPath = rootExternal.canonicalPath
+                if (userPath != newPath && !NativeLibrary.isRunning()) {
+                    userPath = newPath
+                    NativeLibrary.setAppDirectory(userPath!!)
+                    NativeConfig.initializeGlobalConfig()
+                    NativeLibrary.reloadProfiles()
+                }
             }
         } catch (_: Throwable) {}
     }

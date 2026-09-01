@@ -31,7 +31,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
     private var _binding: DialogAutoOptimizationBinding? = null
     private val binding get() = _binding!!
 
-    private var selectedMode = MODE_NORMAL
+    private var selectedMode = MODE_DEFAULT
 
     companion object {
         const val TAG = "AutoOptimizationDialogFragment"
@@ -239,7 +239,7 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         binding.cardModeAccurate.setOnClickListener { selectMode(MODE_ACCURATE) }
         binding.cardModeDefault.setOnClickListener { selectMode(MODE_DEFAULT) }
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val savedMode = prefs.getInt("selected_auto_optimization_mode", MODE_NORMAL)
+        val savedMode = prefs.getInt("selected_auto_optimization_mode", MODE_DEFAULT)
         selectMode(savedMode)
     }
 

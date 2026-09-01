@@ -294,19 +294,9 @@ struct System::Impl {
     }
 
     SystemResultStatus Load(System& system, Frontend::EmuWindow& emu_window, const std::string& filepath, Service::AM::FrontendAppletParameters& params) {
-        const auto file = GetGameFileFromPath(virtual_filesystem, filepath);
-        if (file) {
-            auto pre_loader = Loader::GetLoader(system, file, params.program_id, params.program_index);
-            if (pre_loader) {
-                u64 detected_program_id = 0;
-                if (pre_loader->ReadProgramId(detected_program_id) == Loader::ResultStatus::Success && detected_program_id != 0) {
-                    params.program_id = detected_program_id;
-                    Settings::SetCurrentProgramID(detected_program_id);
-                }
-            }
-        }
-
         InitializeKernel(system);
+
+        const auto file = GetGameFileFromPath(virtual_filesystem, filepath);
 
         // Create the application process
         Loader::ResultStatus load_result{};

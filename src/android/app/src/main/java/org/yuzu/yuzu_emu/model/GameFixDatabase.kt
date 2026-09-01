@@ -672,7 +672,7 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
-            0x010015100B514000L,
+            0x01000A10041EA000L,
             "Persona 5 Royal",
             "• Мерцание 2D UI портретов и шрифтов\n• Просадки FPS в людных районах Токио",
             "• 2D UI portrait flicker and font artifacts\n• Heavy crowds FPS drops in Shibuya and Shinjuku",
@@ -3377,7 +3377,7 @@ object GameFixDatabase {
                 nameLower.contains("mario odyssey") -> listOf("odyssey", "mario odyssey", "0100000000010000")
                 nameLower.contains("metroid prime") -> listOf("metroid prime", "remastered", "0100121014688000")
                 nameLower.contains("animal crossing") -> listOf("animal crossing", "horizons", "01006f8002326000")
-                nameLower.contains("persona 5") -> listOf("persona 5", "p5r", "010015100b514000")
+                nameLower.contains("persona 5") -> listOf("persona 5", "p5r", "01000a10041ea000")
                 nameLower.contains("smash bros") -> listOf("smash bros", "ssbu", "01006a800016e000")
                 nameLower.contains("fc 24") || nameLower.contains("fifa") -> listOf("ea sports fc", "fc 24", "fifa", "0100a38018d5a000", "0100346016ee8000")
                 nameLower.contains("sonic frontiers") -> listOf("sonic frontiers", "frontiers", "01004c90141a4000")

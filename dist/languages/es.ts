@@ -2878,7 +2878,7 @@ Cuando un programa intenta abrir el applet del controlador, se cierra inmediatam
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Configuración de Eden</translation>
     </message>
     <message>

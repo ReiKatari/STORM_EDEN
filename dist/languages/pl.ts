@@ -2879,7 +2879,7 @@ Gdy ta opcja jest włączona, niedopasowanie jest uruchamiane tylko wtedy, gdy d
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Konfiguracja Eden</translation>
     </message>
     <message>

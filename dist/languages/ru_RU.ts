@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <!DOCTYPE TS[]>
 <TS version="2.1" language="ru_RU" sourcelanguage="en_US">
   <context>
@@ -2589,8 +2589,8 @@ When a program attempts to open the controller applet, it is immediately closed.
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="279" />
-      <source>Enable Extended Logging**</source>
-      <translation>Включить расширенное ведение журнала**</translation>
+      <source>Enable Extended Logging</source>
+      <translation>Включить расширенное ведение журнала</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="298" />
@@ -2809,8 +2809,8 @@ When a program attempts to open the controller applet, it is immediately closed.
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="723" />
-      <source>Dump Audio Commands To Console**</source>
-      <translation>Дамп аудиокоманд в консоль**</translation>
+      <source>Dump Audio Commands To Console</source>
+      <translation>Дамп аудиокоманд в консоль</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="730" />
@@ -2824,8 +2824,8 @@ When a program attempts to open the controller applet, it is immediately closed.
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="744" />
-      <source>Enable Verbose Reporting Services**</source>
-      <translation>Включить службу отчетов в развернутом виде**</translation>
+      <source>Enable Verbose Reporting Services</source>
+      <translation>Включить службу отчетов в развернутом виде</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="751" />
@@ -2879,8 +2879,8 @@ When a program attempts to open the controller applet, it is immediately closed.
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
-      <translation>Параметры Eden</translation>
+      <source>STORM SWITCH Configuration</source>
+      <translation>Параметры STORM SWITCH</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="67" />

@@ -2883,7 +2883,7 @@ Lorsqu’un programme tente d’ouvrir ce menu, il est immédiatement fermé.</t
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Configuration d'Eden</translation>
     </message>
     <message>

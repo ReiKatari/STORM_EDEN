@@ -276,7 +276,7 @@
             <string>When checked, the max size of the log increases from 100 MB to 1 GB</string>
            </property>
            <property name="text">
-            <string>Enable Extended Logging**</string>
+            <string>Enable Extended Logging</string>
            </property>
           </widget>
          </item>
@@ -720,7 +720,7 @@
             <string>Enable this to output the latest generated audio command list to the console. Only affects games using the audio renderer.</string>
            </property>
            <property name="text">
-            <string>Dump Audio Commands To Console**</string>
+            <string>Dump Audio Commands To Console</string>
            </property>
           </widget>
          </item>
@@ -741,7 +741,7 @@
          <item row="4" column="0">
           <widget class="QCheckBox" name="reporting_services">
            <property name="text">
-            <string>Enable Verbose Reporting Services**</string>
+            <string>Enable Verbose Reporting Services</string>
            </property>
           </widget>
          </item>
@@ -769,27 +769,6 @@
        </size>
       </property>
      </spacer>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <italic>true</italic>
-       </font>
-      </property>
-      <property name="text">
-       <string>**This will be reset automatically when Eden closes.</string>
-      </property>
-      <property name="indent">
-       <number>20</number>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>

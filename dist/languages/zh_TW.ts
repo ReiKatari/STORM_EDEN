@@ -2883,7 +2883,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Eden Configuration</translation>
     </message>
     <message>

@@ -2887,7 +2887,7 @@ När ett program försöker öppna kontrollerappletten stängs den omedelbart.</
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Konfigurera Eden</translation>
     </message>
     <message>

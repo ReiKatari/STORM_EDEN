@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
@@ -1118,6 +1118,19 @@ void Module::Interface::ListOpenContextStoredUsers(HLERequestContext& ctx) {
     LOG_DEBUG(Service_ACC, "called");
 
     ctx.WriteBuffer(profile_manager->GetStoredOpenedUsers());
+    IPC::ResponseBuilder rb{ctx, 2};
+    rb.Push(ResultSuccess);
+}
+
+void Module::Interface::LoadOpenContext(HLERequestContext& ctx) {
+    IPC::RequestParser rp{ctx};
+    const auto uuid = rp.PopRaw<Common::UUID>();
+    LOG_INFO(Service_ACC, "called, uuid=0x{}", uuid.RawString());
+
+    if (profile_manager->UserExists(uuid)) {
+        profile_manager->OpenUser(uuid);
+    }
+
     IPC::ResponseBuilder rb{ctx, 2};
     rb.Push(ResultSuccess);
 }

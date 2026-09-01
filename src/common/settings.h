@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
@@ -196,8 +196,8 @@ struct Values {
                                        true};
     Setting<bool, false> audio_muted{
                                      linkage, false, "audio_muted", Category::Audio, Specialization::Default, true, true};
-    Setting<bool, false> dump_audio_commands{
-                                             linkage, false, "dump_audio_commands", Category::Audio, Specialization::Default, false};
+    Setting<bool> dump_audio_commands{
+        linkage, false, "dump_audio_commands", Category::Audio, Specialization::Default, true, true};
 
     // Core
     SwitchableSetting<bool> use_multi_core{linkage, true, "use_multi_core", Category::Core};
@@ -834,8 +834,7 @@ struct Values {
     Setting<bool> tas_loop{linkage, false, "tas_loop", Category::Controls};
     Setting<bool> tas_show_recording_dialog{linkage, true, "tas_show_recording_dialog", Category::Controls};
 
-    Setting<bool> mouse_panning{
-                                linkage, false, "mouse_panning", Category::Controls, Specialization::Default, false};
+    Setting<bool> mouse_panning{linkage, false, "mouse_panning", Category::Controls};
     Setting<u8, true> mouse_panning_sensitivity{
                                                 linkage, 50, 1, 100, "mouse_panning_sensitivity", Category::Controls};
     Setting<bool> mouse_enabled{linkage, false, "mouse_enabled", Category::Controls};
@@ -897,32 +896,23 @@ struct Values {
                                                 Category::System,
                                                 Specialization::Default,
                                                 true,    // save_ - persist in config file
-                                                false};  // runtime_modifiable_ - startup-only
-    Setting<bool> dump_exefs{linkage, false, "dump_exefs", Category::Debugging};
-    Setting<bool> dump_nso{linkage, false, "dump_nso", Category::Debugging};
-    Setting<bool> dump_guest_shaders{
-                               linkage, false, "dump_guest_shaders", Category::DebuggingGraphics, Specialization::Default,
-                               false};
-    Setting<bool> dump_macros{
-                              linkage, false, "dump_macros", Category::DebuggingGraphics, Specialization::Default, false};
-    Setting<bool> enable_fs_access_log{linkage, false, "enable_fs_access_log", Category::Debugging};
-    Setting<bool> reporting_services{
-                                     linkage, false, "reporting_services", Category::Debugging, Specialization::Default, false};
-    Setting<bool> quest_flag{linkage, false, "quest_flag", Category::Debugging};
-    Setting<bool> use_dev_keys{linkage, false, "use_dev_keys", Category::Debugging};
-    Setting<bool> disable_macro_jit{linkage, false, "disable_macro_jit",
-                                    Category::DebuggingGraphics};
-    Setting<bool> disable_macro_hle{linkage, false, "disable_macro_hle",
-                                    Category::DebuggingGraphics};
-    Setting<bool> extended_logging{
-                                   linkage, false, "extended_logging", Category::Debugging, Specialization::Default, false};
-    Setting<bool> use_debug_asserts{linkage, false, "use_debug_asserts", Category::Debugging};
-    Setting<bool> use_auto_stub{
-                                linkage, false, "use_auto_stub", Category::Debugging};
-    Setting<bool> enable_all_controllers{linkage, false, "enable_all_controllers",
-                                         Category::Debugging};
-    Setting<bool> perform_vulkan_check{linkage, true, "perform_vulkan_check", Category::Debugging};
-    Setting<bool> disable_web_applet{linkage, true, "disable_web_applet", Category::Debugging};
+                                                true};  // runtime_modifiable_ - startup-only
+    Setting<bool> dump_exefs{linkage, false, "dump_exefs", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> dump_nso{linkage, false, "dump_nso", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> dump_guest_shaders{linkage, false, "dump_guest_shaders", Category::DebuggingGraphics, Specialization::Default, true, true};
+    Setting<bool> dump_macros{linkage, false, "dump_macros", Category::DebuggingGraphics, Specialization::Default, true, true};
+    Setting<bool> enable_fs_access_log{linkage, false, "enable_fs_access_log", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> reporting_services{linkage, false, "reporting_services", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> quest_flag{linkage, false, "quest_flag", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> use_dev_keys{linkage, false, "use_dev_keys", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> disable_macro_jit{linkage, false, "disable_macro_jit", Category::DebuggingGraphics, Specialization::Default, true, true};
+    Setting<bool> disable_macro_hle{linkage, false, "disable_macro_hle", Category::DebuggingGraphics, Specialization::Default, true, true};
+    Setting<bool> extended_logging{linkage, false, "extended_logging", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> use_debug_asserts{linkage, false, "use_debug_asserts", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> use_auto_stub{linkage, false, "use_auto_stub", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> enable_all_controllers{linkage, false, "enable_all_controllers", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> perform_vulkan_check{linkage, true, "perform_vulkan_check", Category::Debugging, Specialization::Default, true, true};
+    Setting<bool> disable_web_applet{linkage, true, "disable_web_applet", Category::Debugging, Specialization::Default, true, true};
 
     // GPU Logging
     Setting<GpuLogLevel> gpu_log_level{linkage, GpuLogLevel::Off, "gpu_log_level",

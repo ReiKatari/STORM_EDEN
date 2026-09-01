@@ -2883,7 +2883,7 @@ Memungkinkan berbagai macam optimasi IR.</translation>
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Eden Configuration</translation>
     </message>
     <message>

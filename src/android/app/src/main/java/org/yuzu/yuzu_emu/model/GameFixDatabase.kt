@@ -366,43 +366,55 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100650017170000L,
             "Animal Well",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
+            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
+            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpu_accuracy" to "1"
             )
         ),
         GameFixProfile(
             0x010020D01AD24000L,
             "Animal Well (Alt 1)",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
+            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
+            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpu_accuracy" to "1"
             )
         ),
         GameFixProfile(
             0x0100C9E01B854000L,
             "Animal Well (Alt 2)",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация адресного пространства NCE",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• NCE address space stabilization",
-            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Память: 4 ГБ DRAM\n✓ Точность GPU: Обычная\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ CPU Backend: NCE (Native Code Execution)\n✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
+            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
+            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\use_fast_gpu_time" to "false",
+                "Renderer\\dyna_state" to "1",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpu_accuracy" to "1"
             )
         ),
         GameFixProfile(
@@ -423,14 +435,16 @@ object GameFixDatabase {
         GameFixProfile(
             0x010015100B514000L,
             "Super Mario Bros. Wonder",
-            "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
-            "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
-            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "• Зависание сетевых служб acc:u0 (erepo/BaaS/Live Shadows)\n• Нехватка гостевой памяти (DRAM Overflow) при 4 ГБ\n• Ошибки декодирования ASTC-текстур эффектов Чудо-цветка",
+            "• Network service handshake hang on acc:u0 (erepo/BaaS/Live Shadows)\n• Out of memory (DRAM Overflow) with default 4GB layout\n• Wonder Flower transformation ASTC decoding corruption",
+            "✓ Режим полёта (Airplane Mode): Включено (пропуск сетевых запросов)\n✓ Конфигурация памяти: 6 ГБ DRAM (предотвращение OOM)\n✓ Точность GPU: Высокая (High — корректные ASTC-текстуры)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрое время GPU: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Airplane Mode: Enabled (Bypasses network handshake)\n✓ Memory Layout: 6GB DRAM (Prevents DRAM Overflow)\n✓ GPU Accuracy: High (Accurate Wonder Flower textures)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\use_fast_gpu_time" to "true",
+                "System\\airplane_mode" to "true",
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Cpu\\cpuopt_fastmem" to "true"
             )

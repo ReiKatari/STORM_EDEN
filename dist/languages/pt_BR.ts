@@ -2872,7 +2872,7 @@ Quando um programa tenta abrir o applet, ele é imediatamente fechado.</translat
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Configurar Eden</translation>
     </message>
     <message>

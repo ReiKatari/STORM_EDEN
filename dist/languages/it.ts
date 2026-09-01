@@ -2879,7 +2879,7 @@ Quando un programma proverà ad aprire l'applet del controller, quest'ultimo ver
     <name>ConfigureDialog</name>
     <message>
       <location filename="../../src/yuzu/configuration/configure.ui" line="20" />
-      <source>Eden Configuration</source>
+      <source>STORM SWITCH Configuration</source>
       <translation>Configurazione di Eden</translation>
     </message>
     <message>

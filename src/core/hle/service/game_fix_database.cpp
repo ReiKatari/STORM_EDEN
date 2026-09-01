@@ -414,12 +414,12 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x010028600EBDA000ULL,
         "Super Mario Bros. Wonder",
-        "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
-        "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
-        "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
+        "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
+        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"System\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "0"},
             {"Renderer\\gpu_accuracy", "0"},
             {"Renderer\\use_fast_gpu_time", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
@@ -429,12 +429,12 @@ static const std::vector<GameFixProfile> s_profiles = {
     {
         0x010015100B514000ULL,
         "Super Mario Bros. Wonder (Alt)",
-        "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
-        "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
-        "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
+        "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
+        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
-            {"System\\memory_layout_mode", "1"},
+            {"System\\memory_layout_mode", "0"},
             {"Renderer\\gpu_accuracy", "0"},
             {"Renderer\\use_fast_gpu_time", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
@@ -2083,12 +2083,12 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
         0x01006560184E6000ULL,
         "Mortal Kombat 1",
-        "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
-        "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
-        "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-        "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+        "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
+        "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
+        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+        "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
         {
-            {"System\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "0"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
@@ -2097,18 +2097,18 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\gpu_accuracy", "0"},
-            {"System\\use_docked_mode", "false"}
+            {"System\\use_docked_mode", "0"}
         }
     },
     {
         0x0100D2800D5C2000ULL,
         "Mortal Kombat 1 (Alt)",
-        "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
-        "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
-        "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-        "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+        "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
+        "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
+        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+        "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
         {
-            {"System\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "0"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
@@ -2117,7 +2117,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\gpu_accuracy", "0"},
-            {"System\\use_docked_mode", "false"}
+            {"System\\use_docked_mode", "0"}
         }
     },
     {
@@ -3785,66 +3785,80 @@ void GameFixDatabase::SetDontAskAgain(u64 title_id, const std::string& config_fi
 }
 
 bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
-    const auto* profile = GetProfile(title_id);
-    if (!profile) {
+    try {
+        const auto* profile = GetProfile(title_id);
+        if (!profile) {
+            return false;
+        }
+
+        auto safe_stoi = [](const std::string& s, int def = 0) -> int {
+            try {
+                if (s == "true") return 1;
+                if (s == "false") return 0;
+                return std::stoi(s);
+            } catch (...) {
+                return def;
+            }
+        };
+
+        for (const auto& [full_key, val] : profile->ini_settings) {
+            if (full_key == "Renderer\\gpu_accuracy") {
+                Settings::values.gpu_accuracy.SetValue(static_cast<Settings::GpuAccuracy>(safe_stoi(val, 0)));
+                Settings::values.gpu_accuracy.SetGlobal(false);
+            } else if (full_key == "Renderer\\barrier_feedback_loops") {
+                Settings::values.barrier_feedback_loops.SetValue(val == "true" || val == "1");
+                Settings::values.barrier_feedback_loops.SetGlobal(false);
+            } else if (full_key == "Renderer\\use_reactive_flushing") {
+                Settings::values.use_reactive_flushing.SetValue(val == "true" || val == "1");
+                Settings::values.use_reactive_flushing.SetGlobal(false);
+            } else if (full_key == "Renderer\\astc_recompression") {
+                Settings::values.astc_recompression.SetValue(static_cast<Settings::AstcRecompression>(safe_stoi(val, 0)));
+                Settings::values.astc_recompression.SetGlobal(false);
+            } else if (full_key == "Renderer\\use_asynchronous_shaders") {
+                Settings::values.use_asynchronous_shaders.SetValue(val == "true" || val == "1");
+                Settings::values.use_asynchronous_shaders.SetGlobal(false);
+            } else if (full_key == "Renderer\\max_anisotropy") {
+                Settings::values.max_anisotropy.SetValue(static_cast<Settings::AnisotropyMode>(safe_stoi(val, 0)));
+                Settings::values.max_anisotropy.SetGlobal(false);
+            } else if (full_key == "Renderer\\resolution_setup") {
+                Settings::values.resolution_setup.SetValue(static_cast<Settings::ResolutionSetup>(safe_stoi(val, 2)));
+                Settings::values.resolution_setup.SetGlobal(false);
+            } else if (full_key == "Renderer\\fsr_sharpening_slider") {
+                Settings::values.fsr_sharpening_slider.SetValue(static_cast<u8>(safe_stoi(val, 0)));
+                Settings::values.fsr_sharpening_slider.SetGlobal(false);
+            } else if (full_key == "Renderer\\use_fast_gpu_time") {
+                Settings::values.gpu_clock.SetValue(val == "true" || val == "1" ? Settings::GpuClock::Boost : Settings::GpuClock::Normal);
+                Settings::values.gpu_clock.SetGlobal(false);
+            } else if (full_key == "Renderer\\dyna_state") {
+                Settings::values.dyna_state.SetValue(static_cast<Settings::ExtendedDynamicState>(safe_stoi(val, 0)));
+                Settings::values.dyna_state.SetGlobal(false);
+            } else if (full_key == "System\\airplane_mode") {
+                Settings::values.airplane_mode.SetValue(val == "true" || val == "1");
+                Settings::values.airplane_mode.SetGlobal(false);
+            } else if (full_key == "System\\memory_layout_mode") {
+                Settings::values.memory_layout_mode.SetValue(static_cast<Settings::MemoryLayout>(safe_stoi(val, 0)));
+                Settings::values.memory_layout_mode.SetGlobal(false);
+            } else if (full_key == "System\\use_docked_mode") {
+                Settings::values.use_docked_mode.SetValue(static_cast<Settings::ConsoleMode>(safe_stoi(val, 0)));
+                Settings::values.use_docked_mode.SetGlobal(false);
+            } else if (full_key == "Cpu\\cpu_backend") {
+                Settings::values.cpu_backend.SetValue(static_cast<Settings::CpuBackend>(safe_stoi(val, 1)));
+                Settings::values.cpu_backend.SetGlobal(false);
+            } else if (full_key == "Cpu\\cpu_accuracy") {
+                Settings::values.cpu_accuracy.SetValue(static_cast<Settings::CpuAccuracy>(safe_stoi(val, 1)));
+                Settings::values.cpu_accuracy.SetGlobal(false);
+            } else if (full_key == "Cpu\\cpuopt_fastmem") {
+                Settings::values.cpuopt_fastmem.SetValue(val == "true" || val == "1");
+                Settings::values.cpuopt_fastmem.SetGlobal(false);
+            }
+        }
+        Settings::UpdateGPUAccuracy();
+        Settings::UpdateRescalingInfo();
+        LOG_INFO(Frontend, "Directly applied GameFix profile in-memory for {:#016x}", title_id);
+        return true;
+    } catch (...) {
         return false;
     }
-
-    for (const auto& [full_key, val] : profile->ini_settings) {
-        if (full_key == "Renderer\\gpu_accuracy") {
-            Settings::values.gpu_accuracy.SetValue(static_cast<Settings::GpuAccuracy>(std::stoi(val)));
-            Settings::values.gpu_accuracy.SetGlobal(false);
-        } else if (full_key == "Renderer\\barrier_feedback_loops") {
-            Settings::values.barrier_feedback_loops.SetValue(val == "true");
-            Settings::values.barrier_feedback_loops.SetGlobal(false);
-        } else if (full_key == "Renderer\\use_reactive_flushing") {
-            Settings::values.use_reactive_flushing.SetValue(val == "true");
-            Settings::values.use_reactive_flushing.SetGlobal(false);
-        } else if (full_key == "Renderer\\astc_recompression") {
-            Settings::values.astc_recompression.SetValue(static_cast<Settings::AstcRecompression>(std::stoi(val)));
-            Settings::values.astc_recompression.SetGlobal(false);
-        } else if (full_key == "Renderer\\use_asynchronous_shaders") {
-            Settings::values.use_asynchronous_shaders.SetValue(val == "true");
-            Settings::values.use_asynchronous_shaders.SetGlobal(false);
-        } else if (full_key == "Renderer\\max_anisotropy") {
-            Settings::values.max_anisotropy.SetValue(static_cast<Settings::AnisotropyMode>(std::stoi(val)));
-            Settings::values.max_anisotropy.SetGlobal(false);
-        } else if (full_key == "Renderer\\resolution_setup") {
-            Settings::values.resolution_setup.SetValue(static_cast<Settings::ResolutionSetup>(std::stoi(val)));
-            Settings::values.resolution_setup.SetGlobal(false);
-        } else if (full_key == "Renderer\\fsr_sharpening_slider") {
-            Settings::values.fsr_sharpening_slider.SetValue(static_cast<u8>(std::stoi(val)));
-            Settings::values.fsr_sharpening_slider.SetGlobal(false);
-        } else if (full_key == "Renderer\\use_fast_gpu_time") {
-            Settings::values.gpu_clock.SetValue(val == "true" ? Settings::GpuClock::Boost : Settings::GpuClock::Normal);
-            Settings::values.gpu_clock.SetGlobal(false);
-        } else if (full_key == "Renderer\\dyna_state") {
-            Settings::values.dyna_state.SetValue(static_cast<Settings::ExtendedDynamicState>(std::stoi(val)));
-            Settings::values.dyna_state.SetGlobal(false);
-        } else if (full_key == "System\\airplane_mode") {
-            Settings::values.airplane_mode.SetValue(val == "true");
-            Settings::values.airplane_mode.SetGlobal(false);
-        } else if (full_key == "System\\memory_layout_mode") {
-            Settings::values.memory_layout_mode.SetValue(static_cast<Settings::MemoryLayout>(std::stoi(val)));
-            Settings::values.memory_layout_mode.SetGlobal(false);
-        } else if (full_key == "System\\use_docked_mode") {
-            Settings::values.use_docked_mode.SetValue(static_cast<Settings::ConsoleMode>(std::stoi(val)));
-            Settings::values.use_docked_mode.SetGlobal(false);
-        } else if (full_key == "Cpu\\cpu_backend") {
-            Settings::values.cpu_backend.SetValue(static_cast<Settings::CpuBackend>(std::stoi(val)));
-            Settings::values.cpu_backend.SetGlobal(false);
-        } else if (full_key == "Cpu\\cpu_accuracy") {
-            Settings::values.cpu_accuracy.SetValue(static_cast<Settings::CpuAccuracy>(std::stoi(val)));
-            Settings::values.cpu_accuracy.SetGlobal(false);
-        } else if (full_key == "Cpu\\cpuopt_fastmem") {
-            Settings::values.cpuopt_fastmem.SetValue(val == "true");
-            Settings::values.cpuopt_fastmem.SetGlobal(false);
-        }
-    }
-    Settings::UpdateGPUAccuracy();
-    Settings::UpdateRescalingInfo();
-    LOG_INFO(Frontend, "Directly applied GameFix profile in-memory for {:#016x}", title_id);
-    return true;
 }
 
 bool GameFixDatabase::IsFixApplied(u64 title_id, const std::string& config_file_path) {

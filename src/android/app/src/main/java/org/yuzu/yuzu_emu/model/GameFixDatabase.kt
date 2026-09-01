@@ -413,12 +413,12 @@ object GameFixDatabase {
         GameFixProfile(
             0x010028600EBDA000L,
             "Super Mario Bros. Wonder",
-            "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
-            "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
-            "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
+            "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
+            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\use_fast_gpu_time" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -428,12 +428,12 @@ object GameFixDatabase {
         GameFixProfile(
             0x010015100B514000L,
             "Super Mario Bros. Wonder (Alt)",
-            "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
-            "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
-            "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "• Оптимизация физики и анимаций персонажей\n• Микрофризы при компиляции шейдеров",
+            "• Optimization for physics and character animations\n• Shader compilation stutter on character animations",
+            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 4GB DRAM\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\use_fast_gpu_time" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
@@ -2074,12 +2074,12 @@ object GameFixDatabase {
                 GameFixProfile(
             0x01006560184E6000L,
             "Mortal Kombat 1",
-            "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
-            "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
-            "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-            "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
+            "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
+            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
-                "System\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "0",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
@@ -2088,18 +2088,18 @@ object GameFixDatabase {
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Renderer\\astc_recompression" to "0",
                 "Renderer\\gpu_accuracy" to "0",
-                "System\\use_docked_mode" to "false"
+                "System\\use_docked_mode" to "0"
             )
         ),
         GameFixProfile(
             0x0100D2800D5C2000L,
             "Mortal Kombat 1 (Alt)",
-            "• Мгновенный вылет при запуске (UE4 TaskGraph / атомики потоков)\n• Зависание на заставке WB Games и вылет по нехватке памяти (OOM)\n• Сбои Extended Dynamic State в шейдерах арены",
-            "• Instant crash on launch (UE4 TaskGraph / thread atomics)\n• WB Games intro freeze and Out of Memory crash\n• Extended Dynamic State arena shader crashes",
-            "✓ Память: 8GB DRAM (критично для запуска без вылета!)\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-            "✓ Memory Layout: 8GB DRAM (Critical for launch without crash!)\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
+            "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
+            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
-                "System\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "0",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
@@ -2108,7 +2108,7 @@ object GameFixDatabase {
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "Renderer\\astc_recompression" to "0",
                 "Renderer\\gpu_accuracy" to "0",
-                "System\\use_docked_mode" to "false"
+                "System\\use_docked_mode" to "0"
             )
         ),
         GameFixProfile(

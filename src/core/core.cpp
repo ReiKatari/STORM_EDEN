@@ -302,7 +302,6 @@ struct System::Impl {
                 if (pre_loader->ReadProgramId(detected_program_id) == Loader::ResultStatus::Success && detected_program_id != 0) {
                     params.program_id = detected_program_id;
                     Settings::SetCurrentProgramID(detected_program_id);
-                    Core::GameFixDatabase::ApplyProfileDirectly(detected_program_id);
                 }
             }
         }
@@ -337,7 +336,6 @@ struct System::Impl {
 
         // Expose program id to dump sites and other global readers.
         Settings::SetCurrentProgramID(params.program_id);
-        Core::GameFixDatabase::ApplyProfileDirectly(params.program_id);
 
         // Track launch time for frontend launches
         LaunchTimestampCache::SaveLaunchTimestamp(params.program_id);

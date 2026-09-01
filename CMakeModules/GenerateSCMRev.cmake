@@ -14,22 +14,11 @@ endfunction()
 
 get_timestamp(BUILD_DATE)
 
-if (DEFINED GIT_RELEASE)
-    set(BUILD_VERSION "${GIT_TAG}")
-    set(GIT_REFSPEC "${GIT_RELEASE}")
-    set(IS_DEV_BUILD false)
-else()
-    set(BUILD_VERSION "6.2.1")
-    set(IS_DEV_BUILD false)
-endif()
-
-
-
-if (NIGHTLY_BUILD)
-    set(IS_NIGHTLY_BUILD true)
-else()
-    set(IS_NIGHTLY_BUILD false)
-endif()
+set(BUILD_VERSION "6.2.1")
+set(GIT_TAG "6.2.1")
+set(GIT_REFSPEC "main")
+set(IS_DEV_BUILD false)
+set(IS_NIGHTLY_BUILD false)
 
 set(BUILD_TAG "v${BUILD_VERSION}")
 set(BUILD_ID "${BUILD_VERSION}")

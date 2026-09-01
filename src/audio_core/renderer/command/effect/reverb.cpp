@@ -459,11 +459,21 @@ void ReverbCommand::Process(const AudioRenderer::CommandListProcessor& processor
     }
 
     auto state_{reinterpret_cast<ReverbInfo::State*>(state)};
+    if (!state_) {
+        ApplyReverbEffectBypass(input_buffers, output_buffers, parameter.channel_count,
+                                processor.sample_count);
+        return;
+    }
 
     if (effect_enabled) {
         if (parameter.state == ReverbInfo::ParameterState::Updating) {
-            UpdateReverbEffectParameter(parameter, *state_);
-        } else if (parameter.state == ReverbInfo::ParameterState::Initialized) {
+            if (state_->fdn_delay_lines[0].buffer.empty()) {
+                InitializeReverbEffect(parameter, *state_, workbuffer, long_size_pre_delay_supported);
+            } else {
+                UpdateReverbEffectParameter(parameter, *state_);
+            }
+        } else if (parameter.state == ReverbInfo::ParameterState::Initialized ||
+                   state_->fdn_delay_lines[0].buffer.empty()) {
             InitializeReverbEffect(parameter, *state_, workbuffer, long_size_pre_delay_supported);
         }
     }

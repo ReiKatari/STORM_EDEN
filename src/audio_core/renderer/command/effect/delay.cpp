@@ -219,11 +219,25 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
     }
 
     auto state_{reinterpret_cast<DelayInfo::State*>(state)};
+    if (!state_) {
+        for (s16 channel = 0; channel < parameter.channel_count; channel++) {
+            if (input_buffers[channel].data() != output_buffers[channel].data()) {
+                std::memcpy(output_buffers[channel].data(), input_buffers[channel].data(),
+                            processor.sample_count * sizeof(s32));
+            }
+        }
+        return;
+    }
 
     if (effect_enabled) {
         if (parameter.state == DelayInfo::ParameterState::Updating) {
-            SetDelayEffectParameter(parameter, *state_);
-        } else if (parameter.state == DelayInfo::ParameterState::Initialized) {
+            if (state_->delay_lines[0].buffer.empty()) {
+                InitializeDelayEffect(parameter, *state_, workbuffer);
+            } else {
+                SetDelayEffectParameter(parameter, *state_);
+            }
+        } else if (parameter.state == DelayInfo::ParameterState::Initialized ||
+                   state_->delay_lines[0].buffer.empty()) {
             InitializeDelayEffect(parameter, *state_, workbuffer);
         }
     }

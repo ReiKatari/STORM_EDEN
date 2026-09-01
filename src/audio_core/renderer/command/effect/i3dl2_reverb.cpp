@@ -422,11 +422,21 @@ void I3dl2ReverbCommand::Process(const AudioRenderer::CommandListProcessor& proc
     }
 
     auto state_{reinterpret_cast<I3dl2ReverbInfo::State*>(state)};
+    if (!state_) {
+        ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, parameter.channel_count,
+                                     processor.sample_count);
+        return;
+    }
 
     if (effect_enabled) {
         if (parameter.state == I3dl2ReverbInfo::ParameterState::Updating) {
-            UpdateI3dl2ReverbEffectParameter(parameter, *state_, false);
-        } else if (parameter.state == I3dl2ReverbInfo::ParameterState::Initialized) {
+            if (state_->early_delay_line.buffer.empty()) {
+                InitializeI3dl2ReverbEffect(parameter, *state_, workbuffer);
+            } else {
+                UpdateI3dl2ReverbEffectParameter(parameter, *state_, false);
+            }
+        } else if (parameter.state == I3dl2ReverbInfo::ParameterState::Initialized ||
+                   state_->early_delay_line.buffer.empty()) {
             InitializeI3dl2ReverbEffect(parameter, *state_, workbuffer);
         }
     }

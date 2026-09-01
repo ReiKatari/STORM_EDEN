@@ -118,15 +118,12 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
     // We can't handle the access, so determine why we crashed.
     const bool is_prefetch_abort = host_ctx.pc == reinterpret_cast<u64>(info->si_addr);
 
-    // For data aborts, skip the instruction and return to guest code.
-    // This will allow games to continue in many scenarios where they would otherwise crash.
-    if (!is_prefetch_abort) {
-        host_ctx.pc += 4;
-        return true;
+    // Set appropriate halt reason.
+    if (is_prefetch_abort) {
+        guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
+    } else {
+        guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::DataAbort));
     }
-
-    // This is a prefetch abort.
-    guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
 
     // Forcibly mark the context as locked. We are still running.
     // We may race with SignalInterrupt here:
@@ -160,12 +157,17 @@ bool ArmNce::HandleGuestAlignmentFault(GuestContext* guest_ctx, void* raw_info, 
 bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, void* raw_context) {
     auto* info = static_cast<siginfo_t*>(raw_info);
 
-    // Try to handle an invalid access.
-    // TODO: handle accesses which split a page?
-    const Common::ProcessAddress addr =
-        (reinterpret_cast<u64>(info->si_addr) & ~Memory::YUZU_PAGEMASK);
+    const u64 fault_addr = reinterpret_cast<u64>(info->si_addr);
+    const Common::ProcessAddress addr = (fault_addr & ~Memory::YUZU_PAGEMASK);
     auto& memory = guest_ctx->parent->m_running_thread->GetOwnerProcess()->GetMemory();
-    if (memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE)) {
+
+    bool handled = memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE);
+    // Handle accesses which split a page boundary (e.g. unaligned 128-bit vector / atomic access)
+    if ((fault_addr + 16) > (addr + Memory::YUZU_PAGESIZE)) {
+        handled |= memory.InvalidateNCE(addr + Memory::YUZU_PAGESIZE, Memory::YUZU_PAGESIZE);
+    }
+
+    if (handled) {
         // We handled the access successfully and are returning to guest code.
         return true;
     }

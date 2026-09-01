@@ -289,6 +289,37 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
         }
     }
 
+    // 4. Try parsing update version from patch_versions if available
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        static const QRegularExpression update_ver_regex{QStringLiteral(R"(Update\s*\(([^)]+)\))")};
+        const auto um = update_ver_regex.match(patch_versions);
+        if (um.hasMatch() && !um.captured(1).isEmpty()) {
+            const auto uv = um.captured(1).trimmed();
+            if (uv != QStringLiteral("PACKED") && uv != QStringLiteral("NSP") && uv != QStringLiteral("XCI") && !uv.isEmpty()) {
+                file_version = uv;
+            }
+        }
+    }
+
+    // 5. Try extracting paired version from filename (e.g. "(1.0.10 - 655360 - ...)")
+    if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
+        const QString qpath = QString::fromStdString(path);
+        static const QRegularExpression fn_pair_ver_regex{QStringLiteral(R"(\(([0-9]+\.[0-9]+(?:\.[0-9]+)*)\s*-\s*([0-9]+))")};
+        const auto fm = fn_pair_ver_regex.match(qpath);
+        if (fm.hasMatch() && !fm.captured(1).isEmpty()) {
+            file_version = fm.captured(1);
+        } else {
+            static const QRegularExpression fn_ver_regex{QStringLiteral(R"((?:[\(\[\s_]v?|\b)([0-9]+\.[0-9]+(?:\.[0-9]+)*)(?!\s*(?:GB|MB|KB|TB|ГБ|МБ|КБ|Б|B)\b))")};
+            const auto m = fn_ver_regex.match(qpath);
+            if (m.hasMatch() && m.hasCaptured(1)) {
+                const QString parsed_ver = m.captured(1);
+                if (!parsed_ver.isEmpty() && parsed_ver != QStringLiteral("1.0.0")) {
+                    file_version = parsed_ver;
+                }
+            }
+        }
+    }
+
     // Clean leading 'v' or whitespace
     while (file_version.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
         file_version.remove(0, 1);

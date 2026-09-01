@@ -78,7 +78,7 @@ class GameFixDialogFragment : DialogFragment() {
                 }
                 GameFixDatabase.applyFix(currentGame)
                 if (ctx != null) {
-                    Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN: Применено", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "⚡ Оптимизации STORM SWITCH: Применено", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 // Log and continue launching
@@ -94,8 +94,9 @@ class GameFixDialogFragment : DialogFragment() {
                 if (binding.cbDontAskAgain.isChecked && ctx != null) {
                     GameFixDatabase.setDontAskAgain(ctx, currentGame, true)
                 }
+                GameFixDatabase.clearActiveSessionFix()
                 if (ctx != null) {
-                    Toast.makeText(ctx, "⚠️ Оптимизации STORM EDEN: Не применено", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "⚠️ Оптимизации STORM SWITCH: Не применено", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {}
             val cb = onLaunchCallback

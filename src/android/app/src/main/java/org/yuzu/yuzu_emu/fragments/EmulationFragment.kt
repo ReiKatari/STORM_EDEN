@@ -318,27 +318,50 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     }
             }
 
-            if (hasCustom) {
+            val sessionFix = GameFixDatabase.getActiveSessionFix(gameToUse)
+            if (sessionFix != null) {
+                if (hasCustom) {
+                    shouldUseCustom = true
+                    SettingsFile.loadCustomConfig(gameToUse)
+                } else {
+                    shouldUseCustom = false
+                    NativeConfig.unloadPerGameConfig()
+                    NativeConfig.reloadGlobalConfig()
+                }
+                for ((fullKey, value) in sessionFix.settingsMap) {
+                    val key = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
+                    when (value.lowercase()) {
+                        "true", "false" -> {
+                            NativeConfig.setBoolean(key, value.toBoolean())
+                            NativeConfig.setGlobal(key, false)
+                        }
+                        else -> {
+                            val intVal = value.toIntOrNull()
+                            if (intVal != null) {
+                                NativeConfig.setInt(key, intVal)
+                                NativeConfig.setGlobal(key, false)
+                            } else {
+                                NativeConfig.setString(key, value)
+                                NativeConfig.setGlobal(key, false)
+                            }
+                        }
+                    }
+                }
+                Log.info("[EmulationFragment] Applied in-memory session fix for ${gameToUse.title}")
+                activity?.runOnUiThread {
+                    context?.let { ctx ->
+                        Toast.makeText(ctx, "⚡ Оптимизации STORM SWITCH: Применено (Сессия)", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else if (hasCustom) {
                 shouldUseCustom = true
                 SettingsFile.loadCustomConfig(gameToUse)
                 Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")
-                activity?.runOnUiThread {
-                    context?.let { ctx ->
-                        Toast.makeText(ctx, "⚡ Оптимизации STORM EDEN: Применено", Toast.LENGTH_SHORT).show()
-                    }
-                }
             } else {
                 shouldUseCustom = false
                 NativeConfig.unloadPerGameConfig()
                 NativeConfig.reloadGlobalConfig()
                 Log.info("[EmulationFragment] Using clean global config for ${gameToUse.title}")
-                if (GameFixDatabase.hasFix(gameToUse)) {
-                    activity?.runOnUiThread {
-                        context?.let { ctx ->
-                            Toast.makeText(ctx, "⚠️ Оптимизации STORM EDEN: Не применено", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
             }
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error loading configuration: ${e.message}")
@@ -1913,9 +1936,19 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         _binding?.surfaceInputOverlay?.touchEventListener = null
         _binding = null
         isAmiiboPickerOpen = false
+        GameFixDatabase.clearActiveSessionFix()
+        try {
+            NativeConfig.unloadPerGameConfig()
+            NativeConfig.reloadGlobalConfig()
+        } catch (_: Exception) {}
     }
 
     override fun onDetach() {
+        GameFixDatabase.clearActiveSessionFix()
+        try {
+            NativeConfig.unloadPerGameConfig()
+            NativeConfig.reloadGlobalConfig()
+        } catch (_: Exception) {}
         if (!hasNewerEmulationFragment()) {
             NativeLibrary.clearEmulationActivity()
         }

@@ -363,35 +363,84 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
-            0x010020D01AD24000L,
+            0x0100650017170000L,
             "Animal Well",
-            "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
-            "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-            "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
-            "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
+            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Cpu\\cpu_accuracy" to "0",
+                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "2",
                 "Renderer\\gpu_accuracy" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\reactive_flushing" to "true"
+                "Renderer\\dyna_state" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010020D01AD24000L,
+            "Animal Well (Alt 1)",
+            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            mapOf(
+                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\dyna_state" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
         GameFixProfile(
             0x0100C9E01B854000L,
-            "Animal Well (Alt)",
-            "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
-            "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-            "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
-            "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
+            "Animal Well (Alt 2)",
+            "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+            "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+            "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Cpu\\cpu_accuracy" to "0",
+                "Cpu\\cpu_backend" to "0",
+                "Cpu\\cpu_accuracy" to "1",
+                "System\\memory_layout_mode" to "2",
                 "Renderer\\gpu_accuracy" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\reactive_flushing" to "true"
+                "Renderer\\dyna_state" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010028600EBDA000L,
+            "Super Mario Bros. Wonder",
+            "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
+            "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
+            "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010015100B514000L,
+            "Super Mario Bros. Wonder (Alt)",
+            "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
+            "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
+            "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            mapOf(
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\gpu_accuracy" to "0",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
 
@@ -3522,96 +3571,46 @@ object GameFixDatabase {
         }
     }
 
-    fun isFixApplied(game: Game): Boolean {
-        val titleIdHex = getProgramIdHex(game)
-        if (titleIdHex.isEmpty()) return false
-        val filesToCheck = listOf(
-            File(DirectoryInitialization.userDirectory, "config/custom/$titleIdHex.ini"),
-            File(DirectoryInitialization.userDirectory, "config/custom/${game.settingsName}.ini")
-        )
-        for (configFile in filesToCheck) {
-            if (configFile.exists()) {
-                try {
-                    val content = configFile.readText()
-                    if (content.contains("storm_fix_applied=true") || content.contains("storm_fix_applied = true")) {
-                        return true
-                    }
-                } catch (_: Exception) {}
-            }
+    @Volatile
+    private var activeSessionProgramIdHex: String? = null
+
+    @Volatile
+    private var activeSessionFix: GameFixProfile? = null
+
+    fun activateSessionFix(game: Game) {
+        val fix = getFix(game)
+        val hex = getProgramIdHex(game)
+        activeSessionProgramIdHex = hex
+        activeSessionFix = fix
+        Log.info("[GameFixDatabase] Activated in-memory session fix for ${game.title} ($hex)")
+    }
+
+    fun clearActiveSessionFix() {
+        Log.info("[GameFixDatabase] Cleared active in-memory session fix")
+        activeSessionProgramIdHex = null
+        activeSessionFix = null
+    }
+
+    fun getActiveSessionFix(game: Game): GameFixProfile? {
+        val hex = getProgramIdHex(game)
+        if (hex.isNotEmpty() && hex.equals(activeSessionProgramIdHex, ignoreCase = true)) {
+            return activeSessionFix
         }
-        return false
+        return null
+    }
+
+    fun isSessionFixActive(game: Game): Boolean {
+        val hex = getProgramIdHex(game)
+        return hex.isNotEmpty() && hex.equals(activeSessionProgramIdHex, ignoreCase = true) && activeSessionFix != null
+    }
+
+    fun isFixApplied(game: Game): Boolean {
+        return isSessionFixActive(game)
     }
 
     fun applyFix(game: Game): Boolean {
         val fix = getFix(game) ?: return false
-        val titleIdHex = getProgramIdHex(game)
-        if (titleIdHex.isEmpty()) return false
-        val configDir = File(DirectoryInitialization.userDirectory, "config/custom")
-        if (!configDir.exists()) {
-            configDir.mkdirs()
-        }
-        val targetFiles = listOf(
-            File(configDir, "$titleIdHex.ini"),
-            File(configDir, "${game.settingsName}.ini")
-        )
-
-        return try {
-            val sections = mutableMapOf<String, MutableMap<String, String>>()
-            val primaryFile = targetFiles.firstOrNull { it.exists() } ?: targetFiles[0]
-            if (primaryFile.exists()) {
-                var currentSection = ""
-                primaryFile.forEachLine { rawLine ->
-                    val line = rawLine.trim()
-                    if (line.isNotEmpty() && !line.startsWith("#") && !line.startsWith(";")) {
-                        if (line.startsWith("[") && line.endsWith("]")) {
-                            currentSection = line.substring(1, line.length - 1)
-                            sections.putIfAbsent(currentSection, mutableMapOf())
-                        } else {
-                            val eq = line.indexOf('=')
-                            if (eq != -1 && currentSection.isNotEmpty()) {
-                                val k = line.substring(0, eq).trim()
-                                val v = line.substring(eq + 1).trim()
-                                sections[currentSection]?.put(k, v)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Merge fix settings
-            for ((fullKey, value) in fix.settingsMap) {
-                val parts = fullKey.split("\\")
-                if (parts.size == 2) {
-                    val sec = parts[0]
-                    val key = parts[1]
-                    sections.putIfAbsent(sec, mutableMapOf())
-                    sections[sec]?.put(key, value)
-                    sections[sec]?.put("$key\\use_global", "false")
-                    sections[sec]?.put("$key\\default", "false")
-                }
-            }
-            sections.putIfAbsent("StormEden", mutableMapOf())
-            sections["StormEden"]?.put("storm_fix_applied", "true")
-
-            // Write back INI
-            val sb = java.lang.StringBuilder()
-            for ((sec, kvs) in sections) {
-                sb.append("[$sec]\n")
-                for ((k, v) in kvs) {
-                    sb.append("$k=$v\n")
-                }
-                sb.append("\n")
-            }
-            val textToSave = sb.toString()
-            for (f in targetFiles) {
-                f.writeText(textToSave)
-                Log.info("[GameFixDatabase] Applied game fix profile to ${f.absolutePath}")
-            }
-
-            true
-        } catch (e: Exception) {
-            Log.error("[GameFixDatabase] Failed to apply game fix: ${e.message}")
-            false
-        }
+        activateSessionFix(game)
+        return true
     }
 }

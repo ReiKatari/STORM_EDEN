@@ -364,35 +364,84 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
-        0x010020D01AD24000ULL,
+        0x0100650017170000ULL,
         "Animal Well",
-        "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
-        "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-        "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
-        "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
+        "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+        "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+        "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
         {
-            {"System\\memory_layout_mode", "0"},
-            {"Cpu\\cpu_accuracy", "0"},
+            {"Cpu\\cpu_backend", "0"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
-            {"Cpu\\cpuopt_fastmem", "true"},
-            {"Renderer\\use_asynchronous_shaders", "false"},
-            {"Renderer\\reactive_flushing", "true"}
+            {"Renderer\\dyna_state", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x010020D01AD24000ULL,
+        "Animal Well (Alt 1)",
+        "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+        "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+        "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+        {
+            {"Cpu\\cpu_backend", "0"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "2"},
+            {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\dyna_state", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
         }
     },
     {
         0x0100C9E01B854000ULL,
-        "Animal Well (Alt)",
-        "• Сбои 2D-шейдеров жидкости, освещения и звукового буфера\n• Зависание при переходах комнат и вылет движка",
-        "• 2D fluid simulation and dynamic lighting shader crashes\n• Audio buffer and room transition freezes",
-        "✓ Конфигурация памяти: 4 ГБ DRAM (Стандарт)\n✓ Точность CPU: Авто (Fastmem JIT)\n✓ Точность GPU: Высокая (High)\n✓ Быстрая память (Fastmem): Включено\n✓ Шейдеры: Синхронные (Sync)\n✓ Реактивный сброс: Включено",
-        "✓ Memory Layout: 4GB DRAM (Standard)\n✓ CPU Accuracy: Auto (Fastmem JIT)\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Shaders: Synchronous\n✓ Reactive Flushing: Enabled",
+        "Animal Well (Alt 2)",
+        "• Вылет при старте на ARM64 из-за защищенных страниц памяти (Guard Pages аллокатора)\n• Сбои 2D-шейдеров освещения и динамических жидкостей",
+        "• ARM64 launch crash due to allocator guard page traps under NCE\n• 2D fluid simulation and dynamic lighting shader crashes",
+        "✓ Бэкенд CPU: Dynarmic (JIT recompiler)\n✓ Точность CPU: Высокая (Accurate)\n✓ Конфигурация памяти: 8 ГБ DRAM (Расширенная)\n✓ Точность GPU: Высокая (High)\n✓ Динамическое состояние: EDS1\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
+        "✓ CPU Backend: Dynarmic (JIT recompiler)\n✓ CPU Accuracy: Accurate\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Dynamic State: EDS1\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
         {
-            {"System\\memory_layout_mode", "0"},
-            {"Cpu\\cpu_accuracy", "0"},
+            {"Cpu\\cpu_backend", "0"},
+            {"Cpu\\cpu_accuracy", "1"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
-            {"Cpu\\cpuopt_fastmem", "true"},
-            {"Renderer\\use_asynchronous_shaders", "false"},
-            {"Renderer\\reactive_flushing", "true"}
+            {"Renderer\\dyna_state", "1"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x010028600EBDA000ULL,
+        "Super Mario Bros. Wonder",
+        "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
+        "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
+        "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\use_fast_gpu_time", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
+        }
+    },
+    {
+        0x010015100B514000ULL,
+        "Super Mario Bros. Wonder (Alt)",
+        "• Вылет при переходе уровней и активации Чудо-цветка (OOM в пуле памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
+        "• Crash on stage transitions and Wonder Flower effects (4GB OOM in guest heap)\n• Shader compilation stutter on character animations",
+        "✓ Конфигурация памяти: 6 ГБ DRAM (Предотвращение OOM)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+        "✓ Memory Layout: 6GB DRAM (Prevents OOM crash)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        {
+            {"System\\memory_layout_mode", "1"},
+            {"Renderer\\gpu_accuracy", "0"},
+            {"Renderer\\use_fast_gpu_time", "true"},
+            {"Renderer\\use_asynchronous_shaders", "true"},
+            {"Cpu\\cpuopt_fastmem", "true"}
         }
     },
 
@@ -3781,6 +3830,15 @@ bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
         } else if (full_key == "System\\memory_layout_mode") {
             Settings::values.memory_layout_mode.SetValue(static_cast<Settings::MemoryLayout>(std::stoi(val)));
             Settings::values.memory_layout_mode.SetGlobal(false);
+        } else if (full_key == "System\\use_docked_mode") {
+            Settings::values.use_docked_mode.SetValue(static_cast<Settings::ConsoleMode>(std::stoi(val)));
+            Settings::values.use_docked_mode.SetGlobal(false);
+        } else if (full_key == "Cpu\\cpu_backend") {
+            Settings::values.cpu_backend.SetValue(static_cast<Settings::CpuBackend>(std::stoi(val)));
+            Settings::values.cpu_backend.SetGlobal(false);
+        } else if (full_key == "Cpu\\cpu_accuracy") {
+            Settings::values.cpu_accuracy.SetValue(static_cast<Settings::CpuAccuracy>(std::stoi(val)));
+            Settings::values.cpu_accuracy.SetGlobal(false);
         } else if (full_key == "Cpu\\cpuopt_fastmem") {
             Settings::values.cpuopt_fastmem.SetValue(val == "true");
             Settings::values.cpuopt_fastmem.SetGlobal(false);

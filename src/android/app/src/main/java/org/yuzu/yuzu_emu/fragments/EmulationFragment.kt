@@ -305,8 +305,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private fun continueGameSetupAfterFix() {
         try {
             val gameToUse = game ?: return
+            val customFile = SettingsFile.getCustomSettingsFile(gameToUse)
+
+            // Automatically generate and apply per-game optimization profile if available
+            if (!customFile.exists() && GameFixDatabase.hasFix(gameToUse)) {
+                GameFixDatabase.applyFix(gameToUse)
+                Log.info("[EmulationFragment] Auto-applied STORM SWITCH GameFix database profile for ${gameToUse.title}")
+            }
+
             val hasCustom = (gameToUse == args.game && args.custom) ||
-                            SettingsFile.getCustomSettingsFile(gameToUse).exists()
+                            customFile.exists()
 
             if (intentGame != null) {
                 runCatching { GameHelper.restoreContentForGame(gameToUse) }

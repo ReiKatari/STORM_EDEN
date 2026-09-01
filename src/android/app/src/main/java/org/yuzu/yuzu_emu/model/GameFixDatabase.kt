@@ -379,6 +379,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )
@@ -399,6 +400,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )
@@ -419,6 +421,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
+                "Cpu\\cpu_backend" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )

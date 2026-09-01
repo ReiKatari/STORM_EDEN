@@ -327,6 +327,10 @@ struct System::Impl {
         // Expose program id to dump sites and other global readers.
         Settings::SetCurrentProgramID(params.program_id);
 
+        // Automatically apply per-game database optimizations across all platforms (Windows, Android, Linux)
+        Core::GameFixDatabase::ApplyProfileDirectly(params.program_id);
+        ReinitializeIfNecessary(system);
+
         // Track launch time for frontend launches
         LaunchTimestampCache::SaveLaunchTimestamp(params.program_id);
 

@@ -379,6 +379,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_backend", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Cpu\\cpu_accuracy", "1"}
         }
@@ -399,6 +400,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_backend", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Cpu\\cpu_accuracy", "1"}
         }
@@ -419,6 +421,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
+            {"Cpu\\cpu_backend", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Cpu\\cpu_accuracy", "1"}
         }

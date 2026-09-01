@@ -1308,7 +1308,8 @@ void KProcess::InitializeInterfaces(KernelCore& kernel) {
         Core::MakeExclusiveMonitor(this->GetMemory(), Core::Hardware::NUM_CPU_CORES);
 
 #ifdef HAS_NCE
-    if (this->IsApplication() && Settings::IsNceEnabled()) {
+    const bool is_dynarmic_selected = (Settings::values.cpu_backend.GetValue() == Settings::CpuBackend::Dynarmic);
+    if (this->IsApplication() && Settings::IsNceEnabled() && !is_dynarmic_selected) {
         for (size_t i = 0; i < Core::Hardware::NUM_CPU_CORES; i++)
             m_arm_interfaces[i] = std::make_unique<Core::ArmNce>(kernel.System(), true, i);
     } else

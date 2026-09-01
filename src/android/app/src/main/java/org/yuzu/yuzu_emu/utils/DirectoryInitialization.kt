@@ -4,6 +4,7 @@
 package org.yuzu.yuzu_emu.utils
 
 import androidx.preference.PreferenceManager
+import java.io.File
 import java.io.IOException
 import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.YuzuApplication
@@ -40,8 +41,18 @@ object DirectoryInitialization {
 
     private fun initializeInternalStorage() {
         try {
+            // Automatically initialize shared root directory /storage/emulated/0/STORM SWITCH
+            val rootExternal = File(android.os.Environment.getExternalStorageDirectory(), "STORM SWITCH")
+            if (rootExternal.exists() || rootExternal.mkdirs()) {
+                listOf("keys", "config", "config/custom", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
+                    File(rootExternal, sub).mkdirs()
+                }
+            }
             val baseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
             userPath = baseDir.canonicalPath
+            listOf("keys", "config", "config/custom", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
+                File(baseDir, sub).mkdirs()
+            }
             NativeLibrary.setAppDirectory(userPath!!)
         } catch (e: Throwable) {
             CrashHandler.logError(YuzuApplication.appContext, "DirectoryInitialization.initializeInternalStorage", e)

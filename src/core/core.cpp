@@ -18,6 +18,7 @@
 #include "core/core.h"
 
 #include "launch_timestamp_cache.h"
+#include "core/hle/service/game_fix_database.h"
 #include "core/core_timing.h"
 #include "core/cpu_manager.h"
 #include "core/debugger/debugger.h"
@@ -325,6 +326,7 @@ struct System::Impl {
 
         // Expose program id to dump sites and other global readers.
         Settings::SetCurrentProgramID(params.program_id);
+        Core::GameFixDatabase::ApplyProfileDirectly(params.program_id);
 
         // Track launch time for frontend launches
         LaunchTimestampCache::SaveLaunchTimestamp(params.program_id);

@@ -16,6 +16,7 @@
 #include "core/hle/kernel/k_page_table.h"
 #include "core/hle/kernel/k_process.h"
 #include "core/hle/service/filesystem/filesystem.h"
+#include "core/hle/service/game_fix_database.h"
 #include "core/loader/deconstructed_rom_directory.h"
 #include "core/loader/nso.h"
 
@@ -187,6 +188,18 @@ AppLoader_DeconstructedRomDirectory::LoadResult AppLoader_DeconstructedRomDirect
     const bool is_39bit =
         metadata.GetAddressSpaceType() == FileSys::ProgramAddressSpaceType::Is39Bit;
     const bool is_application = metadata.GetPoolPartition() == FileSys::PoolPartition::Application;
+
+    u64 target_program_id = metadata.GetTitleID();
+    if (target_program_id == 0) {
+        target_program_id = this->title_id;
+    }
+    if (target_program_id == 0) {
+        target_program_id = Settings::GetCurrentProgramID();
+    }
+    if (target_program_id != 0) {
+        Core::GameFixDatabase::ApplyProfileDirectly(target_program_id);
+    }
+
     Settings::SetNceEnabled(is_39bit);
 
     const std::array static_modules = {"rtld",    "main",    "subsdk0", "subsdk1", "subsdk2",

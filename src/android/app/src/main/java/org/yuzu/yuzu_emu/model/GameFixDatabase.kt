@@ -366,61 +366,37 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100650017170000L,
             "Animal Well",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и вычислений памяти Fastmem",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and Fastmem address resilience",
-            "✓ Процессор: Точная эмуляция (NCE на ARM64)\n✓ Точность GPU: Обычная (плавные 60 кадров/с)\n✓ Пересжатие ASTC: Без сжатия\n✓ Асинхронные шейдеры: Отключено (устранение конфликта сэмплеров)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память Fastmem: Включено\n✓ Динамическое состояние: Базовое (EDS 1)\n✓ Конфигурация памяти: 4 ГБ DRAM",
-            "✓ CPU Backend: Accurate (NCE on ARM64)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS 1)\n✓ Memory Layout: 4GB DRAM",
+            "• Просадки кадровой частоты и пропадание звуковых дорожек",
+            "• Frame drops and missing audio tracks on startup",
+            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\astc_recompression" to "0",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\use_vulkan_driver_pipeline_cache" to "false",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\dyna_state" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Cpu\\cpu_accuracy" to "0"
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
         GameFixProfile(
             0x010020D01AD24000L,
             "Animal Well (Alt 1)",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и вычислений памяти Fastmem",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and Fastmem address resilience",
-            "✓ Процессор: Точная эмуляция (NCE на ARM64)\n✓ Точность GPU: Обычная (плавные 60 кадров/с)\n✓ Пересжатие ASTC: Без сжатия\n✓ Асинхронные шейдеры: Отключено (устранение конфликта сэмплеров)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память Fastmem: Включено\n✓ Динамическое состояние: Базовое (EDS 1)\n✓ Конфигурация памяти: 4 ГБ DRAM",
-            "✓ CPU Backend: Accurate (NCE on ARM64)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS 1)\n✓ Memory Layout: 4GB DRAM",
+            "• Просадки кадровой частоты и пропадание звуковых дорожек",
+            "• Frame drops and missing audio tracks on startup",
+            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\astc_recompression" to "0",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\use_vulkan_driver_pipeline_cache" to "false",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\dyna_state" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Cpu\\cpu_accuracy" to "0"
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
         GameFixProfile(
             0x0100C9E01B854000L,
             "Animal Well (Alt 2)",
-            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и вычислений памяти Fastmem",
-            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and Fastmem address resilience",
-            "✓ Процессор: Точная эмуляция (NCE на ARM64)\n✓ Точность GPU: Обычная (плавные 60 кадров/с)\n✓ Пересжатие ASTC: Без сжатия\n✓ Асинхронные шейдеры: Отключено (устранение конфликта сэмплеров)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память Fastmem: Включено\n✓ Динамическое состояние: Базовое (EDS 1)\n✓ Конфигурация памяти: 4 ГБ DRAM",
-            "✓ CPU Backend: Accurate (NCE on ARM64)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS 1)\n✓ Memory Layout: 4GB DRAM",
+            "• Просадки кадровой частоты и пропадание звуковых дорожек",
+            "• Frame drops and missing audio tracks on startup",
+            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "0",
-                "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\astc_recompression" to "0",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\use_vulkan_driver_pipeline_cache" to "false",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\dyna_state" to "1",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Cpu\\cpu_accuracy" to "0"
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
         GameFixProfile(
@@ -441,23 +417,16 @@ object GameFixDatabase {
         GameFixProfile(
             0x010015100B514000L,
             "Super Mario Bros. Wonder",
-            "• Зависание сетевых служб аутентификации acc:u0 (BaaS / Live Shadows)\n• Нехватка гостевой памяти при стандартной раскладке 4 ГБ\n• Ошибки декодирования ASTC-текстур эффектов Чудо-цветка\n• Вылет видеодрайвера Vulkan на расширенном динамическом состоянии",
-            "• Network service handshake hang on acc:u0 (BaaS / Live Shadows)\n• Out of memory (DRAM Overflow) with default 4GB layout\n• Wonder Flower transformation ASTC decoding corruption\n• Adreno driver crash on extended dynamic state",
-            "✓ Режим полёта: Включено (пропуск сетевых запросов)\n✓ Конфигурация памяти: 6 ГБ DRAM (предотвращение переполнения памяти)\n✓ Динамическое состояние: Базовое (EDS 1 — защита от сбоя драйвера)\n✓ Точность GPU: Обычная (стабильный конвейер без сбоев драйвера)\n✓ Пересжатие ASTC: Без сжатия\n✓ Быстрое время GPU: Отключено\n✓ Кэш драйвера Vulkan: Отключено\n✓ Быстрая память Fastmem: Включено\n✓ Асинхронные шейдеры: Отключено (стабильный старт)\n✓ Точность процессора: Точная",
-            "✓ Airplane Mode: Enabled (Bypasses network handshake)\n✓ Memory Layout: 6GB DRAM (Prevents DRAM Overflow)\n✓ Dynamic State: Basic (EDS 1 — Prevents Adreno driver crash)\n✓ GPU Accuracy: Normal (Stable pipeline without driver hang)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Vulkan Driver Pipeline Cache: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Disabled (Stable boot)\n✓ CPU Accuracy: Accurate",
+            "• Вылет при переходе уровней и активации Чудо-цветка (нехватка стандартной памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
+            "• Crash on stage transitions and Wonder Flower effects (4GB memory limit)\n• Shader compilation stutter on character animations",
+            "✓ Конфигурация памяти: 6 ГБ DRAM (предотвращение переполнения памяти)\n✓ Точность GPU: Обычная (Normal 60 FPS)\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents memory overflow)\n✓ GPU Accuracy: Normal (Smooth 60 FPS)\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
-                "System\\airplane_mode" to "true",
                 "System\\memory_layout_mode" to "1",
-                "Renderer\\dyna_state" to "1",
                 "Renderer\\gpu_accuracy" to "0",
-                "Renderer\\astc_recompression" to "0",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\use_vulkan_driver_pipeline_cache" to "false",
-                "Renderer\\use_asynchronous_shaders" to "false",
-                "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\enable_compute_pipelines" to "false",
-                "Cpu\\cpuopt_fastmem" to "true",
-                "Cpu\\cpu_accuracy" to "0"
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Cpu\\cpuopt_fastmem" to "true"
             )
         ),
 

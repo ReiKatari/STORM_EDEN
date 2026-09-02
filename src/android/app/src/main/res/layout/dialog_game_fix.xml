@@ -89,9 +89,9 @@
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="14dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#1f1118"
-                app:strokeColor="#f87171"
-                app:strokeWidth="1dp">
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="#EF4444"
+                app:strokeWidth="1.2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -110,7 +110,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_info_outline"
-                            app:tint="#f87171"
+                            app:tint="#EF4444"
                             android:layout_marginEnd="8dp" />
 
                         <com.google.android.material.textview.MaterialTextView
@@ -119,7 +119,7 @@
                             android:text="@string/game_fix_issues_header"
                             android:textSize="13.5sp"
                             android:textStyle="bold"
-                            android:textColor="#f87171" />
+                            android:textColor="#EF4444" />
 
                     </LinearLayout>
 
@@ -130,7 +130,7 @@
                         tools:text="• Известные проблемы и сбои игры"
                         android:textSize="12.5sp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="#fca5a5" />
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                 </LinearLayout>
 
@@ -143,9 +143,9 @@
                 android:layout_marginBottom="14dp"
                 app:cardCornerRadius="14dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#0b201a"
-                app:strokeColor="#34d399"
-                app:strokeWidth="1dp">
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1.2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -164,7 +164,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_check"
-                            app:tint="#34d399"
+                            app:tint="?attr/colorPrimary"
                             android:layout_marginEnd="8dp" />
 
                         <com.google.android.material.textview.MaterialTextView
@@ -173,7 +173,7 @@
                             android:text="@string/game_fix_recommended_header"
                             android:textSize="13.5sp"
                             android:textStyle="bold"
-                            android:textColor="#34d399" />
+                            android:textColor="?attr/colorPrimary" />
 
                     </LinearLayout>
 
@@ -184,7 +184,7 @@
                         tools:text="✓ Рекомендуемые настройки STORM SWITCH"
                         android:textSize="12.5sp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="#6ee7b7" />
+                        android:textColor="?attr/colorOnSurface" />
 
                 </LinearLayout>
 
@@ -202,13 +202,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="@string/game_fix_apply_and_launch"
-                    android:textColor="#ffffff"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
                     app:backgroundTint="?attr/colorPrimary"
                     app:cornerRadius="12dp"
                     app:icon="@drawable/ic_settings"
-                    app:iconTint="#ffffff"
+                    app:iconTint="?attr/colorOnPrimary"
                     app:iconSize="18dp"
                     android:layout_marginBottom="8dp" />
 
@@ -218,6 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:text="@string/game_fix_skip_and_launch"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"
                     app:cornerRadius="12dp" />
 

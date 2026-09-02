@@ -102,14 +102,21 @@ static void ApplyLightLimiterEffect(const LightLimiterInfo::ParameterVersion2& p
                 state.compression_gain[channel] +=
                     (attenuation - state.compression_gain[channel]) * coeff;
 
-                auto lookahead_sample{
-                    state.look_ahead_sample_buffers[channel]
-                                                   [state.look_ahead_sample_offsets[channel]]};
+                if (channel >= state.look_ahead_sample_buffers.size() ||
+                    state.look_ahead_sample_buffers[channel].empty() ||
+                    state.look_ahead_sample_buffers[channel].data() == nullptr ||
+                    params.look_ahead_samples_min <= 0) {
+                    outputs[channel][sample_index] = inputs[channel][sample_index];
+                    continue;
+                }
 
-                state.look_ahead_sample_buffers[channel][state.look_ahead_sample_offsets[channel]] =
-                    sample;
+                const auto buf_size = state.look_ahead_sample_buffers[channel].size();
+                const auto offset = static_cast<size_t>(state.look_ahead_sample_offsets[channel]) % buf_size;
+                auto lookahead_sample{state.look_ahead_sample_buffers[channel][offset]};
+
+                state.look_ahead_sample_buffers[channel][offset] = sample;
                 state.look_ahead_sample_offsets[channel] =
-                    (state.look_ahead_sample_offsets[channel] + 1) % params.look_ahead_samples_min;
+                    static_cast<s32>((offset + 1) % params.look_ahead_samples_min);
 
                 outputs[channel][sample_index] = static_cast<s32>(
                     std::clamp((lookahead_sample * state.compression_gain[channel] *
@@ -127,9 +134,12 @@ static void ApplyLightLimiterEffect(const LightLimiterInfo::ParameterVersion2& p
             }
         }
     } else {
-        for (u32 i = 0; i < params.channel_count; i++) {
-            if (params.inputs[i] != params.outputs[i]) {
-                std::memcpy(outputs[i].data(), inputs[i].data(), outputs[i].size_bytes());
+        for (u32 i = 0; i < params.channel_count && i < inputs.size() && i < outputs.size(); i++) {
+            if (!inputs[i].empty() && !outputs[i].empty() &&
+                inputs[i].data() != nullptr && outputs[i].data() != nullptr &&
+                params.inputs[i] != params.outputs[i]) {
+                std::memcpy(outputs[i].data(), inputs[i].data(),
+                            (std::min)(outputs[i].size_bytes(), inputs[i].size_bytes()));
             }
         }
     }
@@ -174,10 +184,26 @@ void LightLimiterVersion1Command::Process(const AudioRenderer::CommandListProces
     }
 
     if (effect_enabled) {
-        if (parameter.state == LightLimiterInfo::ParameterState::Updating) {
-            UpdateLightLimiterEffectParameter(parameter, *state_);
-        } else if (parameter.state == LightLimiterInfo::ParameterState::Initialized) {
+        bool needs_init = (parameter.state == LightLimiterInfo::ParameterState::Initialized);
+        if (!needs_init) {
+            for (u32 i = 0; i < channels; i++) {
+                if (state_->look_ahead_sample_buffers[i].empty() || state_->look_ahead_sample_buffers[i].data() == nullptr) {
+                    needs_init = true;
+                    break;
+                }
+            }
+        }
+        if (needs_init) {
             InitializeLightLimiterEffect(parameter, *state_, workbuffer);
+        } else if (parameter.state == LightLimiterInfo::ParameterState::Updating) {
+            UpdateLightLimiterEffectParameter(parameter, *state_);
+        }
+    }
+
+    for (u32 i = 0; i < channels; i++) {
+        if (input_buffers[i].empty() || output_buffers[i].empty() ||
+            input_buffers[i].data() == nullptr || output_buffers[i].data() == nullptr) {
+            return;
         }
     }
 
@@ -229,15 +255,25 @@ void LightLimiterVersion2Command::Process(const AudioRenderer::CommandListProces
     }
 
     if (effect_enabled) {
-        if (parameter.state == LightLimiterInfo::ParameterState::Updating) {
-            UpdateLightLimiterEffectParameter(parameter, *state_);
-        } else if (parameter.state == LightLimiterInfo::ParameterState::Initialized) {
+        bool needs_init = (parameter.state == LightLimiterInfo::ParameterState::Initialized);
+        if (!needs_init) {
+            for (u32 i = 0; i < channels; i++) {
+                if (state_->look_ahead_sample_buffers[i].empty() || state_->look_ahead_sample_buffers[i].data() == nullptr) {
+                    needs_init = true;
+                    break;
+                }
+            }
+        }
+        if (needs_init) {
             InitializeLightLimiterEffect(parameter, *state_, workbuffer);
+        } else if (parameter.state == LightLimiterInfo::ParameterState::Updating) {
+            UpdateLightLimiterEffectParameter(parameter, *state_);
         }
     }
 
     for (u32 channel = 0; channel < channels; channel++) {
-        if (input_buffers[channel].empty() || output_buffers[channel].empty()) {
+        if (input_buffers[channel].empty() || output_buffers[channel].empty() ||
+            input_buffers[channel].data() == nullptr || output_buffers[channel].data() == nullptr) {
             return;
         }
     }

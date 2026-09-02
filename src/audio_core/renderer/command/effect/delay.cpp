@@ -247,21 +247,36 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
     }
 
     if (effect_enabled) {
-        if (parameter.state == DelayInfo::ParameterState::Updating) {
-            if (state_->delay_lines[0].buffer.empty()) {
-                InitializeDelayEffect(parameter, *state_, workbuffer);
-            } else {
-                SetDelayEffectParameter(parameter, *state_);
+        bool needs_init = (parameter.state == DelayInfo::ParameterState::Initialized);
+        if (!needs_init) {
+            for (s16 c = 0; c < channels; c++) {
+                if (state_->delay_lines[c].buffer.empty() || state_->delay_lines[c].buffer.data() == nullptr) {
+                    needs_init = true;
+                    break;
+                }
             }
-        } else if (parameter.state == DelayInfo::ParameterState::Initialized ||
-                   state_->delay_lines[0].buffer.empty()) {
+        }
+        if (needs_init) {
             InitializeDelayEffect(parameter, *state_, workbuffer);
+        } else if (parameter.state == DelayInfo::ParameterState::Updating) {
+            SetDelayEffectParameter(parameter, *state_);
         }
     }
 
-    if (!effect_enabled || state_->delay_lines[0].buffer.empty()) {
-        for (s16 channel = 0; channel < channels; channel++) {
-            if (input_buffers[channel].data() && output_buffers[channel].data() &&
+    bool valid = effect_enabled;
+    if (valid) {
+        for (s16 c = 0; c < channels; c++) {
+            if (state_->delay_lines[c].buffer.empty() || state_->delay_lines[c].buffer.data() == nullptr) {
+                valid = false;
+                break;
+            }
+        }
+    }
+
+    if (!valid) {
+        for (s16 channel = 0; channel < channels && static_cast<size_t>(channel) < input_buffers.size() && static_cast<size_t>(channel) < output_buffers.size(); channel++) {
+            if (!input_buffers[channel].empty() && !output_buffers[channel].empty() &&
+                input_buffers[channel].data() != nullptr && output_buffers[channel].data() != nullptr &&
                 input_buffers[channel].data() != output_buffers[channel].data()) {
                 std::memcpy(output_buffers[channel].data(), input_buffers[channel].data(),
                             (std::min)(output_buffers[channel].size_bytes(),
@@ -272,7 +287,8 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
     }
 
     for (s16 channel = 0; channel < channels; channel++) {
-        if (input_buffers[channel].empty() || output_buffers[channel].empty()) {
+        if (input_buffers[channel].empty() || output_buffers[channel].empty() ||
+            input_buffers[channel].data() == nullptr || output_buffers[channel].data() == nullptr) {
             return;
         }
     }

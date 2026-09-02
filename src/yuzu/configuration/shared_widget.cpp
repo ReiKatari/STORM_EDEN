@@ -134,7 +134,8 @@ QWidget* Widget::CreateCombobox(std::function<std::string()>& serializer,
     const auto type = setting.EnumIndex();
 
     combobox = new QComboBox(this);
-    combobox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    combobox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    combobox->setMinimumHeight(28);
 
     const ComboboxTranslations* enumeration{nullptr};
     if (combobox_enumerations.contains(type)) {

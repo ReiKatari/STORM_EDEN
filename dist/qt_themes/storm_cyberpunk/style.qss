@@ -1,4 +1,4 @@
-﻿/*
+/*
  * STORM CYBERPUNK Stylesheet - Cyberpunk 2077 Night City Yellow, Cyan & Neon Theme
  * Exclusively for STORM SWITCH 3
  */
@@ -205,11 +205,12 @@ QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleS
 
 /* Combo Box */
 QComboBox {
-    background-color: #0d0f17;
-    color: #e0e6ed;
-    border: 1px solid #222940;
+    background-color: #0d0814;
+    color: #f1f5f9;
+    border: 1px solid #2d123d;
     border-radius: 6px;
-    padding: 6px 12px;
+    padding: 2px 10px;
+    min-height: 24px;
     min-width: 6em;
 }
 

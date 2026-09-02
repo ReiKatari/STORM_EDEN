@@ -501,12 +501,38 @@ void ReverbCommand::Process(const AudioRenderer::CommandListProcessor& processor
         }
     }
 
-    if (!effect_enabled || state_->fdn_delay_lines[0].buffer.empty() ||
-        state_->fdn_delay_lines[0].output == nullptr ||
-        state_->decay_delay_lines[0].output == nullptr) {
+    bool valid = effect_enabled && !state_->pre_delay_line.buffer.empty() &&
+                 state_->pre_delay_line.output != nullptr &&
+                 state_->pre_delay_line.input != nullptr &&
+                 !state_->center_delay_line.buffer.empty() &&
+                 state_->center_delay_line.output != nullptr &&
+                 state_->center_delay_line.input != nullptr;
+    if (valid) {
+        for (u32 i = 0; i < ReverbInfo::MaxDelayLines; i++) {
+            if (state_->decay_delay_lines[i].buffer.empty() ||
+                state_->decay_delay_lines[i].output == nullptr ||
+                state_->decay_delay_lines[i].input == nullptr ||
+                state_->fdn_delay_lines[i].buffer.empty() ||
+                state_->fdn_delay_lines[i].output == nullptr ||
+                state_->fdn_delay_lines[i].input == nullptr) {
+                valid = false;
+                break;
+            }
+        }
+    }
+
+    if (!valid) {
         ApplyReverbEffectBypass(input_buffers, output_buffers, channels,
                                 processor.sample_count);
         return;
+    }
+
+    for (u32 i = 0; i < channels; i++) {
+        if (input_buffers[i].empty() || output_buffers[i].empty()) {
+            ApplyReverbEffectBypass(input_buffers, output_buffers, channels,
+                                    processor.sample_count);
+            return;
+        }
     }
 
     ApplyReverbEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,

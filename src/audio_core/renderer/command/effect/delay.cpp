@@ -271,6 +271,12 @@ void DelayCommand::Process(const AudioRenderer::CommandListProcessor& processor)
         return;
     }
 
+    for (s16 channel = 0; channel < channels; channel++) {
+        if (input_buffers[channel].empty() || output_buffers[channel].empty()) {
+            return;
+        }
+    }
+
     ApplyDelayEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,
                      processor.sample_count);
 }

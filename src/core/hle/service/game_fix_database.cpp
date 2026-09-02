@@ -75,7 +75,7 @@ static const std::vector<GameFixProfile> s_profiles = {
     },
     {
         0x0100D1801648E000ULL,
-        "Hogwarts Legacy (Alt)",
+        "Hogwarts Legacy",
         "• Вылет из-за нехватки памяти при загрузке замка Хогвартс\n• Высокое потребление ОЗУ (>8.5 ГБ) на мобильных чипах",
         "• Out of memory (OOM) crash when loading Hogwarts Castle\n• High RAM consumption (>8.5 GB) on mobile SoCs",
         "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: Отключено\n✓ Режим памяти: 8GB DRAM",
@@ -108,7 +108,7 @@ static const std::vector<GameFixProfile> s_profiles = {
     },
     {
         0x0100726014352000ULL,
-        "Diablo II: Resurrected (Alt)",
+        "Diablo II: Resurrected",
         "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
         "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
         "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
@@ -368,35 +368,35 @@ static const std::vector<GameFixProfile> s_profiles = {
         "Animal Well",
         "• Просадки кадровой частоты и пропадание звуковых дорожек",
         "• Frame drops and missing audio tracks on startup",
-        "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+        "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
         {
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Cpu\\cpuopt_fastmem", "true"}
+            {"Cpu\\cpuopt_fastmem", "false"}
         }
     },
     {
         0x010020D01AD24000ULL,
-        "Animal Well (Alt 1)",
+        "Animal Well",
         "• Просадки кадровой частоты и пропадание звуковых дорожек",
         "• Frame drops and missing audio tracks on startup",
-        "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+        "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
         {
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Cpu\\cpuopt_fastmem", "true"}
+            {"Cpu\\cpuopt_fastmem", "false"}
         }
     },
     {
         0x0100C9E01B854000ULL,
-        "Animal Well (Alt 2)",
+        "Animal Well",
         "• Просадки кадровой частоты и пропадание звуковых дорожек",
         "• Frame drops and missing audio tracks on startup",
-        "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+        "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
         {
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Cpu\\cpuopt_fastmem", "true"}
+            {"Cpu\\cpuopt_fastmem", "false"}
         }
     },
     {
@@ -415,7 +415,7 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
     {
-        0x010015100B514000ULL,
+        0x010015100B5B4000ULL,
         "Super Mario Bros. Wonder",
         "• Вылет при переходе уровней и активации Чудо-цветка (нехватка стандартной памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
         "• Crash on stage transitions and Wonder Flower effects (4GB memory limit)\n• Shader compilation stutter on character animations",
@@ -2090,7 +2090,7 @@ static const std::vector<GameFixProfile> s_profiles = {
     },
     {
         0x0100D2800D5C2000ULL,
-        "Mortal Kombat 1 (Alt)",
+        "Mortal Kombat 1",
         "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
         "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
         "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",

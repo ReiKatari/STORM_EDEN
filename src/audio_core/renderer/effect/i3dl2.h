@@ -79,17 +79,22 @@ public:
         }
 
         void SetDelay(const s32 delay_time) {
-            if (buffer.empty() || buffer.data() == nullptr || max_delay < delay_time) {
+            if (buffer.empty() || buffer.data() == nullptr || buffer_end == nullptr || max_delay < delay_time || max_delay < 0) {
                 return;
             }
             delay = delay_time;
             const auto output_offset =
-                (output && output >= buffer.data()) ? (output - buffer.data()) : 0;
-            input = &buffer[(output_offset + delay) % (max_delay + 1)];
+                (output && output >= buffer.data() && output < buffer_end) ? (output - buffer.data()) : 0;
+            const size_t target_idx = static_cast<size_t>((output_offset + delay) % (max_delay + 1));
+            if (target_idx < buffer.size()) {
+                input = &buffer[target_idx];
+            } else {
+                input = buffer.data();
+            }
         }
 
         Common::FixedPoint<50, 14> Tick(const Common::FixedPoint<50, 14> sample) {
-            if (buffer.empty() || output == nullptr || input == nullptr) {
+            if (buffer.empty() || output == nullptr || input == nullptr || buffer.data() == nullptr || buffer_end == nullptr) {
                 return sample;
             }
             Write(sample);
@@ -97,7 +102,7 @@ public:
             auto out_sample{Read()};
 
             output++;
-            if (output >= buffer_end) {
+            if (output >= buffer_end || output < buffer.data()) {
                 output = buffer.data();
             }
 
@@ -105,15 +110,21 @@ public:
         }
 
         Common::FixedPoint<50, 14> Read() const {
-            if (buffer.empty() || output == nullptr) {
+            if (buffer.empty() || output == nullptr || buffer.data() == nullptr || buffer_end == nullptr) {
                 return 0;
+            }
+            if (output < buffer.data() || output >= buffer_end) {
+                return *buffer.data();
             }
             return *output;
         }
 
         void Write(const Common::FixedPoint<50, 14> sample) {
-            if (buffer.empty() || input == nullptr) {
+            if (buffer.empty() || input == nullptr || buffer.data() == nullptr || buffer_end == nullptr) {
                 return;
+            }
+            if (input < buffer.data() || input >= buffer_end) {
+                input = buffer.data();
             }
             *input = sample;
             input++;
@@ -123,7 +134,10 @@ public:
         }
 
         Common::FixedPoint<50, 14> TapOut(const s32 index) const {
-            if (buffer.empty() || input == nullptr || buffer.data() == nullptr) {
+            if (buffer.empty() || input == nullptr || buffer.data() == nullptr || buffer_end == nullptr) {
+                return 0;
+            }
+            if (input < buffer.data() || input >= buffer_end) {
                 return 0;
             }
             auto out{input - (index + 1)};

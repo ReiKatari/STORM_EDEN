@@ -229,7 +229,8 @@ static void ApplyI3dl2ReverbEffectBypass(std::span<std::span<const s32>> inputs,
                                          std::span<std::span<s32>> outputs, const u32 channel_count,
                                          [[maybe_unused]] const u32 sample_count) {
     for (u32 i = 0; i < channel_count && i < inputs.size() && i < outputs.size(); i++) {
-        if (!inputs[i].empty() && !outputs[i].empty() && inputs[i].data() != outputs[i].data()) {
+        if (!inputs[i].empty() && !outputs[i].empty() && inputs[i].data() != nullptr &&
+            outputs[i].data() != nullptr && inputs[i].data() != outputs[i].data()) {
             std::memcpy(outputs[i].data(), inputs[i].data(),
                         (std::min)(outputs[i].size_bytes(), inputs[i].size_bytes()));
         }
@@ -492,12 +493,41 @@ void I3dl2ReverbCommand::Process(const AudioRenderer::CommandListProcessor& proc
         }
     }
 
-    if (!effect_enabled || state_->early_delay_line.buffer.empty() ||
-        state_->early_delay_line.output == nullptr ||
-        state_->decay_delay_lines0[0].output == nullptr) {
+    bool valid = effect_enabled && !state_->early_delay_line.buffer.empty() &&
+                 state_->early_delay_line.output != nullptr &&
+                 state_->early_delay_line.input != nullptr &&
+                 !state_->center_delay_line.buffer.empty() &&
+                 state_->center_delay_line.output != nullptr &&
+                 state_->center_delay_line.input != nullptr;
+    if (valid) {
+        for (u32 i = 0; i < I3dl2ReverbInfo::MaxDelayLines; i++) {
+            if (state_->decay_delay_lines0[i].buffer.empty() ||
+                state_->decay_delay_lines0[i].output == nullptr ||
+                state_->decay_delay_lines0[i].input == nullptr ||
+                state_->decay_delay_lines1[i].buffer.empty() ||
+                state_->decay_delay_lines1[i].output == nullptr ||
+                state_->decay_delay_lines1[i].input == nullptr ||
+                state_->fdn_delay_lines[i].buffer.empty() ||
+                state_->fdn_delay_lines[i].output == nullptr ||
+                state_->fdn_delay_lines[i].input == nullptr) {
+                valid = false;
+                break;
+            }
+        }
+    }
+
+    if (!valid) {
         ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, channels,
                                      processor.sample_count);
         return;
+    }
+
+    for (u32 i = 0; i < channels; i++) {
+        if (input_buffers[i].empty() || output_buffers[i].empty()) {
+            ApplyI3dl2ReverbEffectBypass(input_buffers, output_buffers, channels,
+                                         processor.sample_count);
+            return;
+        }
     }
 
     ApplyI3dl2ReverbEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,

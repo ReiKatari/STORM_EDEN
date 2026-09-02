@@ -88,7 +88,7 @@ object GameFixDatabase {
         ),
         GameFixProfile(
             0x0100D1801648E000L,
-            "Hogwarts Legacy (Alt)",
+            "Hogwarts Legacy",
             "• Вылет из-за нехватки памяти при загрузке замка Хогвартс\n• Высокое потребление ОЗУ (>8.5 ГБ) на мобильных чипах",
             "• Out of memory (OOM) crash when loading Hogwarts Castle\n• High RAM consumption (>8.5 GB) on mobile SoCs",
             "✓ Разрешение: Handheld 0.75X + FSR 80%\n✓ Сжатие текстур ASTC: Отключено\n✓ Режим памяти: 8GB DRAM",
@@ -100,7 +100,7 @@ object GameFixDatabase {
                 "System\\memory_layout_mode" to "2"
             )
         ),
-                GameFixProfile(
+        GameFixProfile(
             0x0100916014D8C000L,
             "Diablo II: Resurrected",
             "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
@@ -368,35 +368,35 @@ object GameFixDatabase {
             "Animal Well",
             "• Просадки кадровой частоты и пропадание звуковых дорожек",
             "• Frame drops and missing audio tracks on startup",
-            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
             mapOf(
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Cpu\\cpuopt_fastmem" to "false"
             )
         ),
         GameFixProfile(
             0x010020D01AD24000L,
-            "Animal Well (Alt 1)",
+            "Animal Well",
             "• Просадки кадровой частоты и пропадание звуковых дорожек",
             "• Frame drops and missing audio tracks on startup",
-            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
             mapOf(
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Cpu\\cpuopt_fastmem" to "false"
             )
         ),
         GameFixProfile(
             0x0100C9E01B854000L,
-            "Animal Well (Alt 2)",
+            "Animal Well",
             "• Просадки кадровой частоты и пропадание звуковых дорожек",
             "• Frame drops and missing audio tracks on startup",
-            "✓ Аудио-движок: Cubeb 48kHz\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Audio Engine: Cubeb 48kHz\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "✓ Аудио-движок: SDL2 / Cubeb\n✓ Быстрая память (Fastmem): Безопасный режим\n✓ Асинхронные шейдеры: Включено",
+            "✓ Audio Engine: SDL2 / Cubeb\n✓ Fastmem: Safe Mode\n✓ Asynchronous Shaders: Enabled",
             mapOf(
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Cpu\\cpuopt_fastmem" to "false"
             )
         ),
         GameFixProfile(
@@ -415,7 +415,7 @@ object GameFixDatabase {
             )
         ),
         GameFixProfile(
-            0x010015100B514000L,
+            0x010015100B5B4000L,
             "Super Mario Bros. Wonder",
             "• Вылет при переходе уровней и активации Чудо-цветка (нехватка стандартной памяти 4GB)\n• Микрофризы при компиляции анимаций персонажей",
             "• Crash on stage transitions and Wonder Flower effects (4GB memory limit)\n• Shader compilation stutter on character animations",
@@ -2082,7 +2082,7 @@ object GameFixDatabase {
         ),
         GameFixProfile(
             0x0100D2800D5C2000L,
-            "Mortal Kombat 1 (Alt)",
+            "Mortal Kombat 1",
             "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
             "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
             "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
@@ -3369,6 +3369,7 @@ object GameFixDatabase {
                 nameLower.contains("sparks of hope") -> listOf("sparks of hope", "01005ca00f966000")
                 nameLower.contains("splintered fate") || nameLower.contains("tmnt") -> listOf("splintered fate", "tmnt", "ninja turtles", "01005cf01e784000")
                 nameLower.contains("mario odyssey") -> listOf("odyssey", "mario odyssey", "0100000000010000")
+                nameLower.contains("wonder") -> listOf("wonder", "mario wonder", "010015100b5b4000")
                 nameLower.contains("metroid prime") -> listOf("metroid prime", "remastered", "0100121014688000")
                 nameLower.contains("animal crossing") -> listOf("animal crossing", "horizons", "01006f8002326000")
                 nameLower.contains("persona 5") -> listOf("persona 5", "p5r", "01000a10041ea000")

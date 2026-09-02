@@ -241,6 +241,9 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
     scheduler.RequestOutsideRenderPassOperationContext();
     scheduler.Record([this, source = *frame->image, extent, count,
                       dispatch = warm](vk::CommandBuffer cmdbuf) {
+        if (!chain) {
+            return;
+        }
         CopyPresentedFrame(cmdbuf, source, chain->Input(count), extent);
         if (dispatch) {
             chain->DispatchShared(cmdbuf, count);
@@ -270,6 +273,9 @@ size_t FrameGen::GeneratedFrameCount() const {
 }
 
 void FrameGen::GenerateInto(const Device& device, Frame* destination, size_t generation) {
+    if (!destination || !destination->storage_view || !destination->image || !chain) {
+        return;
+    }
     chain->SetTarget(device, last_generations, generation, destination->index,
                      *destination->storage_view);
 

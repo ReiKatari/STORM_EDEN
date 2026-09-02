@@ -283,7 +283,7 @@ endif()
 
 if (ENABLE_QT)
     add_subdirectory(qt_common)
-    add_subdirectory(yuzu)
+    add_subdirectory(storm_switch)
 endif()
 
 if (ENABLE_WEB_SERVICE)

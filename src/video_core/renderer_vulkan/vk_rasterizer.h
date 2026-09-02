@@ -160,7 +160,6 @@ private:
         0x010093801237C000ULL, // Metroid Dread
         0x01005AF00BA7A000ULL, // Metroid Dread (Alt)
         0x0100121014688000ULL, // Metroid Prime Remastered
-        0x010020D01AD24000ULL, // Animal Well
         0x01006560184E6000ULL, // Mortal Kombat 1
         0x0100726014352000ULL, // Diablo II: Resurrected
         0x0100916014D8C000ULL, // Diablo II: Resurrected (Alt)

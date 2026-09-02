@@ -236,6 +236,12 @@ void LightLimiterVersion2Command::Process(const AudioRenderer::CommandListProces
         }
     }
 
+    for (u32 channel = 0; channel < channels; channel++) {
+        if (input_buffers[channel].empty() || output_buffers[channel].empty()) {
+            return;
+        }
+    }
+
     auto statistics{reinterpret_cast<LightLimiterInfo::StatisticsInternal*>(result_state)};
     ApplyLightLimiterEffect(parameter, *state_, effect_enabled, input_buffers, output_buffers,
                             processor.sample_count, statistics);

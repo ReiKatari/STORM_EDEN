@@ -317,6 +317,8 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
     override fun onDestroy() {
         mainHandler.removeCallbacks(romSwapStopTimeoutRunnable)
+        val game = intent.getParcelableExtra<Game>(EXTRA_SELECTED_GAME)
+        org.yuzu.yuzu_emu.model.GameFixDatabase.cleanupSession(game)
         super.onDestroy()
         inputManager.unregisterInputDeviceListener(this)
         stopForegroundService(this)

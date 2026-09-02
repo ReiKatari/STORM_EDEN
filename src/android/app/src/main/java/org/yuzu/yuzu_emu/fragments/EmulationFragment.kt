@@ -305,16 +305,28 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private fun continueGameSetupAfterFix() {
         try {
             val gameToUse = game ?: return
-            val customFile = SettingsFile.getCustomSettingsFile(gameToUse)
+            val isUserCustom = GameFixDatabase.isUserCustomConfig(gameToUse)
+            val isFixRequested = (gameToUse == args.game && args.custom) || GameFixDatabase.isSessionFixActive(gameToUse)
 
-            // Automatically generate and apply per-game optimization profile if available
-            if (GameFixDatabase.hasFix(gameToUse)) {
+            if (isUserCustom) {
+                // Respect user manual per-game settings 100%
+                shouldUseCustom = true
+                SettingsFile.loadCustomConfig(gameToUse)
+                Log.info("[EmulationFragment] Loaded user manual per-game config for ${gameToUse.title}")
+            } else if (isFixRequested && GameFixDatabase.hasFix(gameToUse)) {
+                // Apply temporary GameFix profile for this session
+                shouldUseCustom = true
                 GameFixDatabase.applyFix(gameToUse)
-                Log.info("[EmulationFragment] Auto-applied STORM SWITCH GameFix database profile for ${gameToUse.title}")
+                SettingsFile.loadCustomConfig(gameToUse)
+                Log.info("[EmulationFragment] Loaded temporary GameFix profile for ${gameToUse.title}")
+            } else {
+                // Clean launch: remove any temporary fix file and use global config
+                shouldUseCustom = false
+                GameFixDatabase.cleanupSession(gameToUse)
+                NativeConfig.unloadPerGameConfig()
+                NativeConfig.reloadGlobalConfig()
+                Log.info("[EmulationFragment] Using clean global config for ${gameToUse.title}")
             }
-
-            val hasCustom = (gameToUse == args.game && args.custom) ||
-                            customFile.exists()
 
             if (intentGame != null) {
                 runCatching { GameHelper.restoreContentForGame(gameToUse) }
@@ -323,17 +335,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                             "[EmulationFragment] Failed to restore content for intent launch: ${it.message}"
                         )
                     }
-            }
-
-            if (hasCustom) {
-                shouldUseCustom = true
-                SettingsFile.loadCustomConfig(gameToUse)
-                Log.info("[EmulationFragment] Loaded custom per-game config for ${gameToUse.title}")
-            } else {
-                shouldUseCustom = false
-                NativeConfig.unloadPerGameConfig()
-                NativeConfig.reloadGlobalConfig()
-                Log.info("[EmulationFragment] Using clean global config for ${gameToUse.title}")
             }
         } catch (e: Exception) {
             Log.error("[EmulationFragment] Error loading configuration: ${e.message}")
@@ -1744,10 +1745,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
                     bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(frameData))
                     val picturesDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES)
-                    val edenDir = java.io.File(picturesDir, "STORM_EDEN")
-                    edenDir.mkdirs()
+                    val switchDir = java.io.File(picturesDir, "STORM_SWITCH")
+                    switchDir.mkdirs()
                     val fileName = "Screenshot_${System.currentTimeMillis()}.png"
-                    val outFile = java.io.File(edenDir, fileName)
+                    val outFile = java.io.File(switchDir, fileName)
                     java.io.FileOutputStream(outFile).use { out ->
                         bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
                     }
@@ -1908,7 +1909,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         _binding?.surfaceInputOverlay?.touchEventListener = null
         _binding = null
         isAmiiboPickerOpen = false
-        GameFixDatabase.clearActiveSessionFix()
+        GameFixDatabase.cleanupSession(game)
         try {
             NativeConfig.unloadPerGameConfig()
             NativeConfig.reloadGlobalConfig()
@@ -1916,7 +1917,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     }
 
     override fun onDetach() {
-        GameFixDatabase.clearActiveSessionFix()
+        GameFixDatabase.cleanupSession(game)
         try {
             NativeConfig.unloadPerGameConfig()
             NativeConfig.reloadGlobalConfig()

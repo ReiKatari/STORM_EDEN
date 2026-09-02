@@ -511,7 +511,7 @@ class HomeSettingsFragment : Fragment() {
             }
         }
         if (targetFile == null) {
-            val f = java.io.File(logDir, "storm_eden_log.txt")
+            val f = java.io.File(logDir, "storm_switch_log.txt")
             try {
                 f.writeText(buildString {
                     appendLine("=== STORM SWITCH v${NativeLibrary.getBuildVersion()} Debug Log ===")
@@ -552,12 +552,10 @@ class HomeSettingsFragment : Fragment() {
     private fun shareGpuLog() {
         val userDirStr: String? = DirectoryInitialization.userDirectory
         val gpuLogCandidates = listOf(
-            "storm_eden_gpu.log",
-            "storm_eden_gpu.log.old.txt",
-            "eden_gpu.log",
-            "eden_gpu.log.old.txt",
-            "freedreno.log",
-            "gpu.log"
+            "storm_switch_gpu.log",
+            "storm_switch_gpu.log.old.txt",
+            "gpu.log",
+            "freedreno.log"
         )
 
         var targetFile: java.io.File? = null
@@ -574,7 +572,7 @@ class HomeSettingsFragment : Fragment() {
             }
         }
         if (targetFile == null) {
-            val f = java.io.File(logDir, "storm_eden_gpu.log")
+            val f = java.io.File(logDir, "storm_switch_gpu.log")
             try {
                 f.writeText(buildString {
                     appendLine("=== STORM SWITCH v${NativeLibrary.getBuildVersion()} GPU Log ===")

@@ -3789,69 +3789,54 @@ bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
             }
         };
 
+        auto apply_if_global = [](auto& setting, auto val) {
+            if (setting.UsingGlobal()) {
+                setting.SetValue(val);
+                setting.SetGlobal(false);
+            }
+        };
+
         for (const auto& [full_key, val] : profile->ini_settings) {
             if (full_key == "Renderer\\gpu_accuracy") {
-                Settings::values.gpu_accuracy.SetValue(static_cast<Settings::GpuAccuracy>(safe_stoi(val, 0)));
-                Settings::values.gpu_accuracy.SetGlobal(false);
+                apply_if_global(Settings::values.gpu_accuracy, static_cast<Settings::GpuAccuracy>(safe_stoi(val, 0)));
             } else if (full_key == "Renderer\\barrier_feedback_loops") {
-                Settings::values.barrier_feedback_loops.SetValue(val == "true" || val == "1");
-                Settings::values.barrier_feedback_loops.SetGlobal(false);
+                apply_if_global(Settings::values.barrier_feedback_loops, val == "true" || val == "1");
             } else if (full_key == "Renderer\\use_reactive_flushing") {
-                Settings::values.use_reactive_flushing.SetValue(val == "true" || val == "1");
-                Settings::values.use_reactive_flushing.SetGlobal(false);
+                apply_if_global(Settings::values.use_reactive_flushing, val == "true" || val == "1");
             } else if (full_key == "Renderer\\astc_recompression") {
-                Settings::values.astc_recompression.SetValue(static_cast<Settings::AstcRecompression>(safe_stoi(val, 0)));
-                Settings::values.astc_recompression.SetGlobal(false);
+                apply_if_global(Settings::values.astc_recompression, static_cast<Settings::AstcRecompression>(safe_stoi(val, 0)));
             } else if (full_key == "Renderer\\use_asynchronous_shaders") {
-                Settings::values.use_asynchronous_shaders.SetValue(val == "true" || val == "1");
-                Settings::values.use_asynchronous_shaders.SetGlobal(false);
+                apply_if_global(Settings::values.use_asynchronous_shaders, val == "true" || val == "1");
             } else if (full_key == "Renderer\\max_anisotropy") {
-                Settings::values.max_anisotropy.SetValue(static_cast<Settings::AnisotropyMode>(safe_stoi(val, 0)));
-                Settings::values.max_anisotropy.SetGlobal(false);
+                apply_if_global(Settings::values.max_anisotropy, static_cast<Settings::AnisotropyMode>(safe_stoi(val, 0)));
             } else if (full_key == "Renderer\\resolution_setup") {
-                Settings::values.resolution_setup.SetValue(static_cast<Settings::ResolutionSetup>(safe_stoi(val, 2)));
-                Settings::values.resolution_setup.SetGlobal(false);
+                apply_if_global(Settings::values.resolution_setup, static_cast<Settings::ResolutionSetup>(safe_stoi(val, 2)));
             } else if (full_key == "Renderer\\fsr_sharpening_slider") {
-                Settings::values.fsr_sharpening_slider.SetValue(static_cast<u8>(safe_stoi(val, 0)));
-                Settings::values.fsr_sharpening_slider.SetGlobal(false);
+                apply_if_global(Settings::values.fsr_sharpening_slider, static_cast<u8>(safe_stoi(val, 0)));
             } else if (full_key == "Renderer\\use_fast_gpu_time") {
-                Settings::values.gpu_clock.SetValue(val == "true" || val == "1" ? Settings::GpuClock::Boost : Settings::GpuClock::Normal);
-                Settings::values.gpu_clock.SetGlobal(false);
+                apply_if_global(Settings::values.gpu_clock, val == "true" || val == "1" ? Settings::GpuClock::Boost : Settings::GpuClock::Normal);
             } else if (full_key == "Renderer\\dyna_state") {
-                Settings::values.dyna_state.SetValue(static_cast<Settings::ExtendedDynamicState>(safe_stoi(val, 0)));
-                Settings::values.dyna_state.SetGlobal(false);
+                apply_if_global(Settings::values.dyna_state, static_cast<Settings::ExtendedDynamicState>(safe_stoi(val, 0)));
             } else if (full_key == "System\\airplane_mode") {
-                Settings::values.airplane_mode.SetValue(val == "true" || val == "1");
-                Settings::values.airplane_mode.SetGlobal(false);
+                apply_if_global(Settings::values.airplane_mode, val == "true" || val == "1");
             } else if (full_key == "System\\memory_layout_mode") {
-                Settings::values.memory_layout_mode.SetValue(static_cast<Settings::MemoryLayout>(safe_stoi(val, 0)));
-                Settings::values.memory_layout_mode.SetGlobal(false);
+                apply_if_global(Settings::values.memory_layout_mode, static_cast<Settings::MemoryLayout>(safe_stoi(val, 0)));
             } else if (full_key == "System\\use_docked_mode") {
-                Settings::values.use_docked_mode.SetValue(static_cast<Settings::ConsoleMode>(safe_stoi(val, 0)));
-                Settings::values.use_docked_mode.SetGlobal(false);
+                apply_if_global(Settings::values.use_docked_mode, static_cast<Settings::ConsoleMode>(safe_stoi(val, 0)));
             } else if (full_key == "Cpu\\cpu_backend") {
-                Settings::values.cpu_backend.SetValue(static_cast<Settings::CpuBackend>(safe_stoi(val, 1)));
-                Settings::values.cpu_backend.SetGlobal(false);
+                apply_if_global(Settings::values.cpu_backend, static_cast<Settings::CpuBackend>(safe_stoi(val, 1)));
             } else if (full_key == "Cpu\\cpu_accuracy") {
-                Settings::values.cpu_accuracy.SetValue(static_cast<Settings::CpuAccuracy>(safe_stoi(val, 1)));
-                Settings::values.cpu_accuracy.SetGlobal(false);
+                apply_if_global(Settings::values.cpu_accuracy, static_cast<Settings::CpuAccuracy>(safe_stoi(val, 1)));
             } else if (full_key == "Cpu\\cpuopt_fastmem") {
-                Settings::values.cpuopt_fastmem.SetValue(val == "true" || val == "1");
-                Settings::values.cpuopt_fastmem.SetGlobal(false);
+                apply_if_global(Settings::values.cpuopt_fastmem, val == "true" || val == "1");
             } else if (full_key == "Renderer\\use_vulkan_driver_pipeline_cache") {
-                Settings::values.use_vulkan_driver_pipeline_cache.SetValue(val == "true" || val == "1");
-                Settings::values.use_vulkan_driver_pipeline_cache.SetGlobal(false);
+                apply_if_global(Settings::values.use_vulkan_driver_pipeline_cache, val == "true" || val == "1");
             } else if (full_key == "Renderer\\use_disk_shader_cache") {
-                Settings::values.use_disk_shader_cache.SetValue(val == "true" || val == "1");
-                Settings::values.use_disk_shader_cache.SetGlobal(false);
+                apply_if_global(Settings::values.use_disk_shader_cache, val == "true" || val == "1");
             } else if (full_key == "Renderer\\enable_compute_pipelines") {
-                Settings::values.enable_compute_pipelines.SetValue(val == "true" || val == "1");
-                Settings::values.enable_compute_pipelines.SetGlobal(false);
+                apply_if_global(Settings::values.enable_compute_pipelines, val == "true" || val == "1");
             } else if (full_key == "System\\eco_thermal_mode") {
-                Settings::values.eco_thermal_mode.SetValue(val == "true" || val == "1");
-                Settings::values.eco_thermal_mode.SetGlobal(false);
-            } else if (full_key == "Renderer\\barrier_feedback_loops") {
-                // Already handled above, skip duplicate
+                apply_if_global(Settings::values.eco_thermal_mode, val == "true" || val == "1");
             }
         }
         Settings::UpdateGPUAccuracy();

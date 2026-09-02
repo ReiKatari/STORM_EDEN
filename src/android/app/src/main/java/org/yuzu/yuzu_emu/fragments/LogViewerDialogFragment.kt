@@ -262,7 +262,7 @@ class LogViewerDialogFragment : DialogFragment() {
             try {
                 val timeStamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(java.util.Date())
                 val targetDir = File(requireContext().getExternalFilesDir(null), "logs").apply { mkdirs() }
-                val targetFile = File(targetDir, "STORM_EDEN_log_$timeStamp.txt")
+                val targetFile = File(targetDir, "STORM_SWITCH_log_$timeStamp.txt")
                 targetFile.writeText(textToSave, Charsets.UTF_8)
 
                 withContext(Dispatchers.Main) {
@@ -295,7 +295,7 @@ class LogViewerDialogFragment : DialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val cacheDir = requireContext().cacheDir
-                val shareFile = File(cacheDir, "storm_eden_log.txt")
+                val shareFile = File(cacheDir, "storm_switch_log.txt")
                 shareFile.writeText(textToShare, Charsets.UTF_8)
 
                 val uri: Uri = FileProvider.getUriForFile(
@@ -350,7 +350,7 @@ class LogViewerDialogFragment : DialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val cacheDir = requireContext().cacheDir
-                val shareFile = File(cacheDir, "storm_eden_log.txt")
+                val shareFile = File(cacheDir, "storm_switch_log.txt")
                 shareFile.writeText(textToShare, Charsets.UTF_8)
 
                 val uri: Uri = FileProvider.getUriForFile(

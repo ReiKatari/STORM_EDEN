@@ -75,6 +75,7 @@ class YuzuApplication : Application() {
 
         try {
             DirectoryInitialization.start()
+            org.yuzu.yuzu_emu.model.GameFixDatabase.cleanupAllTemporaryFixes()
         } catch (t: Throwable) {
             org.yuzu.yuzu_emu.utils.CrashHandler.logError(this, "DirectoryInitialization", t)
         }

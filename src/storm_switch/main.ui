@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -491,7 +491,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>🧩 &amp;Менеджер модов...</string>
+    <string>&amp;Менеджер модов...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

@@ -1,5 +1,8 @@
-﻿<RCC>
+<RCC>
     <qresource prefix="/storm_gothic">
+        <file>style.qss</file>
+    </qresource>
+    <qresource prefix="/storm_warhammer_40k">
         <file>style.qss</file>
     </qresource>
     <qresource prefix="/qss_icons">

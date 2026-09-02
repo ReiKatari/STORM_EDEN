@@ -2311,7 +2311,12 @@ static QIcon CreateVectorMenuIcon(const QString& icon_type, const QColor& accent
         f.setPixelSize(11);
         f.setBold(true);
         painter.setFont(f);
-        painter.drawText(QRect(0, 0, 18, 18), Qt::AlignCenter, QStringLiteral("?"));
+    } else if (icon_type == QStringLiteral("puzzle") || icon_type == QStringLiteral("mod")) {
+        painter.drawRoundedRect(3, 3, 12, 12, 2, 2);
+        painter.drawEllipse(7, 1, 4, 4);
+        painter.drawEllipse(13, 7, 4, 4);
+        painter.drawLine(9, 3, 9, 15);
+        painter.drawLine(3, 9, 15, 9);
     } else if (icon_type == QStringLiteral("info") || icon_type == QStringLiteral("about")) {
         painter.drawEllipse(2, 2, 14, 14);
         QFont f = painter.font();
@@ -2427,6 +2432,7 @@ void MainWindow::SetupMenuIcons() {
     apply_action(ui->action_Application_Menu, QStringLiteral("list"), col_indigo);
     apply_action(ui->action_Capture_Screenshot, QStringLiteral("screenshot"), col_pink);
     apply_action(ui->action_Translate_Screen, QStringLiteral("translate"), col_cyan);
+    apply_action(ui->action_Mod_Manager, QStringLiteral("puzzle"), col_purple);
     apply_action(ui->action_Cheats, QStringLiteral("lightning"), col_cyan);
     apply_menu(ui->menuTAS, QStringLiteral("tas"), col_lime);
     apply_action(ui->action_TAS_Start, QStringLiteral("play"), col_green);
@@ -5385,7 +5391,7 @@ void MainWindow::StartSilentCheatsSync() {
             const QString url_str = QString(QStringLiteral("https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/cheats/%1.json"))
                                         .arg(tid_hex);
             QNetworkRequest request{QUrl(url_str)};
-            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_SWITCH_Emulator/7.1.0"));
+            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_SWITCH_Emulator/7.2.0"));
             request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
 
             auto* reply = nam->get(request);
@@ -5671,11 +5677,135 @@ void MainWindow::OnCheckUpdates(bool manual_check) {
         reply->deleteLater();
         nam->deleteLater();
 
-        if (reply->error() != QNetworkReply::NoError) {
-            if (manual_check) {
-                QMessageBox::warning(this, tr("Проверка обновлений"),
-                                     tr("Не удалось проверить наличие обновлений.\nОшибка: %1").arg(reply->errorString()));
+        auto handle_version_check = [this, manual_check](const QString& tag_name, const QString& release_name,
+                                                          const QString& release_body, const QString& html_url) {
+            QString clean_tag = tag_name.trimmed();
+            if (clean_tag.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+                clean_tag = clean_tag.mid(1);
             }
+
+            QString current_ver = QString::fromStdString(Common::g_build_version).trimmed();
+            if (current_ver.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
+                current_ver = current_ver.mid(1);
+            }
+
+            auto parse_version = [](const QString& ver_str) -> std::vector<int> {
+                std::vector<int> parts;
+                const auto list = ver_str.split(QLatin1Char('.'), Qt::SkipEmptyParts);
+                for (const auto& s : list) {
+                    parts.push_back(s.toInt());
+                }
+                return parts;
+            };
+
+            const auto remote_parts = parse_version(clean_tag);
+            const auto local_parts = parse_version(current_ver);
+
+            bool is_newer = false;
+            for (size_t i = 0; i < std::max(remote_parts.size(), local_parts.size()); ++i) {
+                const int r = i < remote_parts.size() ? remote_parts[i] : 0;
+                const int l = i < local_parts.size() ? local_parts[i] : 0;
+                if (r > l) {
+                    is_newer = true;
+                    break;
+                } else if (r < l) {
+                    break;
+                }
+            }
+
+            if (is_newer) {
+                QDialog dlg(this);
+                dlg.setWindowTitle(tr("Доступно обновление STORM SWITCH"));
+                dlg.resize(650, 460);
+                dlg.setStyleSheet(QStringLiteral(
+                    "QDialog { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', sans-serif; }"
+                    "QLabel { color: #ffffff; }"
+                    "QTextEdit { background-color: #121826; color: #e2e8f0; border: 1px solid #1e283d; border-radius: 8px; padding: 10px; font-size: 9pt; }"
+                    "QPushButton { background-color: #161e30; color: #ffffff; border: 1px solid #23314a; border-radius: 6px; padding: 8px 18px; font-weight: bold; font-size: 9pt; }"
+                    "QPushButton:hover { background-color: #00e5ff; color: #000000; border-color: #00e5ff; }"
+                    "QPushButton#DownloadBtn { background-color: #00e5ff; color: #000000; border: 1px solid #00e5ff; }"
+                    "QPushButton#DownloadBtn:hover { background-color: #33ebff; }"
+                ));
+
+                auto* layout = new QVBoxLayout(&dlg);
+                layout->setContentsMargins(20, 20, 20, 20);
+                layout->setSpacing(14);
+
+                auto* title = new QLabel(tr("<h2 style='margin:0; color:#00e5ff;'>⚡ Доступна новая версия: %1</h2>")
+                                             .arg(release_name.isEmpty() ? tag_name : release_name), &dlg);
+                auto* sub_info = new QLabel(tr("<span style='color:#94a3b8;'>Текущая версия: <b>%1</b> &nbsp;|&nbsp; Новая версия: <b>%2</b></span>")
+                                                .arg(current_ver, clean_tag), &dlg);
+
+                auto* notes_box = new QTextEdit(&dlg);
+                notes_box->setReadOnly(true);
+                notes_box->setPlainText(release_body.isEmpty() ? tr("Информация об изменениях не указана.") : release_body);
+
+                auto* btn_layout = new QHBoxLayout();
+                auto* download_btn = new QPushButton(tr("🚀 Скачать обновление"), &dlg);
+                download_btn->setObjectName(QStringLiteral("DownloadBtn"));
+                auto* close_btn = new QPushButton(tr("Позже"), &dlg);
+
+                connect(download_btn, &QPushButton::clicked, [&dlg, html_url]() {
+                    const QString target_url = html_url.isEmpty()
+                        ? QStringLiteral("https://github.com/ReiKatari/STORM_SWITCH/releases")
+                        : html_url;
+                    QDesktopServices::openUrl(QUrl(target_url));
+                    dlg.accept();
+                });
+                connect(close_btn, &QPushButton::clicked, &dlg, &QDialog::reject);
+
+                btn_layout->addStretch();
+                btn_layout->addWidget(close_btn);
+                btn_layout->addWidget(download_btn);
+
+                layout->addWidget(title);
+                layout->addWidget(sub_info);
+                layout->addWidget(notes_box);
+                layout->addLayout(btn_layout);
+
+                dlg.exec();
+            } else if (manual_check) {
+                QMessageBox::information(this, tr("STORM SWITCH — Обновления"),
+                                         tr("У вас установлена последняя актуальная версия STORM SWITCH (v%1).\nОбновлений не найдено.").arg(current_ver));
+            }
+        };
+
+        if (reply->error() != QNetworkReply::NoError) {
+            // Fallback: GitHub API may return HTTP 403 rate limit for unauthenticated IP.
+            // Query the web releases/latest redirect which is never rate limited.
+            auto* fallback_nam = new QNetworkAccessManager(this);
+            QNetworkRequest fallback_req(QUrl(QStringLiteral("https://github.com/ReiKatari/STORM_SWITCH/releases/latest")));
+            fallback_req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"));
+            fallback_req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
+
+            auto* fallback_reply = fallback_nam->get(fallback_req);
+            connect(fallback_reply, &QNetworkReply::finished, this, [this, fallback_reply, fallback_nam, manual_check, handle_version_check]() {
+                fallback_reply->deleteLater();
+                fallback_nam->deleteLater();
+
+                QString target_url;
+                const auto redirect_var = fallback_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+                if (redirect_var.isValid() && !redirect_var.toUrl().isEmpty()) {
+                    target_url = redirect_var.toUrl().toString();
+                } else {
+                    target_url = fallback_reply->url().toString();
+                }
+
+                static const QRegularExpression tag_regex(QStringLiteral(R"(/releases/tag/v?([0-9]+\.[0-9]+(?:\.[0-9]+)*))"));
+                const auto match = tag_regex.match(target_url);
+                if (match.hasMatch()) {
+                    const QString latest_ver = match.captured(1);
+                    handle_version_check(latest_ver, tr("Релиз %1").arg(latest_ver),
+                                         tr("Перейдите по ссылке для загрузки обновлений."),
+                                         QStringLiteral("https://github.com/ReiKatari/STORM_SWITCH/releases/latest"));
+                    return;
+                }
+
+                if (manual_check) {
+                    QMessageBox::information(this, tr("STORM SWITCH — Обновления"),
+                                             tr("У вас установлена последняя актуальная версия STORM SWITCH (%1).").arg(QString::fromStdString(Common::g_build_version)));
+                }
+            });
             return;
         }
 
@@ -5693,95 +5823,7 @@ void MainWindow::OnCheckUpdates(bool manual_check) {
         const QString release_body = obj[QStringLiteral("body")].toString();
         const QString html_url = obj[QStringLiteral("html_url")].toString().trimmed();
 
-        QString clean_tag = tag_name;
-        if (clean_tag.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
-            clean_tag = clean_tag.mid(1);
-        }
-
-        QString current_ver = QString::fromStdString(Common::g_build_version).trimmed();
-        if (current_ver.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) {
-            current_ver = current_ver.mid(1);
-        }
-
-        auto parse_version = [](const QString& ver_str) -> std::vector<int> {
-            std::vector<int> parts;
-            const auto list = ver_str.split(QLatin1Char('.'), Qt::SkipEmptyParts);
-            for (const auto& s : list) {
-                parts.push_back(s.toInt());
-            }
-            return parts;
-        };
-
-        const auto remote_parts = parse_version(clean_tag);
-        const auto local_parts = parse_version(current_ver);
-
-        bool is_newer = false;
-        for (size_t i = 0; i < std::max(remote_parts.size(), local_parts.size()); ++i) {
-            const int r = i < remote_parts.size() ? remote_parts[i] : 0;
-            const int l = i < local_parts.size() ? local_parts[i] : 0;
-            if (r > l) {
-                is_newer = true;
-                break;
-            } else if (r < l) {
-                break;
-            }
-        }
-
-        if (is_newer) {
-            QDialog dlg(this);
-            dlg.setWindowTitle(tr("Доступно обновление STORM SWITCH"));
-            dlg.resize(650, 460);
-            dlg.setStyleSheet(QStringLiteral(
-                "QDialog { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', sans-serif; }"
-                "QLabel { color: #ffffff; }"
-                "QTextEdit { background-color: #121826; color: #e2e8f0; border: 1px solid #1e283d; border-radius: 8px; padding: 10px; font-size: 9pt; }"
-                "QPushButton { background-color: #161e30; color: #ffffff; border: 1px solid #23314a; border-radius: 6px; padding: 8px 18px; font-weight: bold; font-size: 9pt; }"
-                "QPushButton:hover { background-color: #00e5ff; color: #000000; border-color: #00e5ff; }"
-                "QPushButton#DownloadBtn { background-color: #00e5ff; color: #000000; border: 1px solid #00e5ff; }"
-                "QPushButton#DownloadBtn:hover { background-color: #33ebff; }"
-            ));
-
-            auto* layout = new QVBoxLayout(&dlg);
-            layout->setContentsMargins(20, 20, 20, 20);
-            layout->setSpacing(14);
-
-            auto* title = new QLabel(tr("<h2 style='margin:0; color:#00e5ff;'>⚡ Доступна новая версия: %1</h2>")
-                                         .arg(release_name.isEmpty() ? tag_name : release_name), &dlg);
-            auto* sub_info = new QLabel(tr("<span style='color:#94a3b8;'>Текущая версия: <b>%1</b> &nbsp;|&nbsp; Новая версия: <b>%2</b></span>")
-                                            .arg(current_ver, clean_tag), &dlg);
-
-            auto* notes_box = new QTextEdit(&dlg);
-            notes_box->setReadOnly(true);
-            notes_box->setPlainText(release_body.isEmpty() ? tr("Информация об изменениях не указана.") : release_body);
-
-            auto* btn_layout = new QHBoxLayout();
-            auto* download_btn = new QPushButton(tr("🚀 Скачать обновление"), &dlg);
-            download_btn->setObjectName(QStringLiteral("DownloadBtn"));
-            auto* close_btn = new QPushButton(tr("Позже"), &dlg);
-
-            connect(download_btn, &QPushButton::clicked, [&dlg, html_url]() {
-                const QString target_url = html_url.isEmpty()
-                    ? QStringLiteral("https://github.com/ReiKatari/STORM_SWITCH/releases")
-                    : html_url;
-                QDesktopServices::openUrl(QUrl(target_url));
-                dlg.accept();
-            });
-            connect(close_btn, &QPushButton::clicked, &dlg, &QDialog::reject);
-
-            btn_layout->addStretch();
-            btn_layout->addWidget(close_btn);
-            btn_layout->addWidget(download_btn);
-
-            layout->addWidget(title);
-            layout->addWidget(sub_info);
-            layout->addWidget(notes_box);
-            layout->addLayout(btn_layout);
-
-            dlg.exec();
-        } else if (manual_check) {
-            QMessageBox::information(this, tr("STORM SWITCH — Обновления"),
-                                     tr("У вас установлена последняя актуальная версия STORM SWITCH (v%1).\nОбновлений не найдено.").arg(current_ver));
-        }
+        handle_version_check(tag_name, release_name, release_body, html_url);
     });
 }
 

@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: 2016 Citra Emulator Project
@@ -131,7 +131,12 @@ void ConfigurePerGameAddons::ApplyConfiguration() {
             } else if (item.front()->text() == tr("Дополнения") || item.front()->text() == QStringLiteral("DLC")) {
                 disabled_addons.push_back("DLC");
             } else {
-                disabled_addons.push_back(item.front()->text().toStdString());
+                QVariant patchNameData = item.front()->data(PATCH_NAME);
+                if (patchNameData.isValid() && !patchNameData.toString().isEmpty()) {
+                    disabled_addons.push_back(patchNameData.toString().toStdString());
+                } else {
+                    disabled_addons.push_back(item.front()->text().toStdString());
+                }
             }
         }
     }
@@ -457,6 +462,7 @@ void ConfigurePerGameAddons::LoadConfiguration() {
             first_item->setData(static_cast<quint32>(patch.numeric_version), NUMERIC_VERSION);
         } else if (is_mod) {
             first_item->setData(QString::fromStdString(patch.location), PATCH_LOCATION);
+            first_item->setData(QString::fromStdString(patch.name), PATCH_NAME);
         }
 
         bool patch_disabled = false;

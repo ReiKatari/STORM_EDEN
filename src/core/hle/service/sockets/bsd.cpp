@@ -638,7 +638,9 @@ Errno BSD::BindImpl(s32 fd, std::span<const u8> addr) {
     if (!IsFileDescriptorValid(fd)) {
         return Errno::BADF;
     }
-    ASSERT(addr.size() >= 16);
+    if (addr.size() < sizeof(SockAddrIn)) {
+        return Errno::INVAL;
+    }
     if (!file_descriptors[fd]->socket) {
         LOG_WARNING(Service, "Uninitialized socket");
         return Errno::BADF;
@@ -654,7 +656,9 @@ Errno BSD::ConnectImpl(s32 fd, std::span<const u8> addr) {
         return Errno::BADF;
     }
 
-    ASSERT(addr.size() >= 16);
+    if (addr.size() < sizeof(SockAddrIn)) {
+        return Errno::INVAL;
+    }
     if (!file_descriptors[fd]->socket) {
         LOG_WARNING(Service, "Uninitialized socket");
         return Errno::BADF;
@@ -688,8 +692,9 @@ Errno BSD::GetPeerNameImpl(s32 fd, std::vector<u8>& write_buffer) {
     }
     const SockAddrIn guest_addrin = Translate(addr_in);
 
-    ASSERT(write_buffer.size() >= sizeof(guest_addrin));
-    write_buffer.resize(sizeof(guest_addrin));
+    if (write_buffer.size() < sizeof(guest_addrin)) {
+        write_buffer.resize(sizeof(guest_addrin));
+    }
     PutValue(write_buffer, guest_addrin);
     return Translate(bsd_errno);
 }
@@ -710,8 +715,9 @@ Errno BSD::GetSockNameImpl(s32 fd, std::vector<u8>& write_buffer) {
     }
     const SockAddrIn guest_addrin = Translate(addr_in);
 
-    ASSERT(write_buffer.size() >= sizeof(guest_addrin));
-    write_buffer.resize(sizeof(guest_addrin));
+    if (write_buffer.size() < sizeof(guest_addrin)) {
+        write_buffer.resize(sizeof(guest_addrin));
+    }
     PutValue(write_buffer, guest_addrin);
     return Translate(bsd_errno);
 }
@@ -923,8 +929,7 @@ std::pair<s32, Errno> BSD::RecvFromImpl(s32 fd, u32 flags, std::vector<u8>& mess
     if (p_addr_in) {
         if (ret < 0) {
             addr.clear();
-        } else {
-            ASSERT(addr.size() >= 16);
+        } else if (addr.size() >= sizeof(SockAddrIn)) {
             const SockAddrIn result = Translate(addr_in);
             PutValue(addr, result);
         }
@@ -957,7 +962,9 @@ std::pair<s32, Errno> BSD::SendToImpl(s32 fd, u32 flags, std::span<const u8> mes
     Network::SockAddrIn addr_in;
     Network::SockAddrIn* p_addr_in = nullptr;
     if (!addr.empty()) {
-        ASSERT(addr.size() >= 16);
+        if (addr.size() < sizeof(SockAddrIn)) {
+            return {-1, Errno::INVAL};
+        }
         auto guest_addr_in = GetValue<SockAddrIn>(addr);
         addr_in = Translate(guest_addr_in);
         p_addr_in = &addr_in;

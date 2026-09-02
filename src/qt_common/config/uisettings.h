@@ -55,18 +55,21 @@ struct Shortcut {
 };
 
 enum class Theme {
+    StormDark,
     StormNight,
-    StormMidnight,
     StormDay,
+    StormMidnight,
+    StormMatrix,
     StormCyberpunk,
-    StormGothic,
+    StormFantasy,
+    StormWarhammer40k,
 };
 
 static constexpr Theme default_theme{
     Theme::StormNight
 };
 
-using Themes = std::array<std::pair<const char*, const char*>, 5>;
+using Themes = std::array<std::pair<const char*, const char*>, 8>;
 extern const Themes themes;
 
 struct GameDir {

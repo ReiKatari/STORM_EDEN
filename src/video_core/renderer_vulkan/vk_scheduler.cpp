@@ -91,6 +91,9 @@ void Scheduler::DispatchWork() {
         event_cv.notify_all();
         AcquireNewChunk();
     }
+    if (!chunk) {
+        AcquireNewChunk();
+    }
 }
 
 void Scheduler::BeginRenderPassImpl(const Framebuffer* framebuffer, VkRenderPass renderpass,
@@ -368,7 +371,12 @@ u64 Scheduler::SubmitExecution(VkSemaphore signal_semaphore, VkSemaphore wait_se
             break;
         }
     });
-    chunk->MarkSubmit();
+    if (!chunk) {
+        AcquireNewChunk();
+    }
+    if (chunk) {
+        chunk->MarkSubmit();
+    }
     DispatchWork();
     return signal_value;
 }
@@ -472,6 +480,10 @@ void Scheduler::EndRenderPass()
 void Scheduler::AcquireNewChunk() {
     std::scoped_lock rl{reserve_mutex};
 
+    while (!chunk_reserve.empty() && !chunk_reserve.back()) {
+        chunk_reserve.pop_back();
+    }
+
     if (chunk_reserve.empty()) {
         // If we don't have anything reserved, we need to make a new chunk.
         chunk = std::make_unique<CommandChunk>();
@@ -479,6 +491,10 @@ void Scheduler::AcquireNewChunk() {
         // Otherwise, we can just take from the reserve.
         chunk = std::move(chunk_reserve.back());
         chunk_reserve.pop_back();
+    }
+
+    if (!chunk) {
+        chunk = std::make_unique<CommandChunk>();
     }
 }
 

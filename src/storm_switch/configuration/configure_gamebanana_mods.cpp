@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <filesystem>
@@ -69,11 +69,12 @@ static int ResolveGameBananaGameId(u64 title_id, const QString& game_name) {
     case 0x01004A4010FE8000: return 17088; // Bayonetta 3
     case 0x01004D300C5AE000: return 15206; // Kirby and the Forgotten Land
     case 0x010003200D166000: return 17497; // Sonic Frontiers (Switch)
-    case 0x010028600EBDA000: return 17655; // Super Mario Bros. Wonder
+    case 0x010015100B5B4000: return 17655; // Super Mario Bros. Wonder
     case 0x01009B90006DC000: return 6848;  // Super Mario Party
     case 0x0100D8701267E000: return 12797; // Mario Party Superstars
     case 0x01002B4019BCA000: return 18980; // Super Mario Party Jamboree
     case 0x01009AA000FAA000: return 6853;  // Luigi's Mansion 3
+    case 0x010028600EBDA000: return 12836; // Super Mario 3D World + Bowser's Fury
     case 0x0100B04011742000: return 12836; // Super Mario 3D World + Bowser's Fury
     case 0x01004BC0000AA000: return 6554;  // Super Mario Maker 2
     case 0x01004A5013054000: return 18600; // The Legend of Zelda: Echoes of Wisdom
@@ -577,7 +578,7 @@ void ConfigureGameBananaMods::LoadModDetails(int mod_id) {
 
     QUrl details_url(QStringLiteral("https://gamebanana.com/apiv11/Mod/%1/ProfilePage").arg(mod_id));
     QNetworkRequest request(details_url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM-EDEN-Client/3.3.4"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_SWITCH_Emulator/7.2.0"));
 
     current_reply = network_manager->get(request);
     connect(current_reply, &QNetworkReply::finished, this, [this]() {

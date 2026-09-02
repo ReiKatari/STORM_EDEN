@@ -100,11 +100,19 @@ public:
     template <typename T>
         requires std::is_invocable_v<T, vk::CommandBuffer, vk::CommandBuffer>
     void RecordWithUploadBuffer(T&& command) {
-        if (chunk->Record(command)) {
+        if (!chunk) {
+            AcquireNewChunk();
+        }
+        if (chunk && chunk->Record(command)) {
             return;
         }
         DispatchWork();
-        (void)chunk->Record(command);
+        if (!chunk) {
+            AcquireNewChunk();
+        }
+        if (chunk) {
+            (void)chunk->Record(command);
+        }
     }
 
     template <typename T>

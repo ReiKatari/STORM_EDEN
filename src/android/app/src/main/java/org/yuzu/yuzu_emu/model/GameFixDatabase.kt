@@ -103,38 +103,44 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100916014D8C000L,
             "Diablo II: Resurrected",
-            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
-            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
-            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
-            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
+            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты (черные/белые квадраты и полосы вокруг декалей)",
+            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal square/stripe artifacts",
+            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Динамическое состояние: Отключено (исправляет артефакты декалей)\n✓ Обратная связь барьеров: Включено\n✓ Быстрая память: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed (Fixes decals and square artifacts)\n✓ Dynamic State: Disabled\n✓ Barrier Feedback Loops: Enabled\n✓ Fastmem: Enabled",
             mapOf(
+                "Core\\memory_layout_mode" to "2",
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\dyna_state" to "0",
+                "Renderer\\barrier_feedback_loops" to "true",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Renderer\\dyna_state" to "1",
                 "Cpu\\cpu_accuracy" to "1"
             )
         ),
         GameFixProfile(
             0x0100726014352000L,
-            "Diablo II: Resurrected (Alt)",
-            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
-            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
-            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
-            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
+            "Diablo II: Resurrected",
+            "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты (черные/белые квадраты и полосы вокруг декалей)",
+            "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal square/stripe artifacts",
+            "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Динамическое состояние: Отключено (исправляет артефакты декалей)\n✓ Обратная связь барьеров: Включено\n✓ Быстрая память: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed (Fixes decals and square artifacts)\n✓ Dynamic State: Disabled\n✓ Barrier Feedback Loops: Enabled\n✓ Fastmem: Enabled",
             mapOf(
+                "Core\\memory_layout_mode" to "2",
                 "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\dyna_state" to "0",
+                "Renderer\\barrier_feedback_loops" to "true",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Renderer\\dyna_state" to "1",
                 "Cpu\\cpu_accuracy" to "1"
             )
         ),
@@ -2065,10 +2071,11 @@ object GameFixDatabase {
             "Mortal Kombat 1",
             "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
             "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
-            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-            "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 8GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
-                "System\\memory_layout_mode" to "0",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
@@ -2085,10 +2092,11 @@ object GameFixDatabase {
             "Mortal Kombat 1",
             "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
             "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
-            "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-            "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+            "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+            "✓ Memory Layout: 8GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
             mapOf(
-                "System\\memory_layout_mode" to "0",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
                 "System\\airplane_mode" to "true",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
@@ -2109,7 +2117,8 @@ object GameFixDatabase {
             "✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
             mapOf(
                 "System\\airplane_mode" to "true",
-                "System\\memory_layout_mode" to "1",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
                 "Renderer\\gpu_accuracy" to "1",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true"
@@ -2646,7 +2655,8 @@ object GameFixDatabase {
             "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено",
             "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled",
             mapOf(
-                "System\\memory_layout_mode" to "1",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
                 "Cpu\\cpu_accuracy" to "1",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\astc_recompression" to "0",
@@ -3671,6 +3681,10 @@ object GameFixDatabase {
                 val keyName = if (fullKey.contains("\\")) fullKey.substringAfterLast("\\") else fullKey
                 val section = sections.getOrPut(sectionName) { mutableMapOf() }
                 section[keyName] = value
+                if (keyName == "memory_layout_mode") {
+                    sections.getOrPut("Core") { mutableMapOf() }[keyName] = value
+                    sections.getOrPut("System") { mutableMapOf() }[keyName] = value
+                }
             }
 
             val sb = StringBuilder()

@@ -211,9 +211,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
             }
         } else {
             when {
-                hw.contains("mt6991") || hw.contains("9400") -> "ARM Immortalis-G925 (Vulkan 1.3)"
-                hw.contains("mt6989") || hw.contains("9300") -> "ARM Immortalis-G720 (Vulkan 1.3)"
-                hw.contains("mt6985") || hw.contains("9200") -> "ARM Immortalis-G715 (Vulkan 1.3)"
+                hw.contains("mt6991") || hw.contains("9400") || hw.contains("x200") || hw.contains("immortalis-g925") -> "ARM Immortalis-G925 (MediaTek Dimensity 9400 / Vulkan 1.3)"
+                hw.contains("mt6989") || hw.contains("9300") -> "ARM Immortalis-G720 (MediaTek Dimensity 9300 / Vulkan 1.3)"
+                hw.contains("mt6985") || hw.contains("9200") -> "ARM Immortalis-G715 (MediaTek Dimensity 9200 / Vulkan 1.3)"
                 hw.contains("9945") || hw.contains("2400") -> "Samsung Xclipse 940 (AMD RDNA3 Vulkan)"
                 hw.contains("9925") || hw.contains("2200") -> "Samsung Xclipse 920 (AMD RDNA2 Vulkan)"
                 hw.contains("powervr") || hw.contains("img") || hw.contains("rogue") -> "PowerVR GPU (Vulkan)"
@@ -353,18 +353,21 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         am?.getMemoryInfo(memInfo)
         val totalRamGb = memInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
 
+        val hw = (Build.HARDWARE + " " + Build.BOARD + " " + Build.MODEL + " " + Build.MANUFACTURER).lowercase()
         val isAdreno = GpuDriverHelper.isAdrenoGpu()
+        val isDimensity9400 = hw.contains("mt6991") || hw.contains("9400") || hw.contains("x200") || hw.contains("immortalis-g925")
+        val isMali = !isAdreno
         val isFlagship = totalRamGb >= 11.0
         val isMidRange = totalRamGb in 6.0..10.9
         val isLowEnd = totalRamGb < 6.0
         val cpuCores = Runtime.getRuntime().availableProcessors()
-        val optimalWorkers = (cpuCores - 2).coerceIn(2, 6)
+        val optimalWorkers = if (isDimensity9400) 2 else (cpuCores - 2).coerceIn(2, 6)
 
         when (mode) {
             MODE_FAST -> {
                 IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 0.75X (2) for budget / Mali, 1X (3) for Flagship Adreno
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno) 3 else 2)
+                // Resolution: 0.75X (2) for budget / Mali / Dimensity 9400, 1X (3) for Flagship Adreno
+                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno && !isDimensity9400) 3 else 2)
                 // GPU Accuracy: Normal (0)
                 IntSetting.RENDERER_ACCURACY.setInt(0)
                 // DMA Accuracy: Normal (1)
@@ -375,8 +378,11 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.GPU_FENCE_BEHAVIOR.setInt(2)
                 // Anti-Aliasing: None (0)
                 IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
-                // Scaling Filter: Bilinear (0) for pure maximum speed
-                IntSetting.RENDERER_SCALING_FILTER.setInt(0)
+                // Scaling Filter: AMD FSR (6) for Dimensity 9400, Bilinear (0) for others
+                IntSetting.RENDERER_SCALING_FILTER.setInt(if (isDimensity9400) 6 else 0)
+                if (isDimensity9400) {
+                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
+                }
                 // ASTC: GPU (1) for Adreno/Flagship, CPU (0) for budget Mali
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(if (isLowEnd && !isAdreno) 0 else 1)
                 // ASTC Recompression: Uncompressed (0) for 100% video core stability
@@ -395,9 +401,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 // Audio: Auto engine, unmuted
                 IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
                 BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State (Extended Dynamic State): Enabled (1) for Adreno/Qualcomm for games like LEGO Star Wars
-                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno) 1 else 0)
-                // Pipeline Workers: 2 (reduces background CPU load, battery drain and heat)
+                // Dynamic State: Disabled (0) on Mali / Dimensity 9400, Enabled (1) on Adreno
+                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
+                // Pipeline Workers: 2 (reduces background CPU load, battery drain and heat on All-Big-Core Dimensity 9400)
                 IntSetting.ANDROID_PIPELINE_WORKERS.setInt(2)
 
                 // Booleans
@@ -413,9 +419,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
                 BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
                 BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(isDimensity9400)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(isDimensity9400)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(isDimensity9400)
                 BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
                 BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
                 BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
@@ -423,20 +429,23 @@ class AutoOptimizationDialogFragment : DialogFragment() {
 
             MODE_NORMAL -> {
                 IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 1X (3) standard
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isLowEnd && !isAdreno) 2 else 3)
+                // Resolution: 0.75X (2) for Dimensity 9400 / low-end Mali, 1X (3) standard
+                IntSetting.RENDERER_RESOLUTION.setInt(if (isDimensity9400 || (isLowEnd && !isAdreno)) 2 else 3)
                 // GPU Accuracy: Normal (0)
                 IntSetting.RENDERER_ACCURACY.setInt(0)
                 // DMA Accuracy: Normal (1)
                 IntSetting.DMA_ACCURACY.setInt(1)
                 // VRAM Usage Mode: Normal (1)
-                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isLowEnd) 0 else 1)
+                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isLowEnd || isDimensity9400) 0 else 1)
                 // GPU Fence Behavior: Balanced (1)
                 IntSetting.GPU_FENCE_BEHAVIOR.setInt(1)
                 // Anti-Aliasing: None (0) for maximum framerate
                 IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
-                // Scaling Filter: Bilinear (0)
-                IntSetting.RENDERER_SCALING_FILTER.setInt(0)
+                // Scaling Filter: AMD FSR (6) for Dimensity 9400, Bilinear (0) for others
+                IntSetting.RENDERER_SCALING_FILTER.setInt(if (isDimensity9400) 6 else 0)
+                if (isDimensity9400) {
+                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
+                }
                 // ASTC: GPU (1)
                 IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
                 // ASTC Recompression: Uncompressed (0) for universal stability
@@ -449,16 +458,16 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 IntSetting.CPU_BACKEND.setInt(1)
                 IntSetting.CPU_ACCURACY.setInt(0) // Auto
                 // Memory Layout: 6GB (1) if RAM >= 11GB, else 4GB (0)
-                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship) 1 else 0)
+                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship && !isDimensity9400) 1 else 0)
                 // System / Docked: Handheld (false) for speed
                 BooleanSetting.USE_DOCKED_MODE.setBoolean(false)
                 // Audio: Auto engine, unmuted
                 IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
                 BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State: Enabled (1) for Adreno
-                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno) 1 else 0)
-                // Pipeline Workers
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(optimalWorkers.coerceIn(2, 4))
+                // Dynamic State: Disabled on Mali / Dimensity 9400
+                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
+                // Pipeline Workers: 2 for Dimensity 9400 to prevent All-Big-Core overheating
+                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(if (isDimensity9400) 2 else optimalWorkers.coerceIn(2, 4))
 
                 // Booleans
                 BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
@@ -473,9 +482,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
                 BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
                 BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(isDimensity9400)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(isDimensity9400)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(isDimensity9400)
                 BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
                 BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
                 BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
@@ -483,14 +492,14 @@ class AutoOptimizationDialogFragment : DialogFragment() {
 
             MODE_ACCURATE -> {
                 IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 1.5X (5) for Flagship Adreno, 1X (3) for Mid-Range
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno) 5 else 3)
-                // GPU Accuracy: High (1)
-                IntSetting.RENDERER_ACCURACY.setInt(1)
+                // Resolution: 1.5X (5) for Flagship Adreno, 1X (3) for Dimensity 9400 / Mid-Range
+                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno && !isDimensity9400) 5 else 3)
+                // GPU Accuracy: Normal (0) on Dimensity 9400 (avoids Mali TBDR stall), High (1) on Adreno
+                IntSetting.RENDERER_ACCURACY.setInt(if (isDimensity9400) 0 else 1)
                 // DMA Accuracy: Safe (3)
                 IntSetting.DMA_ACCURACY.setInt(3)
                 // VRAM Usage Mode: Aggressive (2) for Flagship, Normal (1) for others
-                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isFlagship) 2 else 1)
+                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isFlagship && !isDimensity9400) 2 else 1)
                 // GPU Fence Behavior: Strict (0)
                 IntSetting.GPU_FENCE_BEHAVIOR.setInt(0)
                 // Anti-Aliasing: SMAA (2)
@@ -505,21 +514,21 @@ class AutoOptimizationDialogFragment : DialogFragment() {
                 // NVDEC: GPU (2)
                 IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
                 // Anisotropy: 16x (4) for Flagship/Mid, 4x (2) for Low
-                IntSetting.MAX_ANISOTROPY.setInt(if (isFlagship) 4 else 2)
+                IntSetting.MAX_ANISOTROPY.setInt(if (isFlagship && !isDimensity9400) 4 else 2)
                 // CPU Backend: NCE (1)
                 IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(1) // Accurate
+                IntSetting.CPU_ACCURACY.setInt(if (isDimensity9400) 0 else 1) // Auto on Dimensity 9400
                 // Memory Layout: 6GB/8GB if RAM >= 11GB
-                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship) 2 else 0)
-                // System / Docked: Docked for Flagship, Handheld for others
-                BooleanSetting.USE_DOCKED_MODE.setBoolean(isFlagship)
+                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship && !isDimensity9400) 2 else 1)
+                // System / Docked: Handheld on Dimensity 9400 (prevents thermal runaway), Docked on Flagship Adreno
+                BooleanSetting.USE_DOCKED_MODE.setBoolean(isFlagship && !isDimensity9400)
                 // Audio: Auto engine, unmuted
                 IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
                 BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State: Enabled (1)
-                IntSetting.RENDERER_DYNA_STATE.setInt(1)
-                // Pipeline Workers
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(optimalWorkers.coerceIn(3, 4))
+                // Dynamic State: Disabled on Mali / Dimensity 9400
+                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
+                // Pipeline Workers: 3 on Dimensity 9400
+                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(if (isDimensity9400) 3 else optimalWorkers.coerceIn(3, 4))
 
                 // Booleans
                 BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)

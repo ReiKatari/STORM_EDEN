@@ -69,11 +69,14 @@ const std::array<Shortcut, 34> default_hotkeys{{
 // clang-format on
 
 const Themes themes{{
+    {"STORM DARK", "storm_dark"},
     {"STORM NIGHT", "storm_night"},
-    {"STORM MIDNIGHT", "storm_midnight"},
     {"STORM DAY", "storm_day"},
+    {"STORM MIDNIGHT", "storm_midnight"},
+    {"STORM MATRIX", "storm_matrix"},
     {"STORM CYBERPUNK", "storm_cyberpunk"},
-    {"STORM GOTHIC", "storm_gothic"},
+    {"STORM FANTASY", "storm_fantasy"},
+    {"STORM WARHAMMER 40K", "storm_warhammer_40k"},
 }};
 
 bool IsDarkTheme() {

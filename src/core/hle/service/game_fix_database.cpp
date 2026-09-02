@@ -90,38 +90,44 @@ static const std::vector<GameFixProfile> s_profiles = {
         {
         0x0100916014D8C000ULL,
         "Diablo II: Resurrected",
-        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
-        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
-        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
-        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
+        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты (черные/белые квадраты и полосы вокруг декалей)",
+        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal square/stripe artifacts",
+        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено (стабильная загрузка!)\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Динамическое состояние: Отключено (исправляет артефакты декалей)\n✓ Обратная связь барьеров: Включено\n✓ Быстрая память: Включено",
+        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled (Stable loading!)\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed (Fixes decals and square artifacts)\n✓ Dynamic State: Disabled\n✓ Barrier Feedback Loops: Enabled\n✓ Fastmem: Enabled",
         {
+            {"Core\\memory_layout_mode", "2"},
             {"System\\memory_layout_mode", "2"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\dyna_state", "0"},
+            {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Renderer\\dyna_state", "1"},
             {"Cpu\\cpu_accuracy", "1"}
         }
     },
     {
         0x0100726014352000ULL,
         "Diablo II: Resurrected",
-        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Нагрев SoC и рассинхрон таймеров GPU",
-        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• SoC heating and GPU timer race",
-        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Реактивная очистка: Отключено\n✓ Быстрая память: Включено\n✓ Динамическое состояние: Базовое (EDS1)",
-        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled\n✓ GPU Accuracy: High\n✓ Reactive Flushing: Disabled\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)",
+        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты (черные/белые квадраты и полосы вокруг декалей)",
+        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal square/stripe artifacts",
+        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Отключено\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Динамическое состояние: Отключено (исправляет артефакты декалей)\n✓ Обратная связь барьеров: Включено\n✓ Быстрая память: Включено",
+        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Disabled\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed (Fixes decals and square artifacts)\n✓ Dynamic State: Disabled\n✓ Barrier Feedback Loops: Enabled\n✓ Fastmem: Enabled",
         {
+            {"Core\\memory_layout_mode", "2"},
             {"System\\memory_layout_mode", "2"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\gpu_accuracy", "1"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\dyna_state", "0"},
+            {"Renderer\\barrier_feedback_loops", "true"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
-            {"Renderer\\dyna_state", "1"},
             {"Cpu\\cpu_accuracy", "1"}
         }
     },
@@ -2073,10 +2079,11 @@ static const std::vector<GameFixProfile> s_profiles = {
         "Mortal Kombat 1",
         "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
         "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
-        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-        "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+        "✓ Memory Layout: 8GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
         {
-            {"System\\memory_layout_mode", "0"},
+            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
@@ -2093,10 +2100,11 @@ static const std::vector<GameFixProfile> s_profiles = {
         "Mortal Kombat 1",
         "• Зависание на заставке WB Games при онлайн-синхронизации\n• Сбои Extended Dynamic State в шейдерах арены",
         "• WB Games intro online sync freeze\n• Extended Dynamic State arena shader crashes",
-        "✓ Конфигурация памяти: 4 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
-        "✓ Memory Layout: 4GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
+        "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Режим полёта: Включено (пропуск серверов WB Play)\n✓ Быстрое время GPU: Отключено (устраняет deadlock UE4)\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Точность CPU: Авто (безопасные мониторы потоков)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Точность GPU: Обычная",
+        "✓ Memory Layout: 8GB DRAM\n✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Fast GPU Time: Disabled (Fixes UE4 deadlock)\n✓ Dynamic State: Basic (EDS1)\n✓ CPU Accuracy: Auto (Safe thread monitors)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ GPU Accuracy: Normal",
         {
-            {"System\\memory_layout_mode", "0"},
+            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"System\\airplane_mode", "true"},
             {"Renderer\\use_fast_gpu_time", "false"},
             {"Renderer\\dyna_state", "1"},
@@ -2117,7 +2125,8 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Airplane Mode: Enabled (Bypasses WB Play online check)\n✓ Memory Layout: 8GB DRAM\n✓ GPU Accuracy: High\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
         {
             {"System\\airplane_mode", "true"},
-            {"System\\memory_layout_mode", "1"},
+            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Renderer\\gpu_accuracy", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"}
@@ -2654,7 +2663,8 @@ static const std::vector<GameFixProfile> s_profiles = {
         "✓ Конфигурация памяти: 8 ГБ DRAM\n✓ Точность CPU: Авто / Небезопасная (Unsafe JIT)\n✓ Точность GPU: Обычная (Normal)\n✓ Сжатие ASTC: Отключено\n✓ Быстрая память (Fastmem): Включено",
         "✓ Memory Layout: 8GB DRAM\n✓ CPU Accuracy: Auto / Unsafe (Unsafe JIT)\n✓ GPU Accuracy: Normal\n✓ ASTC Recompression: Uncompressed\n✓ Fastmem: Enabled",
         {
-            {"System\\memory_layout_mode", "1"},
+            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
             {"Cpu\\cpu_accuracy", "1"},
             {"Renderer\\gpu_accuracy", "0"},
             {"Renderer\\astc_recompression", "0"},
@@ -3713,6 +3723,14 @@ bool GameFixDatabase::ApplyProfileToPerGameConfig(u64 title_id, const std::strin
             sections[sec][key] = val;
             sections[sec][key + "\\use_global"] = "false";
             sections[sec][key + "\\default"] = "false";
+            if (key == "memory_layout_mode") {
+                sections["Core"][key] = val;
+                sections["Core"][key + "\\use_global"] = "false";
+                sections["Core"][key + "\\default"] = "false";
+                sections["System"][key] = val;
+                sections["System"][key + "\\use_global"] = "false";
+                sections["System"][key + "\\default"] = "false";
+            }
         }
     }
     sections["StormEden"]["storm_fix_applied"] = "true";
@@ -3819,7 +3837,7 @@ bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
                 apply_if_global(Settings::values.dyna_state, static_cast<Settings::ExtendedDynamicState>(safe_stoi(val, 0)));
             } else if (full_key == "System\\airplane_mode") {
                 apply_if_global(Settings::values.airplane_mode, val == "true" || val == "1");
-            } else if (full_key == "System\\memory_layout_mode") {
+            } else if (full_key == "System\\memory_layout_mode" || full_key == "Core\\memory_layout_mode") {
                 apply_if_global(Settings::values.memory_layout_mode, static_cast<Settings::MemoryLayout>(safe_stoi(val, 0)));
             } else if (full_key == "System\\use_docked_mode") {
                 apply_if_global(Settings::values.use_docked_mode, static_cast<Settings::ConsoleMode>(safe_stoi(val, 0)));

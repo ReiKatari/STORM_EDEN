@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="22dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:strokeColor="?attr/colorPrimary"
     app:strokeWidth="1.5dp">
 
@@ -26,7 +26,7 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="14dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="1.5dp">
 
@@ -64,7 +64,7 @@
                         android:layout_height="wrap_content"
                         android:text="Быстрое меню управления переводом"
                         android:textSize="11sp"
-                        android:textColor="@color/synthwave_text_secondary" />
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                 </LinearLayout>
 
@@ -92,8 +92,8 @@
             android:layout_marginBottom="10dp"
             app:cardCornerRadius="14dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -139,7 +139,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Мгновенный снимок и наложение текста"
-                            android:textColor="@color/synthwave_text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp" />
 
                     </LinearLayout>
@@ -196,7 +196,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Статус: Отключен (по нажатию)"
-                            android:textColor="@color/synthwave_text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp" />
 
                     </LinearLayout>
@@ -222,8 +222,8 @@
             android:layout_marginBottom="10dp"
             app:cardCornerRadius="14dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -326,7 +326,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Настроить зоны субтитров и диалогов"
-                            android:textColor="@color/synthwave_text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp" />
 
                     </LinearLayout>
@@ -383,7 +383,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Озвучивать диалоги автоматически"
-                            android:textColor="@color/synthwave_text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp" />
 
                     </LinearLayout>
@@ -441,7 +441,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Отображать плавающую кнопку перевода на экране"
-                            android:textColor="@color/synthwave_text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp" />
 
                     </LinearLayout>

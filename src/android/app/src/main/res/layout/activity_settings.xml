@@ -6,7 +6,7 @@
     android:id="@+id/constraint_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/synthwave_background">
+    android:background="?android:attr/colorBackground">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"

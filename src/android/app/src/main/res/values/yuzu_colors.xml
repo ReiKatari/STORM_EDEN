@@ -270,10 +270,10 @@
     <color name="eden_button_secondary_bg">#00000000</color> <!-- Transparent -->
     <color name="eden_button_secondary_border">#60D1F6</color> <!-- Electric cyan -->
 
-    <!-- Synthwave Card Colors -->
-    <color name="eden_card_background">#131927</color>
-    <color name="eden_card_background_elevated">#1E293B</color>
-    <color name="eden_card_stroke">#1E293B</color>
+    <!-- Synthwave / Card Colors -->
+    <color name="eden_card_background">#FFFFFF</color>
+    <color name="eden_card_background_elevated">#F8FAFC</color>
+    <color name="eden_card_stroke">#CBD5E1</color>
 
     <!-- Transparent versions for gradients -->
     <color name="eden_transparent">#00000000</color>

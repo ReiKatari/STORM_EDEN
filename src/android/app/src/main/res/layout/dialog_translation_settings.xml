@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="22dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:strokeColor="?attr/colorPrimary"
     app:strokeWidth="1.5dp">
 
@@ -27,7 +27,7 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="1.5dp">
 
@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:text="Нейросетевой перевод и синтез речи в реальном времени"
                         android:textSize="11sp"
-                        android:textColor="@color/synthwave_text_secondary" />
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                 </LinearLayout>
 
@@ -95,8 +95,8 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -136,7 +136,7 @@
                     android:layout_height="wrap_content"
                     android:text="Сервис перевода:"
                     android:textSize="13sp"
-                    android:textColor="@color/eden_on_surface"
+                    android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
                 <Spinner
@@ -152,7 +152,7 @@
                     android:layout_height="wrap_content"
                     android:text="Язык игры (Оригинал):"
                     android:textSize="13sp"
-                    android:textColor="@color/eden_on_surface"
+                    android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
                 <Spinner
@@ -168,7 +168,7 @@
                     android:layout_height="wrap_content"
                     android:text="Язык перевода:"
                     android:textSize="13sp"
-                    android:textColor="@color/eden_on_surface"
+                    android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
                 <Spinner
@@ -193,7 +193,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPassword"
-                        android:textColor="@color/eden_on_surface"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="13sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -210,8 +210,8 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -251,7 +251,7 @@
                     android:layout_height="wrap_content"
                     android:text="Стиль наложения текста:"
                     android:textSize="13sp"
-                    android:textColor="@color/eden_on_surface"
+                    android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
                 <Spinner
@@ -272,8 +272,8 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -313,7 +313,7 @@
                     android:layout_height="wrap_content"
                     android:text="Шаблон области сканирования:"
                     android:textSize="13sp"
-                    android:textColor="@color/eden_on_surface"
+                    android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold" />
 
                 <Spinner
@@ -343,8 +343,8 @@
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -432,7 +432,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Скорость озвучки: 1.0x"
                     android:textSize="12sp"
-                    android:textColor="@color/synthwave_text_secondary" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/slider_tts_speed"
@@ -465,8 +465,8 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/eden_card_background"
-            app:strokeColor="@color/eden_card_stroke"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout
@@ -530,7 +530,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Прозрачность кнопки: 90%"
                     android:textSize="12sp"
-                    android:textColor="@color/synthwave_text_secondary" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/slider_floating_opacity"

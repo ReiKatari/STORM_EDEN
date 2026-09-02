@@ -87,9 +87,11 @@ object ThemeHelper {
             activity.window.decorView
         )
         if (themeMode == 1) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             activity.delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
             setLightModeSystemBars(windowController)
         } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             activity.delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
             setDarkModeSystemBars(windowController)
         }

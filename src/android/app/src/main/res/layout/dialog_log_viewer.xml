@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:strokeColor="?attr/colorPrimary"
     app:strokeWidth="1.5dp">
 

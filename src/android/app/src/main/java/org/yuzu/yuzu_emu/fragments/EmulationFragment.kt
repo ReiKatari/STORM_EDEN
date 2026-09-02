@@ -308,7 +308,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             val customFile = SettingsFile.getCustomSettingsFile(gameToUse)
 
             // Automatically generate and apply per-game optimization profile if available
-            if (!customFile.exists() && GameFixDatabase.hasFix(gameToUse)) {
+            if (GameFixDatabase.hasFix(gameToUse)) {
                 GameFixDatabase.applyFix(gameToUse)
                 Log.info("[EmulationFragment] Auto-applied STORM SWITCH GameFix database profile for ${gameToUse.title}")
             }

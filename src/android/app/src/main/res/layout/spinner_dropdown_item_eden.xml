@@ -7,8 +7,8 @@
     android:ellipsize="marquee"
     android:singleLine="true"
     android:textSize="14sp"
-    android:textColor="@color/eden_on_surface"
-    android:background="@color/eden_card_background"
+    android:textColor="?attr/colorOnSurface"
+    android:background="?attr/colorSurfaceVariant"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:gravity="center_vertical" />

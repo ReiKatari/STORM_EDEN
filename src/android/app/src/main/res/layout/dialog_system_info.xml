@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="22dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:strokeColor="?attr/colorPrimary"
     app:strokeWidth="1.5dp">
 
@@ -80,7 +80,7 @@
                     android:layout_marginBottom="10dp"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/eden_card_background"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="1dp">
 
@@ -122,7 +122,7 @@
                     android:layout_marginBottom="10dp"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/eden_card_background"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="1dp">
 
@@ -164,7 +164,7 @@
                     android:layout_marginBottom="10dp"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/eden_card_background"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="1dp">
 
@@ -206,7 +206,7 @@
                     android:layout_marginBottom="10dp"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="@color/eden_card_background"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="1dp">
 

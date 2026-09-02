@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Это программное обеспечение предназначено для запуска игр для игровой консоли Nintendo Switch. Игры и ключи в комплект не входят.<br /><br />Прежде чем начать, пожалуйста, найдите файл <![CDATA[<b>prod.keys</b>]]> на вашем устройстве.<br /><br /> <![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Узнать больше</a>]]></string>
@@ -1460,5 +1460,92 @@
     <string name="profile_share_title">Поделиться профилем настроек</string>
     <string name="profile_import_success">Профиль «%1$s» успешно импортирован!</string>
     <string name="profile_import_failed">Ошибка импорта профиля. Неверный формат файла.</string>
+    <!-- 100% Full Localization -->
+    <string name="language_japanese">Японский</string>
+    <string name="language_english">Английский</string>
+    <string name="language_french">Французский</string>
+    <string name="language_german">Немецкий</string>
+    <string name="language_italian">Итальянский</string>
+    <string name="language_spanish">Испанский</string>
+    <string name="language_chinese">Китайский</string>
+    <string name="language_korean">Корейский</string>
+    <string name="language_dutch">Нидерландский</string>
+    <string name="language_portuguese">Португальский</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_taiwanese">Тайваньский</string>
+    <string name="language_british_english">Британский английский</string>
+    <string name="language_canadian_french">Канадский французский</string>
+    <string name="language_latin_american_spanish">Латиноамериканский испанский</string>
+    <string name="language_simplified_chinese">Упрощенный китайский</string>
+    <string name="language_traditional_chinese">Традиционный китайский</string>
+    <string name="language_brazilian_portuguese">Бразильский португальский</string>
+    <string name="language_polish">Польский</string>
+    <string name="language_thai">Тайский</string>
+    <string name="renderer_vulkan">Vulkan</string>
+    <string name="accelerate_astc_cpu">ЦП</string>
+    <string name="accelerate_astc_gpu">ГП</string>
+    <string name="accelerate_astc_async">Асинхронно</string>
+    <string name="resolution_quarter">0.25X (180p/270p)</string>
+    <string name="resolution_half">0.5X (360p/540p)</string>
+    <string name="resolution_three_quarter">0.75X (540p/810p)</string>
+    <string name="resolution_one">1.0X (720p/1080p)</string>
+    <string name="resolution_five_quarter">1.25X (900p/1350p)</string>
+    <string name="resolution_three_half">1.5X (1080p/1620p)</string>
+    <string name="resolution_two">2.0X (1440p/2160p)</string>
+    <string name="resolution_three">3.0X (2160p/3240p)</string>
+    <string name="resolution_four">4.0X (2880p/4320p)</string>
+    <string name="scaling_filter_nearest_neighbor">Ближайший сосед</string>
+    <string name="scaling_filter_bilinear">Билинейная</string>
+    <string name="scaling_filter_bicubic">Бикубическая</string>
+    <string name="scaling_filter_spline1">Сплайн</string>
+    <string name="scaling_filter_gaussian">Гауссово размытие</string>
+    <string name="scaling_filter_lanczos">Ланцош</string>
+    <string name="scaling_filter_scale_force">ScaleForce</string>
+    <string name="scaling_filter_fsr">AMD FidelityFX FSR</string>
+    <string name="scaling_filter_area">Область</string>
+    <string name="scaling_filter_zero_tangent">Нулевая касательная</string>
+    <string name="scaling_filter_bspline">B-сплайн</string>
+    <string name="scaling_filter_mitchell">Митчелл</string>
+    <string name="scaling_filter_mmpx">MMPX</string>
+    <string name="scaling_filter_sgsr">Qualcomm SGSR</string>
+    <string name="scaling_filter_sgsr_edge">Qualcomm SGSR Edge</string>
+    <string name="anti_aliasing_fxaa">FXAA</string>
+    <string name="anti_aliasing_smaa">SMAA</string>
+    <string name="ratio_default">По умолчанию (16:9)</string>
+    <string name="ratio_force_four_three">Принудительно 4:3</string>
+    <string name="ratio_force_twenty_one_nine">Принудительно 21:9</string>
+    <string name="ratio_force_sixteen_ten">Принудительно 16:10</string>
+    <string name="oboe">Oboe</string>
+    <string name="cubeb">Cubeb</string>
+    <string name="multiplier_x2">2x</string>
+    <string name="multiplier_x4">4x</string>
+    <string name="multiplier_x8">8x</string>
+    <string name="multiplier_x16">16x</string>
+    <string name="multiplier_x32">32x</string>
+    <string name="multiplier_x64">64x</string>
+    <string name="app_language_english">Английский</string>
+    <string name="app_language_spanish">Испанский</string>
+    <string name="app_language_french">Французский</string>
+    <string name="app_language_german">Немецкий</string>
+    <string name="app_language_italian">Итальянский</string>
+    <string name="app_language_portuguese">Португальский</string>
+    <string name="app_language_brazilian_portuguese">Бразильский португальский</string>
+    <string name="app_language_russian">Русский</string>
+    <string name="app_language_japanese">Японский</string>
+    <string name="app_language_korean">Корейский</string>
+    <string name="app_language_simplified_chinese">Упрощенный китайский</string>
+    <string name="app_language_traditional_chinese">Традиционный китайский</string>
+    <string name="app_language_polish">Польский</string>
+    <string name="app_language_czech">Чешский</string>
+    <string name="app_language_norwegian">Норвежский</string>
+    <string name="app_language_hungarian">Венгерский</string>
+    <string name="app_language_ukrainian">Украинский</string>
+    <string name="app_language_vietnamese">Вьетнамский</string>
+    <string name="app_language_indonesian">Индонезийский</string>
+    <string name="app_language_arabic">Арабский</string>
+    <string name="app_language_central_kurdish">Центральнокурдский</string>
+    <string name="app_language_persian">Персидский</string>
+    <string name="app_language_hebrew">Иврит</string>
+    <string name="app_language_serbian">Сербский</string>
+    <string name="app_language_thai">Тайский</string>
 </resources>
-

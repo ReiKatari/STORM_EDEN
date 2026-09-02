@@ -7,7 +7,7 @@
     android:ellipsize="marquee"
     android:singleLine="true"
     android:textSize="14sp"
-    android:textColor="@color/eden_on_surface"
+    android:textColor="?attr/colorOnSurface"
     android:paddingStart="4dp"
     android:paddingEnd="4dp"
     android:gravity="center_vertical" />

@@ -10,7 +10,7 @@
     android:layout_marginBottom="5dp"
     app:cardElevation="0dp"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:strokeWidth="1.5dp"
     app:strokeColor="?attr/colorPrimary">
 

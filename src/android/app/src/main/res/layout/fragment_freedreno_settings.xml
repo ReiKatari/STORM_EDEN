@@ -100,7 +100,7 @@
                 android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/eden_card_background"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="1.5dp">
 
@@ -197,7 +197,7 @@
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/eden_card_background"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:strokeWidth="1.5dp"
                 app:strokeColor="?attr/colorPrimary">
 

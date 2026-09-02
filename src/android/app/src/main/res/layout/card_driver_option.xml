@@ -10,9 +10,9 @@
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="@color/eden_card_background"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     app:cardElevation="0dp"
-    app:strokeColor="@color/eden_card_stroke"
+    app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
     <LinearLayout

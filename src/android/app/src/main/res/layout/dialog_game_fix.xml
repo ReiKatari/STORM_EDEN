@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/eden_dialog_background"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="22dp"
     app:cardElevation="0dp"
     app:strokeColor="?attr/colorPrimary"

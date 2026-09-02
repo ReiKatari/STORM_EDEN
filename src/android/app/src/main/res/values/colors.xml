@@ -28,7 +28,7 @@
     <color name="storm_day_secondary">#0EA5E9</color>
     <color name="storm_day_background">#F8FAFC</color>
     <color name="storm_day_surface">#FFFFFF</color>
-    <color name="storm_day_surface_variant">#F1F5F9</color>
+    <color name="storm_day_surface_variant">#FFFFFF</color>
     <color name="storm_day_on_surface">#0F172A</color>
     <color name="storm_day_outline">#CBD5E1</color>
 

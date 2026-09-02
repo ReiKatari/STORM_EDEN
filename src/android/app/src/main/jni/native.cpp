@@ -371,17 +371,14 @@ void EmulationSession::ShutdownEmulation() {
     m_system.HIDCore().SetSupportedStyleTag({Core::HID::NpadStyleSet::All});
 
     // Shutdown the main emulated process
-    if (m_load_result == Core::SystemResultStatus::Success) {
-        m_system.DetachDebugger();
-        m_system.ShutdownMainProcess();
-        m_load_result = Core::SystemResultStatus::ErrorNotInitialized;
-        m_window.reset();
-        OnEmulationStopped(Core::SystemResultStatus::Success);
-        return;
-    }
-
-    // Tear down the render window.
+    m_system.DetachDebugger();
+    m_system.ShutdownMainProcess();
+    const auto result = (m_load_result == Core::SystemResultStatus::Success)
+                            ? Core::SystemResultStatus::Success
+                            : m_load_result;
+    m_load_result = Core::SystemResultStatus::ErrorNotInitialized;
     m_window.reset();
+    OnEmulationStopped(result);
 }
 
 void EmulationSession::PauseEmulation() {

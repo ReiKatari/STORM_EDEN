@@ -1992,7 +1992,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <string name="translator_floating_btn_title">Floating Translate Button</string>
     <string name="translator_floating_btn_description">Show floating screen translation button during gameplay</string>
-    <string name="hotkey_quick_actions">Hotkeys &amp; Quick Actions</string>
+    <string name="hotkey_quick_actions">Hotkeys and Quick Actions</string>
     <string name="hotkey_quick_actions_desc">Configure on-screen hotkeys and fast action overlays</string>
 
     <string name="cheats">Cheat Codes</string>
@@ -2013,7 +2013,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="cheats_count_summary">Total cheats: %1$d | Enabled: %2$d</string>
 
     <!-- Optimizations, Thermals & Smoothness -->
-    <string name="optimization_features">Optimization &amp; Thermals</string>
+    <string name="optimization_features">Optimization and Thermals</string>
     <string name="eco_thermal_mode">Eco / Thermal Governor</string>
     <string name="eco_thermal_mode_description">Controls burst clocks and throttles non-essential background draw calls to prevent device overheating and thermal throttling.</string>
     <string name="eco_frame_pacing">Eco Frame Pacing</string>
@@ -2046,22 +2046,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="auto_optimization_defaults_restored_toast">🔄 Default settings successfully restored!</string>
     <string name="show_device_load_overlay">Show Device Load Overlay</string>
     <string name="show_device_load_overlay_description">Displays real-time CPU, GPU, RAM utilization and 5-stage device temperature indicators.</string>
-    <string name="game_fix_issues_header">⚠️ Known Issues &amp; Bugs</string>
-    <string name="game_fix_recommended_header">⚡ Recommended Fixes &amp; Settings</string>
+    <string name="game_fix_issues_header">⚠️ Known Issues and Bugs</string>
+    <string name="game_fix_recommended_header">⚡ Recommended Fixes and Settings</string>
     <string name="game_fix_dont_ask_again">Don\'t ask again for this game</string>
-    <string name="game_fix_apply_and_launch">⚡ Apply Fixes &amp; Launch</string>
+    <string name="game_fix_apply_and_launch">⚡ Apply Fixes and Launch</string>
     <string name="game_fix_skip_and_launch">Launch Without Changes</string>
 
     <!-- Settings Profiles -->
     <string name="settings_profiles_title">Settings Profiles</string>
     <string name="settings_profiles_description">Create, save, quickly load, rename, export and share settings profiles.</string>
-    <string name="profile_preset_fast_title">⚡ Fast (Maximum FPS &amp; Low Temp)</string>
+    <string name="profile_preset_fast_title">⚡ Fast (Maximum FPS and Low Temp)</string>
     <string name="profile_preset_fast_desc">0.75X resolution, fast JIT, async shaders, disabled reactive flushing, 6GB DRAM, cool SoC.</string>
     <string name="profile_preset_balanced_title">⚖️ Balanced (Recommended)</string>
     <string name="profile_preset_balanced_desc">1.0X (720p/1080p), FSR 85%, fast JIT, async shaders, EDS1 dynamic state, 6GB DRAM.</string>
     <string name="profile_preset_accurate_title">💎 High Quality (Accurate)</string>
     <string name="profile_preset_accurate_desc">1.0X-1.5X, high GPU accuracy, strict sync, FXAA/SMAA, 8GB DRAM.</string>
-    <string name="profile_preset_saver_title">🔋 Battery Saver &amp; Cool SoC</string>
+    <string name="profile_preset_saver_title">🔋 Battery Saver and Cool SoC</string>
     <string name="profile_preset_saver_desc">0.75X resolution, 100% speed limit, battery-efficient VRAM, minimum thermal output.</string>
     <string name="profile_btn_apply">Apply</string>
     <string name="profile_btn_share">Share</string>

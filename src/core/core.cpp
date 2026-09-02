@@ -383,11 +383,8 @@ struct System::Impl {
         auto const metadata = pm.GetControlMetadata();
         std::string title_version = metadata.first != nullptr ? metadata.first->GetVersionString() : "";
 
-        if (app_loader->ReadProgramId(program_id) != Loader::ResultStatus::Success) {
-            LOG_ERROR(Core, "Failed to find program id for ROM");
-        }
-
-        GameSettings::LoadOverrides(program_id, gpu_core->Renderer());
+        program_id = params.program_id;
+        GameSettings::LoadOverrides(params.program_id, gpu_core->Renderer());
         if (auto room_member = Network::GetRoomMember().lock()) {
             Network::GameInfo game_info;
             game_info.name = name;

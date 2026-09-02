@@ -3867,6 +3867,20 @@ bool GameFixDatabase::ApplyProfileDirectly(u64 title_id) {
             } else if (full_key == "Cpu\\cpuopt_fastmem") {
                 Settings::values.cpuopt_fastmem.SetValue(val == "true" || val == "1");
                 Settings::values.cpuopt_fastmem.SetGlobal(false);
+            } else if (full_key == "Renderer\\use_vulkan_driver_pipeline_cache") {
+                Settings::values.use_vulkan_driver_pipeline_cache.SetValue(val == "true" || val == "1");
+                Settings::values.use_vulkan_driver_pipeline_cache.SetGlobal(false);
+            } else if (full_key == "Renderer\\use_disk_shader_cache") {
+                Settings::values.use_disk_shader_cache.SetValue(val == "true" || val == "1");
+                Settings::values.use_disk_shader_cache.SetGlobal(false);
+            } else if (full_key == "Renderer\\enable_compute_pipelines") {
+                Settings::values.enable_compute_pipelines.SetValue(val == "true" || val == "1");
+                Settings::values.enable_compute_pipelines.SetGlobal(false);
+            } else if (full_key == "System\\eco_thermal_mode") {
+                Settings::values.eco_thermal_mode.SetValue(val == "true" || val == "1");
+                Settings::values.eco_thermal_mode.SetGlobal(false);
+            } else if (full_key == "Renderer\\barrier_feedback_loops") {
+                // Already handled above, skip duplicate
             }
         }
         Settings::UpdateGPUAccuracy();

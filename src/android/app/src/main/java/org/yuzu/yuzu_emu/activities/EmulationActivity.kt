@@ -138,13 +138,18 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
                             if (tempC > maxTemp) maxTemp = tempC
                         }
                     }
-                    withContext(Dispatchers.Main) {
-                        // Monitor temperatures without artificial speed throttling
+                    // Activate thermal throttle when device exceeds 48°C
+                    // Deactivate when device cools below 42°C (hysteresis to avoid flip-flopping)
+                    val shouldThrottle = if (isThermalThrottled) maxTemp >= 42 else maxTemp >= 48
+                    if (shouldThrottle != isThermalThrottled) {
+                        isThermalThrottled = shouldThrottle
+                        NativeLibrary.setThermalThrottle(shouldThrottle)
+                        Log.info("[ThermalMonitor] Thermal throttle ${if (shouldThrottle) "ACTIVATED" else "DEACTIVATED"} (maxTemp=${maxTemp}°C)")
                     }
                 } catch (e: Exception) {
                     // Thermal reading not available on all devices
                 }
-                delay(5000) // Check every 5 seconds
+                delay(3000) // Check every 3 seconds for faster response
             }
         }
     }

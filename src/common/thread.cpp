@@ -462,6 +462,14 @@ void SetCurrentThreadPriority(ThreadPriority new_priority) {
         }
     }();
     SetThreadPriority(GetCurrentThread(), windows_priority);
+    if (new_priority >= ThreadPriority::High) {
+        struct POWER_THROTTLING_STATE {
+            ULONG Version;
+            ULONG ControlMask;
+            ULONG StateMask;
+        } power_state{1, 0x1, 0};
+        SetThreadInformation(GetCurrentThread(), static_cast<THREAD_INFORMATION_CLASS>(1), &power_state, sizeof(power_state));
+    }
 #elif defined(__HAIKU__)
     // TODO: We have priorities for 3D rendering applications - may help lavapipe?
     int priority = [&]() {

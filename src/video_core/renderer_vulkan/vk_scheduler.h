@@ -146,13 +146,19 @@ public:
             frame_counter++;
             auto target_time = start_time + frame_interval * frame_counter;
             if (target_time >= now) {
-                constexpr auto spin_tail = std::chrono::milliseconds(1);
                 auto sleep_time = target_time - now;
-                if (sleep_time > spin_tail * 2) {
-                    std::this_thread::sleep_for(sleep_time - spin_tail);
-                }
-                while (std::chrono::steady_clock::now() < target_time) {
-                    std::this_thread::yield();
+                if (Settings::values.eco_frame_pacing.GetValue() || Settings::values.eco_thermal_mode.GetValue()) {
+                    if (sleep_time > std::chrono::microseconds(200)) {
+                        std::this_thread::sleep_for(sleep_time);
+                    }
+                } else {
+                    constexpr auto spin_tail = std::chrono::milliseconds(1);
+                    if (sleep_time > spin_tail * 2) {
+                        std::this_thread::sleep_for(sleep_time - spin_tail);
+                    }
+                    while (std::chrono::steady_clock::now() < target_time) {
+                        std::this_thread::yield();
+                    }
                 }
             } else if (frame_counter > max_frame_count) {
                 frame_counter = 0;

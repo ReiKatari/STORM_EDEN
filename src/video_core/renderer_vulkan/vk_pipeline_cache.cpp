@@ -301,8 +301,9 @@ Shader::RuntimeInfo MakeRuntimeInfo(std::span<const Shader::IR::Program> program
 }
 
 size_t GetTotalPipelineWorkers() {
+    const size_t hardware_threads = static_cast<size_t>(std::thread::hardware_concurrency());
     const size_t max_core_threads =
-        std::max<size_t>(static_cast<size_t>(std::thread::hardware_concurrency()), 2ULL) - 1ULL;
+        std::max<size_t>(hardware_threads, 2ULL) - 1ULL;
 #ifdef __ANDROID__
     const int configured = AndroidSettings::values.pipeline_worker_count.GetValue();
     const int clamped = std::clamp(configured, 2, 8);
@@ -310,8 +311,16 @@ size_t GetTotalPipelineWorkers() {
     if (desired == 0) {
         return 1ULL;
     }
-    return std::min(max_core_threads, desired);
+    size_t count = std::min(max_core_threads, desired);
+    if (Settings::values.smart_shader_throttle.GetValue() || Settings::values.eco_thermal_mode.GetValue()) {
+        count = std::max<size_t>(1ULL, count / 2ULL);
+    }
+    return count;
 #else
+    if (Settings::values.smart_shader_throttle.GetValue() || Settings::values.eco_thermal_mode.GetValue()) {
+        // Reserve at least 2 cores for guest CPU and GPU threads to prevent thermal spikes and micro-stutter
+        return std::clamp<size_t>(max_core_threads > 2 ? max_core_threads - 2 : 1, 1ULL, 8ULL);
+    }
     return max_core_threads;
 #endif
 }

@@ -217,7 +217,10 @@ bool Swapchain::AcquireNextImage() {
     };
 
 #ifdef __ANDROID__
-    if (android_get_device_api_level() >= 30) {
+    if (android_get_device_api_level() >= 30 &&
+        Settings::values.frame_pacing_mode.GetValue() == Settings::FramePacingMode::Target_Auto &&
+        !Settings::values.eco_frame_pacing.GetValue() &&
+        !Settings::values.eco_thermal_mode.GetValue()) {
         scheduler.Wait(resource_ticks[image_index]);
     } else {
         wait_with_frame_pacing();

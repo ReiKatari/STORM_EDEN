@@ -366,10 +366,10 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100650017170000L,
             "Animal Well",
-            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
-            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
-            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
-            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and NCE address space resilience",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "1",
@@ -379,7 +379,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
-                "Cpu\\cpu_backend" to "1",
+                "Cpu\\cpu_backend" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )
@@ -387,10 +387,10 @@ object GameFixDatabase {
         GameFixProfile(
             0x010020D01AD24000L,
             "Animal Well (Alt 1)",
-            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
-            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
-            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
-            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and NCE address space resilience",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "1",
@@ -400,7 +400,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
-                "Cpu\\cpu_backend" to "1",
+                "Cpu\\cpu_backend" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )
@@ -408,10 +408,10 @@ object GameFixDatabase {
         GameFixProfile(
             0x0100C9E01B854000L,
             "Animal Well (Alt 2)",
-            "• Повреждение/конфликт кэша шейдеров 2D-освещения и симуляции жидкостей\n• Сбои NCE при невыровненных обращениях к страницам памяти\n• Гонка потоков асинхронных шейдеров на сэмплерах",
-            "• Shader cache conflict with custom 2D compute lighting and fluid simulation\n• NCE unaligned page faults on Android\n• Asynchronous sampler pipeline race",
-            "✓ Бэкенд CPU: Dynarmic (стабильное исполнение без сбоев NCE)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
-            "✓ CPU Backend: Dynarmic (Fixes NCE page faults on Android)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
+            "• Оптимизация 2D-шейдеров динамического освещения и симуляции жидкостей\n• Стабилизация конвейера Vulkan и адресного пространства NCE",
+            "• Optimization for 2D dynamic lighting shaders and fluid simulation\n• Vulkan pipeline stabilization and NCE address space resilience",
+            "✓ Бэкенд CPU: NCE (Native Code Execution)\n✓ Точность GPU: Высокая (High — корректный рендеринг 2D-освещения)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Асинхронные шейдеры: Отключено (исключение гонки потоков)\n✓ Кэш драйвера Vulkan: Отключено (стабильный повторный запуск)\n✓ Быстрая память (Fastmem): Включено\n✓ Динамическое состояние: Базовое (EDS1)\n✓ Память: 4 ГБ DRAM",
+            "✓ CPU Backend: NCE (Native Code Execution)\n✓ GPU Accuracy: High (Accurate 2D compute lighting)\n✓ ASTC Recompression: Uncompressed\n✓ Asynchronous Shaders: Disabled (Prevents sampler thread race)\n✓ Vulkan Driver Pipeline Cache: Disabled (Prevents reload crash)\n✓ Fastmem: Enabled\n✓ Dynamic State: Basic (EDS1)\n✓ Memory Layout: 4GB DRAM",
             mapOf(
                 "System\\memory_layout_mode" to "0",
                 "Renderer\\gpu_accuracy" to "1",
@@ -421,7 +421,7 @@ object GameFixDatabase {
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
                 "Renderer\\dyna_state" to "1",
-                "Cpu\\cpu_backend" to "1",
+                "Cpu\\cpu_backend" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Cpu\\cpu_accuracy" to "1"
             )
@@ -444,18 +444,23 @@ object GameFixDatabase {
         GameFixProfile(
             0x010015100B514000L,
             "Super Mario Bros. Wonder",
-            "• Зависание сетевых служб acc:u0 (erepo/BaaS/Live Shadows)\n• Нехватка гостевой памяти (DRAM Overflow) при 4 ГБ\n• Ошибки декодирования ASTC-текстур эффектов Чудо-цветка",
-            "• Network service handshake hang on acc:u0 (erepo/BaaS/Live Shadows)\n• Out of memory (DRAM Overflow) with default 4GB layout\n• Wonder Flower transformation ASTC decoding corruption",
-            "✓ Режим полёта (Airplane Mode): Включено (пропуск сетевых запросов)\n✓ Конфигурация памяти: 6 ГБ DRAM (предотвращение OOM)\n✓ Точность GPU: Высокая (High — корректные ASTC-текстуры)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрое время GPU: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Включено",
-            "✓ Airplane Mode: Enabled (Bypasses network handshake)\n✓ Memory Layout: 6GB DRAM (Prevents DRAM Overflow)\n✓ GPU Accuracy: High (Accurate Wonder Flower textures)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+            "• Зависание сетевых служб acc:u0 (erepo/BaaS/Live Shadows)\n• Нехватка гостевой памяти (DRAM Overflow) при 4 ГБ\n• Ошибки декодирования ASTC-текстур эффектов Чудо-цветка\n• Вылет драйвера Adreno на расширенном динамическом состоянии",
+            "• Network service handshake hang on acc:u0 (erepo/BaaS/Live Shadows)\n• Out of memory (DRAM Overflow) with default 4GB layout\n• Wonder Flower transformation ASTC decoding corruption\n• Adreno driver crash on extended dynamic state",
+            "✓ Режим полёта (Airplane Mode): Включено (пропуск сетевых запросов)\n✓ Конфигурация памяти: 6 ГБ DRAM (предотвращение OOM)\n✓ Динамическое состояние: Базовое (EDS1 — защита от вылета Adreno)\n✓ Точность GPU: Высокая (High — корректные ASTC-текстуры)\n✓ Сжатие ASTC: Отключено (Uncompressed)\n✓ Быстрое время GPU: Отключено\n✓ Кэш драйвера Vulkan: Отключено\n✓ Быстрая память (Fastmem): Включено\n✓ Асинхронные шейдеры: Отключено (стабильный старт)",
+            "✓ Airplane Mode: Enabled (Bypasses network handshake)\n✓ Memory Layout: 6GB DRAM (Prevents DRAM Overflow)\n✓ Dynamic State: Basic (EDS1 — Prevents Adreno driver crash)\n✓ GPU Accuracy: High (Accurate Wonder Flower textures)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Vulkan Driver Pipeline Cache: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Disabled (Stable boot)",
             mapOf(
                 "System\\airplane_mode" to "true",
                 "System\\memory_layout_mode" to "1",
+                "Renderer\\dyna_state" to "0",
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\astc_recompression" to "0",
                 "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Renderer\\use_vulkan_driver_pipeline_cache" to "false",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\enable_compute_pipelines" to "false",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpu_accuracy" to "0"
             )
         ),
 

@@ -118,12 +118,15 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
     // We can't handle the access, so determine why we crashed.
     const bool is_prefetch_abort = host_ctx.pc == reinterpret_cast<u64>(info->si_addr);
 
-    // Set appropriate halt reason.
-    if (is_prefetch_abort) {
-        guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
-    } else {
-        guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::DataAbort));
+    // For data aborts, skip the instruction and return to guest code.
+    // This will allow games (such as ANIMAL WELL) to continue in many scenarios where they would otherwise crash on NCE.
+    if (!is_prefetch_abort) {
+        host_ctx.pc += 4;
+        return true;
     }
+
+    // This is a prefetch abort.
+    guest_ctx->esr_el1.fetch_or(static_cast<u64>(HaltReason::PrefetchAbort));
 
     // Forcibly mark the context as locked. We are still running.
     // We may race with SignalInterrupt here:

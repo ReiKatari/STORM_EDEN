@@ -212,6 +212,9 @@ object GameHelper {
     }
 
     private fun mountGameFolderContent(gameUri: Uri, mountedContainerUris: MutableSet<String>) {
+        if (!BooleanSetting.EXT_CONTENT_FROM_GAME_DIRS.getBoolean()) {
+            return
+        }
         if (gameUri.scheme == "content") {
             val parentUri = getParentDocumentUri(gameUri) ?: return
             scanContentContainersRecursive(FileUtil.listFiles(parentUri), 1) {

@@ -246,11 +246,14 @@ private:
                 }
             }
             Coalesce(0, virtual_size);
+            placeholders.clear();
+            placeholder_host_pointers.clear();
         }
         if (virtual_base) {
-            if (!VirtualFree(virtual_base, 0, MEM_RELEASE)) {
+            if (!VirtualFreeEx(process, virtual_base, 0, MEM_RELEASE)) {
                 LOG_CRITICAL(HW_Memory, "Failed to free virtual memory");
             }
+            virtual_base = nullptr;
         }
         if (backing_base) {
             if (!pfn_UnmapViewOfFile2(process, backing_base, MEM_PRESERVE_PLACEHOLDER)) {
@@ -259,9 +262,13 @@ private:
             if (!VirtualFreeEx(process, backing_base, 0, MEM_RELEASE)) {
                 LOG_CRITICAL(HW_Memory, "Failed to free backing memory");
             }
+            backing_base = nullptr;
         }
-        if (!CloseHandle(backing_handle)) {
-            LOG_CRITICAL(HW_Memory, "Failed to free backing memory file handle");
+        if (backing_handle) {
+            if (!CloseHandle(backing_handle)) {
+                LOG_CRITICAL(HW_Memory, "Failed to free backing memory file handle");
+            }
+            backing_handle = nullptr;
         }
     }
 

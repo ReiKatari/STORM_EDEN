@@ -294,9 +294,22 @@ struct System::Impl {
     }
 
     SystemResultStatus Load(System& system, Frontend::EmuWindow& emu_window, const std::string& filepath, Service::AM::FrontendAppletParameters& params) {
-        InitializeKernel(system);
-
         const auto file = GetGameFileFromPath(virtual_filesystem, filepath);
+
+        // Pre-identify program_id before system initialization to configure memory layout
+        if (params.program_id == 0 && file != nullptr) {
+            auto temp_loader = Loader::GetLoader(system, file, params.program_id, params.program_index);
+            if (temp_loader) {
+                temp_loader->ReadProgramId(params.program_id);
+            }
+        }
+
+        if (params.program_id != 0) {
+            Settings::SetCurrentProgramID(params.program_id);
+            Core::GameFixDatabase::ApplyProfileDirectly(params.program_id);
+        }
+
+        InitializeKernel(system);
 
         // Create the application process
         Loader::ResultStatus load_result{};
@@ -326,10 +339,6 @@ struct System::Impl {
 
         // Expose program id to dump sites and other global readers.
         Settings::SetCurrentProgramID(params.program_id);
-
-        // Automatically apply per-game database optimizations across all platforms (Windows, Android, Linux)
-        Core::GameFixDatabase::ApplyProfileDirectly(params.program_id);
-        ReinitializeIfNecessary(system);
 
         // Track launch time for frontend launches
         LaunchTimestampCache::SaveLaunchTimestamp(params.program_id);

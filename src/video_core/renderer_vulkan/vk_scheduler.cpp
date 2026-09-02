@@ -289,6 +289,10 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
                 return;
             }
 
+            if (!work) {
+                continue;
+            }
+
             // Exchange lock ownership so that we take the execution lock before
             // the queue lock goes out of scope. This allows us to force execution
             // to complete in the next step.
@@ -305,7 +309,7 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
             }
         }
 
-        {
+        if (work) {
             std::scoped_lock rl{reserve_mutex};
 
             // Recycle the chunk back to the reserve.

@@ -387,6 +387,10 @@ void RasterizerVulkan::DrawTexture() {
     const auto& texture = texture_cache.GetImageView(draw_texture_state.src_texture);
     const auto* framebuffer = texture_cache.GetFramebuffer();
 
+    if (!framebuffer || !sampler || !texture.ImageHandle() || !texture.RenderTarget()) {
+        return;
+    }
+
     const bool src_rescaling = texture_cache.IsRescaling() && texture.IsRescaled();
     const bool dst_rescaling = texture_cache.IsRescaling() && framebuffer->IsRescaled();
 
@@ -1327,10 +1331,15 @@ void RasterizerVulkan::UpdateDepthBias(Tegra::Engines::Maxwell3D::Regs& regs) {
     static constexpr const u64* end = NEEDS_D24 + length;
 
     const u64 base_prog_id = program_id & ~0x1FFFULL;
+    const bool needs_convert = std::find(start, end, base_prog_id) != end;
     if (is_d24 && !device.SupportsD24DepthBuffer()) {
-        // When D24 UNORM is not natively supported by host GPU and emulated on D32_SFLOAT,
-        // adjust precision difference appropriately.
-        units /= 256.0f;
+        if (needs_convert) {
+            const double rescale_factor = static_cast<double>(1ULL << (32 - 24))
+                                          / (static_cast<double>(0x1.ep+127));
+            units = static_cast<float>(static_cast<double>(units) * rescale_factor);
+        } else {
+            units /= 256.0f;
+        }
     }
 
     scheduler.Record([constant = units, clamp = regs.depth_bias_clamp,

@@ -2660,6 +2660,8 @@ object GameFixDatabase {
                 "Cpu\\cpu_accuracy" to "1",
                 "Renderer\\gpu_accuracy" to "0",
                 "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\gpu_fence_behavior" to "2",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true"
             )

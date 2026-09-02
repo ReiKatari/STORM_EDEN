@@ -5391,7 +5391,7 @@ void MainWindow::StartSilentCheatsSync() {
             const QString url_str = QString(QStringLiteral("https://raw.githubusercontent.com/HamletDuFromage/switch-cheats-db/master/cheats/%1.json"))
                                         .arg(tid_hex);
             QNetworkRequest request{QUrl(url_str)};
-            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_SWITCH_Emulator/7.2.0"));
+            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("STORM_SWITCH_Emulator/7.2.1"));
             request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
 
             auto* reply = nam->get(request);

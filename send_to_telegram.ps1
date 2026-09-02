@@ -30,40 +30,31 @@ function Send-TGDocument($filePath, $caption) {
 }
 
 $announcement = @"
-⚡ <b>Обновление STORM SWITCH 7.2.0 (Dimensity 9400, Vulkan Stability and GameFix Overhaul)</b> — <i>Свежая сборка: глубокая оптимизация под MediaTek Dimensity 9400 (Vivo X200 Pro Mini), устранение вылетов Vulkan Scheduler и сетевых сокетов BSD, исправления для Mortal Kombat 1, Diablo II: Resurrected и homebrew GTA V, обновление Менеджера модов и 8 фирменных тем оформления</i>
+⚡ <b>Обновление STORM SWITCH 7.2.1 (Performance Restoration, Driver 1.2.2, 3D Keyboard and Stability Hotfix)</b> — <i>Свежая сборка: устранение вылетов Defender of the Crown и GTA V, восстановление 60 FPS в Mortal Kombat 1, устранение графических рамок в Diablo II: Resurrected, полный редизайн и масштабирование экранной клавиатуры Windows, релиз драйвера STORM DRIVER 1.2.2</i>
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 
 🚀 <b>Ключевые изменения и улучшения:</b>
 
-📱 <b>Оптимизация под MediaTek Dimensity 9400 (Vivo X200 Pro Mini):</b>
-• Внедрено интеллектуальное распознавание архитектуры процессоров All-Big-Core и видеоядра ARM Immortalis-G925.
-• Добавлены профили адаптивного энергосбережения и термоконтроля (Eco Thermal Mode, Eco Frame Pacing, Smart Shader Throttle).
-• Ограничено число фоновых потоков компиляции шейдеров для защиты от перегрева корпуса смартфона.
-• Отключены конфликтующие динамические состояния (Extended Dynamic State) в видеодрайвере Mali для предотвращения сбоев и артефактов геометрии.
-• Интегрировано масштабирование AMD FSR с оптимизированной резкостью для максимальной плавности.
+🛡️ <b>Устранение вылетов Defender of the Crown и 2D-блиттинга (Дамп 7428.dmp):</b>
+• Внедрены строгие защитные барьеры при аппаратном 2D-блиттинге (DrawTexture в vk_rasterizer.cpp).
+• Исключены сбои разыменования нулевых указателей фреймбуфера и дескрипторов при смене меню и катсцен.
 
-🛡️ <b>Устранение критических сбоев Vulkan Scheduler (Дампы 13840.dmp и 66592.dmp):</b>
-• Устранены падения при асинхронной отправке команд рендеринга из-за разыменования нулевых буферов (null chunk dereference).
-• Реализованы строгие защитные барьеры при захвате чанков (AcquireNewChunk, DispatchWork, SubmitExecution).
+🎮 <b>Стабильность загрузки Homebrew GTA V (Дамп 34812.dmp):</b>
+• Устранено зависание потоков загрузки RAGE на экране «Вход в сюжетный режим».
+• Интегрированы профили Normal GPU Accuracy, Fast GPU Time и быстрого поведения фенсов.
+• Защищен цикл Vulkan WorkerThread от неполных чанков при параллельном стриминге ассетов Лос-Сантоса.
 
-🌐 <b>Надёжность сетевых сокетов BSD (Homebrew и GTA V):</b>
-• Устранены сбои эмулятора при запуске homebrew-проектов (порт GTA V) из-за несоответствия размеров структур сокетов sockaddr.
-• Жесткие аварийные остановки (ASSERT) заменены на безопасную валидацию с корректными кодами ошибок Switch OS.
+⚡ <b>Восстановление 60 FPS в Mortal Kombat 1 и исправление Diablo II (STORM DRIVER 1.2.2):</b>
+• Из глобального профиля драйвера удалены зажимы частот и отключение раннего Z-отсечения (tu_disable_lrz).
+• Возвращено штатное раннее Z-отсечение (Early-Z / LRZ) и быстрые очистки (Fast Clears) для всех игр — Mortal Kombat 1 снова стабильно работает при 50–60 FPS.
+• Устранены артефакты рамок и черных квадратов в Diablo II: Resurrected: специфичные хаки рендеринга Зельды изолированы строго под Title ID BotW и TotK.
+• Восстановлено корректное масштабирование Depth Bias Z24/D32 для плоских декалей и шрифтовых атласов.
 
-🎮 <b>Глубокая доработка базы авто-исправлений GameFix:</b>
-• <b>Mortal Kombat 1 и 11</b>: исправлена конфигурация памяти до 8 ГБ DRAM, устранено зависание на аренах и фаталити.
-• <b>Diablo II: Resurrected</b>: устранены графические артефакты (черные и белые квадраты/полосы) вокруг декалей и персонажей, отключено сжатие ASTC, обеспечена стабильная загрузка в режиме 8 ГБ DRAM.
-• <b>GTA V Homebrew Port</b>: настроен профиль 8 ГБ DRAM для тяжелой геометрии Лос-Сантоса.
-• <b>Модуль записи INI</b>: обеспечена синхронная запись параметров памяти в секции Core и System.
-
-🧩 <b>Инструменты и менеджер модификаций:</b>
-• Выровнена иконка менеджера модов в меню инструментов (слева в выделенной колонке без дублирования).
-• Исправлено сохранение состояния отключения модов (PatchManager теперь точно идентифицирует оригинальные идентификаторы модификаций).
-• Добавлено сопоставление GameBanana для Super Mario Bros. Wonder.
-
-🎨 <b>Единая система 8 визуальных тем оформления:</b>
-• Полная поддержка стандартизированных тем: STORM DARK, STORM NIGHT, STORM DAY, STORM MIDNIGHT, STORM MATRIX, STORM CYBERPUNK, STORM FANTASY, STORM WARHAMMER 40K.
+⌨️ <b>Полный редизайн экранной клавиатуры Windows (SWKBD):</b>
+• Устранена ошибка двойного деления на масштаб экрана (DPI Scaling), приводившая к микроскопическому шрифту на экранах высокого разрешения.
+• Увеличена высота строки ввода текста (с 28px до 52px+) и размер шрифта.
+• Интегрирован современный объемный 3D-стиль экосистемы STORM: темный градиент, акцентная неоновая окантовка Cyan, тактильный отклик клавиш.
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 📦 <i>Свежие исполняемые файлы и APK-пакеты собраны, подписаны SHA-256 и готовы к загрузке.</i>
@@ -75,16 +66,16 @@ Send-TGMessage $announcement
 Write-Host "2. Uploading release files to Telegram..."
 $filesToUpload = @(
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.0.apk"
-        Caption = "📱 <b>STORM SWITCH 7.2.0 (Mainline Release - Android 14+)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.1.apk"
+        Caption = "📱 <b>STORM SWITCH 7.2.1 (Mainline Release - Android 14+)</b>"
     },
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.0_LEGACY.apk"
-        Caption = "📱 <b>STORM SWITCH 7.2.0 (Legacy Release - Android 10-13)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.1_LEGACY.apk"
+        Caption = "📱 <b>STORM SWITCH 7.2.1 (Legacy Release - Android 10-13)</b>"
     },
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.0_Windows.zip"
-        Caption = "💻 <b>STORM SWITCH 7.2.0 (Windows x64 Release Portable)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.2.1_Windows.zip"
+        Caption = "💻 <b>STORM SWITCH 7.2.1 (Windows x64 Release Portable)</b>"
     }
 )
 
@@ -96,4 +87,4 @@ foreach ($item in $filesToUpload) {
     }
 }
 
-Write-Host "`nRelease 7.2.0 deployment to Telegram completed successfully!"
+Write-Host "`nRelease 7.2.1 deployment to Telegram completed successfully!"

@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -24,12 +24,12 @@ namespace {
 
 using namespace Service::AM::Frontend;
 
-constexpr float BASE_HEADER_FONT_SIZE = 23.0f;
-constexpr float BASE_SUB_FONT_SIZE = 17.0f;
-constexpr float BASE_EDITOR_FONT_SIZE = 26.0f;
-constexpr float BASE_CHAR_BUTTON_FONT_SIZE = 28.0f;
+constexpr float BASE_HEADER_FONT_SIZE = 26.0f;
+constexpr float BASE_SUB_FONT_SIZE = 18.0f;
+constexpr float BASE_EDITOR_FONT_SIZE = 30.0f;
+constexpr float BASE_CHAR_BUTTON_FONT_SIZE = 26.0f;
 constexpr float BASE_LABEL_BUTTON_FONT_SIZE = 18.0f;
-constexpr float BASE_ICON_BUTTON_SIZE = 36.0f;
+constexpr float BASE_ICON_BUTTON_SIZE = 38.0f;
 [[maybe_unused]] constexpr float BASE_WIDTH = 1280.0f;
 constexpr float BASE_HEIGHT = 720.0f;
 
@@ -47,6 +47,63 @@ QtSoftwareKeyboardDialog::QtSoftwareKeyboardDialog(
     setWindowModality(Qt::WindowModal);
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_TranslucentBackground);
+
+    setStyleSheet(QStringLiteral(
+        "QDialog#QtSoftwareKeyboardDialog { background: rgba(10, 14, 23, 0.96); }"
+        "QWidget#topOSK { background: transparent; padding: 12px; }"
+        "QWidget#bottomOSK { background: rgba(15, 23, 42, 0.88); border-top: 1px solid rgba(0, 210, 255, 0.3); }"
+        "QLineEdit#line_edit_osk {"
+        "  background: rgba(15, 23, 42, 0.95);"
+        "  border: 2px solid rgba(0, 210, 255, 0.6);"
+        "  border-radius: 8px;"
+        "  color: #f8fafc;"
+        "  padding: 8px 16px;"
+        "  min-height: 52px;"
+        "  font-weight: bold;"
+        "  selection-background-color: #00d2ff;"
+        "  selection-color: #0b0f19;"
+        "}"
+        "QLineEdit#line_edit_osk:focus {"
+        "  border: 2px solid #00d2ff;"
+        "  background: rgba(15, 23, 42, 1.0);"
+        "}"
+        "QTextEdit#text_edit_osk {"
+        "  background: rgba(15, 23, 42, 0.95);"
+        "  border: 2px solid rgba(0, 210, 255, 0.6);"
+        "  border-radius: 8px;"
+        "  color: #f8fafc;"
+        "  padding: 8px 16px;"
+        "  font-weight: bold;"
+        "}"
+        "QPushButton {"
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(30, 41, 59, 0.9), stop:1 rgba(15, 23, 42, 0.95));"
+        "  border: 1px solid rgba(255, 255, 255, 0.15);"
+        "  border-bottom: 2px solid rgba(0, 0, 0, 0.5);"
+        "  border-radius: 6px;"
+        "  color: #f1f5f9;"
+        "  font-weight: bold;"
+        "  padding: 4px;"
+        "}"
+        "QPushButton:hover {"
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(51, 65, 85, 0.9), stop:1 rgba(30, 41, 59, 0.95));"
+        "  border: 1px solid rgba(0, 210, 255, 0.6);"
+        "}"
+        "QPushButton:pressed {"
+        "  background: rgba(0, 210, 255, 0.25);"
+        "  border: 1px solid #00d2ff;"
+        "}"
+        "QPushButton#button_ok, QPushButton#button_ok_shift, QPushButton#button_ok_num {"
+        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0284c7, stop:1 #00d2ff);"
+        "  color: #0b0f19;"
+        "  font-weight: bold;"
+        "  border: none;"
+        "  border-radius: 6px;"
+        "}"
+        "QPushButton#button_ok:hover, QPushButton#button_ok_shift:hover, QPushButton#button_ok_num:hover {"
+        "  background: #38bdf8;"
+        "}"
+        "QLabel { color: #94a3b8; font-weight: 600; }"
+    ));
 
     keyboard_buttons = {{
         {{
@@ -583,20 +640,21 @@ void QtSoftwareKeyboardDialog::MoveAndResizeWindow(QPoint pos, QSize size) {
 }
 
 void QtSoftwareKeyboardDialog::RescaleKeyboardElements(float width, float height, float dpi_scale) {
-    const auto header_font_size = BASE_HEADER_FONT_SIZE * (height / BASE_HEIGHT) / dpi_scale;
-    const auto sub_font_size = BASE_SUB_FONT_SIZE * (height / BASE_HEIGHT) / dpi_scale;
-    const auto editor_font_size = BASE_EDITOR_FONT_SIZE * (height / BASE_HEIGHT) / dpi_scale;
-    const auto char_button_font_size =
-        BASE_CHAR_BUTTON_FONT_SIZE * (height / BASE_HEIGHT) / dpi_scale;
-    const auto label_button_font_size =
-        BASE_LABEL_BUTTON_FONT_SIZE * (height / BASE_HEIGHT) / dpi_scale;
+    const float scale_factor = std::max(1.0f, height / BASE_HEIGHT);
+    const int header_font_size = static_cast<int>(BASE_HEADER_FONT_SIZE * scale_factor);
+    const int sub_font_size = static_cast<int>(BASE_SUB_FONT_SIZE * scale_factor);
+    const int editor_font_size = static_cast<int>(BASE_EDITOR_FONT_SIZE * scale_factor);
+    const int char_button_font_size = static_cast<int>(BASE_CHAR_BUTTON_FONT_SIZE * scale_factor);
+    const int label_button_font_size = static_cast<int>(BASE_LABEL_BUTTON_FONT_SIZE * scale_factor);
 
-    QFont header_font(QStringLiteral("MS Shell Dlg 2"), header_font_size, QFont::Normal);
-    QFont sub_font(QStringLiteral("MS Shell Dlg 2"), sub_font_size, QFont::Normal);
-    QFont editor_font(QStringLiteral("MS Shell Dlg 2"), editor_font_size, QFont::Normal);
-    QFont char_button_font(QStringLiteral("MS Shell Dlg 2"), char_button_font_size, QFont::Normal);
-    QFont label_button_font(QStringLiteral("MS Shell Dlg 2"), label_button_font_size,
-                            QFont::Normal);
+    QFont header_font(QStringLiteral("Segoe UI"), header_font_size, QFont::Bold);
+    QFont sub_font(QStringLiteral("Segoe UI"), sub_font_size, QFont::Normal);
+    QFont editor_font(QStringLiteral("Segoe UI"), editor_font_size, QFont::Bold);
+    QFont char_button_font(QStringLiteral("Segoe UI"), char_button_font_size, QFont::Bold);
+    QFont label_button_font(QStringLiteral("Segoe UI"), label_button_font_size, QFont::DemiBold);
+
+    ui->line_edit_osk->setMinimumHeight(static_cast<int>(52 * scale_factor));
+    ui->text_edit_osk->setMinimumHeight(static_cast<int>(80 * scale_factor));
 
     ui->label_header->setFont(header_font);
     ui->label_sub->setFont(sub_font);
@@ -627,16 +685,16 @@ void QtSoftwareKeyboardDialog::RescaleKeyboardElements(float width, float height
 
         if (button == ui->button_shift || button == ui->button_shift_shift) {
             button->setFont(label_button_font);
-            button->setIconSize(QSize(BASE_ICON_BUTTON_SIZE, BASE_ICON_BUTTON_SIZE) *
-                                (height / BASE_HEIGHT));
+            button->setIconSize(QSize(static_cast<int>(BASE_ICON_BUTTON_SIZE * scale_factor),
+                                      static_cast<int>(BASE_ICON_BUTTON_SIZE * scale_factor)));
             continue;
         }
 
         if (button == ui->button_backspace || button == ui->button_backspace_shift ||
             button == ui->button_backspace_num) {
             button->setFont(label_button_font);
-            button->setIconSize(QSize(BASE_ICON_BUTTON_SIZE, BASE_ICON_BUTTON_SIZE) *
-                                (height / BASE_HEIGHT));
+            button->setIconSize(QSize(static_cast<int>(BASE_ICON_BUTTON_SIZE * scale_factor),
+                                      static_cast<int>(BASE_ICON_BUTTON_SIZE * scale_factor)));
             continue;
         }
 

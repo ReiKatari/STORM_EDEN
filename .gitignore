@@ -78,4 +78,15 @@ google-credentials.json
 installer/Output/
 *.tmp*
 *.wal
+*.dmp
+*.pdb
+*.obj
+*.apk
+*.zip
+*.7z
+*.rar
+Assembling/
+Files/
+tools/
+
 

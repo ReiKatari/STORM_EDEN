@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdint>
 #include <dlfcn.h>
+#include <thread>
 
 #include "common/android/id_cache.h"
 #include "common/logging.h"
@@ -65,6 +66,10 @@ void EmuWindow_Android::OnTouchReleased(int id) {
 }
 
 void EmuWindow_Android::OnFrameDisplayed() {
+    if (EmulationSession::GetInstance().IsPaused()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        return;
+    }
     UpdateObservedFrameRate();
     UpdateFrameRateHint();
 

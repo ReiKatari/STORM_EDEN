@@ -158,17 +158,58 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="false">
 
-            <ImageView
-                android:id="@+id/paused_icon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+            <LinearLayout
+                android:id="@+id/paused_cooling_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/circle_white"
-                android:contentDescription="@string/emulation_unpause"
-                android:padding="14dp"
-                android:src="@drawable/ic_play"
-                android:visibility="gone"
-                app:tint="@android:color/black" />
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:background="@drawable/storm_cooling_banner_bg"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/paused_icon"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/circle_white"
+                    android:contentDescription="@string/emulation_unpause"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_play"
+                    app:tint="@android:color/black" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/paused_cooling_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="15sp"
+                    android:textColor="#00F0FF"
+                    android:text="❄️ Игра на паузе — идёт охлаждение устройства" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/paused_cooling_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="#CBD5E1"
+                    android:text="🌡️ Температура: --°C ➔ Цель: 36.5°C" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/paused_cooling_sub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="11sp"
+                    android:textColor="#94A3B8"
+                    android:text="⚡ Нагрузка на чипсет снята (&lt; 1 Вт)" />
+            </LinearLayout>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/show_stats_overlay_text"

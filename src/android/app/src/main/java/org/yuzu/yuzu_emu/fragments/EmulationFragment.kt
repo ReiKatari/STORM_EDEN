@@ -349,8 +349,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
         }
         try {
+            val programIdHex = game!!.programIdHex
+            val gameTitle = game?.title ?: ""
+            GpuDriverHelper.applyPerGameDriverConfig(programIdHex, gameTitle)
+
             if (GpuDriverHelper.isAdrenoGpu()) {
-                val programIdHex = game!!.programIdHex
                 if (NativeFreedrenoConfig.loadPerGameConfigWithGlobalFallback(programIdHex)) {
                     Log.info("[EmulationFragment] Loaded per-game Freedreno config for $programIdHex")
                 } else {
@@ -358,7 +361,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 }
             }
         } catch (e: Exception) {
-            Log.warning("[EmulationFragment] Failed to load Freedreno config: ${e.message}")
+            Log.warning("[EmulationFragment] Failed to configure Freedreno/Turnip driver: ${e.message}")
         }
 
         emulationState = EmulationState(game!!.path) {
@@ -750,6 +753,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         setupFloatingTranslateButton()
 
         binding.pausedIcon.setOnClickListener {
+            if (this::emulationState.isInitialized && emulationState.isPaused) {
+                resumeEmulationFromUi()
+            }
+        }
+        binding.pausedCoolingContainer.setOnClickListener {
             if (this::emulationState.isInitialized && emulationState.isPaused) {
                 resumeEmulationFromUi()
             }
@@ -1531,11 +1539,28 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private fun updatePausedFrameVisibility() {
         val b = _binding ?: return
         val showPausedUi = this::emulationState.isInitialized && emulationState.isPaused
-        b.pausedIcon.setVisible(showPausedUi)
+        b.pausedCoolingContainer.setVisible(showPausedUi)
+        if (showPausedUi) {
+            updateCoolingTemperatureText()
+        }
 
         val bitmap = if (showPausedUi) pausedFrameBitmap else null
         b.pausedFrameImage.setImageBitmap(bitmap)
         b.pausedFrameImage.setVisible(bitmap != null)
+    }
+
+    private fun updateCoolingTemperatureText() {
+        val b = _binding ?: return
+        try {
+            val tempC = getBatteryTemperature()
+            if (tempC > 0f) {
+                b.pausedCoolingTemp.text = "🌡️ Температура: ${String.format(java.util.Locale.US, "%.1f", tempC)}°C ➔ Цель: 36.5°C"
+            } else {
+                b.pausedCoolingTemp.text = "🌡️ Идёт охлаждение чипсета ➔ Цель: 36.5°C"
+            }
+        } catch (_: Throwable) {
+            b.pausedCoolingTemp.text = "🌡️ Идёт охлаждение чипсета"
+        }
     }
 
     private fun resumeEmulationFromUi() {

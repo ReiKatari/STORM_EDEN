@@ -454,13 +454,13 @@ Instance Instance::Create(u32 version, Span<const char*> layers, Span<const char
 #else
     constexpr VkFlags ci_flags{};
 #endif
-    std::string const application_name = app_name.empty() ? "yuzu Emulator" : std::string(app_name);
+    std::string const application_name = app_name.empty() ? "STORM SWITCH" : std::string(app_name);
     const VkApplicationInfo application_info{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext = nullptr,
         .pApplicationName = application_name.c_str(),
         .applicationVersion = VK_MAKE_VERSION(1, 3, 0),
-        .pEngineName = "yuzu Emulator",
+        .pEngineName = "STORM SWITCH",
         .engineVersion = VK_MAKE_VERSION(1, 3, 0),
         .apiVersion = VK_API_VERSION_1_3,
     };

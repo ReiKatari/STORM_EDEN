@@ -31,6 +31,11 @@ std::unique_ptr<VideoCore::RendererBase> CreateRenderer(Core::System& system, Co
     u64 program_id = 0;
     if (system.GetAppLoader().ReadProgramId(program_id) == Loader::ResultStatus::Success && program_id != 0) {
         app_title_id = fmt::format("{:016X}", program_id);
+    } else {
+        const u64 current_id = Settings::GetCurrentProgramID();
+        if (current_id != 0) {
+            app_title_id = fmt::format("{:016X}", current_id);
+        }
     }
     switch (Settings::values.renderer_backend.GetValue()) {
 #ifdef HAS_OPENGL

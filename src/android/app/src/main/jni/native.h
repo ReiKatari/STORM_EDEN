@@ -37,8 +37,12 @@ public:
                              const std::string& custom_driver_name,
                              const std::string& file_redirect_dir);
 
-    bool IsRunning() const;
-    bool IsPaused() const;
+    bool IsRunning() const {
+        return m_is_running.load(std::memory_order_relaxed);
+    }
+    bool IsPaused() const {
+        return m_is_paused.load(std::memory_order_relaxed);
+    }
     void PauseEmulation();
     void UnPauseEmulation();
     void HaltEmulation();

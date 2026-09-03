@@ -132,6 +132,45 @@ object GpuDriverHelper {
         )
     }
 
+    fun applyPerGameDriverConfig(programIdHex: String, gameTitle: String) {
+        val customLib = installedCustomDriverData.libraryName
+        if (customLib.isNullOrEmpty() || driverInstallationPath.isNullOrEmpty()) {
+            return
+        }
+
+        try {
+            val generatedConfigFile = PerGameDrircGenerator.generateForGame(programIdHex, gameTitle)
+            val configBytes = generatedConfigFile.readBytes()
+
+            if (!fileRedirectionPath.isNullOrEmpty()) {
+                val redirDir = File(fileRedirectionPath!!)
+                if (!redirDir.exists()) redirDir.mkdirs()
+                File(redirDir, "drirc.xml").writeBytes(configBytes)
+                File(redirDir, "drirc").writeBytes(configBytes)
+                File(redirDir, "00-storm.conf").writeBytes(configBytes)
+                File(redirDir, "drirc.conf").writeBytes(configBytes)
+            }
+
+            val installDir = File(driverInstallationPath!!)
+            File(installDir, "drirc.xml").writeBytes(configBytes)
+            File(installDir, "00-storm.conf").writeBytes(configBytes)
+            File(installDir, "drirc").writeBytes(configBytes)
+            File(installDir, "drirc.conf").writeBytes(configBytes)
+
+            val homeDir = YuzuApplication.appContext.filesDir
+            File(homeDir, ".drirc").writeBytes(configBytes)
+
+            NativeFreedrenoConfig.setFreedrenoEnv("DRIRC_CONFIGDIR", generatedConfigFile.parentFile.absolutePath)
+            NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_DIR", generatedConfigFile.parentFile.absolutePath)
+            NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_FILE", generatedConfigFile.absolutePath)
+            NativeFreedrenoConfig.setFreedrenoEnv("HOME", YuzuApplication.appContext.filesDir.absolutePath)
+
+            Log.info("[GpuDriverHelper] Successfully applied per-game driver config for $gameTitle ($programIdHex) -> ${generatedConfigFile.absolutePath}")
+        } catch (t: Throwable) {
+            Log.error("[GpuDriverHelper] Failed to apply per-game driver config: ${t.message}")
+        }
+    }
+
     fun getDrivers(): MutableList<Pair<String, GpuDriverMetadata>> {
         val driverZips = File(driverStoragePath).listFiles()
         val drivers: MutableList<Pair<String, GpuDriverMetadata>> =

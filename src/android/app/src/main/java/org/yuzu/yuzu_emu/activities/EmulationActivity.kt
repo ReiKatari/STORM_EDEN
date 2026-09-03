@@ -18,6 +18,9 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.graphics.drawable.Icon
+import android.app.GameManager
+import android.app.GameState
+import android.os.PowerManager
 import android.hardware.input.InputManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -241,6 +244,32 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
         foregroundService = Intent(this, ForegroundService::class.java)
         startForegroundService(foregroundService)
+
+        // Android 12+ (API 31+) GameManager API: declare GAMEPLAY mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                val gameManager = getSystemService(GameManager::class.java)
+                gameManager?.setGameState(GameState(false, GameState.MODE_GAMEPLAY_INTERRUPTIBLE))
+            } catch (t: Throwable) {
+                Log.warning("[EmulationActivity] GameManager API error: ${t.message}")
+            }
+        }
+
+        // Set minimal post processing for lowest display latency (Gaming Mode)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setPreferMinimalPostProcessing(true)
+        }
+
+        // Sustained Performance Mode (prevents aggressive thermal throttling drops)
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && powerManager?.isSustainedPerformanceModeSupported == true) {
+                window.setSustainedPerformanceMode(true)
+                Log.info("[EmulationActivity] Sustained Performance Mode enabled")
+            }
+        } catch (t: Throwable) {
+            Log.warning("[EmulationActivity] Sustained Performance Mode error: ${t.message}")
+        }
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
         if (!preferences.getBoolean(Settings.PREF_MEMORY_WARNING_SHOWN, false)) {

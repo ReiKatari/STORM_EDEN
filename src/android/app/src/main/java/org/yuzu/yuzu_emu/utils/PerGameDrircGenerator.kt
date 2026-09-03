@@ -1,0 +1,402 @@
+package org.yuzu.yuzu_emu.utils
+
+import java.io.File
+import org.yuzu.yuzu_emu.YuzuApplication
+
+/**
+ * Generates tailored, conflict-free Mesa Turnip and PanVK drirc configurations
+ * on-the-fly for any Nintendo Switch game prior to Vulkan instance creation.
+ *
+ * This ensures that games requiring opposing driver settings (e.g. Zelda needing
+ * tu_tile_discard=false vs Diablo II/Streets of Rage 4 needing tu_tile_discard=true)
+ * each receive their exact ideal profile in <application name="all"> without conflict.
+ */
+object PerGameDrircGenerator {
+
+    enum class GameProfileType {
+        ZELDA,
+        DIABLO,
+        SPRITE_2D,
+        LEGEND_OF_HEROES,
+        MARIO,
+        SONIC,
+        HEAVY_3D,
+        EA_SPORTS,
+        POKEMON,
+        UNIVERSAL_DEFAULT
+    }
+
+    fun detectProfileType(programIdHex: String, title: String): GameProfileType {
+        val cleanId = programIdHex.trim().uppercase()
+        val cleanTitle = title.trim().lowercase()
+
+        // 1. Zelda Series
+        if (cleanId.startsWith("01007EF00011E") || // BotW
+            cleanId.startsWith("0100F2C0115B6") || // TotK
+            cleanId.startsWith("01006BB00C6F0") || // Link's Awakening
+            cleanId.startsWith("01008CF01BA04") || // Echoes of Wisdom
+            cleanId.startsWith("01002DA013484") || // Skyward Sword HD
+            cleanTitle.contains("zelda") ||
+            cleanTitle.contains("hyrule") ||
+            cleanTitle.contains("breath of the wild") ||
+            cleanTitle.contains("tears of the kingdom")
+        ) {
+            return GameProfileType.ZELDA
+        }
+
+        // 2. Diablo Series
+        if (cleanId.startsWith("01002A801458A") || // Diablo II USA
+            cleanId.startsWith("0100916014D8C") || // Diablo II EUR
+            cleanId.startsWith("0100726014352") || // Diablo II JPN
+            cleanId.startsWith("01001B300B9BE") || // Diablo III
+            cleanTitle.contains("diablo")
+        ) {
+            return GameProfileType.DIABLO
+        }
+
+        // 3. 2D Sprite Games
+        if (cleanId.startsWith("010085800E33E") || // Streets of Rage 4 Main
+            cleanId.startsWith("0100BA700E340") || // Streets of Rage 4 Alt
+            cleanId.startsWith("010063B0077F6") || // Hollow Knight
+            cleanId.startsWith("01008EB00B32E") || // Cuphead
+            cleanId.startsWith("010006200A526") || // Dead Cells
+            cleanId.startsWith("0100854005118") || // Celeste
+            cleanId.startsWith("01009AA000FAA") || // Sonic Mania
+            cleanId.startsWith("0100109015CA6") || // TMNT Shredder's Revenge
+            cleanId.startsWith("0100779004BEE") || // Rayman Legends
+            cleanId.startsWith("010019C00D6FE") || // Ori 1
+            cleanId.startsWith("0100B1A00FECC") || // Ori 2
+            cleanId.startsWith("0100B2B0192A0") || // Vampire Survivors
+            cleanId.startsWith("0100AE801659C") || // Prince of Persia: The Lost Crown
+            cleanId.startsWith("0100535012974") || // Hades
+            cleanId.startsWith("0100B880182CA") || // Sea of Stars
+            cleanId.startsWith("0100570003AC8") || // Octopath Traveler
+            cleanId.startsWith("010057A016848") || // Octopath Traveler II
+            cleanId.startsWith("0100CC80140F8") || // Triangle Strategy
+            cleanId.startsWith("010023400DA34") || // Blasphemous
+            cleanTitle.contains("streets of rage") ||
+            cleanTitle.contains("hollow knight") ||
+            cleanTitle.contains("cuphead") ||
+            cleanTitle.contains("dead cells") ||
+            cleanTitle.contains("celeste") ||
+            cleanTitle.contains("sonic mania") ||
+            cleanTitle.contains("tmnt") ||
+            cleanTitle.contains("shredder") ||
+            cleanTitle.contains("vampire survivors") ||
+            cleanTitle.contains("blasphemous") ||
+            cleanTitle.contains("sea of stars")
+        ) {
+            return GameProfileType.SPRITE_2D
+        }
+
+        // 4. The Legend of Heroes
+        if (cleanId.startsWith("0100B0E020356") ||
+            cleanId.startsWith("01004A301D6E2") ||
+            cleanId.startsWith("01002C5016EE8") ||
+            cleanId.startsWith("0100F7A016336") ||
+            cleanTitle.contains("trails in the sky") ||
+            cleanTitle.contains("trails of cold steel") ||
+            cleanTitle.contains("legend of heroes")
+        ) {
+            return GameProfileType.LEGEND_OF_HEROES
+        }
+
+        // 5. Mario Series
+        if (cleanId.startsWith("0100000000010") || // Odyssey
+            cleanId.startsWith("010015100B5C4") || // Wonder
+            cleanId.startsWith("010028600EBDA") || // 3D World
+            cleanId.startsWith("0100152000022") || // Mario Kart 8
+            cleanId.startsWith("010067300059A") || // Mario + Rabbids
+            cleanId.startsWith("01007EF01B842") || // Paper Mario TTYD
+            cleanId.startsWith("0100D57018DEE") || // Mario & Luigi Brothership
+            cleanId.startsWith("010062C019800") || // Super Mario RPG
+            cleanId.startsWith("0100DCA0064A6") || // Luigi's Mansion 3
+            cleanTitle.contains("mario") ||
+            cleanTitle.contains("luigi") ||
+            cleanTitle.contains("donkey kong")
+        ) {
+            return GameProfileType.MARIO
+        }
+
+        // 6. Sonic Series
+        if (cleanId.startsWith("01006CD0127BE") || // Frontiers
+            cleanId.startsWith("01006CD016142") || // Superstars
+            cleanId.startsWith("0100DA80036C8") || // Forces
+            cleanId.startsWith("01005110137EE") || // Colors
+            cleanId.startsWith("0100A7D01B694") || // Generations
+            cleanTitle.contains("sonic")
+        ) {
+            return GameProfileType.SONIC
+        }
+
+        // 7. Heavy 3D & Open World
+        if (cleanId.startsWith("01003D100E9C6") || // Witcher 3
+            cleanId.startsWith("010014B00E9BE") ||
+            cleanId.startsWith("0100E670129CA") ||
+            cleanId.startsWith("01000A10041EA") || // Skyrim
+            cleanId.startsWith("0100BCB0176D0") || // Hogwarts Legacy
+            cleanId.startsWith("0100B5B0112F8") ||
+            cleanId.startsWith("0100D1801648E") ||
+            cleanId.startsWith("0100F3400332E") || // Xenoblade
+            cleanId.startsWith("0100E95004038") ||
+            cleanId.startsWith("010074600E26E") ||
+            cleanId.startsWith("0100813014B74") || // Metroid Prime
+            cleanId.startsWith("010093801237C") || // Metroid Dread
+            cleanId.startsWith("010076F0049A2") || // Bayonetta
+            cleanId.startsWith("01009A1008C36") ||
+            cleanId.startsWith("010053700465C") || // Doom
+            cleanId.startsWith("01007820195A6") || // Red Dead Redemption
+            cleanTitle.contains("witcher") ||
+            cleanTitle.contains("skyrim") ||
+            cleanTitle.contains("hogwarts") ||
+            cleanTitle.contains("xenoblade") ||
+            cleanTitle.contains("metroid") ||
+            cleanTitle.contains("bayonetta") ||
+            cleanTitle.contains("doom") ||
+            cleanTitle.contains("red dead")
+        ) {
+            return GameProfileType.HEAVY_3D
+        }
+
+        // 8. EA Sports FC
+        if (cleanId.startsWith("0100A38018D5A") || // FC 24
+            cleanId.startsWith("01005B101DC84") || // FC 25
+            cleanId.startsWith("010077D0238FA") || // FC 26
+            cleanTitle.contains("ea sports") ||
+            cleanTitle.contains("fifa") ||
+            cleanTitle.contains("fc 2")
+        ) {
+            return GameProfileType.EA_SPORTS
+        }
+
+        // 9. Pokemon Series
+        if (cleanId.startsWith("0100A3D008C5C") || // Scarlet
+            cleanId.startsWith("01008F6008C5E") || // Violet
+            cleanId.startsWith("01001F5010DFA") || // Arceus
+            cleanId.startsWith("0100ABF008968") || // Sword
+            cleanId.startsWith("01008DB008C2C") || // Shield
+            cleanId.startsWith("0100000011D90") || // BD
+            cleanId.startsWith("010018E011D92") || // SP
+            cleanTitle.contains("pokemon")
+        ) {
+            return GameProfileType.POKEMON
+        }
+
+        return GameProfileType.UNIVERSAL_DEFAULT
+    }
+
+    fun generateXmlContent(profileType: GameProfileType, programIdHex: String, title: String): String {
+        val optionsBuilder = StringBuilder()
+
+        // Common baseline options across all profiles:
+        optionsBuilder.append("""
+            <!-- 1. Next-Gen Thermal Governor Floor & Power Optimization v5 -->
+            <option name="tu_thermal_governor_floor" value="true" />
+            <option name="tu_power_governor_floor" value="true" />
+            <option name="tu_perf_floor_clamp" value="true" />
+            <option name="tu_power_profile_balanced" value="true" />
+            <option name="tu_low_power_vulkan_pipeline" value="true" />
+            <option name="tu_dynamic_thermal_budget" value="true" />
+            <option name="tu_energy_aware_scheduling" value="true" />
+
+            <!-- 2. Low-Latency Mailbox VSync & Dynamic Adaptive Frame Pacing -->
+            <option name="tu_adaptive_frame_pacing" value="true" />
+            <option name="tu_frame_time_smoothing" value="true" />
+            <option name="tu_timeline_sync" value="true" />
+            <option name="tu_relaxed_frame_pacing" value="true" />
+            <option name="tu_mail_box_vsync_pacing" value="true" />
+
+            <!-- 3. Adreno 830 (Snapdragon 8 Elite) & A8xx Precision Architecture Tuning -->
+            <option name="tu_a830_reg_size_96" value="true" />
+            <option name="tu_a8xx_perfcntrs" value="true" />
+            <option name="tu_a830_ubwc_pitch_clamp" value="true" />
+            <option name="tu_a8xx_concurrent_queue_barrier_fix" value="true" />
+            <option name="tu_a8xx_barycentric_coord_clamp" value="true" />
+            <option name="tu_a8xx_subgroup_ballot_fastpath" value="true" />
+            <option name="tu_a830_concurrent_render_pass_align" value="true" />
+            <option name="tu_shader_spirv_mem_fastpath" value="true" />
+
+            <!-- 4. Samsung OneUI UBWC Framebuffer Compression & Lossless Guard -->
+            <option name="tu_ubwc_oneui_fix" value="true" />
+            <option name="tu_ubwc_5_direct_align" value="true" />
+            <option name="tu_ubwc_5_stride_128_align" value="true" />
+            <option name="tu_ubwc_fallback_guard" value="true" />
+            <option name="tu_ubwc_lossless_fastpath" value="true" />
+            <option name="tu_disable_lossy_ubwc_depth" value="true" />
+
+            <!-- 5. Compute Flush Optimization & Binary-Search GMEM Allocator -->
+            <option name="tu_compute_flush_bits_optimize" value="true" />
+            <option name="tu_optimal_gmem_tile_allocator" value="true" />
+            <option name="tu_lrz_preserve_across_cmdbuf" value="true" />
+            <option name="tu_drop_tile_wfi" value="true" />
+            <option name="tu_autotune_bypass_margin" value="true" />
+
+            <!-- 6. Zero-Overhead ASTC HDR Decompressor in GMEM & Direct WSI -->
+            <option name="tu_astc_hdr_gmem" value="true" />
+            <option name="tu_fast_astc_decompress_gmem" value="true" />
+            <option name="tu_bindless_textures" value="true" />
+            <option name="tu_zero_copy_subsampled_sampler" value="true" />
+            <option name="tu_direct_surfaceflinger_blit" value="true" />
+            <option name="tu_bypass_gpu_rotator" value="true" />
+            <option name="tu_direct_display_sync" value="true" />
+            <option name="tu_zero_copy_swapchain" value="true" />
+
+            <!-- 7. Subpass Fusion Guard: False for pure transparency & stability -->
+            <option name="tu_subpass_fusion" value="false" />
+            <option name="tu_subpass_fusion_v2" value="false" />
+
+            <!-- 8. Monolithic Pipeline Cache (4GB LZ4) & IR3 Optimization -->
+            <option name="tu_suballocator_pool_512k" value="true" />
+            <option name="tu_pipeline_cache_lz4" value="true" />
+            <option name="tu_shader_cache_size_mb" value="4096" />
+            <option name="tu_huge_heap_8gb_align" value="true" />
+            <option name="tu_gmem_page_alignment_guard" value="true" />
+            <option name="tu_gmem_force_tile_align" value="true" />
+            <option name="tu_gcm" value="1" />
+            <option name="tu_ir3_icache_128b_align" value="true" />
+            <option name="tu_ir3_dead_code_elimination" value="true" />
+            <option name="tu_ir3_constant_folding" value="true" />
+            <option name="tu_ir3_subgroup_merge" value="true" />
+            <option name="tu_ir3_scheduler_hazard_guard" value="true" />
+        """.trimIndent())
+
+        // Specific tailored options per game category:
+        when (profileType) {
+            GameProfileType.ZELDA -> {
+                optionsBuilder.append("\n            <!-- ZELDA SPECIFIC RULES (Crystal Water, Intact Shrines, No Strobing) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_disable_fast_clears\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_disable_lrz\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_fast_clear\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_botw_depth_refract_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_botw_shrine_geometry_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_gmem_pinning_zelda\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_direction_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_ping_pong_command_submission\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_pso_fuzzy_match\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_ir3_texture_prefetch\" value=\"false\" />\n")
+            }
+            GameProfileType.DIABLO -> {
+                optionsBuilder.append("\n            <!-- DIABLO II SPECIFIC RULES (Flawless D32 Float Depth, Zero Strobing) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_range_unrestricted_a7xx_a8xx\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_dynamic_state_depth_bias_clamp\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bounds_test\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+            }
+            GameProfileType.SPRITE_2D -> {
+                optionsBuilder.append("\n            <!-- 2D SPRITE SPECIFIC RULES (Pristine Pixel Art & Video Cutscenes) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_auto_mipmap_generation\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_compute_detiling_gob_linear\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
+            }
+            GameProfileType.LEGEND_OF_HEROES -> {
+                optionsBuilder.append("\n            <!-- THE LEGEND OF HEROES RULES (LRZ Continuity across CmdBuf) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_autotune_bypass_margin\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+            }
+            GameProfileType.MARIO, GameProfileType.SONIC -> {
+                optionsBuilder.append("\n            <!-- MARIO & SONIC 3D RULES (Ultra Smooth Frame Pacing) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+            }
+            GameProfileType.HEAVY_3D, GameProfileType.POKEMON -> {
+                optionsBuilder.append("\n            <!-- HEAVY 3D & OPEN WORLD RULES (Depth Clamp & GMEM Optimization) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_range_unrestricted_a7xx_a8xx\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+            }
+            GameProfileType.EA_SPORTS -> {
+                optionsBuilder.append("\n            <!-- EA SPORTS FROSTBITE RULES (Pacing & Command Buffering) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_adaptive_frame_pacing\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_mail_box_vsync_pacing\" value=\"true\" />\n")
+            }
+            GameProfileType.UNIVERSAL_DEFAULT -> {
+                optionsBuilder.append("\n            <!-- UNIVERSAL 0.0.29 DEFAULT ENGINE RULES -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_range_unrestricted_a7xx_a8xx\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_dynamic_state_depth_bias_clamp\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+            }
+        }
+
+        return """
+<driconf>
+    <device driver="turnip">
+        <application name="all">
+$optionsBuilder
+        </application>
+    </device>
+    <device driver="panfrost">
+        <application name="all">
+            <option name="pan_early_z" value="true" />
+            <option name="pan_afbc_lossless" value="true" />
+        </application>
+    </device>
+    <device driver="panvk">
+        <application name="all">
+            <option name="pan_early_z" value="true" />
+            <option name="pan_forward_pixel_kill" value="true" />
+            <option name="pan_fp16_arithmetic" value="true" />
+            <option name="pan_thread_group_clamp" value="true" />
+            <option name="pan_tile_buffer_coherency" value="true" />
+            <option name="pan_afbc_lossless" value="true" />
+            <option name="pan_shader_cache_multithreaded" value="true" />
+            <option name="mesa_disk_cache_single_file" value="true" />
+            <option name="mesa_shader_cache_max_size" value="4294967296" />
+        </application>
+    </device>
+</driconf>
+""".trimIndent()
+    }
+
+    /**
+     * Generates and writes the tailored drirc configuration for the active game,
+     * returning the File pointing to the active session config.
+     */
+    fun generateForGame(programIdHex: String, title: String): File {
+        val profileType = detectProfileType(programIdHex, title)
+        val xml = generateXmlContent(profileType, programIdHex, title)
+
+        val targetDir = File(YuzuApplication.appContext.filesDir, "per_game_drirc")
+        if (!targetDir.exists()) {
+            targetDir.mkdirs()
+        }
+
+        val configFile = File(targetDir, "drirc.xml")
+        configFile.writeText(xml, Charsets.UTF_8)
+
+        // Duplicate as drirc, 00-storm.conf, drirc.conf for maximum loader compatibility
+        File(targetDir, "00-storm.conf").writeText(xml, Charsets.UTF_8)
+        File(targetDir, "drirc").writeText(xml, Charsets.UTF_8)
+        File(targetDir, "drirc.conf").writeText(xml, Charsets.UTF_8)
+
+        // Write directly to $HOME/.drirc
+        val homeDir = YuzuApplication.appContext.filesDir
+        File(homeDir, ".drirc").writeText(xml, Charsets.UTF_8)
+
+        Log.info("[PerGameDrircGenerator] Generated $profileType drirc profile for $title ($programIdHex)")
+        return configFile
+    }
+}

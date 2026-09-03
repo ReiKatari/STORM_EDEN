@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2020 yuzu Emulator Project
@@ -15,6 +15,7 @@
 
 #include <QAbstractButton>
 #include <QCheckBox>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QString>
@@ -147,6 +148,20 @@ ConfigurePerGame::ConfigurePerGame(QWidget* parent, u64 title_id_, const std::st
         connect(apply_button, &QAbstractButton::clicked, this,
                 &ConfigurePerGame::HandleApplyButtonClicked);
     }
+
+    QPushButton* reset_button = ui->buttonBox->addButton(QDialogButtonBox::RestoreDefaults);
+    reset_button->setText(tr("Сбросить на стандартные"));
+    connect(reset_button, &QAbstractButton::clicked, this, [this, specific_config, legacy_config, custom_path]() {
+        std::error_code ec;
+        std::filesystem::remove(custom_path / (specific_config + ".ini"), ec);
+        std::filesystem::remove(custom_path / (legacy_config + ".ini"), ec);
+        game_config = std::make_unique<QtConfig>(specific_config, Config::ConfigType::PerGameConfig);
+        for (const auto tab : *tab_group) {
+            tab->SetConfiguration();
+        }
+        QMessageBox::information(this, tr("Сброс настроек"),
+                                 tr("Персональные настройки игры сброшены на стандартные.\nИгра будет ориентироваться на глобальные настройки эмулятора."));
+    });
 
     LoadConfiguration();
 }

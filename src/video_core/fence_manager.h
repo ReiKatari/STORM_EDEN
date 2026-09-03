@@ -216,7 +216,9 @@ private:
             }
             PopAsyncFlushes();
             for (auto& operation : current_operations) {
-                operation();
+                if (operation) {
+                    operation();
+                }
             }
             {
                 std::unique_lock lock(ring_guard);

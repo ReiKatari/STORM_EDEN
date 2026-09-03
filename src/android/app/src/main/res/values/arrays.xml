@@ -501,16 +501,14 @@
     </integer-array>
 
     <string-array name="staticThemeNames">
+        <item>@string/theme_storm_dark</item>
         <item>@string/theme_storm_night</item>
         <item>@string/theme_storm_day</item>
         <item>@string/theme_storm_midnight</item>
+        <item>@string/theme_storm_matrix</item>
         <item>@string/theme_storm_cyberpunk</item>
-        <item>@string/theme_storm_gothic</item>
-        <item>@string/theme_storm_neon</item>
-        <item>@string/theme_storm_crimson</item>
-        <item>@string/theme_storm_emerald</item>
-        <item>@string/theme_storm_glacier</item>
-        <item>@string/theme_storm_amethyst</item>
+        <item>@string/theme_storm_fantasy</item>
+        <item>@string/theme_storm_warhammer_40k</item>
     </string-array>
     <integer-array name="staticThemeValues">
         <item>0</item>
@@ -521,8 +519,6 @@
         <item>5</item>
         <item>6</item>
         <item>7</item>
-        <item>8</item>
-        <item>9</item>
     </integer-array>
 
     <string-array name="anisoEntries">

@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: 2016 Citra Emulator Project
@@ -100,6 +100,7 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
         }
     });
     connect(ui_tab.get(), &ConfigureUi::LanguageChanged, this, &ConfigureDialog::OnLanguageChanged);
+    connect(ui_tab.get(), &ConfigureUi::ThemeChanged, this, &ConfigureDialog::OnThemeChanged);
     connect(general_tab.get(), &ConfigureGeneral::ExternalContentDirsChanged, this,
             &ConfigureDialog::ExternalContentDirsChanged);
     connect(ui->selectorList, &QListWidget::itemSelectionChanged, this,
@@ -212,6 +213,10 @@ void ConfigureDialog::OnLanguageChanged(const QString& locale) {
     ApplyConfiguration();
     RetranslateUI();
     SetConfiguration();
+}
+
+void ConfigureDialog::OnThemeChanged(const QString& theme) {
+    emit ThemeChanged(theme);
 }
 
 void ConfigureDialog::UpdateVisibleTabs() {

@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "storm_switch/configuration/configure_ui.h"
@@ -99,6 +99,8 @@ ConfigureUi::ConfigureUi(Core::System& system_, QWidget* parent)
         ui->theme_combobox->addItem(QString::fromUtf8(theme.first),
                                     QString::fromUtf8(theme.second));
     }
+    connect(ui->theme_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ConfigureUi::OnThemeChanged);
 
     InitializeIconSizeComboBox();
     InitializeRowComboBoxes();
@@ -297,6 +299,17 @@ void ConfigureUi::OnLanguageChanged(int index) {
         return;
 
     emit LanguageChanged(ui->language_combobox->itemData(index).toString());
+}
+
+void ConfigureUi::OnThemeChanged(int index) {
+    if (index < 0 || index >= ui->theme_combobox->count())
+        return;
+
+    const auto theme_name = ui->theme_combobox->itemData(index).toString();
+    if (!theme_name.isEmpty() && theme_name.toStdString() != UISettings::values.theme) {
+        UISettings::values.theme = theme_name.toStdString();
+        emit ThemeChanged(theme_name);
+    }
 }
 
 void ConfigureUi::UpdateWidthText() {

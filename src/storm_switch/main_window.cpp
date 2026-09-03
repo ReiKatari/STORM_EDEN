@@ -230,12 +230,16 @@ static inline void ApplyWindowsTitleBarDarkMode(HWND hwnd, bool enabled) {
 static inline void ApplyDarkToTopLevel(QWidget* w, bool on) {
     if (!w || !w->isWindow())
         return;
-    ApplyWindowsTitleBarDarkMode(reinterpret_cast<HWND>(w->winId()), on);
+    const auto wid = w->internalWinId();
+    if (!wid)
+        return;
+    ApplyWindowsTitleBarDarkMode(reinterpret_cast<HWND>(wid), on);
 }
 
 namespace {
 struct TitlebarFilter final : QObject {
     bool dark;
+    bool in_filter{false};
     explicit TitlebarFilter(bool is_dark) : QObject(qApp), dark(is_dark) {}
 
     void setDark(bool is_dark) {
@@ -243,19 +247,24 @@ struct TitlebarFilter final : QObject {
     }
 
     void onFocusChanged(QWidget*, QWidget* now) {
-        if (now)
+        if (now && !in_filter) {
+            in_filter = true;
             ApplyDarkToTopLevel(now->window(), dark);
+            in_filter = false;
+        }
     }
 
     bool eventFilter(QObject* obj, QEvent* ev) override {
+        if (in_filter) {
+            return QObject::eventFilter(obj, ev);
+        }
         if (auto* w = qobject_cast<QWidget*>(obj)) {
             switch (ev->type()) {
-            case QEvent::WinIdChange:
             case QEvent::Show:
-            case QEvent::ShowToParent:
             case QEvent::WindowStateChange:
-            case QEvent::ZOrderChange:
+                in_filter = true;
                 ApplyDarkToTopLevel(w, dark);
+                in_filter = false;
                 break;
             default:
                 break;
@@ -271,6 +280,10 @@ static QMetaObject::Connection g_focusConn;
 } // namespace
 
 static void ApplyGlobalDarkTitlebar(bool is_dark) {
+    static bool in_apply = false;
+    if (in_apply)
+        return;
+    in_apply = true;
     if (!g_filter) {
         g_filter = new TitlebarFilter(is_dark);
         qApp->installEventFilter(g_filter);
@@ -279,8 +292,10 @@ static void ApplyGlobalDarkTitlebar(bool is_dark) {
     } else {
         g_filter->setDark(is_dark);
     }
-    for (QWidget* w : QApplication::topLevelWidgets())
+    for (QWidget* w : QApplication::topLevelWidgets()) {
         ApplyDarkToTopLevel(w, is_dark);
+    }
+    in_apply = false;
 }
 
 static void RemoveTitlebarFilter() {
@@ -288,7 +303,7 @@ static void RemoveTitlebarFilter() {
         return;
     qApp->removeEventFilter(g_filter);
     QObject::disconnect(g_focusConn);
-    g_filter->deleteLater();
+    delete g_filter;
     g_filter = nullptr;
 }
 
@@ -639,6 +654,9 @@ MainWindow::~MainWindow() {
         delete render_window;
     }
 
+#ifdef _WIN32
+    RemoveTitlebarFilter();
+#endif
 #ifdef __unix__
     ::close(sig_interrupt_fds[0]);
     ::close(sig_interrupt_fds[1]);
@@ -5019,14 +5037,18 @@ void MainWindow::OnConfigure() {
                                      !multiplayer_state->IsHostingPublicRoom());
     connect(&configure_dialog, &ConfigureDialog::LanguageChanged, this,
             &MainWindow::OnLanguageChanged);
+    connect(&configure_dialog, &ConfigureDialog::ThemeChanged, this,
+            [this](const QString&) { UpdateUITheme(); });
     connect(&configure_dialog, &ConfigureDialog::ExternalContentDirsChanged, this,
             &MainWindow::OnGameListRefresh);
 
     const auto result = configure_dialog.exec();
     if (result != QDialog::Accepted && !UISettings::values.configuration_applied &&
         !UISettings::values.reset_to_defaults) {
-        // Runs if the user hit Cancel or closed the window, and did not ever press the Apply button
-        // or `Reset to Defaults` button
+        if (UISettings::values.theme != old_theme) {
+            UISettings::values.theme = old_theme;
+            UpdateUITheme();
+        }
         return;
     } else if (result == QDialog::Accepted) {
         // Only apply new changes if user hit Okay
@@ -8306,7 +8328,6 @@ void MainWindow::UpdateUITheme() {
     }
 
 #ifdef _WIN32
-    RemoveTitlebarFilter();
     ApplyGlobalDarkTitlebar(UISettings::IsDarkTheme());
 #endif
 }

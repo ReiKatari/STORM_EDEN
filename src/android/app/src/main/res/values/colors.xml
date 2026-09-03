@@ -12,6 +12,16 @@
     <color name="synthwave_neon_red">#F43F5E</color>
     <color name="synthwave_neon_green">#10B981</color>
 
+    <!-- STORM DARK (Cyber Slate & Cyan) -->
+    <color name="storm_dark_primary">#00D2FF</color>
+    <color name="storm_dark_primary_container">#0F2942</color>
+    <color name="storm_dark_secondary">#38BDF8</color>
+    <color name="storm_dark_background">#0F172A</color>
+    <color name="storm_dark_surface">#1E293B</color>
+    <color name="storm_dark_surface_variant">#25334D</color>
+    <color name="storm_dark_on_surface">#F8FAFC</color>
+    <color name="storm_dark_outline">#334155</color>
+
     <!-- STORM NIGHT -->
     <color name="storm_night_primary">#00F0FF</color>
     <color name="storm_night_primary_container">#0A2540</color>
@@ -42,6 +52,16 @@
     <color name="storm_midnight_on_surface">#F1F5F9</color>
     <color name="storm_midnight_outline">#4A3875</color>
 
+    <!-- STORM MATRIX (Dark Emerald & Matrix Green) -->
+    <color name="storm_matrix_primary">#00FF66</color>
+    <color name="storm_matrix_primary_container">#043818</color>
+    <color name="storm_matrix_secondary">#10B981</color>
+    <color name="storm_matrix_background">#05100B</color>
+    <color name="storm_matrix_surface">#0B1F16</color>
+    <color name="storm_matrix_surface_variant">#123324</color>
+    <color name="storm_matrix_on_surface">#F0FDF4</color>
+    <color name="storm_matrix_outline">#166534</color>
+
     <!-- STORM CYBERPUNK (Night City Yellow & Cyan/Neon) -->
     <color name="storm_cyberpunk_primary">#FEE715</color>
     <color name="storm_cyberpunk_primary_container">#4C4500</color>
@@ -51,6 +71,26 @@
     <color name="storm_cyberpunk_surface_variant">#1C2130</color>
     <color name="storm_cyberpunk_on_surface">#E0E6ED</color>
     <color name="storm_cyberpunk_outline">#FEE715</color>
+
+    <!-- STORM FANTASY (Royal Gold & Deep Night) -->
+    <color name="storm_fantasy_primary">#F59E0B</color>
+    <color name="storm_fantasy_primary_container">#451A03</color>
+    <color name="storm_fantasy_secondary">#FBBF24</color>
+    <color name="storm_fantasy_background">#120E08</color>
+    <color name="storm_fantasy_surface">#201A10</color>
+    <color name="storm_fantasy_surface_variant">#332817</color>
+    <color name="storm_fantasy_on_surface">#FEF3C7</color>
+    <color name="storm_fantasy_outline">#B45309</color>
+
+    <!-- STORM WARHAMMER 40K (Imperial Gothic Gold & Titanium) -->
+    <color name="storm_warhammer_40k_primary">#D4AF37</color>
+    <color name="storm_warhammer_40k_primary_container">#3B3111</color>
+    <color name="storm_warhammer_40k_secondary">#E6CA65</color>
+    <color name="storm_warhammer_40k_background">#111215</color>
+    <color name="storm_warhammer_40k_surface">#1D1E24</color>
+    <color name="storm_warhammer_40k_surface_variant">#2C2E38</color>
+    <color name="storm_warhammer_40k_on_surface">#F3F4F6</color>
+    <color name="storm_warhammer_40k_outline">#85702A</color>
 
     <!-- STORM GOTHIC (Ruby Blood Red & Deep Graphite) -->
     <color name="storm_gothic_primary">#E11D48</color>

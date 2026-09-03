@@ -174,7 +174,7 @@ class SettingsActivity : AppCompatActivity() {
         } else {
             NativeConfig.unloadPerGameConfig()
             val settingsFile = SettingsFile.getCustomSettingsFile(args.game!!)
-            if (!settingsFile.delete()) {
+            if (settingsFile.exists() && !settingsFile.delete()) {
                 throw IOException("Failed to delete $settingsFile")
             }
         }

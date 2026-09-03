@@ -161,13 +161,10 @@ private:
         0x01005AF00BA7A000ULL, // Metroid Dread (Alt)
         0x0100121014688000ULL, // Metroid Prime Remastered
         0x01006560184E6000ULL, // Mortal Kombat 1
-        0x0100726014352000ULL, // Diablo II: Resurrected
-        0x0100916014D8C000ULL, // Diablo II: Resurrected (Alt)
         0x010097F018538000ULL, // Dave the Diver
         0x01002EF01A316000ULL, // Brotato
         0x010089A0197E4000ULL, // Vampire Survivors
         0x0100307018934000ULL, // Signalis
-        0x0100EC9010258000ULL, // Streets of Rage 4
         0x0100E65002BB8000ULL, // Stardew Valley
         0x01002FC00412C000ULL, // Little Nightmares
         0x010097100EDD6000ULL, // Little Nightmares II

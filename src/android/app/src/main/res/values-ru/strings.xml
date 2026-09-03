@@ -1136,16 +1136,14 @@
     <string name="app_language_system">Следовать системе</string>
     <!-- Static Themes -->
     <string name="static_theme_color">Тема оформления STORM SWITCH</string>
-    <string name="theme_storm_night">STORM NIGHT (По умолчанию)</string>
+    <string name="theme_storm_dark">STORM DARK (Тёмный кибер)</string>
+    <string name="theme_storm_night">STORM NIGHT (Чёрный OLED)</string>
     <string name="theme_storm_day">STORM DAY (Светлая)</string>
-    <string name="theme_storm_midnight">STORM MIDNIGHT (Полночь)</string>
-    <string name="theme_storm_cyberpunk">STORM CYBERPUNK (Киберпанк)</string>
-    <string name="theme_storm_gothic">STORM GOTHIC (Готика)</string>
-    <string name="theme_storm_neon">STORM NEON (Неон)</string>
-    <string name="theme_storm_crimson">STORM CRIMSON (Алый закат)</string>
-    <string name="theme_storm_emerald">STORM EMERALD (Изумруд)</string>
-    <string name="theme_storm_glacier">STORM GLACIER (Ледник)</string>
-    <string name="theme_storm_amethyst">STORM AMETHYST (Аметист)</string>
+    <string name="theme_storm_midnight">STORM MIDNIGHT (Аметистовая ночь)</string>
+    <string name="theme_storm_matrix">STORM MATRIX (Матричный зелёный)</string>
+    <string name="theme_storm_cyberpunk">STORM CYBERPUNK (Неон Найт-Сити)</string>
+    <string name="theme_storm_fantasy">STORM FANTASY (Королевское золото)</string>
+    <string name="theme_storm_warhammer_40k">STORM WARHAMMER 40K (Имперская готика)</string>
 
     <!-- Legacy alias for theme list -->
     <string name="eden_theme">STORM NIGHT (По умолчанию)</string>

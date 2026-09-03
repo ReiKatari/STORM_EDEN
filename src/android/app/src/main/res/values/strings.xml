@@ -1316,16 +1316,14 @@
 
     <!-- Static Themes -->
     <string name="static_theme_color">STORM SWITCH Theme</string>
-    <string name="theme_storm_night">STORM NIGHT (Default)</string>
+    <string name="theme_storm_dark">STORM DARK</string>
+    <string name="theme_storm_night">STORM NIGHT</string>
     <string name="theme_storm_day">STORM DAY</string>
     <string name="theme_storm_midnight">STORM MIDNIGHT</string>
+    <string name="theme_storm_matrix">STORM MATRIX</string>
     <string name="theme_storm_cyberpunk">STORM CYBERPUNK</string>
-    <string name="theme_storm_gothic">STORM GOTHIC</string>
-    <string name="theme_storm_neon">STORM NEON</string>
-    <string name="theme_storm_crimson">STORM CRIMSON</string>
-    <string name="theme_storm_emerald">STORM EMERALD</string>
-    <string name="theme_storm_glacier">STORM GLACIER</string>
-    <string name="theme_storm_amethyst">STORM AMETHYST</string>
+    <string name="theme_storm_fantasy">STORM FANTASY</string>
+    <string name="theme_storm_warhammer_40k">STORM WARHAMMER 40K</string>
 
     <!-- Legacy alias for theme list -->
     <string name="eden_theme">STORM NIGHT (Default)</string>

@@ -15,6 +15,7 @@
 #include <QList>
 #include <QListView>
 #include <QMenu>
+#include <QMessageBox>
 #include <QScrollBar>
 #include <QScroller>
 #include <QScrollerProperties>
@@ -22,7 +23,10 @@
 #include <QVariantAnimation>
 #include <qlayoutitem.h>
 
+#include "common/cityhash.h"
 #include "common/common_types.h"
+#include "common/fs/fs.h"
+#include "common/fs/path_util.h"
 #include "core/core.h"
 #include "core/file_sys/patch_manager.h"
 #include "core/file_sys/registered_cache.h"
@@ -515,10 +519,12 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
     QAction* mod_manager_action = context_menu.addAction(QIcon::fromTheme(QStringLiteral("applications-games")), tr("Менеджер модов..."));
     QAction* cheats_action = context_menu.addAction(QIcon::fromTheme(QStringLiteral("applications-utilities")), tr("Чит-коды..."));
     QAction* properties = context_menu.addAction(QIcon::fromTheme(QStringLiteral("configure")), tr("Свойства / Настройки игры..."));
+    QAction* reset_game_settings = context_menu.addAction(QIcon::fromTheme(QStringLiteral("edit-undo")), tr("🔄 Сбросить настройки игры на стандартные"));
 
     favorite->setVisible(program_id != 0);
     favorite->setCheckable(true);
     favorite->setChecked(UISettings::values.favorited_ids.contains(program_id));
+    reset_game_settings->setVisible(program_id != 0);
     mod_manager_action->setVisible(program_id != 0);
     cheats_action->setVisible(program_id != 0);
     open_save_location->setVisible(program_id != 0);
@@ -536,6 +542,17 @@ void GameList::AddGamePopup(QMenu& context_menu, u64 program_id, const std::stri
     });
     connect(cheats_action, &QAction::triggered, this, [this, program_id, path]() {
         emit OpenCheatsRequested(program_id, QString::fromStdString(path));
+    });
+    connect(reset_game_settings, &QAction::triggered, this, [this, program_id, path]() {
+        const auto file_path_hash = Common::CityHash64(path.data(), path.size());
+        const auto specific_config = fmt::format("{:016X}_{:016X}", program_id, file_path_hash);
+        const auto legacy_config = fmt::format("{:016X}", program_id);
+        const auto custom_path = Common::FS::GetEdenPath(Common::FS::EdenPath::ConfigDir) / "custom";
+        std::error_code ec;
+        std::filesystem::remove(custom_path / (specific_config + ".ini"), ec);
+        std::filesystem::remove(custom_path / (legacy_config + ".ini"), ec);
+        QMessageBox::information(this, tr("Сброс настроек"),
+                                 tr("Персональные настройки игры сброшены на стандартные.\nИгра будет ориентироваться на глобальные настройки эмулятора."));
     });
     connect(favorite, &QAction::triggered, this,
             [this, program_id]() { ToggleFavorite(program_id); });

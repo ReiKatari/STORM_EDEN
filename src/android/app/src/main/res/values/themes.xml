@@ -27,6 +27,27 @@
         <item name="colorControlActivated">?attr/colorPrimary</item>
     </style>
 
+    <!-- STORM DARK (Cyber Slate & Electric Cyan) -->
+    <style name="Theme.Storm.Dark" parent="Theme.Yuzu.Main">
+        <item name="colorPrimary">@color/storm_dark_primary</item>
+        <item name="colorOnPrimary">#0F172A</item>
+        <item name="colorPrimaryContainer">@color/storm_dark_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/storm_dark_primary</item>
+        <item name="colorSecondary">@color/storm_dark_secondary</item>
+        <item name="colorOnSecondary">#0F172A</item>
+        <item name="colorSecondaryContainer">@color/storm_dark_surface_variant</item>
+        <item name="colorOnSecondaryContainer">@color/storm_dark_on_surface</item>
+        <item name="android:colorBackground">@color/storm_dark_background</item>
+        <item name="colorOnBackground">@color/storm_dark_on_surface</item>
+        <item name="colorSurface">@color/storm_dark_surface</item>
+        <item name="colorOnSurface">@color/storm_dark_on_surface</item>
+        <item name="colorSurfaceVariant">@color/storm_dark_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/storm_dark_on_surface</item>
+        <item name="colorOutline">@color/storm_dark_outline</item>
+        <item name="android:textColorPrimary">@color/storm_dark_on_surface</item>
+        <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
+    </style>
+
     <!-- STORM NIGHT (Default) -->
     <style name="Theme.Storm.Night" parent="Theme.Yuzu.Main">
         <item name="colorPrimary">@color/storm_night_primary</item>
@@ -93,6 +114,27 @@
         <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
     </style>
 
+    <!-- STORM MATRIX (Dark Emerald & Matrix Green) -->
+    <style name="Theme.Storm.Matrix" parent="Theme.Yuzu.Main">
+        <item name="colorPrimary">@color/storm_matrix_primary</item>
+        <item name="colorOnPrimary">#05100B</item>
+        <item name="colorPrimaryContainer">@color/storm_matrix_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/storm_matrix_primary</item>
+        <item name="colorSecondary">@color/storm_matrix_secondary</item>
+        <item name="colorOnSecondary">#05100B</item>
+        <item name="colorSecondaryContainer">@color/storm_matrix_surface_variant</item>
+        <item name="colorOnSecondaryContainer">@color/storm_matrix_on_surface</item>
+        <item name="android:colorBackground">@color/storm_matrix_background</item>
+        <item name="colorOnBackground">@color/storm_matrix_on_surface</item>
+        <item name="colorSurface">@color/storm_matrix_surface</item>
+        <item name="colorOnSurface">@color/storm_matrix_on_surface</item>
+        <item name="colorSurfaceVariant">@color/storm_matrix_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/storm_matrix_on_surface</item>
+        <item name="colorOutline">@color/storm_matrix_outline</item>
+        <item name="android:textColorPrimary">@color/storm_matrix_on_surface</item>
+        <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
+    </style>
+
     <!-- STORM CYBERPUNK (Night City Yellow & Neon Cyan) -->
     <style name="Theme.Storm.Cyberpunk" parent="Theme.Yuzu.Main">
         <item name="colorPrimary">@color/storm_cyberpunk_primary</item>
@@ -111,6 +153,48 @@
         <item name="colorOnSurfaceVariant">@color/storm_cyberpunk_on_surface</item>
         <item name="colorOutline">@color/storm_cyberpunk_outline</item>
         <item name="android:textColorPrimary">@color/storm_cyberpunk_on_surface</item>
+        <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
+    </style>
+
+    <!-- STORM FANTASY (Royal Gold & Deep Night) -->
+    <style name="Theme.Storm.Fantasy" parent="Theme.Yuzu.Main">
+        <item name="colorPrimary">@color/storm_fantasy_primary</item>
+        <item name="colorOnPrimary">#120E08</item>
+        <item name="colorPrimaryContainer">@color/storm_fantasy_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/storm_fantasy_primary</item>
+        <item name="colorSecondary">@color/storm_fantasy_secondary</item>
+        <item name="colorOnSecondary">#120E08</item>
+        <item name="colorSecondaryContainer">@color/storm_fantasy_surface_variant</item>
+        <item name="colorOnSecondaryContainer">@color/storm_fantasy_on_surface</item>
+        <item name="android:colorBackground">@color/storm_fantasy_background</item>
+        <item name="colorOnBackground">@color/storm_fantasy_on_surface</item>
+        <item name="colorSurface">@color/storm_fantasy_surface</item>
+        <item name="colorOnSurface">@color/storm_fantasy_on_surface</item>
+        <item name="colorSurfaceVariant">@color/storm_fantasy_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/storm_fantasy_on_surface</item>
+        <item name="colorOutline">@color/storm_fantasy_outline</item>
+        <item name="android:textColorPrimary">@color/storm_fantasy_on_surface</item>
+        <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
+    </style>
+
+    <!-- STORM WARHAMMER 40K (Imperial Gothic Gold & Titanium) -->
+    <style name="Theme.Storm.Warhammer40k" parent="Theme.Yuzu.Main">
+        <item name="colorPrimary">@color/storm_warhammer_40k_primary</item>
+        <item name="colorOnPrimary">#111215</item>
+        <item name="colorPrimaryContainer">@color/storm_warhammer_40k_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/storm_warhammer_40k_primary</item>
+        <item name="colorSecondary">@color/storm_warhammer_40k_secondary</item>
+        <item name="colorOnSecondary">#111215</item>
+        <item name="colorSecondaryContainer">@color/storm_warhammer_40k_surface_variant</item>
+        <item name="colorOnSecondaryContainer">@color/storm_warhammer_40k_on_surface</item>
+        <item name="android:colorBackground">@color/storm_warhammer_40k_background</item>
+        <item name="colorOnBackground">@color/storm_warhammer_40k_on_surface</item>
+        <item name="colorSurface">@color/storm_warhammer_40k_surface</item>
+        <item name="colorOnSurface">@color/storm_warhammer_40k_on_surface</item>
+        <item name="colorSurfaceVariant">@color/storm_warhammer_40k_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/storm_warhammer_40k_on_surface</item>
+        <item name="colorOutline">@color/storm_warhammer_40k_outline</item>
+        <item name="android:textColorPrimary">@color/storm_warhammer_40k_on_surface</item>
         <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
     </style>
 

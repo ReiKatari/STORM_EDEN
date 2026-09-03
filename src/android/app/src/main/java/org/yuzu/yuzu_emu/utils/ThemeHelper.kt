@@ -41,17 +41,15 @@ object ThemeHelper {
     private fun getSelectedStaticThemeColor(): Int {
         val themeIndex = IntSetting.THEME_MODE.getInt()
         return when (themeIndex) {
-            0 -> R.style.Theme_Storm_Night
-            1 -> R.style.Theme_Storm_Day
-            2 -> R.style.Theme_Storm_Midnight
-            3 -> R.style.Theme_Storm_Cyberpunk
-            4 -> R.style.Theme_Storm_Gothic
-            5 -> R.style.Theme_Storm_Neon
-            6 -> R.style.Theme_Storm_Crimson
-            7 -> R.style.Theme_Storm_Emerald
-            8 -> R.style.Theme_Storm_Glacier
-            9 -> R.style.Theme_Storm_Amethyst
-            else -> R.style.Theme_Storm_Night
+            0 -> R.style.Theme_Storm_Dark
+            1 -> R.style.Theme_Storm_Night
+            2 -> R.style.Theme_Storm_Day
+            3 -> R.style.Theme_Storm_Midnight
+            4 -> R.style.Theme_Storm_Matrix
+            5 -> R.style.Theme_Storm_Cyberpunk
+            6 -> R.style.Theme_Storm_Fantasy
+            7 -> R.style.Theme_Storm_Warhammer40k
+            else -> R.style.Theme_Storm_Dark
         }
     }
 
@@ -86,7 +84,7 @@ object ThemeHelper {
             activity.window,
             activity.window.decorView
         )
-        if (themeMode == 1) {
+        if (themeMode == 2) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             activity.delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
             setLightModeSystemBars(windowController)

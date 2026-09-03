@@ -177,20 +177,21 @@ jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsValid(JNIEnv* env, jobj
                 !Loader::IsBootableGameContainer(file, file_type))
                 return false;
             u64 program_id = 0;
-            if (loader->ReadProgramId(program_id) != Loader::ResultStatus::Success || program_id == 0) {
-                std::vector<u64> pids;
-                loader->ReadProgramIds(pids);
-                if (!pids.empty()) {
-                    for (const auto id : pids) {
-                        if ((id & 0xFFF) == 0) {
-                            program_id = id;
-                            break;
-                        }
-                    }
-                    if (program_id == 0) {
-                        program_id = pids[0];
+            std::vector<u64> pids;
+            loader->ReadProgramIds(pids);
+            if (!pids.empty()) {
+                for (const auto id : pids) {
+                    if ((id & 0xFFF) == 0) {
+                        program_id = id;
+                        break;
                     }
                 }
+            }
+            if (program_id == 0) {
+                loader->ReadProgramId(program_id);
+            }
+            if (file_type == Loader::FileType::NRO) {
+                return true;
             }
             if (program_id == 0 || (program_id & 0xFFF) != 0) {
                 return false; // Exclude standalone Updates (0x800) and DLCs (0x001+)
@@ -211,10 +212,6 @@ jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getProgramId(JNIEnv* env, job
 }
 
 jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_isBaseGame(JNIEnv* env, jobject obj, jstring jpath) {
-    const auto meta = GetRomMetadata(Common::Android::GetJString(env, jpath));
-    if (meta.raw_program_id != 0) {
-        return jboolean((meta.raw_program_id & 0xFFF) == 0);
-    }
     return jboolean(true);
 }
 

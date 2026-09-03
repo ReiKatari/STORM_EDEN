@@ -1,16 +1,16 @@
 $mainline = 'e:\STORM EDEN 3\src\src\android\app\build\outputs\apk\mainline\release\app-mainline-release.apk'
 $legacy = 'e:\STORM EDEN 3\src\src\android\app\build\outputs\apk\legacy\release\app-legacy-release.apk'
 
-Write-Host "Copying APKs with STORM_SWITCH_7.2.4 and STORM_EDEN_7.2.4 naming..."
-Copy-Item $mainline 'e:\STORM EDEN 3\Files\STORM_SWITCH_7.2.4.apk' -Force
-Copy-Item $mainline 'e:\STORM EDEN 3\STORM_SWITCH_7.2.4.apk' -Force
-Copy-Item $mainline 'e:\STORM EDEN 3\Files\STORM_EDEN_7.2.4.apk' -Force
-Copy-Item $mainline 'e:\STORM EDEN 3\STORM_EDEN_7.2.4.apk' -Force
+Write-Host "Copying APKs with STORM_SWITCH_7.2.5 and STORM_EDEN_7.2.5 naming..."
+Copy-Item $mainline 'e:\STORM EDEN 3\Files\STORM_SWITCH_7.2.5.apk' -Force
+Copy-Item $mainline 'e:\STORM EDEN 3\STORM_SWITCH_7.2.5.apk' -Force
+Copy-Item $mainline 'e:\STORM EDEN 3\Files\STORM_EDEN_7.2.5.apk' -Force
+Copy-Item $mainline 'e:\STORM EDEN 3\STORM_EDEN_7.2.5.apk' -Force
 
-Copy-Item $legacy 'e:\STORM EDEN 3\Files\STORM_SWITCH_7.2.4_LEGACY.apk' -Force
-Copy-Item $legacy 'e:\STORM EDEN 3\STORM_SWITCH_7.2.4_LEGACY.apk' -Force
-Copy-Item $legacy 'e:\STORM EDEN 3\Files\STORM_EDEN_7.2.4_LEGACY.apk' -Force
-Copy-Item $legacy 'e:\STORM EDEN 3\STORM_EDEN_7.2.4_LEGACY.apk' -Force
+Copy-Item $legacy 'e:\STORM EDEN 3\Files\STORM_SWITCH_7.2.5_LEGACY.apk' -Force
+Copy-Item $legacy 'e:\STORM EDEN 3\STORM_SWITCH_7.2.5_LEGACY.apk' -Force
+Copy-Item $legacy 'e:\STORM EDEN 3\Files\STORM_EDEN_7.2.5_LEGACY.apk' -Force
+Copy-Item $legacy 'e:\STORM EDEN 3\STORM_EDEN_7.2.5_LEGACY.apk' -Force
 
 Get-ChildItem -Path 'e:\STORM EDEN 3\Files' -Recurse | Unblock-File -ErrorAction SilentlyContinue
 Get-ChildItem -Path 'e:\STORM EDEN 3\Assembling' -Recurse | Unblock-File -ErrorAction SilentlyContinue

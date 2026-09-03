@@ -12,7 +12,11 @@
 #include <memory>
 #include <thread>
 #include <utility>
-#include <queue>
+#ifdef _MSC_VER
+#include <intrin.h>
+#elif defined(ARCHITECTURE_x86_64)
+#include <xmmintrin.h>
+#endif
 
 #include "common/alignment.h"
 #include "common/common_types.h"
@@ -155,18 +159,19 @@ public:
             auto target_time = start_time + frame_interval * frame_counter;
             if (target_time >= now) {
                 auto sleep_time = target_time - now;
-                if (Settings::values.eco_frame_pacing.GetValue() || Settings::values.eco_thermal_mode.GetValue()) {
-                    if (sleep_time > std::chrono::microseconds(200)) {
-                        std::this_thread::sleep_for(sleep_time);
-                    }
-                } else {
-                    constexpr auto spin_tail = std::chrono::milliseconds(1);
-                    if (sleep_time > spin_tail * 2) {
-                        std::this_thread::sleep_for(sleep_time - spin_tail);
-                    }
-                    while (std::chrono::steady_clock::now() < target_time) {
-                        std::this_thread::yield();
-                    }
+                if (sleep_time > std::chrono::microseconds(100)) {
+                    std::this_thread::sleep_for(sleep_time - std::chrono::microseconds(50));
+                }
+                while (std::chrono::steady_clock::now() < target_time) {
+#if defined(ARCHITECTURE_x86_64)
+                    _mm_pause();
+#elif defined(ARCHITECTURE_arm64) && defined(_MSC_VER)
+                    __yield();
+#elif defined(ARCHITECTURE_arm64)
+                    asm volatile("yield");
+#else
+                    std::this_thread::yield();
+#endif
                 }
             } else if (frame_counter > max_frame_count) {
                 frame_counter = 0;

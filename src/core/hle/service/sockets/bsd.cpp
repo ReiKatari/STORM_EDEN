@@ -950,8 +950,12 @@ std::pair<s32, Errno> BSD::RecvImpl(s32 fd, u32 flags, std::vector<u8>& message)
             if (non_block) {
                 return {-1, Errno::AGAIN};
             }
-            efd.cv.wait(lock, [&] { return efd.counter > 0 || efd.is_closed; });
-            if (efd.is_closed) {
+            while (efd.counter == 0 && !efd.is_closed && !system.IsShuttingDown()) {
+                efd.cv.wait_for(lock, std::chrono::milliseconds(25), [&] {
+                    return efd.counter > 0 || efd.is_closed || system.IsShuttingDown();
+                });
+            }
+            if (efd.is_closed || system.IsShuttingDown()) {
                 return {-1, Errno::BADF};
             }
         }
@@ -1269,6 +1273,15 @@ BSD::BSD(Core::System& system_, const char* name)
 }
 
 BSD::~BSD() {
+    for (auto& fd : file_descriptors) {
+        if (fd && fd->event_fd) {
+            {
+                std::lock_guard lock(fd->event_fd->mutex);
+                fd->event_fd->is_closed = true;
+            }
+            fd->event_fd->cv.notify_all();
+        }
+    }
     if (auto room_member = Network::GetRoomMember().lock()) {
         room_member->Unbind(proxy_packet_received);
     }

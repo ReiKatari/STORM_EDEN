@@ -88,12 +88,12 @@ static const std::vector<GameFixProfile> s_profiles = {
         }
     },
         {
-        0x0100916014D8C000ULL,
+        0x01002A801458A000ULL,
         "Diablo II: Resurrected",
-        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты декалей и заторможенность",
-        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal artifacts and sluggishness",
-        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Включено (стабильные 60 FPS)\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты вокруг декалей)\n✓ Точность ЦП: Авто (устранение заторможенности)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Enabled (Stable 60 FPS)\n✓ ASTC Recompression: Uncompressed (Fixes decal artifacts)\n✓ CPU Accuracy: Auto (Eliminates sluggishness)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Мерцание персонажа на экране выбора героя и графические артефакты",
+        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Character flickering on selection screen and graphical artifacts",
+        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Включено (стабильные 60 FPS)\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Точность ЦП: Авто (устранение заторможенности)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Отключено (устраняет мерцание персонажа)",
+        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Enabled (Stable 60 FPS)\n✓ ASTC Recompression: Uncompressed (Fixes decal artifacts)\n✓ CPU Accuracy: Auto (Eliminates sluggishness)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Disabled (Fixes character flickering)",
         {
             {"Core\\memory_layout_mode", "2"},
             {"System\\memory_layout_mode", "2"},
@@ -102,16 +102,34 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Renderer\\use_asynchronous_shaders", "true"}
+            {"Renderer\\use_asynchronous_shaders", "false"}
+        }
+    },
+    {
+        0x0100916014D8C000ULL,
+        "Diablo II: Resurrected",
+        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Мерцание персонажа на экране выбора героя и графические артефакты",
+        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Character flickering on selection screen and graphical artifacts",
+        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Включено (стабильные 60 FPS)\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Точность ЦП: Авто (устранение заторможенности)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Отключено (устраняет мерцание персонажа)",
+        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Enabled (Stable 60 FPS)\n✓ ASTC Recompression: Uncompressed (Fixes decal artifacts)\n✓ CPU Accuracy: Auto (Eliminates sluggishness)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Disabled (Fixes character flickering)",
+        {
+            {"Core\\memory_layout_mode", "2"},
+            {"System\\memory_layout_mode", "2"},
+            {"System\\airplane_mode", "true"},
+            {"Renderer\\use_fast_gpu_time", "true"},
+            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\use_reactive_flushing", "false"},
+            {"Cpu\\cpuopt_fastmem", "true"},
+            {"Renderer\\use_asynchronous_shaders", "false"}
         }
     },
     {
         0x0100726014352000ULL,
         "Diablo II: Resurrected",
-        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Графические артефакты декалей и заторможенность",
-        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Graphical decal artifacts and sluggishness",
-        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Включено (стабильные 60 FPS)\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты вокруг декалей)\n✓ Точность ЦП: Авто (устранение заторможенности)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено",
-        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Enabled (Stable 60 FPS)\n✓ ASTC Recompression: Uncompressed (Fixes decal artifacts)\n✓ CPU Accuracy: Auto (Eliminates sluggishness)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled",
+        "• Вылет при продолжении игры / загрузке персонажа (OOM)\n• Зависание при опросе серверов Battle.net\n• Мерцание персонажа на экране выбора героя и графические артефакты",
+        "• Character load / continue game crash (OOM)\n• Battle.net server handshake hang\n• Character flickering on selection screen and graphical artifacts",
+        "✓ Память: 8GB DRAM (критично для загрузки персонажа!)\n✓ Режим полёта: Включено (пропуск Battle.net)\n✓ Быстрое время GPU: Включено (стабильные 60 FPS)\n✓ Сжатие ASTC: Отключено (устраняет полосы и квадраты)\n✓ Точность ЦП: Авто (устранение заторможенности)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Отключено (устраняет мерцание персонажа)",
+        "✓ Memory Layout: 8GB DRAM (Critical for character loading!)\n✓ Airplane Mode: Enabled (Bypasses Battle.net)\n✓ Fast GPU Time: Enabled (Stable 60 FPS)\n✓ ASTC Recompression: Uncompressed (Fixes decal artifacts)\n✓ CPU Accuracy: Auto (Eliminates sluggishness)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Disabled (Fixes character flickering)",
         {
             {"Core\\memory_layout_mode", "2"},
             {"System\\memory_layout_mode", "2"},
@@ -120,7 +138,7 @@ static const std::vector<GameFixProfile> s_profiles = {
             {"Renderer\\astc_recompression", "0"},
             {"Renderer\\use_reactive_flushing", "false"},
             {"Cpu\\cpuopt_fastmem", "true"},
-            {"Renderer\\use_asynchronous_shaders", "true"}
+            {"Renderer\\use_asynchronous_shaders", "false"}
         }
     },
     {

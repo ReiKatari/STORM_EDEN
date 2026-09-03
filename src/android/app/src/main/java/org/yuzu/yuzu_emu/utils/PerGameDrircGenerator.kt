@@ -55,7 +55,8 @@ object PerGameDrircGenerator {
         }
 
         // 3. 2D Sprite Games
-        if (cleanId.startsWith("010085800E33E") || // Streets of Rage 4 Main
+        if (cleanId.startsWith("0100EC9010258") || // Streets of Rage 4
+            cleanId.startsWith("010085800E33E") || // Streets of Rage 4 Main
             cleanId.startsWith("0100BA700E340") || // Streets of Rage 4 Alt
             cleanId.startsWith("010063B0077F6") || // Hollow Knight
             cleanId.startsWith("01008EB00B32E") || // Cuphead

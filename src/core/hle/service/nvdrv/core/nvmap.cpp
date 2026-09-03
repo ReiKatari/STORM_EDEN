@@ -174,7 +174,8 @@ DAddr NvMap::PinHandle(NvMap::Handle::Id handle, bool low_area_pin) {
             handle_description->pin_virt_address = address;
         }
     };
-    if (!handle_description->pins) {
+    if (handle_description->pins <= 0 || handle_description->d_address == 0) {
+        handle_description->pins = 0;
         // If we're in the unmap queue we can just remove ourselves and return since we're already
         // mapped
         {
@@ -185,14 +186,16 @@ DAddr NvMap::PinHandle(NvMap::Handle::Id handle, bool low_area_pin) {
                 unmap_queue.erase(*handle_description->unmap_queue_entry);
                 handle_description->unmap_queue_entry.reset();
 
-                if (low_area_pin) {
-                    map_low_area();
-                    handle_description->pins++;
-                    return static_cast<DAddr>(handle_description->pin_virt_address);
-                }
+                if (handle_description->d_address != 0) {
+                    if (low_area_pin) {
+                        map_low_area();
+                        handle_description->pins++;
+                        return static_cast<DAddr>(handle_description->pin_virt_address);
+                    }
 
-                handle_description->pins++;
-                return handle_description->d_address;
+                    handle_description->pins++;
+                    return handle_description->d_address;
+                }
             }
         }
 
@@ -211,14 +214,22 @@ DAddr NvMap::PinHandle(NvMap::Handle::Id handle, bool low_area_pin) {
             while ((address = smmu.Allocate(aligned_up)) == 0) {
                 // Free handles until the allocation succeeds
                 std::scoped_lock queueLock(unmap_queue_lock);
+                if (unmap_queue.empty()) {
+                    LOG_CRITICAL(Service_NVDRV, "Ran out of SMMU address space!");
+                    break;
+                }
                 if (auto freeHandleDesc{unmap_queue.front()}) {
                     // Handles in the unmap queue are guaranteed not to be pinned so don't bother
                     // checking if they are before unmapping
                     std::scoped_lock freeLock(freeHandleDesc->mutex);
-                    if (handle_description->d_address)
+                    if (freeHandleDesc->d_address) {
                         UnmapHandle(*freeHandleDesc);
+                    } else {
+                        unmap_queue.pop_front();
+                        freeHandleDesc->unmap_queue_entry.reset();
+                    }
                 } else {
-                    LOG_CRITICAL(Service_NVDRV, "Ran out of SMMU address space!");
+                    unmap_queue.pop_front();
                 }
             }
 
@@ -246,9 +257,13 @@ void NvMap::UnpinHandle(Handle::Id handle) {
     }
 
     std::scoped_lock lock(handle_description->mutex);
-    if (--handle_description->pins < 0) {
+    if (handle_description->pins <= 0) {
         LOG_WARNING(Service_NVDRV, "Pin count imbalance detected!");
-    } else if (!handle_description->pins) {
+        handle_description->pins = 0;
+        return;
+    }
+
+    if (--handle_description->pins == 0) {
         std::scoped_lock queueLock(unmap_queue_lock);
 
         // Add to the unmap queue allowing this handle's memory to be freed if needed

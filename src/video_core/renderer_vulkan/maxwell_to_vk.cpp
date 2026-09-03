@@ -651,6 +651,7 @@ VkCompareOp ComparisonOp(Maxwell::ComparisonOp comparison) {
         return VK_COMPARE_OP_GREATER_OR_EQUAL;
     case Maxwell::ComparisonOp::Always_D3D:
     case Maxwell::ComparisonOp::Always_GL:
+    case static_cast<Maxwell::ComparisonOp>(0):
         return VK_COMPARE_OP_ALWAYS;
     default:
         LOG_WARNING(Render_Vulkan, "Unimplemented Maxwell comparison op={}, defaulting to ALWAYS", comparison);

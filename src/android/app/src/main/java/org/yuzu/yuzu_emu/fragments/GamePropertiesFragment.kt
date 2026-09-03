@@ -639,12 +639,22 @@ class GamePropertiesFragment : Fragment() {
                     FileUtil.unzipToInternalStorage(result.toString(), cacheSaveDir)
                     val files = cacheSaveDir.listFiles()
                     var savesFolderFile: File? = null
-                    if (files != null) {
+                    if (files != null && files.isNotEmpty()) {
                         val savesFolderName = args.game.programIdHex
                         for (file in files) {
-                            if (file.isDirectory && file.name == savesFolderName) {
+                            if (file.isDirectory && file.name.equals(savesFolderName, ignoreCase = true)) {
                                 savesFolderFile = file
                                 break
+                            }
+                        }
+                        if (savesFolderFile == null) {
+                            // If the zip contains a single directory, treat it as the save directory
+                            val subDirs = files.filter { it.isDirectory }
+                            if (subDirs.size == 1) {
+                                savesFolderFile = subDirs[0]
+                            } else if (files.any { it.isFile }) {
+                                // Files extracted directly into cacheSaveDir
+                                savesFolderFile = cacheSaveDir
                             }
                         }
                     }
@@ -652,8 +662,10 @@ class GamePropertiesFragment : Fragment() {
                     if (savesFolderFile != null) {
                         savesFolder.deleteRecursively()
                         savesFolder.mkdir()
-                        savesFolderFile.copyRecursively(savesFolder)
-                        savesFolderFile.deleteRecursively()
+                        savesFolderFile.copyRecursively(savesFolder, overwrite = true)
+                        if (savesFolderFile != cacheSaveDir) {
+                            savesFolderFile.deleteRecursively()
+                        }
                     }
 
                     withContext(Dispatchers.Main) {

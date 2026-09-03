@@ -297,6 +297,11 @@ object GameHelper {
 
         var programId = GameMetadata.getProgramId(filePath)
 
+        val pIdLong = programId.toULongOrNull(16)
+        if (pIdLong != null && (pIdLong and 0xFFFuL) != 0uL) {
+            return null // Exclude standalone Updates and DLCs from game list
+        }
+
         // If the game's ID field is empty, use the filename without extension.
         if (programId.isEmpty()) {
             programId = if (filename.contains(".")) filename.substring(0, filename.lastIndexOf(".")) else filename

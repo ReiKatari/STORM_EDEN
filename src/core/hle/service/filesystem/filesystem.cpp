@@ -231,10 +231,14 @@ Result VfsDirectoryServiceWrapper::RenameDirectory(const std::string& src_path_,
     if (src == nullptr) {
         return FileSys::ResultPathNotFound;
     }
+
     if (Common::FS::GetParentPath(src_path) == Common::FS::GetParentPath(dest_path)) {
-        // Use more-optimized vfs implementation rename.
-        if (!src->Rename(Common::FS::GetFilename(dest_path))) {
-            return FileSys::ResultPathAlreadyExists;
+        const std::string full_src_path = backing->GetFullPath() + "/" + src_path;
+        const std::string full_dest_path = backing->GetFullPath() + "/" + dest_path;
+        if (!Common::FS::RenameDir(full_src_path, full_dest_path)) {
+            if (!src->Rename(Common::FS::GetFilename(dest_path))) {
+                return FileSys::ResultPathAlreadyExists;
+            }
         }
         return ResultSuccess;
     }

@@ -221,6 +221,11 @@ class MainActivity : AppCompatActivity(), ThemeProvider {
         Thread {
             val latestVersion = NativeLibrary.checkForUpdate()
             if (latestVersion != null) {
+                val currentVersion = org.yuzu.yuzu_emu.BuildConfig.VERSION_NAME.trim().removePrefix("v").removePrefix("V")
+                val releaseTag = latestVersion.tag.trim().removePrefix("v").removePrefix("V")
+                if (releaseTag.equals(currentVersion, ignoreCase = true)) {
+                    return@Thread
+                }
                 runOnUiThread {
                     showUpdateDialog(latestVersion)
                 }

@@ -306,6 +306,7 @@ Core::SystemResultStatus EmulationSession::InitializeEmulation(const std::string
     jauto android_keyboard = std::make_unique<Common::Android::SoftwareKeyboard::AndroidKeyboard>();
     jauto android_webapplet = std::make_unique<Common::Android::WebBrowser::AndroidWebBrowser>();
     m_software_keyboard = android_keyboard.get();
+    Settings::RestoreGlobalState(false);
     m_system.SetShuttingDown(false);
     m_system.ApplySettings();
     Settings::LogSettings();
@@ -373,6 +374,7 @@ void EmulationSession::ShutdownEmulation() {
     // Shutdown the main emulated process
     m_system.DetachDebugger();
     m_system.ShutdownMainProcess();
+    Settings::RestoreGlobalState(false);
     const auto result = (m_load_result == Core::SystemResultStatus::Success)
                             ? Core::SystemResultStatus::Success
                             : m_load_result;

@@ -190,11 +190,8 @@ jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsValid(JNIEnv* env, jobj
                     }
                 }
             }
-            if (program_id == 0) {
-                return false;
-            }
-            if ((program_id & 0xFFF) != 0 && (program_id & 0x800) != 0) {
-                return false; // Exclude standalone Updates
+            if (program_id == 0 || (program_id & 0xFFF) != 0) {
+                return false; // Exclude standalone Updates (0x800) and DLCs (0x001+)
             }
             return true;
         }

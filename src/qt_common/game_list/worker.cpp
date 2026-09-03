@@ -581,8 +581,6 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                         }
                         if (program_id != 0 && (program_id & 0xFFF) == 0) {
                             addEntry(loader, program_id);
-                        } else if (program_id != 0) {
-                            addEntry(loader, program_id & 0xFFFFFFFFFFFFF000ULL);
                         }
                     }
                 }

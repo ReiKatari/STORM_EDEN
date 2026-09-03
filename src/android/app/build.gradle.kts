@@ -92,6 +92,7 @@ android {
                         "-DYUZU_USE_BUNDLED_FFMPEG=ON",
                         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
                         "-DENABLE_UPDATE_CHECKER=ON",
+                        "-DGIT_RELEASE=${getGitVersion()}",
                         "-DBUILD_TESTING=OFF",
                         "-DYUZU_TESTS=OFF",
                         "-DDYNARMIC_TESTS=OFF",

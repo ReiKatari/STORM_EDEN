@@ -90,13 +90,18 @@ class SetupAdapter(val activity: AppCompatActivity, pages: List<SetupPage>) :
 
             if (button != null) {
                 button.isEnabled = false
+                button.strokeColor = ColorStateList.valueOf(0xFF10B981.toInt())
+                button.iconTint = ColorStateList.valueOf(0xFF10B981.toInt())
+                button.setTextColor(0xFF10B981.toInt())
+                button.icon = ResourcesCompat.getDrawable(
+                    activity.resources,
+                    R.drawable.ic_check,
+                    activity.theme
+                )
                 button.animate()
-                    .alpha(0.38f)
+                    .alpha(0.85f)
                     .setDuration(200)
                     .start()
-                button.setTextColor(button.context.getColor(com.google.android.material.R.color.material_on_surface_disabled))
-                button.iconTint =
-                    ColorStateList.valueOf(button.context.getColor(com.google.android.material.R.color.material_on_surface_disabled))
             }
         }
     }

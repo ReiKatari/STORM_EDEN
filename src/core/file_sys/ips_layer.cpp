@@ -222,9 +222,22 @@ void IPSwitchCompiler::Parse() {
         if (StartsWith(line, "@stop")) {
             // Force stop
             break;
-        } else if (StartsWith(line, "@nsobid-")) {
-            // NSO Build ID Specifier
-            const auto raw_build_id = fmt::format("{:0<64}", line.substr(8));
+        } else if (StartsWith(line, "@nsobid-") || StartsWith(line, "@nsobid") ||
+                   StartsWith(line, "@NSOBID-") || StartsWith(line, "@NSOBID")) {
+            // NSO Build ID Specifier (case-insensitive and tolerant)
+            std::string build_str = line;
+            if (const auto dash_pos = build_str.find('-'); dash_pos != std::string::npos) {
+                build_str = build_str.substr(dash_pos + 1);
+            } else if (build_str.size() > 7) {
+                build_str = build_str.substr(7);
+            }
+            if (const auto start = build_str.find_first_not_of(" \t="); start != std::string::npos) {
+                build_str = build_str.substr(start);
+            }
+            if (const auto end = build_str.find_first_of(" \t\r\n"); end != std::string::npos) {
+                build_str = build_str.substr(0, end);
+            }
+            const auto raw_build_id = fmt::format("{:0<64}", build_str);
             nso_build_id = Common::HexStringToArray<0x20>(raw_build_id);
         } else if (StartsWith(line, "#")) {
             // Mandatory Comment

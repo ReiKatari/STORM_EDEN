@@ -75,20 +75,31 @@ bool HasApplicationProgramContent(const std::shared_ptr<FileSys::NSP>& nsp) {
         return false;
     }
 
-    if (!nsp->GetProgramTitleIDs().empty()) {
+    // A bootable game container must contain at least one base application title (ending in 000).
+    // Standalone update containers (0x800) and DLC containers (0x001+) must not be treated as games.
+    const auto pids = nsp->GetProgramTitleIDs();
+    bool has_base_pid = false;
+    for (const auto pid : pids) {
+        if (pid != 0 && (pid & 0xFFFULL) == 0) {
+            has_base_pid = true;
+            break;
+        }
+    }
+    if (has_base_pid) {
         return true;
     }
 
-    if (nsp->GetProgramTitleID() != 0 && (nsp->GetProgramTitleID() & 0x800) == 0) {
+    const auto single_tid = nsp->GetProgramTitleID();
+    if (single_tid != 0 && (single_tid & 0xFFFULL) == 0) {
         return true;
     }
 
     const auto& ncas = nsp->GetNCAs();
-    if (ncas.empty() && nsp->GetProgramStatus() == ResultStatus::Success) {
-        return true;
-    }
-
     return std::any_of(ncas.cbegin(), ncas.cend(), [](const auto& title_entry) {
+        const auto tid = title_entry.first;
+        if (tid != 0 && (tid & 0xFFFULL) != 0) {
+            return false;
+        }
         const auto& nca_map = title_entry.second;
         for (const auto& [key, nca_ptr] : nca_map) {
             if (key.second == FileSys::ContentRecordType::Program && nca_ptr != nullptr) {

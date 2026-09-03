@@ -286,8 +286,13 @@ class InstallableFragment : Fragment() {
                     if (files != null) {
                         for (file in files) {
                             if (file.isDirectory) {
-                                val baseSaveDir =
-                                    NativeLibrary.getSavePath(BigInteger(file.name, 16).toString())
+                                val progId = try {
+                                    BigInteger(file.name, 16).toString()
+                                } catch (_: Exception) {
+                                    failedImports++
+                                    continue
+                                }
+                                val baseSaveDir = NativeLibrary.getSavePath(progId)
                                 if (baseSaveDir.isEmpty()) {
                                     failedImports++
                                     continue

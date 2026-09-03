@@ -103,6 +103,8 @@ protected:
     Core::System& system;
     /// Identifier string used to connect to the service.
     const char* service_name;
+    /// Whether this is the IStorage service.
+    const bool is_i_storage;
     /// Maximum number of concurrent sessions that this service can handle.
     u32 max_sessions;
     /// Flag to store if a port was already create/installed to detect multiple install attempts,

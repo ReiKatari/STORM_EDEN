@@ -52,7 +52,7 @@ class SetupWarningDialogFragment : DialogFragment() {
             }
         }
 
-        builder.setTitle("Warning")
+        builder.setTitle(R.string.warning)
         builder.setMessage(messageBuilder.toString().trim())
 
         if (helpLinkIds.any { it != 0 }) {

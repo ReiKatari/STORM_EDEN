@@ -48,6 +48,7 @@ object DirectoryInitialization {
                 }
                 val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
                 migrateDirectoryIfMissing(internalBaseDir, rootExternal)
+                migrateFromLegacyDirectories(rootExternal)
 
                 val newPath = rootExternal.canonicalPath
                 if (userPath != newPath && !NativeLibrary.isRunning()) {
@@ -65,7 +66,7 @@ object DirectoryInitialization {
             if (!sourceDir.exists() || sourceDir.canonicalPath == targetDir.canonicalPath) {
                 return
             }
-            val subdirs = listOf("keys", "config", "load", "nand", "amiibo", "cheats", "gpu_drivers", "profiles")
+            val subdirs = listOf("keys", "config", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "profiles")
             for (sub in subdirs) {
                 val srcSub = File(sourceDir, sub)
                 val dstSub = File(targetDir, sub)
@@ -88,6 +89,22 @@ object DirectoryInitialization {
         } catch (_: Throwable) {}
     }
 
+    private fun migrateFromLegacyDirectories(targetDir: File) {
+        try {
+            val legacyCandidates = listOf(
+                File(android.os.Environment.getExternalStorageDirectory(), "STORM EDEN"),
+                File(android.os.Environment.getExternalStorageDirectory(), "Eden"),
+                File("/data/user/0/dev.storm_eden/files"),
+                File("/data/user/0/org.yuzu.yuzu_emu/files")
+            )
+            for (legacyDir in legacyCandidates) {
+                if (legacyDir.exists() && legacyDir.isDirectory) {
+                    migrateDirectoryIfMissing(legacyDir, targetDir)
+                }
+            }
+        } catch (_: Throwable) {}
+    }
+
     private fun initializeInternalStorage() {
         try {
             var initialized = false
@@ -99,6 +116,7 @@ object DirectoryInitialization {
                     }
                     val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir
                     migrateDirectoryIfMissing(internalBaseDir, rootExternal)
+                    migrateFromLegacyDirectories(rootExternal)
 
                     userPath = rootExternal.canonicalPath
                     NativeLibrary.setAppDirectory(userPath!!)

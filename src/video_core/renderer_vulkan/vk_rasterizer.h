@@ -147,7 +147,6 @@ private:
         0x01006A800016E000ULL, // SSBU
         0x0100E95004038000ULL, // XC2
         0x0100A6301214E000ULL, // FE:Engage
-        0x01007EF00011E000ULL, // Zelda: Breath of the Wild (Shrines & open world depth bias fix)
         0x0100F2C0115B6000ULL, // Zelda: Tears of the Kingdom
         0x01008CF01BAAC000ULL, // Zelda: Echoes of Wisdom
         0x01008CF01BA04000ULL, // Zelda: Echoes of Wisdom (Alt)

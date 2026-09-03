@@ -356,8 +356,13 @@ object InstallableActions {
             checkStream.use { stream ->
                 var ze: ZipEntry? = null
                 while (stream.nextEntry?.also { ze = it } != null) {
-                    val itemName = ze!!.name.trim()
-                    if (itemName == "/config/config.ini" || itemName == "config/config.ini") {
+                    val itemName = ze!!.name.trim().replace('\\', '/')
+                    if (itemName.endsWith("config/config.ini") ||
+                        itemName.endsWith("config/qt-config.ini") ||
+                        itemName.contains("nand/user/save") ||
+                        itemName.contains("sdmc/") ||
+                        itemName.endsWith("keys/prod.keys") ||
+                        itemName.endsWith("prod.keys")) {
                         isYuzuBackup = true
                         return@use
                     }

@@ -6,6 +6,8 @@ package org.yuzu.yuzu_emu.utils
 object GameMetadata {
     external fun getIsValid(path: String): Boolean
 
+    external fun isBaseGame(path: String): Boolean
+
     external fun getTitle(path: String): String
 
     external fun getProgramId(path: String): String

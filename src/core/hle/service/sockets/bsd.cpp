@@ -485,9 +485,31 @@ void BSD::EventFd(HLERequestContext& ctx) {
     const u64 initval = rp.Pop<u64>();
     const u32 flags = rp.Pop<u32>();
 
-    LOG_WARNING(Service, "(STUBBED) called. initval={}, flags={}", initval, flags);
+    LOG_DEBUG(Service, "called. initval={}, flags={:#x}", initval, flags);
 
-    BuildErrnoResponse(ctx, Errno::SUCCESS);
+    const s32 fd = FindFreeFileDescriptorHandle();
+    if (fd < 0) {
+        LOG_ERROR(Service, "Exhausted file descriptors for EventFd");
+        BuildErrnoResponse(ctx, Errno::MFILE);
+        return;
+    }
+
+    auto event_entry = std::make_shared<EventFdEntry>();
+    event_entry->counter = initval;
+    event_entry->flags = flags;
+    event_entry->is_closed = false;
+
+    file_descriptors[fd] = FileDescriptor{
+        .socket = nullptr,
+        .event_fd = std::move(event_entry),
+        .flags = static_cast<s32>((flags & 0x0800) ? Network::FLAG_O_NONBLOCK : 0),
+        .is_connection_based = false,
+    };
+
+    IPC::ResponseBuilder rb{ctx, 4};
+    rb.Push(ResultSuccess);
+    rb.Push<s32>(fd);
+    rb.PushEnum(Errno::SUCCESS);
 }
 
 template <typename Work>
@@ -587,20 +609,49 @@ std::pair<s32, Errno> BSD::PollImpl(std::vector<u8>& write_buffer, std::span<con
         }
     }
 
-    std::vector<Network::PollFD> host_pollfds(fds.size());
-    std::transform(fds.begin(), fds.end(), host_pollfds.begin(), [](PollFD pollfd) {
-        Network::PollFD result;
-        result.socket = file_descriptors[pollfd.fd]->socket.get();
-        result.events = Translate(pollfd.events);
-        result.revents = Network::PollEvents{};
-        return result;
-    });
+    std::vector<Network::PollFD> host_pollfds;
+    std::vector<size_t> host_to_guest_indices;
+    host_pollfds.reserve(fds.size());
+    host_to_guest_indices.reserve(fds.size());
+
+    for (size_t i = 0; i < fds.size(); ++i) {
+        PollFD& pollfd = fds[i];
+        if (file_descriptors[pollfd.fd]->event_fd) {
+            auto& efd = *file_descriptors[pollfd.fd]->event_fd;
+            std::lock_guard lock(efd.mutex);
+            if (efd.is_closed) {
+                pollfd.revents = PollEvents::Hup;
+            } else if (True(pollfd.events & PollEvents::In) && efd.counter > 0) {
+                pollfd.revents = PollEvents::In;
+            }
+        } else if (file_descriptors[pollfd.fd]->socket) {
+            Network::PollFD host_pfd;
+            host_pfd.socket = file_descriptors[pollfd.fd]->socket.get();
+            host_pfd.events = Translate(pollfd.events);
+            host_pfd.revents = Network::PollEvents{};
+            host_pollfds.push_back(host_pfd);
+            host_to_guest_indices.push_back(i);
+        }
+    }
+
+    s32 ready_count = 0;
+    for (const auto& pollfd : fds) {
+        if (True(pollfd.revents)) {
+            ready_count++;
+        }
+    }
+
+    if (ready_count > 0 || host_pollfds.empty()) {
+        std::memcpy(write_buffer.data(), fds.data(), nfds * sizeof(PollFD));
+        return {ready_count, Errno::SUCCESS};
+    }
 
     const auto result = Network::Poll(host_pollfds, timeout);
 
     const size_t num = host_pollfds.size();
     for (size_t i = 0; i < num; ++i) {
-        fds[i].revents = Translate(host_pollfds[i].revents);
+        const size_t guest_idx = host_to_guest_indices[i];
+        fds[guest_idx].revents = Translate(host_pollfds[i].revents);
     }
     std::memcpy(write_buffer.data(), fds.data(), nfds * sizeof(PollFD));
 
@@ -738,12 +789,26 @@ std::pair<s32, Errno> BSD::FcntlImpl(s32 fd, FcntlCmd cmd, s32 arg) {
     if (!IsFileDescriptorValid(fd)) {
         return {-1, Errno::BADF};
     }
-    if (!file_descriptors[fd]->socket) {
+
+    FileDescriptor& descriptor = *file_descriptors[fd];
+
+    if (descriptor.event_fd) {
+        switch (cmd) {
+        case FcntlCmd::GETFL:
+            return {descriptor.flags, Errno::SUCCESS};
+        case FcntlCmd::SETFL:
+            descriptor.flags = arg;
+            return {0, Errno::SUCCESS};
+        default:
+            LOG_WARNING(Service, "Unimplemented event_fd fcntl cmd={}", cmd);
+            return {0, Errno::SUCCESS};
+        }
+    }
+
+    if (!descriptor.socket) {
         LOG_WARNING(Service, "Uninitialized socket");
         return {-1, Errno::BADF};
     }
-
-    FileDescriptor& descriptor = *file_descriptors[fd];
 
     switch (cmd) {
     case FcntlCmd::GETFL:
@@ -873,6 +938,45 @@ std::pair<s32, Errno> BSD::RecvImpl(s32 fd, u32 flags, std::vector<u8>& message)
 
     FileDescriptor& descriptor = *file_descriptors[fd];
 
+    if (descriptor.event_fd) {
+        auto& efd = *descriptor.event_fd;
+        std::unique_lock lock(efd.mutex);
+
+        const bool non_block = ((flags & Network::FLAG_MSG_DONTWAIT) != 0) ||
+                               ((descriptor.flags & Network::FLAG_O_NONBLOCK) != 0) ||
+                               ((efd.flags & 0x0800) != 0);
+
+        if (efd.counter == 0) {
+            if (non_block) {
+                return {-1, Errno::AGAIN};
+            }
+            efd.cv.wait(lock, [&] { return efd.counter > 0 || efd.is_closed; });
+            if (efd.is_closed) {
+                return {-1, Errno::BADF};
+            }
+        }
+
+        u64 val = 0;
+        if ((efd.flags & 0x0001) != 0) { // EFD_SEMAPHORE
+            val = 1;
+            efd.counter -= 1;
+        } else {
+            val = efd.counter;
+            efd.counter = 0;
+        }
+
+        const size_t copy_len = std::min(message.size(), sizeof(val));
+        if (copy_len > 0) {
+            std::memcpy(message.data(), &val, copy_len);
+        }
+
+        return {static_cast<s32>(sizeof(val)), Errno::SUCCESS};
+    }
+
+    if (!descriptor.socket) {
+        return {-1, Errno::BADF};
+    }
+
     // Apply flags
     using Network::FLAG_MSG_DONTWAIT;
     using Network::FLAG_O_NONBLOCK;
@@ -943,11 +1047,36 @@ std::pair<s32, Errno> BSD::SendImpl(s32 fd, u32 flags, std::span<const u8> messa
     if (!IsFileDescriptorValid(fd)) {
         return {-1, Errno::BADF};
     }
-    if (!file_descriptors[fd]->socket) {
+
+    FileDescriptor& descriptor = *file_descriptors[fd];
+
+    if (descriptor.event_fd) {
+        if (message.size() < sizeof(u64)) {
+            return {-1, Errno::INVAL};
+        }
+        u64 val = 0;
+        std::memcpy(&val, message.data(), sizeof(u64));
+        if (val == 0xFFFFFFFFFFFFFFFFULL) {
+            return {-1, Errno::INVAL};
+        }
+
+        auto& efd = *descriptor.event_fd;
+        {
+            std::lock_guard lock(efd.mutex);
+            if (0xFFFFFFFFFFFFFFFEULL - efd.counter < val) {
+                return {-1, Errno::AGAIN};
+            }
+            efd.counter += val;
+        }
+        efd.cv.notify_one();
+        return {static_cast<s32>(sizeof(u64)), Errno::SUCCESS};
+    }
+
+    if (!descriptor.socket) {
         LOG_WARNING(Service, "Uninitialized socket");
         return {-1, Errno::BADF};
     }
-    return Translate(file_descriptors[fd]->socket->Send(message, flags));
+    return Translate(descriptor.socket->Send(message, flags));
 }
 
 std::pair<s32, Errno> BSD::SendToImpl(s32 fd, u32 flags, std::span<const u8> message,
@@ -978,6 +1107,18 @@ Errno BSD::CloseImpl(s32 fd) {
     if (!IsFileDescriptorValid(fd)) {
         return Errno::BADF;
     }
+
+    if (file_descriptors[fd]->event_fd) {
+        auto& efd = *file_descriptors[fd]->event_fd;
+        {
+            std::lock_guard lock(efd.mutex);
+            efd.is_closed = true;
+        }
+        efd.cv.notify_all();
+        file_descriptors[fd].reset();
+        return Errno::SUCCESS;
+    }
+
     if (!file_descriptors[fd]->socket) {
         LOG_WARNING(Service, "Uninitialized socket");
         return Errno::BADF;
@@ -1007,6 +1148,7 @@ std::variant<s32, Errno> BSD::DuplicateSocketImpl(s32 fd) {
 
     file_descriptors[new_fd] = FileDescriptor{
         .socket = file_descriptors[fd]->socket,
+        .event_fd = file_descriptors[fd]->event_fd,
         .flags = file_descriptors[fd]->flags,
         .is_connection_based = file_descriptors[fd]->is_connection_based,
     };

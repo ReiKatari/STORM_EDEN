@@ -16,13 +16,14 @@
 
 struct RomMetadata {
     std::string title;
-    u64 programId;
+    u64 programId{0};
+    u64 raw_program_id{0};
     std::string developer;
     std::string version;
     std::string internal_version;
     int addon_count{0};
     std::vector<u8> icon;
-    bool isHomebrew;
+    bool isHomebrew{false};
 };
 static ankerl::unordered_dense::map<std::string, RomMetadata> m_rom_metadata_cache;
 static ankerl::unordered_dense::map<u64, int> m_aoc_count_cache;
@@ -38,6 +39,7 @@ static RomMetadata CacheRomMetadata(const std::string& path) {
         loader->ReadIcon(entry.icon);
 
         const u64 raw_pid = entry.programId;
+        entry.raw_program_id = raw_pid;
         const u64 base_tid = FileSys::GetBaseTitleID(raw_pid);
         const u64 update_tid = FileSys::GetUpdateTitleID(base_tid);
         entry.programId = base_tid;
@@ -204,7 +206,16 @@ jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getTitle(JNIEnv* env, jobject
 }
 
 jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getProgramId(JNIEnv* env, jobject obj, jstring jpath) {
-    return Common::Android::ToJString(env, std::to_string(GetRomMetadata(Common::Android::GetJString(env, jpath)).programId));
+    const auto meta = GetRomMetadata(Common::Android::GetJString(env, jpath));
+    return Common::Android::ToJString(env, fmt::format("{:016X}", meta.programId));
+}
+
+jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_isBaseGame(JNIEnv* env, jobject obj, jstring jpath) {
+    const auto meta = GetRomMetadata(Common::Android::GetJString(env, jpath));
+    if (meta.raw_program_id != 0) {
+        return jboolean((meta.raw_program_id & 0xFFF) == 0);
+    }
+    return jboolean(true);
 }
 
 jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getDeveloper(JNIEnv* env, jobject obj, jstring jpath) {

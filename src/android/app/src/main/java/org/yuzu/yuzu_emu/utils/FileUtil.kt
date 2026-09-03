@@ -339,9 +339,18 @@ object FileUtil {
         progressCallback: (max: Long, progress: Long) -> Boolean = { _, _ -> false }
     ) {
         var totalEntries = 0L
+        var commonPrefix: String? = null
+        val subfolderNames = setOf("config", "keys", "nand", "sdmc", "load", "cheats", "amiibo", "gpu_drivers", "profiles")
         ZipInputStream(getInputStream(path)).use { zis ->
             var tempEntry = zis.nextEntry
             while (tempEntry != null) {
+                val clean = tempEntry.name.trim().replace('\\', '/')
+                for (sub in subfolderNames) {
+                    val idx = clean.indexOf("/$sub/")
+                    if (idx > 0 && (commonPrefix == null || idx < commonPrefix!!.length)) {
+                        commonPrefix = clean.substring(0, idx + 1)
+                    }
+                }
                 tempEntry = zis.nextEntry
                 totalEntries++
             }
@@ -355,7 +364,18 @@ object FileUtil {
                     return@use
                 }
 
-                val newFile = File(destDir, entry.name)
+                var cleanName = entry.name.replace('\\', '/')
+                if (commonPrefix != null && cleanName.startsWith(commonPrefix!!)) {
+                    cleanName = cleanName.removePrefix(commonPrefix!!)
+                }
+                cleanName = cleanName.trimStart('/')
+                if (cleanName.isEmpty()) {
+                    entry = zis.nextEntry
+                    progress++
+                    continue
+                }
+
+                val newFile = File(destDir, cleanName)
                 val destinationDirectory = if (entry.isDirectory) newFile else newFile.parentFile
 
                 if (!newFile.canonicalPath.startsWith(destDir.canonicalPath + File.separator)) {

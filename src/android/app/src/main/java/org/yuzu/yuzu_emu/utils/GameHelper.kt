@@ -110,9 +110,32 @@ object GameHelper {
         }
         NativeConfig.setGameDirs(gameDirs.toTypedArray())
 
+        // Deduplicate games by programId: keep the best entry (higher version / addon count)
+        val uniqueGamesMap = linkedMapOf<String, Game>()
+        games.forEach { game ->
+            val key = if (game.programId.isNotEmpty() && game.programId != "0") {
+                game.programId.uppercase()
+            } else {
+                game.path
+            }
+            val existing = uniqueGamesMap[key]
+            if (existing == null) {
+                uniqueGamesMap[key] = game
+            } else {
+                val existingVer = existing.version.removePrefix("v").removePrefix("V").trim()
+                val currentVer = game.version.removePrefix("v").removePrefix("V").trim()
+                if (currentVer != "1.0.0" && existingVer == "1.0.0") {
+                    uniqueGamesMap[key] = game
+                } else if (game.addonCount > existing.addonCount) {
+                    uniqueGamesMap[key] = game
+                }
+            }
+        }
+        val finalGames = uniqueGamesMap.values.toList()
+
         // Cache list of games found on disk
         val serializedGames = mutableSetOf<String>()
-        games.forEach {
+        finalGames.forEach {
             serializedGames.add(Json.encodeToString(it))
         }
         preferences.edit() {
@@ -120,8 +143,8 @@ object GameHelper {
                 .putStringSet(KEY_GAMES, serializedGames)
         }
 
-        cachedGameList = games.toMutableList()
-        return games.toList()
+        cachedGameList = finalGames.toMutableList()
+        return finalGames
     }
 
     fun restoreContentForGame(game: Game) {
@@ -278,6 +301,9 @@ object GameHelper {
     ): Game? {
         val filePath = uri.toString()
         if (!GameMetadata.getIsValid(filePath)) {
+            return null
+        }
+        if (!GameMetadata.isBaseGame(filePath)) {
             return null
         }
 

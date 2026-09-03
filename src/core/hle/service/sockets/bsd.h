@@ -6,6 +6,8 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 #include <span>
 #include <vector>
 #include <variant>
@@ -43,8 +45,17 @@ private:
     /// Maximum number of file descriptors
     static constexpr size_t MAX_FD = 128;
 
+    struct EventFdEntry {
+        std::mutex mutex;
+        std::condition_variable cv;
+        u64 counter{0};
+        u32 flags{0};
+        bool is_closed{false};
+    };
+
     struct FileDescriptor {
         std::shared_ptr<Network::SocketBase> socket;
+        std::shared_ptr<EventFdEntry> event_fd;
         s32 flags = 0;
         bool is_connection_based = false;
     };

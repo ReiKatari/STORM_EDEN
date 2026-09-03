@@ -266,8 +266,17 @@ class MainActivity : AppCompatActivity(), ThemeProvider {
     private fun downloadAndInstallUpdate(release: NativeLibrary.UpdateResult) {
         CoroutineScope(Dispatchers.IO).launch {
             val packageId = applicationContext.packageName
-            val asset = release.assets[0]
-            val artifact = asset.split("/").last()
+            val isLegacy = org.yuzu.yuzu_emu.BuildConfig.FLAVOR.equals("legacy", ignoreCase = true)
+            val asset = if (isLegacy) {
+                release.assets.firstOrNull { it.contains("LEGACY", ignoreCase = true) && it.endsWith(".apk", ignoreCase = true) }
+                    ?: release.assets.firstOrNull { it.endsWith(".apk", ignoreCase = true) }
+                    ?: release.assets[0]
+            } else {
+                release.assets.firstOrNull { !it.contains("LEGACY", ignoreCase = true) && it.endsWith(".apk", ignoreCase = true) }
+                    ?: release.assets.firstOrNull { it.endsWith(".apk", ignoreCase = true) }
+                    ?: release.assets[0]
+            }
+            val artifact = asset.split("/").last().removeSuffix(".apk")
             val apkFile = File(cacheDir, "update-$artifact.apk")
 
             withContext(Dispatchers.Main) {

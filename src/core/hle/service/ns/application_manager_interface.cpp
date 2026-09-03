@@ -68,7 +68,7 @@ IApplicationManagerInterface::IApplicationManagerInterface(Core::System& system_
         {43, D<&IApplicationManagerInterface::CheckSdCardMountStatus>, "CheckSdCardMountStatus"},
         {44, D<&IApplicationManagerInterface::GetSdCardMountStatusChangedEvent>, "GetSdCardMountStatusChangedEvent"},
         {45, nullptr, "GetGameCardAttachmentEvent"},
-        {46, nullptr, "GetGameCardAttachmentInfo"},
+        {46, D<&IApplicationManagerInterface::GetGameCardAttachmentInfo>, "GetGameCardAttachmentInfo"},
         {47, D<&IApplicationManagerInterface::GetTotalSpaceSize>, "GetTotalSpaceSize"},
         {48, D<&IApplicationManagerInterface::GetFreeSpaceSize>, "GetFreeSpaceSize"},
         {49, nullptr, "GetSdCardRemovedEvent"},
@@ -164,10 +164,10 @@ IApplicationManagerInterface::IApplicationManagerInterface(Core::System& system_
         {503, nullptr, "RequestGameCardRegistrationGoldPoint"},
         {504, nullptr, "RequestRegisterGameCard"},
         {505, D<&IApplicationManagerInterface::GetGameCardMountFailureEvent>, "GetGameCardMountFailureEvent"},
-        {506, nullptr, "IsGameCardInserted"},
+        {506, D<&IApplicationManagerInterface::IsGameCardInserted>, "IsGameCardInserted"},
         {507, nullptr, "EnsureGameCardAccess"},
         {508, nullptr, "GetLastGameCardMountFailureResult"},
-        {509, nullptr, "ListApplicationIdOnGameCard"},
+        {509, D<&IApplicationManagerInterface::ListApplicationIdOnGameCard>, "ListApplicationIdOnGameCard"},
         {510, nullptr, "GetGameCardPlatformRegion"},
         {511, D<&IApplicationManagerInterface::GetGameCardWakenReadyEvent>, "GetGameCardWakenReadyEvent"},
         {512, D<&IApplicationManagerInterface::IsGameCardApplicationRunning>, "IsGameCardApplicationRunning"},
@@ -635,6 +635,25 @@ Result IApplicationManagerInterface::GetGameCardWakenReadyEvent(
 Result IApplicationManagerInterface::IsGameCardApplicationRunning(Out<bool> out_is_running) {
     LOG_WARNING(Service_NS, "(STUBBED) called");
     *out_is_running = false;
+    R_SUCCEED();
+}
+
+Result IApplicationManagerInterface::GetGameCardAttachmentInfo(Out<bool> out_is_attached) {
+    LOG_DEBUG(Service_NS, "called");
+    *out_is_attached = system.GetFileSystemController().GetGameCard() != nullptr;
+    R_SUCCEED();
+}
+
+Result IApplicationManagerInterface::IsGameCardInserted(Out<bool> out_is_inserted) {
+    LOG_DEBUG(Service_NS, "called");
+    *out_is_inserted = system.GetFileSystemController().GetGameCard() != nullptr;
+    R_SUCCEED();
+}
+
+Result IApplicationManagerInterface::ListApplicationIdOnGameCard(
+    Out<u32> out_count, OutArray<u64, BufferAttr_HipcMapAlias> out_app_ids) {
+    LOG_DEBUG(Service_NS, "called");
+    *out_count = 0;
     R_SUCCEED();
 }
 

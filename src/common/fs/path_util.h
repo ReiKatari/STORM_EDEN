@@ -36,6 +36,14 @@ enum class EdenPath {
 
 // migration/compat dirs
 enum EmuPath {
+    StormEdenDir,
+    StormEdenConfigDir,
+    StormEdenCacheDir,
+
+    EdenLegacyDir,
+    EdenLegacyConfigDir,
+    EdenLegacyCacheDir,
+
     CitronDir,
     CitronConfigDir,
     CitronCacheDir,

@@ -1333,7 +1333,9 @@ void Device::RemoveUnsuitableExtensions() {
     // VK_EXT_border_color_swizzle
     if (extensions.border_color_swizzle) {
         extensions.border_color_swizzle =
-            extensions.custom_border_color && features.border_color_swizzle.borderColorSwizzle;
+            extensions.custom_border_color &&
+            features.border_color_swizzle.borderColorSwizzle &&
+            features.border_color_swizzle.borderColorSwizzleFromImage;
     }
     RemoveExtensionFeatureIfUnsuitable(extensions.border_color_swizzle,
                                        features.border_color_swizzle,

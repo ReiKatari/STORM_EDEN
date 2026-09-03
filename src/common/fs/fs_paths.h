@@ -30,6 +30,8 @@
 #define ICONS_DIR "icons"
 
 // Compatibility with other emulators
+#define STORM_EDEN_DIR "storm_eden"
+#define EDEN_LEGACY_DIR "eden"
 #define CITRON_DIR "citron"
 #define SUDACHI_DIR "sudachi"
 #define YUZU_DIR "yuzu"

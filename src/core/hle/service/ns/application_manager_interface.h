@@ -34,6 +34,10 @@ public:
     Result GetGameCardMountFailureEvent(OutCopyHandle<Kernel::KReadableEvent> out_event);
     Result GetGameCardWakenReadyEvent(OutCopyHandle<Kernel::KReadableEvent> out_event);
     Result IsGameCardApplicationRunning(Out<bool> out_is_running);
+    Result GetGameCardAttachmentInfo(Out<bool> out_is_attached);
+    Result IsGameCardInserted(Out<bool> out_is_inserted);
+    Result ListApplicationIdOnGameCard(Out<u32> out_count,
+                                       OutArray<u64, BufferAttr_HipcMapAlias> out_app_ids);
     Result IsAnyApplicationEntityInstalled(Out<bool> out_is_any_application_entity_installed);
     Result GetApplicationViewDeprecated(
         OutArray<ApplicationViewV19, BufferAttr_HipcMapAlias> out_application_views,

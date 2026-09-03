@@ -17,13 +17,13 @@ static const std::vector<GameFixProfile> s_profiles = {
         "The Legend of Zelda: Breath of the Wild",
         "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Белые вспышки и мерцание освещения/погоды\n• Пропадание текстур скал и земли при нехватке памяти\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах",
         "• Link black silhouette caused by unsynced lighting and stencil buffers\n• White screen flashes and lighting flicker\n• Ground and terrain textures disappearing due to memory pressure\n• Shrine depth bias / cyan grid artifacts",
-        "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Включено (устранение белых вспышек и рассинхрона)\n✓ Сжатие ASTC: Отключено (максимальная четкость текстур)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8 ГБ DRAM (предотвращение вытеснения текстур)",
-        "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Enabled (Fixes white flashes and buffer desync)\n✓ ASTC Recompression: Uncompressed\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM (Prevents texture dropping)",
+        "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (устранение белой воды)\n✓ Сжатие ASTC: BC1/BC3 (стабильность текстур Adreno 732)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8 ГБ DRAM (предотвращение вытеснения текстур)",
+        "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Fixes white water)\n✓ ASTC Recompression: BC1/BC3 (Prevents texture dropping on Adreno 732)\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM (Prevents texture dropping)",
         {
             {"Renderer\\gpu_accuracy", "1"},
-            {"Renderer\\use_reactive_flushing", "true"},
+            {"Renderer\\use_reactive_flushing", "false"},
             {"Renderer\\use_fast_gpu_time", "false"},
-            {"Renderer\\astc_recompression", "0"},
+            {"Renderer\\astc_recompression", "1"},
             {"Cpu\\cpuopt_fastmem", "true"},
             {"Renderer\\use_asynchronous_shaders", "true"},
             {"System\\memory_layout_mode", "2"}

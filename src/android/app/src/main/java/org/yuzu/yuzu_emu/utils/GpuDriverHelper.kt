@@ -77,15 +77,34 @@ object GpuDriverHelper {
 
         val customLib = installedCustomDriverData.libraryName
         if (!customLib.isNullOrEmpty()) {
-            val drircFile = File(driverInstallationPath, "drirc.xml")
-            if (drircFile.exists()) {
+            val installDir = File(driverInstallationPath!!)
+            val drircFile = File(installDir, "drirc.xml")
+            val drircConfFile = File(installDir, "00-storm.conf")
+            val fallbackConf = if (drircConfFile.exists()) drircConfFile else if (drircFile.exists()) drircFile else null
+
+            if (fallbackConf != null && fallbackConf.exists()) {
+                val configBytes = fallbackConf.readBytes()
                 try {
                     val redirDir = File(fileRedirectionPath!!)
                     if (!redirDir.exists()) redirDir.mkdirs()
-                    File(redirDir, "drirc.xml").writeBytes(drircFile.readBytes())
-                    File(redirDir, "drirc").writeBytes(drircFile.readBytes())
+                    File(redirDir, "drirc.xml").writeBytes(configBytes)
+                    File(redirDir, "drirc").writeBytes(configBytes)
+                    File(redirDir, "00-storm.conf").writeBytes(configBytes)
+                    File(redirDir, "drirc.conf").writeBytes(configBytes)
+
+                    File(installDir, "00-storm.conf").writeBytes(configBytes)
+                    File(installDir, "drirc.conf").writeBytes(configBytes)
+                    File(installDir, "drirc").writeBytes(configBytes)
+
+                    // Also write to $HOME/.drirc for Mesa driconf loader
+                    val homeDir = YuzuApplication.appContext.filesDir
+                    File(homeDir, ".drirc").writeBytes(configBytes)
                 } catch (_: Throwable) {}
-                NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_FILE", drircFile.absolutePath)
+
+                NativeFreedrenoConfig.setFreedrenoEnv("DRIRC_CONFIGDIR", driverInstallationPath!!)
+                NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_DIR", driverInstallationPath!!)
+                NativeFreedrenoConfig.setFreedrenoEnv("MESA_DRIRC_FILE", fallbackConf.absolutePath)
+                NativeFreedrenoConfig.setFreedrenoEnv("HOME", YuzuApplication.appContext.filesDir.absolutePath)
             }
             
             // 4GB Monolithic Shader Cache for Mesa Turnip and PanVK

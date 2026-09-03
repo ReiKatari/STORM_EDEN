@@ -44,7 +44,8 @@ class RendererVulkan final : public VideoCore::RendererBase {
 public:
     explicit RendererVulkan(Core::Frontend::EmuWindow& emu_window,
                             Tegra::MaxwellDeviceMemoryManager& device_memory_, Tegra::GPU& gpu_,
-                            std::unique_ptr<Core::Frontend::GraphicsContext> context_);
+                            std::unique_ptr<Core::Frontend::GraphicsContext> context_,
+                            std::string_view app_name = {});
     ~RendererVulkan() override;
 
     void Composite(std::span<const Tegra::FramebufferConfig> framebuffers) override;

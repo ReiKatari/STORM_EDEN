@@ -679,7 +679,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
         val buildVersion = NativeLibrary.getBuildVersion()
         buildId = buildVersion.split("-").getOrNull(0) ?: ""
-        driverInUse = driverViewModel.selectedDriverVersion.value
+        val driverTitle = driverViewModel.selectedDriverTitle.value
+        driverInUse = if (driverTitle.isNotEmpty()) driverTitle else driverViewModel.selectedDriverVersion.value
 
         updateQuickOverlayMenuEntry(BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean())
         onPhysicalControllerStateChanged(InputHandler.androidControllers.isNotEmpty())
@@ -971,7 +972,17 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         behavior.state = BottomSheetBehavior.STATE_HIDDEN
                         return
                     }
-                    emulationViewModel.setDrawerOpen(!binding.drawerLayout.isOpen)
+                    if (binding.drawerLayout.isDrawerOpen(Gravity.START) ||
+                        binding.drawerLayout.isDrawerVisible(Gravity.START)
+                    ) {
+                        binding.drawerLayout.closeDrawer(Gravity.START)
+                        emulationViewModel.setDrawerOpen(false)
+                    } else {
+                        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                        binding.drawerLayout.openDrawer(Gravity.START)
+                        binding.inGameMenu.requestFocus()
+                        emulationViewModel.setDrawerOpen(true)
+                    }
                 }
             }
         )
@@ -1060,10 +1071,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
         emulationViewModel.drawerOpen.collect(viewLifecycleOwner) {
             if (it) {
-                binding.drawerLayout.open()
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                binding.drawerLayout.openDrawer(Gravity.START)
                 binding.inGameMenu.requestFocus()
             } else {
-                binding.drawerLayout.close()
+                binding.drawerLayout.closeDrawer(Gravity.START)
             }
         }
         emulationViewModel.programChanged.collect(viewLifecycleOwner) {

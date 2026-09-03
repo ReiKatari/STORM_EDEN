@@ -28,9 +28,15 @@ class LaunchGameDialogFragment : DialogFragment() {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.launch_options)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
-                val action = HomeNavigationDirections
-                    .actionGlobalEmulationActivity(game, selectedItem != 0)
-                requireParentFragment().findNavController().navigate(action)
+                try {
+                    val action = HomeNavigationDirections
+                        .actionGlobalEmulationActivity(game, selectedItem != 0)
+                    requireParentFragment().findNavController().navigate(action)
+                } catch (_: Throwable) {
+                    try {
+                        game?.launchIntent?.let { requireContext().startActivity(it) }
+                    } catch (_: Throwable) {}
+                }
             }
             .setSingleChoiceItems(launchOptions, 1) { _: DialogInterface, i: Int ->
                 selectedItem = i

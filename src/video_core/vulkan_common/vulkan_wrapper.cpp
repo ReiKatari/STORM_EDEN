@@ -448,18 +448,17 @@ VkResult Free(VkDevice device, VkCommandPool handle, Span<VkCommandBuffer> buffe
 }
 
 Instance Instance::Create(u32 version, Span<const char*> layers, Span<const char*> extensions,
-                          InstanceDispatch& dispatch) {
+                          InstanceDispatch& dispatch, std::string_view app_name) {
 #ifdef __APPLE__
     constexpr VkFlags ci_flags{VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR};
 #else
     constexpr VkFlags ci_flags{};
 #endif
-    // DO NOT TOUCH, breaks RNDA3!!
-    // Don't know why, but gloom + yellow line glitch appears
+    std::string const application_name = app_name.empty() ? "yuzu Emulator" : std::string(app_name);
     const VkApplicationInfo application_info{
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext = nullptr,
-        .pApplicationName = "yuzu Emulator",
+        .pApplicationName = application_name.c_str(),
         .applicationVersion = VK_MAKE_VERSION(1, 3, 0),
         .pEngineName = "yuzu Emulator",
         .engineVersion = VK_MAKE_VERSION(1, 3, 0),

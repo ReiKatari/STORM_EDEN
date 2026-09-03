@@ -18,6 +18,8 @@
 #ifdef HAS_OPENGL
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #endif
+#include <fmt/format.h>
+#include "core/loader/loader.h"
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
 #include "video_core/video_core.h"
 
@@ -25,6 +27,11 @@ namespace {
 
 std::unique_ptr<VideoCore::RendererBase> CreateRenderer(Core::System& system, Core::Frontend::EmuWindow& emu_window, Tegra::GPU& gpu, std::unique_ptr<Core::Frontend::GraphicsContext> context) {
     [[maybe_unused]] auto& device_memory = system.Host1x().MemoryManager();
+    std::string app_title_id;
+    u64 program_id = 0;
+    if (system.GetAppLoader().ReadProgramId(program_id) == Loader::ResultStatus::Success && program_id != 0) {
+        app_title_id = fmt::format("{:016X}", program_id);
+    }
     switch (Settings::values.renderer_backend.GetValue()) {
 #ifdef HAS_OPENGL
     case Settings::RendererBackend::OpenGL_GLSL:
@@ -36,7 +43,7 @@ std::unique_ptr<VideoCore::RendererBase> CreateRenderer(Core::System& system, Co
         return std::make_unique<Null::RendererNull>(emu_window, gpu, std::move(context));
     case Settings::RendererBackend::Vulkan:
     default:
-        return std::make_unique<Vulkan::RendererVulkan>(emu_window, device_memory, gpu, std::move(context));
+        return std::make_unique<Vulkan::RendererVulkan>(emu_window, device_memory, gpu, std::move(context), app_title_id);
     }
 }
 

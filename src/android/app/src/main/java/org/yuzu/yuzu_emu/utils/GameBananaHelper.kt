@@ -181,9 +181,13 @@ object GameBananaHelper {
         sortIndex: Int = 0
     ): List<GameBananaMod> = withContext(Dispatchers.IO) {
         val programIdLong = try {
-            game.programId.toLong()
-        } catch (_: Exception) {
-            0L
+            game.programId.toULong(16).toLong()
+        } catch (_: Throwable) {
+            try {
+                game.programId.toLong()
+            } catch (_: Throwable) {
+                0L
+            }
         }
 
         val gameBananaGameId = resolveGameBananaGameId(programIdLong, game.title)

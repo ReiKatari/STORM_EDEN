@@ -97,7 +97,8 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
                             gameNameList.add(arrayOf(gameName))
                         }
 
-                        val gameId = game.programId.toLong()
+                        val gameId = game.programId.toULongOrNull(16)?.toLong()
+                            ?: game.programId.toLongOrNull() ?: 0L
                         if (gameIdList.none { it[0] == gameId }) {
                             gameIdList.add(arrayOf(gameId))
                         }

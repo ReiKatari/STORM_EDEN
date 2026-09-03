@@ -115,7 +115,7 @@ void RemoveUnavailableLayers(const vk::InstanceDispatch& dld, std::vector<const 
 
 vk::Instance CreateInstance(const Common::DynamicLibrary& library, vk::InstanceDispatch& dld,
                             u32 required_version, Core::Frontend::WindowSystemType window_type,
-                            bool enable_validation) {
+                            bool enable_validation, std::string_view app_name) {
     if (!library.IsOpen()) {
         LOG_ERROR(Render_Vulkan, "Vulkan library not available");
         throw vk::Exception(VK_ERROR_INITIALIZATION_FAILED);
@@ -154,7 +154,7 @@ vk::Instance CreateInstance(const Common::DynamicLibrary& library, vk::InstanceD
     }
     vk::Instance instance =
         std::async([&] {
-            return vk::Instance::Create(available_version, layers, extensions, dld);
+            return vk::Instance::Create(available_version, layers, extensions, dld, app_name);
         }).get();
     if (!vk::Load(*instance, dld)) {
         LOG_ERROR(Render_Vulkan, "Failed to load Vulkan instance function pointers");

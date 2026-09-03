@@ -343,8 +343,12 @@ class GameAdapter(private val activity: AppCompatActivity) :
         }
 
         fun onLongClick(game: Game): Boolean {
-            val action = HomeNavigationDirections.actionGlobalPerGamePropertiesFragment(game)
-            binding.root.findNavController().navigate(action)
+            try {
+                val action = HomeNavigationDirections.actionGlobalPerGamePropertiesFragment(game)
+                binding.root.findNavController().navigate(action)
+            } catch (e: Throwable) {
+                org.yuzu.yuzu_emu.utils.Log.error("[GameAdapter] Failed to open per-game properties: ${e.message}")
+            }
             return true
         }
     }

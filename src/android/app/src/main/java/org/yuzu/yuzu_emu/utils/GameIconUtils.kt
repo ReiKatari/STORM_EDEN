@@ -30,8 +30,11 @@ class GameIconFetcher(
     private val options: Options
 ) : Fetcher {
     override suspend fun fetch(): FetchResult {
+        val decoded = try { decodeGameIcon(game.path) } catch (_: Throwable) { null }
+        val drawable = decoded?.toDrawable(options.context.resources)
+            ?: androidx.core.content.ContextCompat.getDrawable(options.context, R.drawable.default_icon)!!
         return DrawableResult(
-            drawable = decodeGameIcon(game.path)!!.toDrawable(options.context.resources),
+            drawable = drawable,
             isSampled = false,
             dataSource = DataSource.DISK
         )
@@ -85,8 +88,9 @@ object GameIconUtils {
             .lifecycle(lifecycleOwner)
             .error(R.drawable.default_icon)
             .build()
-        return imageLoader.execute(request)
-            .drawable!!.toBitmap(config = Bitmap.Config.ARGB_8888)
+        val drawable = imageLoader.execute(request).drawable
+            ?: androidx.core.content.ContextCompat.getDrawable(YuzuApplication.appContext, R.drawable.default_icon)!!
+        return drawable.toBitmap(config = Bitmap.Config.ARGB_8888)
     }
 
     suspend fun getShortcutIcon(lifecycleOwner: LifecycleOwner, game: Game): IconCompat {

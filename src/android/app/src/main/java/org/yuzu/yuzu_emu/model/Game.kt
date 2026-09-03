@@ -45,21 +45,27 @@ class Game(
 
     val settingsName: String
         get() {
-            val programIdLong = programId.toLong()
-            return if (programIdLong == 0L) {
-                FileUtil.getFilename(Uri.parse(path))
+            val cleanId = programId.trim()
+            val parsedHex = cleanId.toULongOrNull(16) ?: cleanId.toULongOrNull(10)
+            return if (parsedHex != null && parsedHex != 0uL) {
+                String.format(java.util.Locale.ROOT, "%016X", parsedHex.toLong())
+            } else if (cleanId.isNotEmpty() && cleanId != "0") {
+                cleanId
             } else {
-                "0" + programIdLong.toString(16).uppercase()
+                FileUtil.getFilename(Uri.parse(path))
             }
         }
 
     val programIdHex: String
         get() {
-            val programIdLong = programId.toLong()
-            return if (programIdLong == 0L) {
-                "0"
+            val cleanId = programId.trim()
+            val parsedHex = cleanId.toULongOrNull(16) ?: cleanId.toULongOrNull(10)
+            return if (parsedHex != null && parsedHex != 0uL) {
+                String.format(java.util.Locale.ROOT, "%016X", parsedHex.toLong())
+            } else if (cleanId.isNotEmpty()) {
+                cleanId
             } else {
-                "0" + programIdLong.toString(16).uppercase()
+                "0"
             }
         }
 
@@ -69,7 +75,11 @@ class Game(
         }.zip"
 
     val saveDir: String
-        get() = NativeConfig.getSaveDir() + NativeLibrary.getSavePath(programId)
+        get() = try {
+            NativeConfig.getSaveDir() + NativeLibrary.getSavePath(programIdHex)
+        } catch (_: Throwable) {
+            NativeConfig.getSaveDir()
+        }
 
     val addonDir: String
         get() = DirectoryInitialization.userDirectory + "/load/" + programIdHex + "/"

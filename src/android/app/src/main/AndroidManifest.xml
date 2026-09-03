@@ -51,9 +51,18 @@ SPDX-License-Identifier: GPL-3.0-or-later
         android:enableOnBackInvokedCallback="true">
 
         <meta-data android:name="com.samsung.android.gamehub" android:value="true" />
+        <meta-data android:name="com.samsung.android.game.game_package" android:value="true" />
+        <meta-data android:name="com.samsung.android.game.game_mode" android:value="true" />
         <meta-data android:name="com.xiaomi.gamecenter.sdk.service.enabled" android:value="true" />
+        <meta-data android:name="com.xiaomi.game.turbo" android:value="true" />
+        <meta-data android:name="com.miui.gamebooster" android:value="true" />
         <meta-data android:name="com.asus.gamecenter.gamebooster" android:value="true" />
         <meta-data android:name="com.oneplus.gamespace.gamebooster" android:value="true" />
+        <meta-data android:name="com.coloros.gamespace.gamebooster" android:value="true" />
+        <meta-data android:name="com.oplus.games.gamebooster" android:value="true" />
+        <meta-data android:name="com.vivo.game.gamemode" android:value="true" />
+        <meta-data android:name="com.huawei.game.turbo" android:value="true" />
+        <meta-data android:name="com.huawei.android.game.assistant" android:value="true" />
         <meta-data android:name="android.game_mode_config" android:resource="@xml/game_mode_config" />
 
         <activity
@@ -84,6 +93,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
             android:theme="@style/Theme.Yuzu.Main"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
+            android:preferMinimalPostProcessing="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|uiMode"
             android:exported="true">
             <intent-filter>

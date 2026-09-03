@@ -124,7 +124,8 @@ Device CreateDevice(const vk::Instance& instance, const vk::InstanceDispatch& dl
 RendererVulkan::RendererVulkan(Core::Frontend::EmuWindow& emu_window,
                                Tegra::MaxwellDeviceMemoryManager& device_memory_,
                                Tegra::GPU& gpu_,
-                               std::unique_ptr<Core::Frontend::GraphicsContext> context_)
+                               std::unique_ptr<Core::Frontend::GraphicsContext> context_,
+                               std::string_view app_name)
 try
     : RendererBase(emu_window, std::move(context_))
     , device_memory(device_memory_)
@@ -136,7 +137,8 @@ try
                             dld,
                             VK_API_VERSION_1_1,
                             render_window.GetWindowInfo().type,
-                            Settings::values.renderer_debug.GetValue()))
+                            Settings::values.renderer_debug.GetValue(),
+                            app_name))
     // Create debug messenger if debug is enabled
     , debug_messenger(Settings::values.renderer_debug ? CreateDebugUtilsCallback(instance)
                                                     : vk::DebugUtilsMessenger{})

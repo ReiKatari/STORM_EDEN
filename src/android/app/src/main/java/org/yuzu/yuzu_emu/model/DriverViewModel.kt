@@ -272,13 +272,17 @@ class DriverViewModel : ViewModel() {
             return
         }
 
-        if (game == null || NativeConfig.isPerGameConfigLoaded()) {
-            updateName()
-        } else {
-            SettingsFile.loadCustomConfig(game)
-            updateName()
-            NativeConfig.unloadPerGameConfig()
-            NativeConfig.reloadGlobalConfig()
+        try {
+            if (game == null || NativeConfig.isPerGameConfigLoaded()) {
+                updateName()
+            } else {
+                SettingsFile.loadCustomConfig(game)
+                updateName()
+                NativeConfig.unloadPerGameConfig()
+                NativeConfig.reloadGlobalConfig()
+            }
+        } catch (e: Throwable) {
+            org.yuzu.yuzu_emu.utils.Log.error("[DriverViewModel] Error updating driver name: ${e.message}")
         }
     }
 

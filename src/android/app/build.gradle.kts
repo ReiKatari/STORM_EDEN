@@ -248,6 +248,30 @@ android {
             }
         }
 
+        create("sdk27") {
+            dimension = "version"
+            minSdk = 27
+            manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH SDK27")
+            resValue("string", "app_name_suffixed", "STORM SWITCH SDK27")
+            applicationId = "dev.storm_switch.sdk27"
+
+            externalNativeBuild {
+                cmake {
+                    arguments.addAll(listOf("-DANDROID_PLATFORM=android-27", "-DYUZU_LEGACY=ON"))
+                }
+            }
+
+            sourceSets {
+                getByName("sdk27") {
+                    res.srcDirs("src/main/legacy")
+                }
+            }
+
+            ndk {
+                abiFilters += listOf("arm64-v8a")
+            }
+        }
+
         create("chromeOS") {
             dimension = "version"
             manifestPlaceholders += mapOf("appNameBase" to "STORM SWITCH ChromeOS")

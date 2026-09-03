@@ -468,11 +468,21 @@ void EmulationSession::ChangeProgram(std::size_t program_index) {
 }
 
 u64 EmulationSession::GetProgramId(JNIEnv* env, jstring jprogramId) {
-    auto program_id_string = Common::Android::GetJString(env, jprogramId);
-    try {
-        return std::stoull(program_id_string);
-    } catch (...) {
+    if (!jprogramId) {
         return 0;
+    }
+    auto program_id_string = Common::Android::GetJString(env, jprogramId);
+    if (program_id_string.empty()) {
+        return 0;
+    }
+    try {
+        return std::stoull(program_id_string, nullptr, 16);
+    } catch (...) {
+        try {
+            return std::stoull(program_id_string, nullptr, 10);
+        } catch (...) {
+            return 0;
+        }
     }
 }
 

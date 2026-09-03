@@ -86,67 +86,84 @@ class GamePropertiesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        homeViewModel.setStatusBarShadeVisibility(true)
+        try {
+            homeViewModel.setStatusBarShadeVisibility(true)
 
-        binding.buttonBack.setOnClickListener {
-            view.findNavController().popBackStack()
-        }
+            binding.buttonBack.setOnClickListener {
+                view.findNavController().popBackStack()
+            }
 
-        val shortcutManager = requireActivity().getSystemService(ShortcutManager::class.java)
-        binding.buttonShortcut.isEnabled = shortcutManager.isRequestPinShortcutSupported
-        binding.buttonShortcut.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    val shortcut = ShortcutInfo.Builder(requireContext(), args.game.title)
-                        .setShortLabel(args.game.title)
-                        .setIcon(
-                            GameIconUtils.getShortcutIcon(requireActivity(), args.game)
-                                .toIcon(requireContext())
-                        )
-                        .setIntent(args.game.launchIntent)
-                        .build()
-                    shortcutManager.requestPinShortcut(shortcut, null)
+            val shortcutManager = requireActivity().getSystemService(ShortcutManager::class.java)
+            binding.buttonShortcut.isEnabled = shortcutManager?.isRequestPinShortcutSupported == true
+            binding.buttonShortcut.setOnClickListener {
+                if (shortcutManager == null) return@setOnClickListener
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val shortcut = ShortcutInfo.Builder(requireContext(), args.game.title)
+                                .setShortLabel(args.game.title)
+                                .setIcon(
+                                    GameIconUtils.getShortcutIcon(requireActivity(), args.game)
+                                        .toIcon(requireContext())
+                                )
+                                .setIntent(args.game.launchIntent)
+                                .build()
+                            shortcutManager.requestPinShortcut(shortcut, null)
+                        } catch (e: Throwable) {
+                            org.yuzu.yuzu_emu.utils.Log.error("[GamePropertiesFragment] Failed to pin shortcut: ${e.message}")
+                        }
+                    }
                 }
             }
-        }
 
-        GameIconUtils.loadGameIcon(args.game, binding.imageGameScreen)
-        binding.title.text = args.game.title
-        binding.title.marquee()
+            GameIconUtils.loadGameIcon(args.game, binding.imageGameScreen)
+            binding.title.text = args.game.title
+            binding.title.marquee()
 
-        getPlayTime()
+            getPlayTime()
 
-        binding.buttonStart.setOnClickListener {
-            LaunchGameDialogFragment.newInstance(args.game)
-                .show(childFragmentManager, LaunchGameDialogFragment.TAG)
-        }
-
-        if (GameHelper.cachedGameList.isEmpty()) {
-            binding.buttonStart.isEnabled = false
-            viewLifecycleOwner.lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    GameHelper.restoreContentForGame(args.game)
+            binding.buttonStart.setOnClickListener {
+                try {
+                    LaunchGameDialogFragment.newInstance(args.game)
+                        .show(childFragmentManager, LaunchGameDialogFragment.TAG)
+                } catch (e: Throwable) {
+                    org.yuzu.yuzu_emu.utils.Log.error("[GamePropertiesFragment] Failed to show LaunchGameDialogFragment: ${e.message}")
                 }
-                if (_binding == null) {
-                    return@launch
-                }
-                addonViewModel.onAddonsViewStarted(args.game)
-                binding.buttonStart.isEnabled = true
             }
+
+            if (GameHelper.cachedGameList.isEmpty()) {
+                binding.buttonStart.isEnabled = false
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            GameHelper.restoreContentForGame(args.game)
+                        } catch (_: Throwable) {}
+                    }
+                    if (_binding == null) {
+                        return@launch
+                    }
+                    try {
+                        addonViewModel.onAddonsViewStarted(args.game)
+                    } catch (_: Throwable) {}
+                    binding.buttonStart.isEnabled = true
+                }
+            }
+
+            reloadList()
+
+            homeViewModel.openImportSaves.collect(
+                viewLifecycleOwner,
+                resetState = { homeViewModel.setOpenImportSaves(false) }
+            ) { if (it) importSaves.launch(arrayOf("application/zip")) }
+            homeViewModel.reloadPropertiesList.collect(
+                viewLifecycleOwner,
+                resetState = { homeViewModel.reloadPropertiesList(false) }
+            ) { if (it) reloadList() }
+
+            setInsets()
+        } catch (e: Throwable) {
+            org.yuzu.yuzu_emu.utils.Log.error("[GamePropertiesFragment] Error in onViewCreated: ${e.message}")
         }
-
-        reloadList()
-
-        homeViewModel.openImportSaves.collect(
-            viewLifecycleOwner,
-            resetState = { homeViewModel.setOpenImportSaves(false) }
-        ) { if (it) importSaves.launch(arrayOf("application/zip")) }
-        homeViewModel.reloadPropertiesList.collect(
-            viewLifecycleOwner,
-            resetState = { homeViewModel.reloadPropertiesList(false) }
-        ) { if (it) reloadList() }
-
-        setInsets()
     }
 
     override fun onDestroy() {
@@ -158,25 +175,32 @@ class GamePropertiesFragment : Fragment() {
     }
 
     private fun getPlayTime() {
-        binding.playtime.text = buildString {
-            val playTimeSeconds = NativeLibrary.playTimeManagerGetPlayTime(args.game.programId)
+        if (_binding == null) return
+        try {
+            binding.playtime.text = buildString {
+                val playTimeSeconds = try {
+                    NativeLibrary.playTimeManagerGetPlayTime(args.game.programIdHex)
+                } catch (_: Throwable) {
+                    0L
+                }
 
-            val hours = playTimeSeconds / 3600
-            val minutes = (playTimeSeconds % 3600) / 60
-            val seconds = playTimeSeconds % 60
+                val hours = playTimeSeconds / 3600
+                val minutes = (playTimeSeconds % 3600) / 60
+                val seconds = playTimeSeconds % 60
 
-            val readablePlayTime = when {
-            hours > 0 -> "$hours${getString(R.string.hours_abbr)} $minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
-            minutes > 0 -> "$minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
-            else -> "$seconds${getString(R.string.seconds_abbr)}"
-}
+                val readablePlayTime = when {
+                    hours > 0 -> "$hours${getString(R.string.hours_abbr)} $minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
+                    minutes > 0 -> "$minutes${getString(R.string.minutes_abbr)} $seconds${getString(R.string.seconds_abbr)}"
+                    else -> "$seconds${getString(R.string.seconds_abbr)}"
+                }
 
-            append(getString(R.string.playtime) + " " + readablePlayTime)
-        }
+                append(getString(R.string.playtime) + " " + readablePlayTime)
+            }
 
-        binding.playtime.setOnClickListener {
-            showEditPlaytimeDialog()
-        }
+            binding.playtime.setOnClickListener {
+                showEditPlaytimeDialog()
+            }
+        } catch (_: Throwable) {}
     }
 
     private fun showEditPlaytimeDialog() {
@@ -194,7 +218,11 @@ class GamePropertiesFragment : Fragment() {
         val secondsInput =
             dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.input_seconds)
 
-        val playTimeSeconds = NativeLibrary.playTimeManagerGetPlayTime(args.game.programId)
+        val playTimeSeconds = try {
+            NativeLibrary.playTimeManagerGetPlayTime(args.game.programIdHex)
+        } catch (_: Throwable) {
+            0L
+        }
         val hours = playTimeSeconds / 3600
         val minutes = (playTimeSeconds % 3600) / 60
         val seconds = playTimeSeconds % 60
@@ -245,7 +273,9 @@ class GamePropertiesFragment : Fragment() {
 
                 if (!hasError) {
                     val totalSeconds = hoursValue * 3600 + minutesValue * 60 + secondsValue
-                    NativeLibrary.playTimeManagerSetPlayTime(args.game.programId, totalSeconds)
+                    try {
+                        NativeLibrary.playTimeManagerSetPlayTime(args.game.programIdHex, totalSeconds)
+                    } catch (_: Throwable) {}
                     getPlayTime()
                     Toast.makeText(
                         requireContext(),
@@ -263,7 +293,11 @@ class GamePropertiesFragment : Fragment() {
     private fun reloadList() {
         _binding ?: return
 
-        driverViewModel.updateDriverNameForGame(args.game)
+        try {
+            driverViewModel.updateDriverNameForGame(args.game)
+        } catch (e: Throwable) {
+            org.yuzu.yuzu_emu.utils.Log.error("[GamePropertiesFragment] Failed to update driver name: ${e.message}")
+        }
         val properties = mutableListOf<GameProperty>().apply {
             add(
                 SubmenuProperty(
@@ -531,7 +565,12 @@ class GamePropertiesFragment : Fragment() {
                         )
                     )
                 }
-                if (NativeLibrary.playTimeManagerGetPlayTime(args.game.programId) > 0) {
+                val currentPlayTime = try {
+                    NativeLibrary.playTimeManagerGetPlayTime(args.game.programIdHex)
+                } catch (_: Throwable) {
+                    0L
+                }
+                if (currentPlayTime > 0) {
                     add(
                         SubmenuProperty(
                             R.string.reset_playtime,
@@ -543,7 +582,9 @@ class GamePropertiesFragment : Fragment() {
                                     titleId = R.string.reset_playtime,
                                     descriptionId = R.string.reset_playtime_warning_description,
                                     positiveAction = {
-                                        NativeLibrary.playTimeManagerResetProgramPlayTime(args.game.programId)
+                                        try {
+                                            NativeLibrary.playTimeManagerResetProgramPlayTime(args.game.programIdHex)
+                                        } catch (_: Throwable) {}
                                         Toast.makeText(
                                             YuzuApplication.appContext,
                                             R.string.playtime_reset_successfully,
@@ -574,9 +615,11 @@ class GamePropertiesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        driverViewModel.updateDriverNameForGame(args.game)
-        getPlayTime()
-        reloadList()
+        try {
+            driverViewModel.updateDriverNameForGame(args.game)
+            getPlayTime()
+            reloadList()
+        } catch (_: Throwable) {}
     }
 
     private fun setInsets() =
@@ -597,10 +640,10 @@ class GamePropertiesFragment : Fragment() {
                     ViewCompat.LAYOUT_DIRECTION_LTR
                 ) {
                     binding.listAll.updateMargins(right = rightInsets)
-                    binding.iconLayout!!.updateMargins(top = barInsets.top, left = leftInsets)
+                    binding.iconLayout?.updateMargins(top = barInsets.top, left = leftInsets)
                 } else {
                     binding.listAll.updateMargins(left = leftInsets)
-                    binding.iconLayout!!.updateMargins(top = barInsets.top, right = rightInsets)
+                    binding.iconLayout?.updateMargins(top = barInsets.top, right = rightInsets)
                 }
             }
 

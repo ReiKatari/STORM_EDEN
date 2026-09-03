@@ -26,6 +26,125 @@ object GameFixDatabase {
 
     private val profiles = listOf(
         GameFixProfile(
+            0x01005B101DC84000L,
+            "EA SPORTS FC 25",
+            "• Зависание при старте игры / черный экран на заставке EA\n• Нехватка памяти Frostbite Engine (вылет при загрузке стадиона)\n• Зависание на сетевой аутентификации",
+            "• Boot hang / black screen on EA splash screen\n• Frostbite Engine out-of-memory crash\n• Network handshake freeze",
+            "✓ Память: 8GB DRAM (критично для движка Frostbite)\n✓ Режим полета: Включено (пропуск серверов EA Connect)\n✓ Асинхронные шейдеры: Отключено (стабильность загрузки)\n✓ Быстрая память: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical for Frostbite Engine)\n✓ Airplane Mode: Enabled (Bypasses EA Connect handshake)\n✓ Asynchronous Shaders: Disabled (Prevents boot crash)\n✓ Fastmem: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
+                "System\\airplane_mode" to "true",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010077D0238FA000L,
+            "EA SPORTS FC 26",
+            "• Зависание при старте игры / черный экран на заставке EA\n• Нехватка памяти Frostbite Engine (вылет при загрузке стадиона)\n• Зависание на сетевой аутентификации",
+            "• Boot hang / black screen on EA splash screen\n• Frostbite Engine out-of-memory crash\n• Network handshake freeze",
+            "✓ Память: 8GB DRAM (критично для движка Frostbite)\n✓ Режим полета: Включено (пропуск серверов EA Connect)\n✓ Асинхронные шейдеры: Отключено (стабильность загрузки)\n✓ Быстрая память: Включено",
+            "✓ Memory Layout: 8GB DRAM (Critical for Frostbite Engine)\n✓ Airplane Mode: Enabled (Bypasses EA Connect handshake)\n✓ Asynchronous Shaders: Disabled (Prevents boot crash)\n✓ Fastmem: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
+                "System\\airplane_mode" to "true",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01008CA01F186000L,
+            "Leap Year",
+            "• Вылет игры через некоторое время из-за утечки памяти\n• Рассинхронизация аудиопотока",
+            "• Crash after prolonged gameplay due to memory accumulation\n• Audio stream desync",
+            "✓ Память: 6GB DRAM (устраняет вылет через время)\n✓ Асинхронные шейдеры: Отключено\n✓ Быстрая память: Включено",
+            "✓ Memory Layout: 6GB DRAM (Prevents crash over time)\n✓ Asynchronous Shaders: Disabled\n✓ Fastmem: Enabled",
+            mapOf(
+                "Core\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "1",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100B0E020356000L,
+            "The Legend of Heroes: Trails in the Sky",
+            "• Стробоскопическое мерцание экрана и окружения\n• Пропадание текстур персонажей и задних планов\n• Артефакты сжатия ASTC",
+            "• Screen and environment strobing flicker\n• Missing character and background textures\n• ASTC compression artifacts",
+            "✓ Сжатие ASTC: Отключено (устраняет пропадание текстур)\n✓ Асинхронные шейдеры: Отключено (ликвидация мерцания)\n✓ Реактивная очистка: Отключено\n✓ Память: 6GB DRAM",
+            "✓ ASTC Recompression: Uncompressed (Fixes missing textures)\n✓ Asynchronous Shaders: Disabled (Fixes flickering)\n✓ Reactive Flushing: Disabled\n✓ Memory Layout: 6GB DRAM",
+            mapOf(
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_asynchronous_shaders" to "false",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Core\\memory_layout_mode" to "1",
+                "System\\memory_layout_mode" to "1",
+                "Cpu\\cpuopt_fastmem" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x01000B0012E4E000L,
+            "Cronos: Before the Ashes",
+            "• Некорректное темное изображение и сбои освещения UE4\n• Артефакты постобработки и размытия",
+            "• Incorrect dark image and UE4 lighting corruption\n• Post-processing and motion blur artifacts",
+            "✓ Реактивная очистка: Отключено (исправление освещения UE4)\n✓ Точность GPU: Высокая (FP16 точность шейдеров)\n✓ Сжатие ASTC: Отключено\n✓ Barrier Feedback Loops: Включено",
+            "✓ Reactive Flushing: Disabled (Fixes UE4 lighting)\n✓ GPU Accuracy: High (FP16 shader precision)\n✓ ASTC Recompression: Uncompressed\n✓ Barrier Feedback Loops: Enabled",
+            mapOf(
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\barrier_feedback_loops" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010055700C30A000L,
+            "The Outer Worlds",
+            "• Некорректное изображение и черные ореолы вокруг объектов\n• Сбои TAA и темные артефакты геометрии UE4",
+            "• Corrupted rendering and black halos around objects\n• TAA glitches and dark UE4 geometry artifacts",
+            "✓ Реактивная очистка: Отключено (исправление черных ореолов)\n✓ Точность GPU: Высокая\n✓ Сжатие ASTC: Отключено\n✓ Barrier Feedback Loops: Включено\n✓ Память: 8GB DRAM",
+            "✓ Reactive Flushing: Disabled (Fixes black halos)\n✓ GPU Accuracy: High\n✓ ASTC Recompression: Uncompressed\n✓ Barrier Feedback Loops: Enabled\n✓ Memory Layout: 8GB DRAM",
+            mapOf(
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\barrier_feedback_loops" to "true",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2"
+            )
+        ),
+        GameFixProfile(
+            0x01000A10041EA000L,
+            "The Elder Scrolls V: Skyrim",
+            "• Некорректное изображение водной глади и искажения отражений\n• Артефакты сжатия снега и текстур ландшафта",
+            "• Incorrect water rendering and reflection distortion\n• Snow and terrain texture compression artifacts",
+            "✓ Сжатие ASTC: Отключено (четкие текстуры снега и гор)\n✓ Реактивная очистка: Отключено (исправление отражений воды)\n✓ Точность GPU: Высокая",
+            "✓ ASTC Recompression: Uncompressed (Crisp snow and terrain)\n✓ Reactive Flushing: Disabled (Fixes water reflections)\n✓ GPU Accuracy: High",
+            mapOf(
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\gpu_accuracy" to "1"
+            )
+        ),
+        GameFixProfile(
+            0x0100BCB0176D0000L,
+            "Hogwarts Legacy",
+            "• Некорректное изображение, сбои освещения и геометрии\n• Вылет при переходе между локациями Хогвартса из-за нехватки памяти",
+            "• Corrupted rendering, lighting and geometry glitches\n• Out-of-memory crash during Hogwarts area transitions",
+            "✓ Память: 8GB DRAM (критично для стабильности)\n✓ Реактивная очистка: Отключено (исправление освещения замка)\n✓ Barrier Feedback Loops: Включено\n✓ Сжатие ASTC: Отключено",
+            "✓ Memory Layout: 8GB DRAM (Critical for stability)\n✓ Reactive Flushing: Disabled (Fixes castle lighting)\n✓ Barrier Feedback Loops: Enabled\n✓ ASTC Recompression: Uncompressed",
+            mapOf(
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Renderer\\barrier_feedback_loops" to "true",
+                "Renderer\\astc_recompression" to "0"
+            )
+        ),
+
+        GameFixProfile(
             0x01007EF00011E000L,
             "The Legend of Zelda: Breath of the Wild",
             "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Белые вспышки и мерцание освещения/погоды\n• Пропадание текстур скал и земли при нехватке памяти\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах",
@@ -350,7 +469,12 @@ object GameFixDatabase {
             mapOf(
                 "Cpu\\cpuopt_fastmem_exclusives" to "true",
                 "Renderer\\resolution_setup" to "1",
-                "Renderer\\fsr_sharpening_slider" to "85"
+                "Renderer\\fsr_sharpening_slider" to "85",
+                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_reactive_flushing" to "false",
+                "Core\\memory_layout_mode" to "2",
+                "System\\memory_layout_mode" to "2",
+                "Renderer\\gpu_accuracy" to "1"
             )
         ),
         GameFixProfile(

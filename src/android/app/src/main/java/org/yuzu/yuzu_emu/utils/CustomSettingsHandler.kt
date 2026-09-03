@@ -333,20 +333,16 @@ object CustomSettingsHandler {
      */
     fun findGameByTitleId(titleId: String, context: Context): Game? {
         Log.info("[CustomSettingsHandler] Searching for game with title ID: $titleId")
-        // Convert hex title ID to decimal for comparison with programId
-        val programIdDecimal = try {
-            titleId.toLong(16).toString()
-        } catch (e: NumberFormatException) {
-            Log.error("[CustomSettingsHandler] Invalid title ID format: $titleId")
-            return null
-        }
+        val cleanTitleId = titleId.trim()
+        val parsedHex = cleanTitleId.toULongOrNull(16) ?: cleanTitleId.toULongOrNull(10)
+        val expectedHex = if (parsedHex != null) String.format(java.util.Locale.ROOT, "%016X", parsedHex.toLong()) else cleanTitleId.uppercase()
+        val decimalStr = parsedHex?.toLong()?.toString() ?: ""
 
-        // Expected hex format with "0" prefix
-        val expectedHex = "0${titleId.uppercase()}"
         // First check cached games for fast lookup
         GameHelper.cachedGameList.find { game ->
-            game.programId == programIdDecimal ||
-                game.programIdHex.equals(expectedHex, ignoreCase = true)
+            game.programId.equals(cleanTitleId, ignoreCase = true) ||
+                game.programIdHex.equals(expectedHex, ignoreCase = true) ||
+                (decimalStr.isNotEmpty() && game.programId == decimalStr)
         }?.let { foundGame ->
             Log.info("[CustomSettingsHandler] Found game in cache: ${foundGame.title}")
             return foundGame
@@ -355,8 +351,9 @@ object CustomSettingsHandler {
         Log.info("[CustomSettingsHandler] Game not in cache, scanning full library...")
         val allGames = GameHelper.getGames()
         val foundGame = allGames.find { game ->
-            game.programId == programIdDecimal ||
-                game.programIdHex.equals(expectedHex, ignoreCase = true)
+            game.programId.equals(cleanTitleId, ignoreCase = true) ||
+                game.programIdHex.equals(expectedHex, ignoreCase = true) ||
+                (decimalStr.isNotEmpty() && game.programId == decimalStr)
         }
         if (foundGame != null) {
             Log.info("[CustomSettingsHandler] Found game: ${foundGame.title} at ${foundGame.path}")

@@ -655,7 +655,7 @@ public:
     /// Creates a Vulkan instance.
     /// @throw Exception on initialization error.
     [[nodiscard]] static Instance Create(u32 version, Span<const char*> layers, Span<const char*> extensions,
-                           InstanceDispatch& dispatch);
+                           InstanceDispatch& dispatch, std::string_view app_name = {});
 
     /// Enumerates physical devices.
     /// @return Physical devices and an empty handle on failure.

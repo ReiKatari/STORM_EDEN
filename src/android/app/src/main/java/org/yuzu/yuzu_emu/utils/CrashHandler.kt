@@ -21,7 +21,7 @@ import org.yuzu.yuzu_emu.YuzuApplication
 
 object CrashHandler {
     private const val TAG = "STORM_EDEN_CRASH"
-    private const val FILE_NAME = "storm_switch_log.txt"
+    private const val FILE_NAME = "storm_switch.txt"
     private val installed = AtomicBoolean(false)
     private var appContext: Context? = null
     private var defaultHandler: Thread.UncaughtExceptionHandler? = null

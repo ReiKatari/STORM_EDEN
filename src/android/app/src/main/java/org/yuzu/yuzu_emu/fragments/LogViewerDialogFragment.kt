@@ -146,10 +146,12 @@ class LogViewerDialogFragment : DialogFragment() {
         val rootDir = DirectoryInitialization.userDirectory ?: requireContext().filesDir.absolutePath
         val logDir = File(rootDir, "log")
         return listOf(
+            File(logDir, "storm_switch.txt"),
+            File(logDir, "storm_switch_log.txt"),
             File(logDir, "storm_eden_log.txt"),
             File(logDir, "eden_log.txt"),
             File(logDir, "yuzu_log.txt")
-        ).firstOrNull { it.exists() && it.length() > 0 } ?: File(logDir, "storm_eden_log.txt")
+        ).firstOrNull { it.exists() && it.length() > 0 } ?: File(logDir, "storm_switch.txt")
     }
 
     private fun loadLogFile(scrollToBottom: Boolean) {
@@ -295,7 +297,7 @@ class LogViewerDialogFragment : DialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val cacheDir = requireContext().cacheDir
-                val shareFile = File(cacheDir, "storm_switch_log.txt")
+                val shareFile = File(cacheDir, "storm_switch.txt")
                 shareFile.writeText(textToShare, Charsets.UTF_8)
 
                 val uri: Uri = FileProvider.getUriForFile(
@@ -350,7 +352,7 @@ class LogViewerDialogFragment : DialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val cacheDir = requireContext().cacheDir
-                val shareFile = File(cacheDir, "storm_switch_log.txt")
+                val shareFile = File(cacheDir, "storm_switch.txt")
                 shareFile.writeText(textToShare, Charsets.UTF_8)
 
                 val uri: Uri = FileProvider.getUriForFile(

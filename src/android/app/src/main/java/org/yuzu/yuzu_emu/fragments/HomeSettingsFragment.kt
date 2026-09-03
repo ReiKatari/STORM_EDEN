@@ -490,10 +490,12 @@ class HomeSettingsFragment : Fragment() {
     private fun shareLog() {
         val userDirStr: String? = DirectoryInitialization.userDirectory
         val logCandidates = listOf(
+            "storm_switch.txt",
+            "storm_switch.txt.old.txt",
+            "storm_switch_log.txt",
+            "storm_switch_log.txt.old.txt",
             "storm_eden_log.txt",
-            "storm_eden_log.txt.old.txt",
             "eden_log.txt",
-            "eden_log.txt.old.txt",
             "yuzu_log.txt"
         )
 
@@ -511,7 +513,7 @@ class HomeSettingsFragment : Fragment() {
             }
         }
         if (targetFile == null) {
-            val f = java.io.File(logDir, "storm_switch_log.txt")
+            val f = java.io.File(logDir, "storm_switch.txt")
             try {
                 f.writeText(buildString {
                     appendLine("=== STORM SWITCH v${NativeLibrary.getBuildVersion()} Debug Log ===")

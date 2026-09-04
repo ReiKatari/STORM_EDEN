@@ -129,7 +129,7 @@ ENUM(TimeZone, Auto, Default, Cet, Cst6Cdt, Cuba, Eet, Egypt, Eire, Est, Est5Edt
     Japan, Kwajalein, Libya, Met, Mst, Mst7Mdt, Navajo, Nz, NzChat, Poland, Portugal, Prc, Pst8Pdt,
     Roc, Rok, Singapore, Turkey, Uct, Universal, Utc, WSu, Wet, Zulu);
 ENUM(AnisotropyMode, Automatic, Default, X2, X4, X8, X16, X32, X64, None);
-ENUM(AstcDecodeMode, Cpu, Gpu, CpuAsynchronous);
+ENUM(AstcDecodeMode, Cpu, Gpu, CpuAsynchronous, Hybrid);
 ENUM(AstcRecompression, Uncompressed, Bc1, Bc3, Bc5);
 ENUM(FramePacingMode, Target_Auto, Target_30, Target_60, Target_90, Target_120);
 ENUM(VSyncMode, Immediate, Mailbox, Fifo, FifoRelaxed);
@@ -144,7 +144,7 @@ ENUM(CpuClock, Normal, Boost, Overclock)
 ENUM(MemoryLayout, Memory_4Gb, Memory_6Gb, Memory_8Gb, Memory_10Gb, Memory_12Gb);
 ENUM(ConfirmStop, Ask_Always, Ask_Based_On_Game, Ask_Never);
 ENUM(FullscreenMode, Borderless, Exclusive);
-ENUM(NvdecEmulation, Off, Cpu, Gpu);
+ENUM(NvdecEmulation, Off, Cpu, Gpu, Hybrid);
 ENUM(ResolutionSetup, Res1_4X, Res1_2X, Res3_4X, Res1X, Res5_4X, Res3_2X, Res2X, Res3X, Res4X, Res5X, Res6X, Res7X, Res8X);
 ENUM(ScalingFilter, NearestNeighbor, Bilinear, Bicubic, Gaussian, Lanczos, ScaleForce, Fsr, Area, ZeroTangent, BSpline, Mitchell, Spline1, Mmpx, Sgsr, SgsrEdge);
 ENUM(AntiAliasing, None, Fxaa, Smaa);

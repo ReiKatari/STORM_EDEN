@@ -117,6 +117,22 @@
     <string name="nvdec_emulation_cpu" translatable="false">CPU</string>
     <string name="nvdec_emulation_gpu" translatable="false">GPU</string>
     <string name="nvdec_emulation_none">None</string>
+    <string name="nvdec_emulation_hybrid">Hybrid</string>
+
+    <!-- Auto-Correction and Self-Healing -->
+    <string name="auto_correction_title">Auto-correction</string>
+    <string name="auto_correction_description">Automatic fix and profile healing for optimal stability and performance</string>
+    <string name="auto_correction_dialog_title">Auto-correction and self-healing</string>
+    <string name="auto_correction_dialog_subtitle">STORM SWITCH Dynamic Optimizer</string>
+    <string name="auto_correction_status_active">Auto-correction active</string>
+    <string name="auto_correction_status_inactive">Auto-correction inactive</string>
+    <string name="auto_correction_issues_title">Known issues</string>
+    <string name="auto_correction_recommendations_title">Recommended profile settings</string>
+    <string name="auto_correction_apply">Apply auto-correction</string>
+    <string name="auto_correction_reset">Reset to defaults</string>
+    <string name="auto_correction_applied_toast">Auto-correction settings successfully applied</string>
+    <string name="auto_correction_reset_toast">Auto-correction reset to defaults</string>
+    <string name="auto_correction_no_profile">Universal high performance profile is active</string>
 
     <!-- Optimize SPIRV output -->
     <string name="never">Never</string>
@@ -1140,6 +1156,7 @@
     <string name="accelerate_astc_cpu" translatable="false">CPU</string>
     <string name="accelerate_astc_gpu" translatable="false">GPU</string>
     <string name="accelerate_astc_async" translatable="false">CPU Async</string>
+    <string name="accelerate_astc_hybrid">Hybrid</string>
 
 
     <string name="vram_usage_conservative">Conservative</string>

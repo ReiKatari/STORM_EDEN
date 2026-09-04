@@ -261,6 +261,22 @@
                 android:layout_marginStart="16dp"
                 android:visibility="gone" />
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/button_floating_auto_correction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="80dp"
+                android:contentDescription="@string/auto_correction_title"
+                app:backgroundTint="#E6101726"
+                app:borderWidth="1.5dp"
+                app:borderColor="#00D2FF"
+                app:tint="#00F0FF"
+                app:fabSize="mini"
+                android:src="@drawable/ic_tune"
+                android:visibility="gone" />
+
         </FrameLayout>
 
         <FrameLayout

@@ -30,41 +30,38 @@ function Send-TGDocument($filePath, $caption) {
 }
 
 $announcement = @"
-⚡ <b>Обновление STORM SWITCH 7.3.0 (Smart Mod Loader, Hardware Calibrator, Driver Isolation, LSFG Pacing, SOR4 Locked Fix, Zelda Graphics and Full Localization)</b> — <i>Масштабное обновление эмулятора Nintendo Switch: умная ручная и онлайн-установка модов GameBanana с автораспаковкой romfs/exefs/cheats, аппаратная калибровка под чипсеты (Snapdragon 8 Elite, Dimensity, Exynos, Tensor) с адаптивными профилями, полное устранение конфликтов драйверов между Zelda BotW/TotK, Diablo II и SOR4, оптимизация генератора кадров LSFG без задержек, исправление шрифтов и субтитров Alan Wake, и 100% выверенная локализация</i>
+⚡ <b>Обновление STORM SWITCH 7.3.1 (NCE Fault Tolerance, GRC Movie Services, Zelda BotW 32 FPS Early-Z Fix, STORM DRIVER 2.0.3, Hybrid NVDEC and ASTC, In-Game Self-Healing)</b> — <i>Крупное обновление эмулятора Nintendo Switch: полное восстановление 30–32+ FPS и геометрии в The Legend of Zelda: BotW, устранение вылетов Streets of Rage 4 на Android, новые системные драйверы STORM DRIVER 2.0.3 (включая Zelda Edition), гибридные режимы декодирования NVDEC и ASTC, плавающая кнопка автоисправления в игре и 100% русская локализация</i>
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 
 🚀 <b>Ключевые изменения и улучшения:</b>
 
-📦 <b>Умный установщик модов GameBanana и ручная загрузка (ZIP и папки):</b>
-• В окно GameBanana добавлена кнопка «Установить мод вручную» с поддержкой ZIP-архивов и директорий напрямую в папку <code>load/&lt;TitleID&gt;/</code>.
-• Реализован многоуровневый интеллектуальный анализатор архивов: автоматическое снятие лишних вложенных папок, корректное развертывание <code>atmosphere/contents/&lt;TitleID&gt;</code>, маршрутизация <code>romfs</code>, <code>exefs</code>, <code>cheats</code>, упаковка свободных файлов в <code>romfs/</code> и маршрутизация читов и патчей (<code>.ips</code>, <code>.pchtxt</code>).
-• Установленные моды мгновенно появляются и активируются в системном меню «Дополнения».
+🗡️ <b>The Legend of Zelda: BotW — восстановление производительности (30–32+ FPS) и текстур:</b>
+• Устранена просадка кадров с 15 FPS до стабильных 30–32+ FPS благодаря включению таймингов ГПУ <code>use_fast_gpu_time</code> и оптимизации динамического масштабирования.
+• Включено сжатие ASTC в формат BC3 (<code>astc_recompression = 2</code>) и режим памяти 6 ГБ DRAM, что полностью ликвидировало утечки видеопамяти и исчезновение ландшафта и текстур.
+• В конфигурации Turnip drirc сохранен аппаратный Early-Z (LRZ) с непрерывным сохранением между буферами команд (<code>tu_lrz_preserve_across_cmdbuf=true</code>), исключающий артефакты и мерцания.
 
-🎮 <b>Полная изоляция драйверов (Zelda BotW/TotK, Diablo II и SOR4):</b>
-• Устранено перезаписывание конфигураций драйверов при распаковке: генерация и применение изолированных профилей <code>00-storm.conf</code> и <code>drirc</code> происходит строго после инициализации драйвера и непосредственно перед стартом рендеринга Vulkan.
-• В играх The Legend of Zelda: BotW и TotK гарантированно отключен <code>tu_tile_discard</code> и применены защитные флаги глубины и LRZ, что полностью устраняет артефакты геометрии и мерцания текстур.
-• В Diablo II: Resurrected и Streets of Rage 4 полностью сохранен режим <code>tu_tile_discard=true</code> с аппаратным буфером D32 для максимального FPS.
+👊 <b>Streets of Rage 4 и стабильность NCE ядра на Android:</b>
+• В NCE-ядре <code>arm_nce.cpp</code> восстановлен безопасный пропуск исключений Data Abort при обращении к невыровненной памяти, что полностью устранило сбои при загрузке уровней.
+• Реализованы заглушки сервисов видеозаписи GRC (<code>grc:c</code> — IContinuousRecorder, IGameMovieTrimmer, IOffscreenRecorder, IMovieMaker), возвращающие ResultSuccess вместо системной паники <code>0x1A80A</code>.
+• Добавлено автоматическое создание отсутствующих директорий при инициализации файловой системы.
 
-🧠 <b>Аппаратная калибровка оборудования и адаптивные профили:</b>
-• Интеллектуальный анализатор StormHardwareCalibrator определяет чипсет устройства (Snapdragon 8 Elite / Adreno 830, Snapdragon 8 Gen 1-3, 888/870, Dimensity 9400/9300, Exynos, Google Tensor), объем оперативной памяти и тип устройства (смартфон или планшет).
-• Пресет «По умолчанию (Сброс)» теперь выставляет оптимальные параметры именно под конкретное устройство.
-• Профили «Быстрый», «Нормальный (Рекомендуется)» и «Точный» автоматически адаптируют разрешение (720p/1080p), точность CPU/GPU, режим памяти (Fastmem) и лимит кеша под возможности процессора и графического ускорителя.
+🚀 <b>Драйверы Turnip v2.0.3 (STORM DRIVER 2.0.3 и Zelda Edition):</b>
+• Собраны и оптимизированы два пакета драйверов Turnip 2.0.3:
+  - <b>STORM DRIVER 2.0.3</b> — универсальная версия с максимальным быстродействием и тайловым сбросом для большинства игр.
+  - <b>STORM DRIVER 2.0.3 Zelda Edition</b> — специальная версия с полным сохранением Early-Z, отключенным tile discard и идеальной геометрией без мерцания.
 
-⚡ <b>Оптимизация генератора кадров LSFG и сглаживание шага:</b>
-• В ядре frame_gen_pacer.cpp полностью ликвидирован 60-секундный локаут генерации кадров при просадках: внедрен прогрессивный адаптивный интервал возврата (0.5–3 секунды).
-• Добавлено ограничение выбросов таймингов (outlier clamping) при расчете скользящей средней (EMA) и сглажен спад накопленных кредитов (decay 0.8), устранив микрозадержки и подергивания.
+🔄 <b>Гибридные режимы декодирования NVDEC и ASTC:</b>
+• Добавлен режим «Гибридный» для декодирования видео NVDEC (интеллектуальное распределение нагрузки между MediaCodec ГПУ и многопоточным декодером ЦП).
+• Добавлен режим «Гибридный» для распаковки текстур ASTC (аппаратная акселерация с параллельной асинхронной подгрузкой на процессоре).
+• В интерфейсе Android обозначения приведены к единому русскому стандарту: ГПУ, ЦП, Гибридный.
 
-🔦 <b>Alan Wake Remastered — исправление субтитров и шрифтов:</b>
-• В Vulkan-рендерере vk_texture_cache.cpp скорректирован swizzle одноканальных текстур шрифтов R8_UNORM и BC4_UNORM (RGB каналы направлены в ONE, альфа в Red), что полностью вернуло чистый белый цвет субтитров и глифов.
-• Добавлен специализированный профиль драйвера Turnip с флагами <code>tu_a8_unorm_swizzle_one</code> и <code>tu_r8_unorm_swizzle_alpha</code>.
+🛠️ <b>Внутриигровая система автоисправления (Self-Healing):</b>
+• Добавлена круглая плавающая кнопка и пункт меню «Автоисправление» во время игры.
+• Диалоговое окно детально информирует о выявленных проблемах текущей игры, предлагает применить проверенный профиль настроек или отключить автоисправление при желании настроить параметры вручную.
 
-👊 <b>Окончательная фиксация и запуск Streets of Rage 4 (SOR4):</b>
-• В JIT-ядре arm_dynarmic_64.cpp устранен бесконечный цикл исключений при NoExecuteFault с корректным продвижением счетчика команд (pc + 4) и выходом в меню.
-• За всеми 3 Title ID игры закреплены обязательные параметры GPU и памяти.
-
-🌐 <b>100% локализация интерфейса и типографика:</b>
-• Все элементы интерфейса, диалоговые окна, всплывающие уведомления и настройки переведены на чистый русский язык со строгим соблюдением Sentence case и полным запретом символа «&».
+🌐 <b>Точная локализация и терминология:</b>
+• Дополнен перевод в ru_RU.ts и shared_translation.cpp: «Звуковой движок», «Устройство вывода звука», «Тайминги ГПУ», «Асинхронная компиляция шейдеров» в строгом соответствии с Sentence case.
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 📦 <i>Свежие исполняемые файлы и APK-пакеты собраны, подписаны цифровой подписью SHA-256 и готовы к установке.</i>
@@ -76,20 +73,20 @@ Send-TGMessage $announcement
 Write-Host "2. Uploading release files to Telegram..."
 $filesToUpload = @(
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.0.apk"
-        Caption = "📱 <b>STORM SWITCH 7.3.0 (Mainline Release - Android 14+)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.1.apk"
+        Caption = "📱 <b>STORM SWITCH 7.3.1 (Mainline Release - Android 14+)</b>"
     },
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.0_LEGACY.apk"
-        Caption = "📱 <b>STORM SWITCH 7.3.0 (Legacy Release - Android 10-13)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.1_LEGACY.apk"
+        Caption = "📱 <b>STORM SWITCH 7.3.1 (Legacy Release - Android 10-13)</b>"
     },
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.0_SDK27.apk"
-        Caption = "📱 <b>STORM SWITCH 7.3.0 (SDK27 Release - Android 8.1-9)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.1_SDK27.apk"
+        Caption = "📱 <b>STORM SWITCH 7.3.1 (SDK27 Release - Android 8.1-9)</b>"
     },
     @{
-        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.0_Windows.zip"
-        Caption = "💻 <b>STORM SWITCH 7.3.0 (Windows x64 Release Portable)</b>"
+        Path = "E:\STORM EDEN 3\Files\STORM_SWITCH_7.3.1_Windows.zip"
+        Caption = "💻 <b>STORM SWITCH 7.3.1 (Windows x64 Release Portable)</b>"
     }
 )
 
@@ -101,4 +98,4 @@ foreach ($item in $filesToUpload) {
     }
 }
 
-Write-Host "`nRelease 7.3.0 deployment to Telegram completed successfully!"
+Write-Host "`nRelease 7.3.1 deployment to Telegram completed successfully!"

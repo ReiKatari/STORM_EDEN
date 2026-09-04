@@ -7,6 +7,7 @@
 #include <cinttypes>
 #include <memory>
 
+#include "common/settings.h"
 #include "common/signal_chain.h"
 #include "core/arm/nce/arm_nce.h"
 #include "core/arm/nce/interpreter_visitor.h"
@@ -117,6 +118,13 @@ bool ArmNce::HandleFailedGuestFault(GuestContext* guest_ctx, void* raw_info, voi
 
     // We can't handle the access, so determine why we crashed.
     const bool is_prefetch_abort = host_ctx.pc == reinterpret_cast<u64>(info->si_addr);
+
+    // For data aborts or when ignoring memory aborts, skip the instruction and return to guest code.
+    // This allows games (such as Streets of Rage 4, ANIMAL WELL, etc.) to continue without crashing on NCE.
+    if (!is_prefetch_abort || Settings::values.cpuopt_ignore_memory_aborts.GetValue()) {
+        host_ctx.pc += 4;
+        return true;
+    }
 
     // Set appropriate halt reason.
     if (is_prefetch_abort) {

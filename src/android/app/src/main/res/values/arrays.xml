@@ -130,6 +130,7 @@
         <item>@string/accelerate_astc_cpu</item>
         <item>@string/accelerate_astc_gpu</item>
         <item>@string/accelerate_astc_async</item>
+        <item>@string/accelerate_astc_hybrid</item>
     </string-array>
 
     <!-- ASTC Decoding Method Values -->
@@ -137,6 +138,7 @@
         <item>0</item> <!-- CPU -->
         <item>1</item> <!-- GPU -->
         <item>2</item> <!-- CPU Asynchronously -->
+        <item>3</item> <!-- Hybrid -->
     </integer-array>
 
     <!-- ASTC Recompression Choices -->
@@ -159,13 +161,15 @@
         <item>@string/nvdec_emulation_none</item> <!-- Off -->
         <item>@string/nvdec_emulation_cpu</item>  <!-- Cpu -->
         <item>@string/nvdec_emulation_gpu</item>  <!-- Gpu -->
+        <item>@string/nvdec_emulation_hybrid</item> <!-- Hybrid -->
     </string-array>
 
     <!-- NVDEC Emulation Values -->
     <integer-array name="rendererNvdecValues">
-        <item>3</item> <!-- Off value -->
+        <item>0</item> <!-- Off value -->
         <item>1</item> <!-- CPU value -->
         <item>2</item> <!-- GPU value -->
+        <item>3</item> <!-- Hybrid value -->
     </integer-array>
 
     <string-array name="rendererResolutionNames">

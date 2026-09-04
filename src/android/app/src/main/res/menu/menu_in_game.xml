@@ -43,6 +43,11 @@
 
     <group android:id="@+id/group_settings">
         <item
+            android:id="@+id/menu_auto_correction"
+            android:icon="@drawable/ic_tune"
+            android:title="@string/auto_correction_title" />
+
+        <item
             android:id="@+id/menu_quick_settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/quick_settings" />

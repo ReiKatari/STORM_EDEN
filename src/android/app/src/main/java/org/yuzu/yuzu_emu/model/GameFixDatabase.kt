@@ -149,16 +149,16 @@ object GameFixDatabase {
             "The Legend of Zelda: Breath of the Wild",
             "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Белые вспышки и мерцание освещения/погоды\n• Пропадание текстур скал и земли при нехватке памяти\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах",
             "• Link black silhouette caused by unsynced lighting and stencil buffers\n• White screen flashes and lighting flicker\n• Ground and terrain textures disappearing due to memory pressure\n• Shrine depth bias / cyan grid artifacts",
-            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (устранение белой воды)\n✓ Сжатие ASTC: Отключено (максимальная точность текстур)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8 ГБ DRAM (предотвращение вытеснения текстур)",
-            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Fixes white water)\n✓ ASTC Recompression: Uncompressed (Maximum texture quality)\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM (Prevents texture dropping)",
+            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (устранение белой воды)\n✓ Сжатие ASTC: Среднее (BC3, устранение вытеснения текстур)\n✓ Быстрое время GPU: Включено (стабильные 30-32 FPS)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 6 ГБ DRAM (оптимально для текстур и стабильности)",
+            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Fixes white water)\n✓ ASTC Recompression: Medium (BC3, prevents texture dropping)\n✓ Fast GPU Time: Enabled (Stable 30-32 FPS)\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 6GB DRAM (Optimal stability)",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
-                "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\astc_recompression" to "0",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Renderer\\astc_recompression" to "2",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "System\\memory_layout_mode" to "2"
+                "System\\memory_layout_mode" to "1"
             )
         ),
         GameFixProfile(
@@ -3838,12 +3838,12 @@ object GameFixDatabase {
         return null
     }
 
-    fun applyFix(game: Game): Boolean {
+    fun applyFix(game: Game, forceOverwrite: Boolean = false): Boolean {
         val fix = getFix(game) ?: return false
         activateSessionFix(game)
 
-        // If the user already has their own personal manual configuration, do not overwrite it
-        if (isUserCustomConfig(game)) {
+        // If the user already has their own personal manual configuration, do not overwrite it unless forced
+        if (!forceOverwrite && isUserCustomConfig(game)) {
             Log.info("[GameFixDatabase] Game ${game.title} already has personal custom config; keeping user settings.")
             return true
         }

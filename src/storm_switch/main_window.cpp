@@ -1487,6 +1487,7 @@ void MainWindow::InitializeWidgets() {
             {Settings::AstcDecodeMode::CpuAsynchronous, tr("ЦП Асинхронно")},
             {Settings::AstcDecodeMode::Cpu, tr("ЦП")},
             {Settings::AstcDecodeMode::Gpu, tr("ГПУ")},
+            {Settings::AstcDecodeMode::Hybrid, tr("Гибридный")},
         };
         for (const auto& opt : options) {
             auto* act = context_menu.addAction(opt.second, [this, opt] {
@@ -1795,6 +1796,7 @@ void MainWindow::InitializeWidgets() {
         const auto cur_nvdec = Settings::values.nvdec_emulation.GetValue();
         const std::vector<std::pair<Settings::NvdecEmulation, QString>> nvdec_options = {
             {Settings::NvdecEmulation::Gpu, tr("ГПУ")},
+            {Settings::NvdecEmulation::Hybrid, tr("Гибридный")},
             {Settings::NvdecEmulation::Cpu, tr("ЦП")},
             {Settings::NvdecEmulation::Off, tr("Выключено")},
         };
@@ -6400,6 +6402,9 @@ void MainWindow::UpdateAstcDecodeText() {
     case Settings::AstcDecodeMode::Gpu:
         val_text = QStringLiteral("ГПУ");
         break;
+    case Settings::AstcDecodeMode::Hybrid:
+        val_text = QStringLiteral("ГИБРИД");
+        break;
     }
     astc_decode_button->setText(tr("ДЕКОД. ASTC:\n%1").arg(val_text));
 }
@@ -6630,6 +6635,7 @@ void MainWindow::UpdateNvdecText() {
     case Settings::NvdecEmulation::Off: val_text = tr("ВЫКЛ"); break;
     case Settings::NvdecEmulation::Cpu: val_text = QStringLiteral("ЦП"); break;
     case Settings::NvdecEmulation::Gpu: val_text = QStringLiteral("ГПУ"); break;
+    case Settings::NvdecEmulation::Hybrid: val_text = QStringLiteral("ГИБРИД"); break;
     default: break;
     }
     nvdec_status_button->setText(tr("NVDEC:\n%1").arg(val_text));
@@ -6898,6 +6904,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
             {Settings::AstcDecodeMode::CpuAsynchronous, tr("ЦП Асинхронно (Рекомендуется)")},
             {Settings::AstcDecodeMode::Cpu, tr("ЦП (Синхронно)")},
             {Settings::AstcDecodeMode::Gpu, tr("ГПУ (Аппаратное декодирование)")},
+            {Settings::AstcDecodeMode::Hybrid, tr("Гибридный (ГПУ и ЦП)")},
         };
         for (const auto& opt : dec_options) {
             auto* act = decode_menu->addAction(opt.second, [this, opt] {
@@ -6989,6 +6996,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         const auto cur_nvdec = Settings::values.nvdec_emulation.GetValue();
         const std::vector<std::pair<Settings::NvdecEmulation, QString>> nvdec_options = {
             {Settings::NvdecEmulation::Gpu, tr("ГПУ")},
+            {Settings::NvdecEmulation::Hybrid, tr("Гибридный")},
             {Settings::NvdecEmulation::Cpu, tr("ЦП")},
             {Settings::NvdecEmulation::Off, tr("Выключено")},
         };

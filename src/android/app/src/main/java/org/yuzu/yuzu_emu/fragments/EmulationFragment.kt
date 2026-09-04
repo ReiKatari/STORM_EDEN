@@ -753,6 +753,20 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
         setupFloatingTranslateButton()
 
+        binding.buttonFloatingAutoCorrection.setOnClickListener {
+            val currentGame = game ?: args.game
+            if (currentGame != null) {
+                AutoCorrectionDialogFragment.newInstance(currentGame)
+                    .show(childFragmentManager, AutoCorrectionDialogFragment.TAG)
+            }
+        }
+        val currentGameForFix = game ?: args.game
+        if (currentGameForFix != null && GameFixDatabase.getFix(currentGameForFix) != null) {
+            binding.buttonFloatingAutoCorrection.visibility = View.VISIBLE
+        } else {
+            binding.buttonFloatingAutoCorrection.visibility = View.GONE
+        }
+
         binding.pausedIcon.setOnClickListener {
             if (this::emulationState.isInitialized && emulationState.isPaused) {
                 resumeEmulationFromUi()
@@ -817,6 +831,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                         behavior.state = BottomSheetBehavior.STATE_HIDDEN
                     }
                     binding.root.findNavController().navigate(action)
+                    true
+                }
+
+                R.id.menu_auto_correction -> {
+                    binding.drawerLayout.close()
+                    val currentGame = game ?: args.game
+                    if (currentGame != null) {
+                        AutoCorrectionDialogFragment.newInstance(currentGame)
+                            .show(childFragmentManager, AutoCorrectionDialogFragment.TAG)
+                    }
                     true
                 }
 

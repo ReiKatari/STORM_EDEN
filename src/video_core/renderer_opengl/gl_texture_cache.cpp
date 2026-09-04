@@ -235,7 +235,8 @@ void ApplySwizzle(GLuint handle, PixelFormat format, std::array<SwizzleSource, 4
 [[nodiscard]] bool CanBeAccelerated(const TextureCacheRuntime& runtime,
                                     const VideoCommon::ImageInfo& info) {
     if (IsPixelFormatASTC(info.format) && info.size.depth == 1 && !runtime.HasNativeASTC()) {
-        return Settings::values.accelerate_astc.GetValue() == Settings::AstcDecodeMode::Gpu &&
+        const auto mode = Settings::values.accelerate_astc.GetValue();
+        return (mode == Settings::AstcDecodeMode::Gpu || mode == Settings::AstcDecodeMode::Hybrid) &&
                Settings::values.astc_recompression.GetValue() ==
                    Settings::AstcRecompression::Uncompressed;
     }

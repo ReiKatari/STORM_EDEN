@@ -53,8 +53,8 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "second to show it."));
 
     // Audio
-    INSERT(Settings, sink_id, tr("Output Engine:"), QString());
-    INSERT(Settings, audio_output_device_id, tr("Output Device:"), QString());
+    INSERT(Settings, sink_id, tr("Звуковой движок"), QString());
+    INSERT(Settings, audio_output_device_id, tr("Устройство вывода звука"), QString());
     INSERT(Settings, audio_input_device_id, tr("Input Device:"), QString());
     INSERT(Settings, audio_muted, tr("Mute audio"), QString());
     INSERT(Settings, volume, tr("Volume:"), QString());
@@ -196,11 +196,11 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "Высокая точность и Строго — устраняют специфические графические артефакты."));
     INSERT(Settings, enable_gpu_buffer_readback, tr("Обратное чтение буфера ГПУ"),
            tr("Сохраняет модифицированные графическим процессором данные путем их считывания перед отправкой. Требуется некоторым играм для корректного рендеринга эффектов."));
-    INSERT(Settings, use_asynchronous_shaders, tr("Включить асинхронную компиляцию шейдеров"),
+    INSERT(Settings, use_asynchronous_shaders, tr("Асинхронная компиляция шейдеров"),
            tr("Компилирует новые шейдеры в фоновом режиме, снижая статтеры и фризы во время игрового процесса."));
     INSERT(Settings, smart_shader_throttle, tr("Умный троттлинг шейдеров"),
            tr("Динамически регулирует приоритет фоновых потоков компиляции шейдеров для предотвращения микростаттеров в игре."));
-    INSERT(Settings, gpu_clock, tr("Частота ГПУ"),
+    INSERT(Settings, gpu_clock, tr("Тайминги ГПУ"),
            tr("Регулирует частоту, которую видит гостевая игра, позволяя удерживать максимальное разрешение без срабатывания встроенных в игру ограничителей."));
     INSERT(Settings, gpu_unswizzle_enabled, tr("Разделение развертки"),
            tr("Ускоряет декодирование 3D-текстур BCn с использованием вычислительных мощностей ГПУ.\n"
@@ -341,6 +341,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                               PAIR(AstcDecodeMode, Cpu, tr("ЦП")),
                               PAIR(AstcDecodeMode, Gpu, tr("ГПУ")),
                               PAIR(AstcDecodeMode, CpuAsynchronous, tr("ЦП Асинхронно")),
+                              PAIR(AstcDecodeMode, Hybrid, tr("Гибридный")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::AstcRecompression>::Index(),
@@ -417,6 +418,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                               PAIR(NvdecEmulation, Off, tr("Без видео")),
                               PAIR(NvdecEmulation, Cpu, tr("Декодирование видео на ЦП")),
                               PAIR(NvdecEmulation, Gpu, tr("Декодирование видео на ГПУ")),
+                              PAIR(NvdecEmulation, Hybrid, tr("Гибридное декодирование видео")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::ResolutionSetup>::Index(),

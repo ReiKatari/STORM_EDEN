@@ -315,12 +315,12 @@ This would ban both their forum username and their IP address.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="54" />
       <source>Output Engine:</source>
-      <translation>Движок вывода:</translation>
+      <translation>Звуковой движок</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="55" />
       <source>Output Device:</source>
-      <translation>Устройство вывода:</translation>
+      <translation>Устройство вывода звука</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="56" />
@@ -845,7 +845,7 @@ Some games require this to render certain effects properly.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="231" />
       <source>Enable asynchronous shader compilation</source>
-      <translation>Включить асинхронную компиляцию шейдеров</translation>
+      <translation>Асинхронная компиляция шейдеров</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="232" />
@@ -855,7 +855,7 @@ Some games require this to render certain effects properly.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="233" />
       <source>Fast GPU Time</source>
-      <translation>Fast GPU Time</translation>
+      <translation>Тайминги ГПУ</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="234" />

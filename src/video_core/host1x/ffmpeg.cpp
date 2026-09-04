@@ -170,7 +170,8 @@ Decoder::Decoder(Tegra::Host1x::NvdecCommon::VideoCodec codec) {
     }();
 
 #if defined(__ANDROID__)
-    if (Settings::values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Gpu) {
+    const auto nvdec_mode = Settings::values.nvdec_emulation.GetValue();
+    if (nvdec_mode == Settings::NvdecEmulation::Gpu || nvdec_mode == Settings::NvdecEmulation::Hybrid) {
         const char* mc_name = nullptr;
         switch (av_codec) {
         case AV_CODEC_ID_H264: mc_name = "h264_mediacodec"; break;
@@ -387,7 +388,8 @@ bool DecodeApi::Initialize(Tegra::Host1x::NvdecCommon::VideoCodec codec) {
 
     // Enable GPU decoding if requested.
     if (!is_mediacodec &&
-        Settings::values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Gpu) {
+        (Settings::values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Gpu ||
+         Settings::values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Hybrid)) {
         m_hardware_context.emplace();
         m_hardware_context->InitializeForDecoder(*m_decoder_context, *m_decoder);
     }

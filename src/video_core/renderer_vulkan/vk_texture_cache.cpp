@@ -148,7 +148,8 @@ constexpr VkBorderColor ConvertBorderColor(const std::array<float, 4>& color) {
     if (!IsPixelFormatASTC(info.format) || device.IsOptimalAstcSupported()) {
         return false;
     }
-    if (Settings::values.accelerate_astc.GetValue() != Settings::AstcDecodeMode::Gpu) {
+    const auto mode = Settings::values.accelerate_astc.GetValue();
+    if (mode != Settings::AstcDecodeMode::Gpu && mode != Settings::AstcDecodeMode::Hybrid) {
         return false;
     }
     return Settings::values.astc_recompression.GetValue() ==
@@ -919,7 +920,8 @@ TextureCacheRuntime::TextureCacheRuntime(const Device& device_, Scheduler& sched
     : device{device_}, scheduler{scheduler_}, memory_allocator{memory_allocator_},
       staging_buffer_pool{staging_buffer_pool_}, blit_image_helper{blit_image_helper_},
       render_pass_cache{render_pass_cache_}, resolution{Settings::values.resolution_info} {
-    if (Settings::values.accelerate_astc.GetValue() == Settings::AstcDecodeMode::Gpu) {
+    const auto astc_mode = Settings::values.accelerate_astc.GetValue();
+    if (astc_mode == Settings::AstcDecodeMode::Gpu || astc_mode == Settings::AstcDecodeMode::Hybrid) {
         astc_decoder_pass.emplace(device, scheduler, descriptor_pool, staging_buffer_pool,
                                   compute_pass_descriptor_queue, memory_allocator);
     }
@@ -1795,6 +1797,13 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
         case Settings::AstcDecodeMode::Gpu:
             if (WillUseAcceleratedAstcDecode(runtime->device, info)) {
                 flags |= VideoCommon::ImageFlagBits::AcceleratedUpload;
+            }
+            break;
+        case Settings::AstcDecodeMode::Hybrid:
+            if (WillUseAcceleratedAstcDecode(runtime->device, info)) {
+                flags |= VideoCommon::ImageFlagBits::AcceleratedUpload;
+            } else {
+                flags |= VideoCommon::ImageFlagBits::AsynchronousDecode;
             }
             break;
         case Settings::AstcDecodeMode::CpuAsynchronous:

@@ -376,21 +376,52 @@ object InstallableActions {
                 )
             }
 
+            val savesDir = File(userDirectory, "nand/user/save")
+            val backupSavesDir = File(activity.cacheDir, "storm_save_backup_${System.currentTimeMillis()}")
+            var hasSavesBackup = false
+            if (savesDir.exists() && savesDir.isDirectory) {
+                try {
+                    backupSavesDir.mkdirs()
+                    savesDir.copyRecursively(backupSavesDir, overwrite = true)
+                    hasSavesBackup = true
+                } catch (e: Exception) {
+                    Log.error("[InstallableActions] Failed to backup user saves: ${e.message}")
+                }
+            }
+
+            val stagingDir = File(activity.cacheDir, "storm_import_staging_${System.currentTimeMillis()}")
+            stagingDir.mkdirs()
             NativeConfig.unloadGlobalConfig()
-            File(userDirectory).deleteRecursively()
 
             try {
                 FileUtil.unzipToInternalStorage(
                     result.toString(),
-                    File(userDirectory),
+                    stagingDir,
                     progressCallback
                 )
+
+                // If imported backup didn't contain saves, preserve existing saves from backup
+                val stagingSaves = File(stagingDir, "nand/user/save")
+                if ((!stagingSaves.exists() || stagingSaves.listFiles().isNullOrEmpty()) && hasSavesBackup) {
+                    stagingSaves.mkdirs()
+                    backupSavesDir.copyRecursively(stagingSaves, overwrite = true)
+                }
+
+                // Copy verified staging content into userDirectory safely
+                stagingDir.copyRecursively(File(userDirectory), overwrite = true)
             } catch (_: Exception) {
+                if (hasSavesBackup && (!savesDir.exists() || savesDir.listFiles().isNullOrEmpty())) {
+                    savesDir.mkdirs()
+                    backupSavesDir.copyRecursively(savesDir, overwrite = true)
+                }
                 return@newInstance MessageDialogFragment.newInstance(
                     activity,
                     titleId = R.string.import_failed,
                     descriptionId = R.string.user_data_import_failed_description
                 )
+            } finally {
+                stagingDir.deleteRecursively()
+                backupSavesDir.deleteRecursively()
             }
 
             NativeLibrary.initializeSystem(true)

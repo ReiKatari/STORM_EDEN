@@ -293,10 +293,13 @@ object PerGameDrircGenerator {
             GameProfileType.SPRITE_2D -> {
                 optionsBuilder.append("\n            <!-- 2D SPRITE SPECIFIC RULES (Pristine Pixel Art & Video Cutscenes) -->\n")
                 optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
-                optionsBuilder.append("            <option name=\"tu_auto_mipmap_generation\" value=\"false\" />\n")
-                optionsBuilder.append("            <option name=\"tu_compute_detiling_gob_linear\" value=\"false\" />\n")
-                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_range_unrestricted_a7xx_a8xx\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_dynamic_state_depth_bias_clamp\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_bounds\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
             }
             GameProfileType.LEGEND_OF_HEROES -> {
                 optionsBuilder.append("\n            <!-- THE LEGEND OF HEROES RULES (LRZ Continuity across CmdBuf) -->\n")

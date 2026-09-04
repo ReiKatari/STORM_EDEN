@@ -216,7 +216,8 @@ bool nvhost_as_gpu::FreeMappingLocked(u64 offset) noexcept {
         } else {
             gmmu->Unmap(offset, mapping.size);
         }
-        mapping_map.erase(offset);
+        mapping_map.erase(it);
+        map_buffer_offsets.erase(offset);
         return true;
     }
     return false;
@@ -360,6 +361,10 @@ NvResult nvhost_as_gpu::MapBufferEx(IoctlMapBufferEx& params) {
         gmmu->Map(params.offset, device_address, size, static_cast<Tegra::PTEKind>(params.kind), use_big_pages);
 
         alloc->second.mappings.push_back(params.offset);
+        if (auto old_it = mapping_map.find(params.offset); old_it != mapping_map.end()) {
+            nvmap.UnpinHandle(old_it->second.handle);
+            mapping_map.erase(old_it);
+        }
         mapping_map.insert_or_assign(params.offset, Mapping(params.handle, device_address, params.offset, size, true, use_big_pages, alloc->second.sparse));
     } else {
         auto& allocator{big_page ? *vm.big_page_allocator : *vm.small_page_allocator};
@@ -372,6 +377,10 @@ NvResult nvhost_as_gpu::MapBufferEx(IoctlMapBufferEx& params) {
             return NvResult::InsufficientMemory;
         }
         gmmu->Map(params.offset, device_address, Common::AlignUp(size, page_size), Tegra::PTEKind(params.kind), big_page);
+        if (auto old_it = mapping_map.find(params.offset); old_it != mapping_map.end()) {
+            nvmap.UnpinHandle(old_it->second.handle);
+            mapping_map.erase(old_it);
+        }
         mapping_map.insert_or_assign(params.offset, Mapping(params.handle, device_address, params.offset, size, false, big_page, false));
     }
 
@@ -389,6 +398,11 @@ NvResult nvhost_as_gpu::UnmapBuffer(IoctlUnmapBuffer& params) {
         }
 
         auto const it = mapping_map.find(params.offset);
+        if (it == mapping_map.end()) {
+            map_buffer_offsets.erase(offset_it);
+            return NvResult::Success;
+        }
+
         auto const mapping = it->second;
         if (!mapping.fixed) {
             auto& allocator{mapping.big_page ? *vm.big_page_allocator : *vm.small_page_allocator};
@@ -405,8 +419,8 @@ NvResult nvhost_as_gpu::UnmapBuffer(IoctlUnmapBuffer& params) {
         }
 
         nvmap.UnpinHandle(mapping.handle);
-        mapping_map.erase(params.offset);
-        map_buffer_offsets.erase(params.offset);
+        mapping_map.erase(it);
+        map_buffer_offsets.erase(offset_it);
     }
     return NvResult::Success;
 }

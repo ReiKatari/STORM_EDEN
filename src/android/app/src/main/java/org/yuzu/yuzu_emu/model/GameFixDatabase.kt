@@ -3259,12 +3259,14 @@ object GameFixDatabase {
             "Streets of Rage 4",
             "• Рассинхронизация кадров в битвах с боссами\n• Разрывы спрайтовой анимации",
             "• Boss fight frame pacing desync\n• Sprite animation tearing",
-            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fastmem: Enabled",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",
-                "Cpu\\cpuopt_fastmem" to "true"
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpuopt_ignore_memory_aborts" to "true"
             )
         ),
         GameFixProfile(

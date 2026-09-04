@@ -212,7 +212,11 @@ jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getProgramId(JNIEnv* env, job
 }
 
 jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_isBaseGame(JNIEnv* env, jobject obj, jstring jpath) {
-    return jboolean(true);
+    const auto meta = GetRomMetadata(Common::Android::GetJString(env, jpath));
+    if (meta.isHomebrew) {
+        return jboolean(true);
+    }
+    return jboolean(meta.raw_program_id != 0 && meta.raw_program_id == meta.programId);
 }
 
 jstring Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getDeveloper(JNIEnv* env, jobject obj, jstring jpath) {

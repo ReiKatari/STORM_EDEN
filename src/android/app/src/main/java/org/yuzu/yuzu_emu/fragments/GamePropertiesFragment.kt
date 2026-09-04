@@ -703,11 +703,27 @@ class GamePropertiesFragment : Fragment() {
                     }
 
                     if (savesFolderFile != null) {
-                        savesFolder.deleteRecursively()
-                        savesFolder.mkdir()
-                        savesFolderFile.copyRecursively(savesFolder, overwrite = true)
-                        if (savesFolderFile != cacheSaveDir) {
-                            savesFolderFile.deleteRecursively()
+                        val backupDir = File("${requireContext().cacheDir.path}/save_backup_${System.currentTimeMillis()}")
+                        if (savesFolder.exists()) {
+                            backupDir.mkdirs()
+                            savesFolder.copyRecursively(backupDir, overwrite = true)
+                        }
+                        try {
+                            savesFolder.deleteRecursively()
+                            savesFolder.mkdir()
+                            savesFolderFile.copyRecursively(savesFolder, overwrite = true)
+                            if (savesFolderFile != cacheSaveDir) {
+                                savesFolderFile.deleteRecursively()
+                            }
+                        } catch (e: Exception) {
+                            if (backupDir.exists()) {
+                                savesFolder.deleteRecursively()
+                                savesFolder.mkdir()
+                                backupDir.copyRecursively(savesFolder, overwrite = true)
+                            }
+                            throw e
+                        } finally {
+                            backupDir.deleteRecursively()
                         }
                     }
 

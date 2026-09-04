@@ -131,6 +131,10 @@ void DynarmicCallbacks64::ExceptionRaised(u64 pc, Dynarmic::A64::Exception excep
         LOG_TRACE(Core_ARM, "ExceptionRaised(exception = {}, pc = {:08X}, code = {:08X}, cached = {:08X})", std::size_t(exception), pc, m_memory.Read32(pc), MemoryReadCode(pc).value_or(0));
         return;
     case Dynarmic::A64::Exception::NoExecuteFault:
+        if (Settings::values.cpuopt_ignore_memory_aborts.GetValue()) {
+            LOG_WARNING(Core_ARM, "Ignoring execution fault at unmapped address {:#016x} per cpuopt_ignore_memory_aborts", pc);
+            return;
+        }
         LOG_CRITICAL(Core_ARM, "Cannot execute instruction at unmapped address {:#016x}", pc);
         ReturnException(pc, PrefetchAbort);
         return;

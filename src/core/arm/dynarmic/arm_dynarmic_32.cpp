@@ -91,6 +91,10 @@ bool DynarmicCallbacks32::MemoryWriteExclusive64(u32 vaddr, u64 value, u64 expec
 void DynarmicCallbacks32::ExceptionRaised(u32 pc, Dynarmic::A32::Exception exception) {
     switch (exception) {
     case Dynarmic::A32::Exception::NoExecuteFault:
+        if (Settings::values.cpuopt_ignore_memory_aborts.GetValue()) {
+            LOG_WARNING(Core_ARM, "Ignoring execution fault at unmapped address {:#08x} per cpuopt_ignore_memory_aborts", pc);
+            return;
+        }
         LOG_CRITICAL(Core_ARM, "Cannot execute instruction at unmapped address {:#08x}", pc);
         ReturnException(pc, PrefetchAbort);
         return;

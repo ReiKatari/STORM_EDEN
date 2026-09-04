@@ -67,40 +67,47 @@ void AndroidConfig::ReadUIValues() {
 }
 
 void AndroidConfig::ReadPathValues() {
+    if (!global) {
+        return;
+    }
     BeginGroup(Settings::TranslateCategory(Settings::Category::Paths));
 
-    AndroidSettings::values.game_dirs.clear();
     const int gamedirs_size = BeginArray(std::string("gamedirs"));
-    for (int i = 0; i < gamedirs_size; ++i) {
-        SetArrayIndex(i);
-        AndroidSettings::GameDir game_dir;
-        game_dir.path = ReadStringSetting(std::string("path"));
-        game_dir.deep_scan =
-            ReadBooleanSetting(std::string("deep_scan"), std::make_optional(false));
-        if (game_dir.path.empty()) {
-            continue;
-        }
-        const bool exists = std::any_of(
-            AndroidSettings::values.game_dirs.begin(), AndroidSettings::values.game_dirs.end(),
-            [&](const AndroidSettings::GameDir& d) { return d.path == game_dir.path; });
-        if (!exists) {
-            AndroidSettings::values.game_dirs.push_back(game_dir);
+    if (gamedirs_size > 0) {
+        AndroidSettings::values.game_dirs.clear();
+        for (int i = 0; i < gamedirs_size; ++i) {
+            SetArrayIndex(i);
+            AndroidSettings::GameDir game_dir;
+            game_dir.path = ReadStringSetting(std::string("path"));
+            game_dir.deep_scan =
+                ReadBooleanSetting(std::string("deep_scan"), std::make_optional(false));
+            if (game_dir.path.empty()) {
+                continue;
+            }
+            const bool exists = std::any_of(
+                AndroidSettings::values.game_dirs.begin(), AndroidSettings::values.game_dirs.end(),
+                [&](const AndroidSettings::GameDir& d) { return d.path == game_dir.path; });
+            if (!exists) {
+                AndroidSettings::values.game_dirs.push_back(game_dir);
+            }
         }
     }
     EndArray();
 
     // Read external content directories
-    Settings::values.external_content_dirs.clear();
     const int external_dirs_size = BeginArray(std::string("external_content_dirs"));
-    for (int i = 0; i < external_dirs_size; ++i) {
-        SetArrayIndex(i);
-        std::string dir_path = ReadStringSetting(std::string("path"));
-        if (!dir_path.empty()) {
-            const bool exists = std::any_of(
-                Settings::values.external_content_dirs.begin(), Settings::values.external_content_dirs.end(),
-                [&](const std::string& d) { return d == dir_path; });
-            if (!exists) {
-                Settings::values.external_content_dirs.push_back(dir_path);
+    if (external_dirs_size > 0) {
+        Settings::values.external_content_dirs.clear();
+        for (int i = 0; i < external_dirs_size; ++i) {
+            SetArrayIndex(i);
+            std::string dir_path = ReadStringSetting(std::string("path"));
+            if (!dir_path.empty()) {
+                const bool exists = std::any_of(
+                    Settings::values.external_content_dirs.begin(), Settings::values.external_content_dirs.end(),
+                    [&](const std::string& d) { return d == dir_path; });
+                if (!exists) {
+                    Settings::values.external_content_dirs.push_back(dir_path);
+                }
             }
         }
     }
@@ -266,6 +273,9 @@ void AndroidConfig::SaveUIValues() {
 }
 
 void AndroidConfig::SavePathValues() {
+    if (!global) {
+        return;
+    }
     BeginGroup(Settings::TranslateCategory(Settings::Category::Paths));
 
     BeginArray(std::string("gamedirs"));

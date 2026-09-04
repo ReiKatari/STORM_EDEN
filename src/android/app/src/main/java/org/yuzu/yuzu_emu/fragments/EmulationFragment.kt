@@ -760,12 +760,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     .show(childFragmentManager, AutoCorrectionDialogFragment.TAG)
             }
         }
-        val currentGameForFix = game ?: args.game
-        if (currentGameForFix != null && GameFixDatabase.getFix(currentGameForFix) != null) {
-            binding.buttonFloatingAutoCorrection.visibility = View.VISIBLE
-        } else {
-            binding.buttonFloatingAutoCorrection.visibility = View.GONE
-        }
+        binding.buttonFloatingAutoCorrection.visibility = View.GONE
 
         binding.pausedIcon.setOnClickListener {
             if (this::emulationState.isInitialized && emulationState.isPaused) {
@@ -2165,6 +2160,13 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     }
 
                     binding.showStatsOverlayText.text = sb.toString()
+
+                    // Auto-correction floating button: show ONLY if FPS < 30.0 and battery temp >= 40.0°C
+                    val shouldShowAutoCorrection = actualFps > 0.0 && actualFps < 30.0 && getBatteryTemperature() >= 40.0f
+                    val targetVisibility = if (shouldShowAutoCorrection) View.VISIBLE else View.GONE
+                    if (binding.buttonFloatingAutoCorrection.visibility != targetVisibility) {
+                        binding.buttonFloatingAutoCorrection.visibility = targetVisibility
+                    }
                 }
                 perfStatsUpdateHandler.postDelayed(perfStatsRunnable!!, 800)
             }

@@ -296,6 +296,9 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_setGameDirs(JNIEnv* env, jobject
     int size = env->GetArrayLength(gameDirs);
 
     if (size == 0) {
+        if (global_config != nullptr) {
+            global_config->AndroidConfig::SaveAllValues();
+        }
         return;
     }
 
@@ -319,6 +322,9 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_setGameDirs(JNIEnv* env, jobject
                 AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
         }
     }
+    if (global_config != nullptr) {
+        global_config->AndroidConfig::SaveAllValues();
+    }
 }
 
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_addGameDir(JNIEnv* env, jobject obj,
@@ -337,6 +343,9 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_addGameDir(JNIEnv* env, jobject 
     if (it == AndroidSettings::values.game_dirs.end()) {
         AndroidSettings::values.game_dirs.push_back(
             AndroidSettings::GameDir{uriString, static_cast<bool>(jdeepScanBoolean)});
+    }
+    if (global_config != nullptr) {
+        global_config->AndroidConfig::SaveAllValues();
     }
 }
 

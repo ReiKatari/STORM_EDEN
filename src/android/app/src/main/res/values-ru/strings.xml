@@ -114,20 +114,22 @@
     <string name="nvdec_emulation_gpu">ГПУ</string>
     <string name="nvdec_emulation_hybrid">Гибридный</string>
 
-    <!-- Auto-Correction and Self-Healing -->
+    <!-- Auto-Correction and Thermal Cooling -->
     <string name="auto_correction_title">Автокоррекция</string>
-    <string name="auto_correction_description">Автоматическое исправление и самовосстановление профиля для стабильности и производительности</string>
-    <string name="auto_correction_dialog_title">Автокоррекция и самовосстановление</string>
-    <string name="auto_correction_dialog_subtitle">Динамический оптимизатор STORM SWITCH</string>
-    <string name="auto_correction_status_active">Автокоррекция активна</string>
-    <string name="auto_correction_status_inactive">Автокоррекция не активна</string>
-    <string name="auto_correction_issues_title">Известные проблемы</string>
-    <string name="auto_correction_recommendations_title">Рекомендуемые параметры профиля</string>
-    <string name="auto_correction_apply">Применить автокоррекцию</string>
+    <string name="auto_correction_description">Динамическая термо-коррекция и прирост FPS при перегреве и просадках</string>
+    <string name="auto_correction_dialog_title">Термо-коррекция и разгон FPS</string>
+    <string name="auto_correction_dialog_subtitle">Динамическое охлаждение и оптимизация производительности</string>
+    <string name="auto_correction_status_active">Автокоррекция активна (охлаждение включено)</string>
+    <string name="auto_correction_status_inactive">Обнаружен нагрев выше 40°C или просадка FPS ниже 30</string>
+    <string name="auto_correction_issues_title">Факторы нагрева и просадки кадров</string>
+    <string name="auto_correction_recommendations_title">Рекомендуемые параметры охлаждения и FPS</string>
+    <string name="auto_correction_apply">Применить автокоррекцию (снизить нагрев и поднять FPS)</string>
     <string name="auto_correction_reset">Сбросить к исходным</string>
-    <string name="auto_correction_applied_toast">Параметры автокоррекции успешно применены</string>
-    <string name="auto_correction_reset_toast">Автокоррекция сброшена к исходным значениям</string>
+    <string name="auto_correction_applied_toast">Профиль охлаждения и разгона FPS успешно применен</string>
+    <string name="auto_correction_reset_toast">Настройки возвращены к стандартным значениям</string>
     <string name="auto_correction_no_profile">Активен универсальный высокопроизводительный профиль</string>
+    <string name="auto_correction_issues_content">• Высокая нагрузка на GPU: рендеринг в повышенном разрешении вызывает нагрев кристалла выше 40°C\n• Троттлинг видеоядра: при температуре выше 40°C частоты GPU сбрасываются, вызывая падение FPS ниже 30\n• Пропускная способность памяти: интенсивная распаковка текстур ASTC перегружает шину DRAM и повышает тепловыделение\n• Избыточные циклы синхронизации: реактивная очистка и строгий контроль конвейера тормозят поток рендеринга</string>
+    <string name="auto_correction_recommendations_content">✓ Разрешение рендеринга: 0.75X (540p / 810p) — снижает температуру SoC на 4–6°C и повышает FPS\n✓ Сжатие текстур ASTC: BC3 (быстрое сжатие) — разгружает шину памяти и снижает нагрев DRAM\n✓ Быстрый тайминг GPU: Включено — устраняет задержки команд видеоядра\n✓ Реактивная очистка конвейера: Отключено — разгружает GPU и устраняет микрофризы\n✓ Быстрая память (Fastmem): Включено — максимальная производительность процессора при минимальном тепловыделении\n✓ Эко-термо режим и кадровая стабилизация: Включено — защита от теплового троттлинга\n✓ Анизотропная фильтрация: 1X (по умолчанию) — устраняет лишние выборки текстур</string>
 
     <!-- Optimize SPIRV output -->
     <string name="never">Никогда</string>

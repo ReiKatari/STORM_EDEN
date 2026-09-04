@@ -119,20 +119,22 @@
     <string name="nvdec_emulation_none">None</string>
     <string name="nvdec_emulation_hybrid">Hybrid</string>
 
-    <!-- Auto-Correction and Self-Healing -->
+    <!-- Auto-Correction and Thermal Cooling -->
     <string name="auto_correction_title">Auto-correction</string>
-    <string name="auto_correction_description">Automatic fix and profile healing for optimal stability and performance</string>
-    <string name="auto_correction_dialog_title">Auto-correction and self-healing</string>
-    <string name="auto_correction_dialog_subtitle">STORM SWITCH Dynamic Optimizer</string>
-    <string name="auto_correction_status_active">Auto-correction active</string>
-    <string name="auto_correction_status_inactive">Auto-correction inactive</string>
-    <string name="auto_correction_issues_title">Known issues</string>
-    <string name="auto_correction_recommendations_title">Recommended profile settings</string>
-    <string name="auto_correction_apply">Apply auto-correction</string>
+    <string name="auto_correction_description">Dynamic thermal cooling and FPS boost for overheating and frame drops</string>
+    <string name="auto_correction_dialog_title">Thermal cooling and FPS boost</string>
+    <string name="auto_correction_dialog_subtitle">Dynamic thermal throttling mitigation and performance optimizer</string>
+    <string name="auto_correction_status_active">Auto-correction active (cooling enabled)</string>
+    <string name="auto_correction_status_inactive">Thermal throttling (above 40°C) or low FPS (below 30) detected</string>
+    <string name="auto_correction_issues_title">Thermal load and throttling factors</string>
+    <string name="auto_correction_recommendations_title">Recommended cooling and FPS settings</string>
+    <string name="auto_correction_apply">Apply auto-correction (reduce heat and boost FPS)</string>
     <string name="auto_correction_reset">Reset to defaults</string>
-    <string name="auto_correction_applied_toast">Auto-correction settings successfully applied</string>
-    <string name="auto_correction_reset_toast">Auto-correction reset to defaults</string>
+    <string name="auto_correction_applied_toast">Cooling and FPS boost profile successfully applied</string>
+    <string name="auto_correction_reset_toast">Settings restored to default profile</string>
     <string name="auto_correction_no_profile">Universal high performance profile is active</string>
+    <string name="auto_correction_issues_content">• High GPU thermal load: high resolution rendering heats SoC above 40°C\n• Thermal throttling: SoC clock scaling triggers when device temperature exceeds 40°C, dropping FPS below 30\n• Memory bus saturation: uncompressed ASTC textures increase DRAM bandwidth and heat dissipation\n• Pipeline stalls: reactive flushing and strict synchronization stall render threads</string>
+    <string name="auto_correction_recommendations_content">✓ Resolution: 0.75X (540p / 810p) — reduces SoC temperature by 4–6°C and boosts FPS\n✓ ASTC Recompression: BC3 (Fast) — relieves memory bus bandwidth and reduces DRAM heat\n✓ Fast GPU Time: Enabled — eliminates GPU command latency\n✓ Reactive Flushing: Disabled — reduces GPU load and micro-stutter\n✓ Fastmem (Unsafe MMU): Enabled — maximum CPU performance with reduced heat\n✓ Eco Thermal Mode and Pacing: Enabled — prevents SoC thermal throttling spikes\n✓ Anisotropic Filtering: 1X (Default) — eliminates redundant texture sampling overhead</string>
 
     <!-- Optimize SPIRV output -->
     <string name="never">Never</string>

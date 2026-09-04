@@ -14,10 +14,11 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.databinding.DialogAutoCorrectionBinding
+import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
+import org.yuzu.yuzu_emu.features.settings.model.IntSetting
 import org.yuzu.yuzu_emu.model.Game
-import org.yuzu.yuzu_emu.model.GameFixDatabase
 import org.yuzu.yuzu_emu.utils.GameIconUtils
-import java.util.Locale
+import org.yuzu.yuzu_emu.utils.NativeConfig
 
 class AutoCorrectionDialogFragment : DialogFragment() {
 
@@ -40,59 +41,48 @@ class AutoCorrectionDialogFragment : DialogFragment() {
         }
     }
 
-    private fun sanitizeText(str: String): String {
-        if (str.isEmpty()) return str
-        if (str.contains("вЂ") || str.contains("вњ") || str.contains("Р") || str.contains("С")) {
-            return try {
-                val bytes = str.toByteArray(Charsets.ISO_8859_1)
-                val decoded = String(bytes, Charsets.UTF_8)
-                if (decoded.contains("•") || decoded.contains("✓") || decoded.any { it in 'а'..'я' || it in 'А'..'Я' }) {
-                    decoded
-                } else {
-                    str
-                }
-            } catch (_: Exception) {
-                str
-            }
-        }
-        return str
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogAutoCorrectionBinding.inflate(layoutInflater)
 
         val currentGame = game ?: arguments?.getParcelable(ARG_GAME) ?: return super.onCreateDialog(savedInstanceState)
-        val profile = GameFixDatabase.getFix(currentGame)
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val prefKey = "auto_corrected_${currentGame.programId}"
+        val prefKey = "auto_corrected_thermal_${currentGame.programId}"
         val isAutoCorrected = prefs.getBoolean(prefKey, false)
 
         binding.textAutoCorrectionGameTitle.text = currentGame.title
         GameIconUtils.loadGameIcon(currentGame, binding.imageAutoCorrectionIcon)
 
-        val isRu = Locale.getDefault().language == "ru"
         if (isAutoCorrected) {
             binding.textAutoCorrectionStatus.text = getString(R.string.auto_correction_status_active)
             binding.textAutoCorrectionStatus.setTextColor(Color.parseColor("#00F0FF"))
         } else {
             binding.textAutoCorrectionStatus.text = getString(R.string.auto_correction_status_inactive)
-            binding.textAutoCorrectionStatus.setTextColor(Color.parseColor("#94A3B8"))
+            binding.textAutoCorrectionStatus.setTextColor(Color.parseColor("#EF4444"))
         }
 
-        if (profile != null) {
-            val issues = if (isRu) profile.issuesRu else profile.issuesEn
-            val fixes = if (isRu) profile.fixesRu else profile.fixesEn
-            binding.textAutoCorrectionIssues.text = sanitizeText(issues)
-            binding.textAutoCorrectionRecommended.text = sanitizeText(fixes)
-            binding.cardAutoCorrectionIssues.visibility = View.VISIBLE
-        } else {
-            binding.cardAutoCorrectionIssues.visibility = View.GONE
-            binding.textAutoCorrectionRecommended.text = getString(R.string.auto_correction_no_profile)
-        }
+        binding.textAutoCorrectionIssues.text = getString(R.string.auto_correction_issues_content)
+        binding.textAutoCorrectionRecommended.text = getString(R.string.auto_correction_recommendations_content)
+        binding.cardAutoCorrectionIssues.visibility = View.VISIBLE
 
         binding.btnApplyAutoCorrection.setOnClickListener {
             try {
-                GameFixDatabase.applyFix(currentGame, forceOverwrite = true)
+                // Apply thermal cooling and FPS boost profile
+                IntSetting.RENDERER_RESOLUTION.setInt(2) // 0.75X (540p / 810p)
+                IntSetting.ASTC_RECOMPRESSION.setInt(2) // BC3 (Fast)
+                BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
+                BooleanSetting.FASTMEM.setBoolean(true)
+                BooleanSetting.FASTMEM_EXCLUSIVES.setBoolean(true)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
+                BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
+                IntSetting.MAX_ANISOTROPY.setInt(1) // 1X
+
+                if (NativeConfig.isPerGameConfigLoaded()) {
+                    NativeConfig.savePerGameConfig()
+                }
+                NativeConfig.saveGlobalConfig()
+
                 prefs.edit().putBoolean(prefKey, true).apply()
                 Toast.makeText(requireContext(), getString(R.string.auto_correction_applied_toast), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
@@ -103,7 +93,19 @@ class AutoCorrectionDialogFragment : DialogFragment() {
 
         binding.btnResetAutoCorrection.setOnClickListener {
             try {
-                GameFixDatabase.clearActiveSessionFix(currentGame)
+                // Reset thermal cooling profile to standard values
+                IntSetting.RENDERER_RESOLUTION.setInt(3) // 1.0X (720p / 1080p)
+                IntSetting.ASTC_RECOMPRESSION.setInt(0) // Uncompressed
+                BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(true)
+                BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
+                BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
+                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
+
+                if (NativeConfig.isPerGameConfigLoaded()) {
+                    NativeConfig.savePerGameConfig()
+                }
+                NativeConfig.saveGlobalConfig()
+
                 prefs.edit().putBoolean(prefKey, false).apply()
                 Toast.makeText(requireContext(), getString(R.string.auto_correction_reset_toast), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {

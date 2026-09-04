@@ -47,6 +47,18 @@ object GameHelper {
             }
         }
 
+        if (gameDirs.isEmpty()) {
+            val backupDirs = preferences.getStringSet("game_directories_backup", null)
+            if (!backupDirs.isNullOrEmpty()) {
+                val restored = backupDirs.map { GameDir(it, true) }
+                restored.forEach { gameDirs.add(it) }
+                NativeConfig.setGameDirs(restored.toTypedArray())
+            }
+        } else {
+            val dirSet = gameDirs.map { it.uriString }.toSet()
+            preferences.edit().putStringSet("game_directories_backup", dirSet).apply()
+        }
+
         if (cachedGameList.isEmpty()) {
             val stored = preferences.getStringSet(KEY_GAMES, emptySet()) ?: emptySet()
             for (item in stored) {
@@ -107,8 +119,8 @@ object GameHelper {
                 gameDirs.removeAt(it - offset)
                 offset++
             }
+            NativeConfig.setGameDirs(gameDirs.toTypedArray())
         }
-        NativeConfig.setGameDirs(gameDirs.toTypedArray())
 
         // Group games by file path so all distinct ROM dumps/versions are properly preserved and displayed
         val uniqueGamesMap = linkedMapOf<String, Game>()
@@ -134,14 +146,21 @@ object GameHelper {
         }
         val finalGames = uniqueGamesMap.values.toList()
 
-        // Cache list of games found on disk
-        val serializedGames = mutableSetOf<String>()
-        finalGames.forEach {
-            serializedGames.add(Json.encodeToString(it))
-        }
-        preferences.edit() {
-            remove(KEY_GAMES)
-                .putStringSet(KEY_GAMES, serializedGames)
+        if (finalGames.isNotEmpty()) {
+            // Cache list of games found on disk
+            val serializedGames = mutableSetOf<String>()
+            finalGames.forEach {
+                serializedGames.add(Json.encodeToString(it))
+            }
+            preferences.edit() {
+                remove(KEY_GAMES)
+                    .putStringSet(KEY_GAMES, serializedGames)
+            }
+            cachedGameList = finalGames.toMutableList()
+            return finalGames
+        } else if (cachedGameList.isNotEmpty()) {
+            // Protection: never wipe cached games if a background reload or driver switch temporarily returned 0 files
+            return cachedGameList
         }
 
         cachedGameList = finalGames.toMutableList()

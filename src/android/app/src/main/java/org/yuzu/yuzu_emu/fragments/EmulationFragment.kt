@@ -351,7 +351,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         try {
             val programIdHex = game!!.programIdHex
             val gameTitle = game?.title ?: ""
-            GpuDriverHelper.applyPerGameDriverConfig(programIdHex, gameTitle)
 
             if (GpuDriverHelper.isAdrenoGpu()) {
                 if (NativeFreedrenoConfig.loadPerGameConfigWithGlobalFallback(programIdHex)) {
@@ -360,6 +359,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     Log.info("[EmulationFragment] Using global Freedreno config for $programIdHex")
                 }
             }
+
+            GpuDriverHelper.applyPerGameDriverConfig(programIdHex, gameTitle)
         } catch (e: Exception) {
             Log.warning("[EmulationFragment] Failed to configure Freedreno/Turnip driver: ${e.message}")
         }
@@ -1539,9 +1540,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private fun updatePausedFrameVisibility() {
         val b = _binding ?: return
         val showPausedUi = this::emulationState.isInitialized && emulationState.isPaused
-        b.pausedCoolingContainer.setVisible(showPausedUi)
-        if (showPausedUi) {
-            updateCoolingTemperatureText()
+        val tempC = getBatteryTemperature()
+        val isDeviceHot = tempC >= 43.0f
+        b.pausedCoolingContainer.setVisible(showPausedUi && isDeviceHot)
+        if (showPausedUi && isDeviceHot) {
+            updateCoolingTemperatureText(tempC)
         }
 
         val bitmap = if (showPausedUi) pausedFrameBitmap else null
@@ -1549,14 +1552,14 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         b.pausedFrameImage.setVisible(bitmap != null)
     }
 
-    private fun updateCoolingTemperatureText() {
+    private fun updateCoolingTemperatureText(tempC: Float = getBatteryTemperature()) {
         val b = _binding ?: return
         try {
-            val tempC = getBatteryTemperature()
             if (tempC > 0f) {
-                b.pausedCoolingTemp.text = "🌡️ Температура: ${String.format(java.util.Locale.US, "%.1f", tempC)}°C ➔ Цель: 36.5°C"
+                val targetTemp = kotlin.math.max(38.0f, tempC - 4.0f)
+                b.pausedCoolingTemp.text = "🌡️ Температура: ${String.format(java.util.Locale.US, "%.1f", tempC)}°C ➔ Цель: ${String.format(java.util.Locale.US, "%.1f", targetTemp)}°C"
             } else {
-                b.pausedCoolingTemp.text = "🌡️ Идёт охлаждение чипсета ➔ Цель: 36.5°C"
+                b.pausedCoolingTemp.text = "🌡️ Идёт охлаждение чипсета"
             }
         } catch (_: Throwable) {
             b.pausedCoolingTemp.text = "🌡️ Идёт охлаждение чипсета"

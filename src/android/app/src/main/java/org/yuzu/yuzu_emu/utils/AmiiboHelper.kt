@@ -277,54 +277,80 @@ object AmiiboHelper {
     fun generateAmiiboBin(entry: AmiiboEntry): ByteArray {
         val bin = ByteArray(540)
 
-        // NTAG215 Header (UID + BCC)
+        // NTAG215 Header (UID + CRC checks conforming to ISO/IEC 14443-3)
         bin[0] = 0x04.toByte()
         bin[1] = Random.nextInt(0x01, 0xFE).toByte()
         bin[2] = Random.nextInt(0x01, 0xFE).toByte()
-        bin[3] = (0x88.toByte().toInt() xor bin[0].toInt() xor bin[1].toInt() xor bin[2].toInt()).toByte()
+        bin[3] = (0x88 xor bin[0].toInt() xor bin[1].toInt() xor bin[2].toInt()).toByte()
         bin[4] = Random.nextInt(0x01, 0xFE).toByte()
         bin[5] = Random.nextInt(0x01, 0xFE).toByte()
         bin[6] = Random.nextInt(0x01, 0xFE).toByte()
-        bin[7] = Random.nextInt(0x01, 0xFE).toByte()
+        bin[7] = 0x00.toByte() // Nintendo ID
         bin[8] = (bin[4].toInt() xor bin[5].toInt() xor bin[6].toInt() xor bin[7].toInt()).toByte()
 
         // Internal bytes
         bin[9] = 0x48.toByte()
-        bin[10] = 0x00.toByte()
-        bin[11] = 0x00.toByte()
 
-        // Capability Container (CC) for NTAG215
-        bin[12] = 0xE1.toByte()
+        // Static Lock: 0xE00F (little-endian)
+        bin[10] = 0x0F.toByte()
+        bin[11] = 0xE0.toByte()
+
+        // Capability Container (CC): 0xEEFF10F1 (little-endian)
+        bin[12] = 0xF1.toByte()
         bin[13] = 0x10.toByte()
-        bin[14] = 0x3E.toByte()
-        bin[15] = 0x00.toByte()
+        bin[14] = 0xFF.toByte()
+        bin[15] = 0xEE.toByte()
 
-        // Amiibo Model ID at offset 0x54 (8 bytes = 4 bytes head + 4 bytes tail)
-        try {
-            val headVal = entry.head.toLong(16)
-            bin[0x54] = ((headVal ushr 24) and 0xFF).toByte()
-            bin[0x55] = ((headVal ushr 16) and 0xFF).toByte()
-            bin[0x56] = ((headVal ushr 8) and 0xFF).toByte()
-            bin[0x57] = (headVal and 0xFF).toByte()
+        // User memory: EncryptedAmiiboFile at offset 0x10
+        bin[0x10] = 0xA5.toByte() // Constant value required by Nintendo Amiibo (0xA5)
+        bin[0x11] = 0x00.toByte() // Write counter high
+        bin[0x12] = 0x01.toByte() // Write counter low
+        bin[0x13] = 0x00.toByte() // Amiibo version
+        bin[0x14] = 0x10.toByte() // Settings: amiibo_initialized = 1 (bit 4)
 
-            val tailVal = entry.tail.toLong(16)
-            bin[0x58] = ((tailVal ushr 24) and 0xFF).toByte()
-            bin[0x59] = ((tailVal ushr 16) and 0xFF).toByte()
-            bin[0x5A] = ((tailVal ushr 8) and 0xFF).toByte()
-            bin[0x5B] = (tailVal and 0xFF).toByte()
-        } catch (_: Exception) {}
-
-        // Nickname UTF-16BE at offset 0x38 (up to 10 characters)
+        // Nickname UTF-16BE at offset 0x20 (up to 10 characters)
         val cleanName = entry.name.take(10)
         for (i in cleanName.indices) {
             val code = cleanName[i].code
-            bin[0x38 + i * 2] = ((code ushr 8) and 0xFF).toByte()
-            bin[0x38 + i * 2 + 1] = (code and 0xFF).toByte()
+            bin[0x20 + i * 2] = ((code ushr 8) and 0xFF).toByte()
+            bin[0x20 + i * 2 + 1] = (code and 0xFF).toByte()
         }
 
-        // Initialize write counter & flags
-        bin[0xB4] = 0x01.toByte() // Initialized flag
-        bin[0xB8] = 0x01.toByte() // Write count
+        // Model info at offset 0x54 (12 bytes)
+        try {
+            val headHex = entry.head.padStart(8, '0')
+            val tailHex = entry.tail.padStart(8, '0')
+
+            bin[0x54] = headHex.substring(0, 2).toInt(16).toByte()
+            bin[0x55] = headHex.substring(2, 4).toInt(16).toByte()
+            bin[0x56] = headHex.substring(4, 6).toInt(16).toByte()
+            bin[0x57] = headHex.substring(6, 8).toInt(16).toByte()
+
+            bin[0x58] = tailHex.substring(0, 2).toInt(16).toByte()
+            bin[0x59] = tailHex.substring(2, 4).toInt(16).toByte()
+            bin[0x5A] = tailHex.substring(4, 6).toInt(16).toByte()
+            bin[0x5B] = 0x02.toByte() // tag_type: PackedTagType::Type2 (0x02) required by IsAmiiboValid
+        } catch (_: Exception) {
+            bin[0x5B] = 0x02.toByte()
+        }
+
+        // Dynamic Lock at offset 0x208: 0x0F0001 (little-endian)
+        bin[0x208] = 0x01.toByte()
+        bin[0x209] = 0x00.toByte()
+        bin[0x20A] = 0x0F.toByte()
+        bin[0x20B] = 0x00.toByte()
+
+        // CFG0 at offset 0x20C: 0x04000000 (little-endian)
+        bin[0x20C] = 0x00.toByte()
+        bin[0x20D] = 0x00.toByte()
+        bin[0x20E] = 0x00.toByte()
+        bin[0x20F] = 0x04.toByte()
+
+        // CFG1 at offset 0x210: 0x5F (little-endian)
+        bin[0x210] = 0x5F.toByte()
+        bin[0x211] = 0x00.toByte()
+        bin[0x212] = 0x00.toByte()
+        bin[0x213] = 0x00.toByte()
 
         return bin
     }

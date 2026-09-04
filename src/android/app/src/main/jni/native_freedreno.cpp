@@ -60,9 +60,15 @@ bool ApplyEnvironmentVariable(const std::string& key, const std::string& value) 
 void ClearAllEnvironmentVariables() {
     if (!g_config) return;
     for (const auto& [key, value] : g_config->env_vars) {
+        if (key.rfind("DRIRC_", 0) == 0 || key.rfind("MESA_DRIRC_", 0) == 0 || key == "HOME") {
+            continue; // Preserve active per-game Mesa drirc configuration
+        }
         unsetenv(key.c_str());
     }
-    g_config->env_vars.clear();
+    std::erase_if(g_config->env_vars, [](const auto& item) {
+        const auto& key = item.first;
+        return !(key.rfind("DRIRC_", 0) == 0 || key.rfind("MESA_DRIRC_", 0) == 0 || key == "HOME");
+    });
 }
 
 std::string GetConfigPath() {

@@ -110,14 +110,10 @@ object GameHelper {
         }
         NativeConfig.setGameDirs(gameDirs.toTypedArray())
 
-        // Deduplicate games by programId: keep the best entry (higher internal version / addon count)
+        // Group games by file path so all distinct ROM dumps/versions are properly preserved and displayed
         val uniqueGamesMap = linkedMapOf<String, Game>()
         games.forEach { game ->
-            val key = if (game.programId.isNotEmpty() && game.programId != "0") {
-                game.programId.uppercase()
-            } else {
-                game.path
-            }
+            val key = game.path
             val existing = uniqueGamesMap[key]
             if (existing == null) {
                 uniqueGamesMap[key] = game

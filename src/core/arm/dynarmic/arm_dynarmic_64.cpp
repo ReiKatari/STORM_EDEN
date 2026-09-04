@@ -133,9 +133,11 @@ void DynarmicCallbacks64::ExceptionRaised(u64 pc, Dynarmic::A64::Exception excep
     case Dynarmic::A64::Exception::NoExecuteFault:
         if (Settings::values.cpuopt_ignore_memory_aborts.GetValue()) {
             LOG_WARNING(Core_ARM, "Ignoring execution fault at unmapped address {:#016x} per cpuopt_ignore_memory_aborts", pc);
+            m_parent.m_jit->SetPC(pc + 4);
             return;
         }
         LOG_CRITICAL(Core_ARM, "Cannot execute instruction at unmapped address {:#016x}", pc);
+        m_parent.LogBacktrace(m_process);
         ReturnException(pc, PrefetchAbort);
         return;
     default:

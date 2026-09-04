@@ -268,21 +268,21 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
         }
     }
 
-    // 2. Try PatchManager control metadata (NACP)
+    // 2. Try reading control data directly from loader (fastest, zero PatchRomFS overhead)
     if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
-        if (const auto nacp = patch.GetControlMetadata().first; nacp != nullptr) {
-            const auto ver = nacp->GetVersionString();
+        FileSys::NACP file_nacp;
+        if (loader.ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
+            auto ver = file_nacp.GetVersionString();
             if (!ver.empty() && ver != "0") {
                 file_version = QString::fromStdString(ver);
             }
         }
     }
 
-    // 3. Try reading control data directly from loader
+    // 3. Fallback to PatchManager control metadata (NACP)
     if (file_version.isEmpty() || file_version == QStringLiteral("1.0.0") || file_version == QStringLiteral("0")) {
-        FileSys::NACP file_nacp;
-        if (loader.ReadControlData(file_nacp) == Loader::ResultStatus::Success) {
-            auto ver = file_nacp.GetVersionString();
+        if (const auto nacp = patch.GetControlMetadata().first; nacp != nullptr) {
+            const auto ver = nacp->GetVersionString();
             if (!ver.empty() && ver != "0") {
                 file_version = QString::fromStdString(ver);
             }
@@ -523,18 +523,15 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
 
                         std::vector<u8> icon;
                         [[maybe_unused]] const auto res1 = app_loader->ReadIcon(icon);
-                        if (icon.empty()) {
-                            const auto control = patch.GetControlMetadata();
-                            if (control.second != nullptr) {
-                                icon = control.second->ReadAllBytes();
-                            }
-                        }
-
                         std::string name = " ";
                         [[maybe_unused]] const auto res3 = app_loader->ReadTitle(name);
-                        if (name.empty() || name == " ") {
+
+                        if (icon.empty() || name.empty() || name == " ") {
                             const auto control = patch.GetControlMetadata();
-                            if (control.first != nullptr) {
+                            if (icon.empty() && control.second != nullptr) {
+                                icon = control.second->ReadAllBytes();
+                            }
+                            if ((name.empty() || name == " ") && control.first != nullptr) {
                                 name = control.first->GetApplicationName();
                             }
                         }

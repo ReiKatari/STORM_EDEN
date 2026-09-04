@@ -268,7 +268,10 @@ static bool IsNczFile(const VirtualFile& file) {
 
 void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
     bool is_nsz_container = file->GetName().ends_with(".nsz") || file->GetName().ends_with(".xcz") || 
-                            file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ");
+                            file->GetName().ends_with(".NSZ") || file->GetName().ends_with(".XCZ") ||
+                            std::any_of(files.begin(), files.end(), [](const VirtualFile& f) {
+                                return f && (f->GetName().ends_with(".ncz") || f->GetName().ends_with(".NCZ"));
+                            });
 
     std::set<std::string> used_files;
 
@@ -347,6 +350,13 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
             const CNMT cnmt(inner_file);
 
             ncas[cnmt.GetTitleID()][{cnmt.GetType(), ContentRecordType::Meta}] = nca;
+
+            if (cnmt.GetType() == TitleType::Application) {
+                program_ids.insert(cnmt.GetTitleID() & 0xFFFFFFFFFFFFF000);
+                if (program_status.find(cnmt.GetTitleID()) == program_status.end()) {
+                    program_status[cnmt.GetTitleID()] = Loader::ResultStatus::Success;
+                }
+            }
 
             for (const auto& rec : cnmt.GetContentRecords()) {
                 if (rec.type == ContentRecordType::DeltaFragment) {

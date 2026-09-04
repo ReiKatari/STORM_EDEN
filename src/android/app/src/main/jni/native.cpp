@@ -298,6 +298,14 @@ Core::SystemResultStatus EmulationSession::InitializeEmulation(const std::string
                                                                const std::size_t program_index,
                                                                const bool frontend_initiated) {
     std::scoped_lock lock(m_mutex);
+    if (!m_native_window) {
+        LOG_CRITICAL(Frontend, "InitializeEmulation aborted: m_native_window is null!");
+        return Core::SystemResultStatus::ErrorVideoCore;
+    }
+    if (!m_vulkan_library) {
+        LOG_CRITICAL(Frontend, "InitializeEmulation aborted: m_vulkan_library is null!");
+        return Core::SystemResultStatus::ErrorVideoCore;
+    }
 
     // Create the render window.
     m_window = std::make_unique<EmuWindow_Android>(m_native_window, m_vulkan_library);

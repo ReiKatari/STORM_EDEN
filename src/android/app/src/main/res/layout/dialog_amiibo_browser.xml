@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@android:color/transparent"
-    android:padding="6dp">
+    android:padding="4dp">
 
     <!-- Active Amiibo Status Card (visible during emulation) -->
     <com.google.android.material.card.MaterialCardView
@@ -14,8 +14,8 @@
         style="@style/EdenCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="12dp"
+        android:layout_marginBottom="4dp"
+        app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:strokeColor="@color/eden_primary"
         app:strokeWidth="1dp"
@@ -27,14 +27,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="10dp">
+            android:padding="8dp">
 
             <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_amiibo"
                 app:tint="@color/eden_primary"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="6dp" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_active_amiibo_status"
@@ -42,7 +42,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="@color/eden_primary"
                 tools:text="🟢 Активен: Mario (Super Smash Bros.)" />
@@ -51,12 +51,13 @@
                 android:id="@+id/button_disconnect_amiibo"
                 style="@style/EdenButton.Outlined"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:textSize="11sp"
+                android:layout_height="28dp"
+                android:minHeight="0dp"
+                android:textSize="10sp"
                 android:text="@string/amiibo_disconnect_button"
                 android:textColor="#FF4D4D"
                 app:strokeColor="#FF4D4D"
-                android:paddingHorizontal="8dp" />
+                android:paddingHorizontal="6dp" />
 
         </LinearLayout>
 
@@ -67,7 +68,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="3dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_search"
@@ -75,11 +76,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            app:boxCornerRadiusBottomEnd="10dp"
-            app:boxCornerRadiusBottomStart="10dp"
-            app:boxCornerRadiusTopEnd="10dp"
-            app:boxCornerRadiusTopStart="10dp"
+            android:layout_marginEnd="4dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
             app:boxStrokeColor="?attr/colorPrimary"
             app:hintTextColor="?attr/colorPrimary">
 
@@ -91,8 +92,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
-                android:paddingVertical="10dp"
-                android:textSize="13sp" />
+                android:paddingVertical="8dp"
+                android:textSize="12sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -100,10 +101,10 @@
             android:id="@+id/button_refresh"
             style="@style/EdenButton.Outlined"
             android:layout_width="wrap_content"
-            android:layout_height="44dp"
+            android:layout_height="38dp"
             android:text="@string/refresh"
-            android:textSize="12sp"
-            android:paddingHorizontal="12dp" />
+            android:textSize="11sp"
+            android:paddingHorizontal="10dp" />
 
     </LinearLayout>
 
@@ -111,7 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="3dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_series"
@@ -151,15 +152,90 @@
 
     </FrameLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_status"
-        style="@style/SynthwaveText.Body"
+    <!-- Pagination & Status Toolbar -->
+    <LinearLayout
+        android:id="@+id/layout_pagination"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="11sp"
-        android:alpha="0.75"
-        android:gravity="center"
-        tools:text="Всего доступно: 850 Amiibo" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="1dp"
+        android:paddingHorizontal="4dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_status"
+            style="@style/SynthwaveText.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="11sp"
+            android:alpha="0.8"
+            android:singleLine="true"
+            android:ellipsize="end"
+            tools:text="Всего: 850" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_first_page"
+                style="@style/EdenButton.Outlined"
+                android:layout_width="32dp"
+                android:layout_height="28dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text="&lt;&lt;"
+                android:textSize="10sp"
+                android:enabled="false"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_prev_page"
+                style="@style/EdenButton.Outlined"
+                android:layout_width="32dp"
+                android:layout_height="28dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:layout_marginStart="4dp"
+                android:padding="0dp"
+                android:text="&lt;"
+                android:textSize="10sp"
+                android:enabled="false"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_page_indicator"
+                style="@style/SynthwaveText.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/page_1"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                android:textSize="11sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_next_page"
+                style="@style/EdenButton.Outlined"
+                android:layout_width="32dp"
+                android:layout_height="28dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text="&gt;"
+                android:textSize="10sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

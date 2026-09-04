@@ -727,7 +727,7 @@
          <item row="2" column="0">
           <widget class="QCheckBox" name="flush_line">
            <property name="text">
-            <string>Flush log output on each line</string>
+            <string>Сброс логов по строкам</string>
            </property>
           </widget>
          </item>

@@ -173,7 +173,7 @@
     <string name="multiplayer_unban">Разблокировать</string>
     <string name="multiplayer_unban_message">Разблокировать %1$s?</string>
     <string name="multiplayer_ban">Заблокировать</string>
-    <string name="multiplayer_room_browser">Публичные комнаты</string>
+    <string name="multiplayer_room_browser">Браузер комнат / Создать комнату</string>
     <string name="multiplayer_no_rooms_found">Комнат не найдено</string>
     <string name="multiplayer_password_required">Требуется пароль</string>
     <string name="multiplayer_player_count">: %1$d/%2$d</string>
@@ -579,17 +579,17 @@
     <string name="renderer_debug_description">Переводит графический API в режим медленной отладки.</string>
     <string name="patch_old_qcom_drivers">Исправление текстур BCn</string>
     <string name="patch_old_qcom_drivers_description">Переопределить автоматическое определение формата BCn-текстур на ГПУ Adreno. Обычно определяется автоматически на основе версии Android (включено начиная с API 28+).</string>
-    <string name="fastmem">Fastmem</string>
+    <string name="fastmem">Небезопасные оптимизации</string>
 
     <string name="log">Логирование</string>
-    <string name="flush_by_line">Сбрасывать логи отладки построчно</string>
+    <string name="flush_by_line">Сброс логов по строкам</string>
     <string name="flush_by_line_description">Сбрасывает логи отладки после каждой написанной строки, упрощая отладку в случае сбоев или зависаний.</string>
 
     <!-- GPU Logging strings -->
     <string name="gpu_logging_header">Ведение журнала ГПУ</string>
-    <string name="gpu_log_level">Уровень журналирования</string>
+    <string name="gpu_log_level">Уровень логирования ГПУ</string>
     <string name="gpu_log_level_description">Уровень детализации логов ГПУ (больше значение = больше деталей, выше нагрузка)</string>
-    <string name="gpu_log_vulkan_calls">Записывать вызовы Vulkan API</string>
+    <string name="gpu_log_vulkan_calls">Логирование вызовов Vulkan</string>
     <string name="gpu_log_vulkan_calls_description">Отслеживать все вызовы Vulkan API в кольцевом буфере</string>
     <string name="gpu_log_shader_dumps">Выгрузить SPIR-V шейдеры</string>
     <string name="gpu_log_shader_dumps_description">Сохранять перекомпилированные SPIR-V бинарные файлы (.spv) в папку дампа. Проверять с помощью spirv-dis/spirv-cross/spirv-val.</string>

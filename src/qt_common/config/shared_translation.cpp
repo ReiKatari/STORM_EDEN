@@ -128,7 +128,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
         tr("Игнорирует глобальный монитор эксклюзивных обращений к памяти для ускорения работы потоков."));
 
     // Renderer
-    INSERT(Settings, renderer_backend, tr("Графический API:"), QString());
+    INSERT(Settings, renderer_backend, tr("Графический API"), QString());
     INSERT(Settings, vulkan_device, tr("Устройство:"), QString());
     INSERT(Settings, resolution_setup, tr("Разрешение:"),
            tr("Разрешение внутреннего рендеринга 3D-графики.\n"
@@ -149,7 +149,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
         tr("Выполняет задачи графического процессора в отдельном потоке, значительно повышая частоту кадров (FPS)."));
     INSERT(Settings, nvdec_emulation, tr("Декодирование видео NVDEC:"),
            tr("Метод воспроизведения внутриигровых видеороликов (аппаратный ГПУ или ЦП)."));
-    INSERT(Settings, accelerate_astc, tr("Метод декодирования ASTC:"),
+    INSERT(Settings, accelerate_astc, tr("Метод декодирования ASTC"),
            tr("Метод декодирования сжатых текстур ASTC.\n"
               "ГПУ — быстрое аппаратное декодирование на видеокарте.\n"
               "ЦП Асинхронно — фоновое декодирование на процессоре для устранения статтеров."));
@@ -161,11 +161,11 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Блокирует снижение разрешения в играх с динамическим масштабированием (DRS), сохраняя максимальную четкость картинки."));
     INSERT(Settings, frame_pacing_mode, tr("Контроль плавности кадров"),
            tr("Ограничивает максимальный FPS для обеспечения равномерного интервала между кадрами."));
-    INSERT(Settings, vram_usage_mode, tr("Использование виртуальной памяти:"),
+    INSERT(Settings, vram_usage_mode, tr("Использование виртуальной памяти"),
            tr("Ограничивает использование видеопамяти для видеокарт с объемом памяти менее 4 ГБ."));
     INSERT(Settings, skip_cpu_inner_invalidation, tr("Пропуск внутренней инвалидации ЦП"),
            tr("Снижает нагрузку на центральный процессор за счет пропуска некоторых сбросов кэша памяти."));
-    INSERT(Settings, vsync_mode, tr("Режим вертикальной синхронизации:"),
+    INSERT(Settings, vsync_mode, tr("Режим вертикальной синхронизации"),
            tr("Синхронизирует кадры с частотой обновления монитора, предотвращая разрывы изображения."));
     INSERT(Settings, bg_red, QString(), QString());
     INSERT(Settings, bg_green, QString(), QString());
@@ -276,12 +276,12 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(Settings, custom_rtc_enabled, QString(), QString());
     INSERT(Settings, custom_rtc_offset, QStringLiteral(" "),
            tr("Смещение в секундах от текущего системного времени"));
-    INSERT(Settings, language_index, tr("Язык системы:"),
+    INSERT(Settings, language_index, tr("Язык системы"),
            tr("Язык интерфейса консоли и игр по умолчанию."));
     INSERT(Settings, region_index, tr("Регион:"), tr("Регион виртуальной консоли."));
     INSERT(Settings, time_zone_index, tr("Часовой пояс:"), tr("Часовой пояс виртуальной консоли."));
     INSERT(Settings, sound_index, tr("Режим вывода звука:"), QString());
-    INSERT(Settings, use_docked_mode, tr("Режим док-станции:"),
+    INSERT(Settings, use_docked_mode, tr("Режим док-станции"),
            tr("Переключает консоль между режимами \"В док-станции\" и \"Портативный\".\n"
               "В режиме док-станции игры работают в повышенном разрешении и графическом профиле."));
     INSERT(Settings, current_user, QString(), QString());
@@ -297,7 +297,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Скрывает курсор мыши после 2.5 секунд неактивности."));
     INSERT(UISettings, controller_applet_disabled, tr("Отключить апплет контроллеров"),
            tr("Принудительно отключает вызов всплывающего системного апплета настройки контроллеров."));
-    INSERT(UISettings, check_for_updates, tr("Проверять наличие обновлений"),
+    INSERT(UISettings, check_for_updates, tr("Проверка обновлений"),
            tr("Проверять наличие свежих версий программы при запуске."));
     INSERT(UISettings, enable_floating_translate_button, tr("Плавающая кнопка переводчика"),
            tr("Отображать плавающую кнопку авто-переводчика поверх экрана во время игры."));

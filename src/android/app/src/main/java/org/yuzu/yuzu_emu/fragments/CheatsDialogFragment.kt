@@ -912,16 +912,6 @@ class CheatsDialogFragment : DialogFragment() {
         private fun isNumericQuantityCheat(name: String, code: String): Boolean {
             val lowerName = name.lowercase()
 
-            val toggleKeywords = listOf(
-                "fps", "framerate", "frame rate", "60fps", "30fps", "120fps", "uncap", "speed limit",
-                "resolution", "dynamic res", "widescreen", "aspect", "hdr", "bloom", "fog", "vsync",
-                "invincible", "god mode", "godmode", "no damage", "infinite", "unlimited",
-                "moon jump", "noclip", "no clip", "freeze", "unlock all", "all items", "100%", "skip"
-            )
-            if (toggleKeywords.any { lowerName.contains(it) }) {
-                return false
-            }
-
             val quantityKeywords = listOf(
                 "money", "gold", "cash", "coin", "rupee", "dollar", "zenny", "gil", "bell", "credit",
                 "token", "point", "gem", "shard", "cap", "currency", "деньги", "золото", "монет",
@@ -934,10 +924,20 @@ class CheatsDialogFragment : DialogFragment() {
                 return true
             }
 
+            val toggleKeywords = listOf(
+                "fps", "framerate", "frame rate", "60fps", "30fps", "120fps", "uncap", "speed limit",
+                "resolution", "dynamic res", "widescreen", "aspect", "hdr", "bloom", "fog", "vsync",
+                "invincible", "god mode", "godmode", "no damage",
+                "moon jump", "noclip", "no clip", "freeze", "unlock all", "all items", "100%", "skip"
+            )
+            if (toggleKeywords.any { lowerName.contains(it) }) {
+                return false
+            }
+
             val lines = code.lines().filter { it.isNotBlank() }
-            if (lines.size == 1) {
-                val tokens = lines[0].trim().split("\\s+".toRegex())
-                if (tokens.size >= 3 && (tokens[0].startsWith("04") || tokens[0].startsWith("02") || tokens[0].startsWith("01"))) {
+            for (line in lines) {
+                val tokens = line.trim().split("\\s+".toRegex())
+                if (tokens.size >= 3 && (tokens[0].startsWith("04") || tokens[0].startsWith("08") || tokens[0].startsWith("02") || tokens[0].startsWith("01"))) {
                     return true
                 }
             }

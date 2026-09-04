@@ -36,11 +36,15 @@ class AmiiboDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private var allAmiibos = listOf<AmiiboEntry>()
+    private var filteredAmiibos = listOf<AmiiboEntry>()
     private var displayedAmiibos = mutableListOf<AmiiboEntry>()
     private var selectedSeries: String = ""
     private var isEmulating: Boolean = false
     private var gameTitle: String = ""
     private var titleId: String = ""
+    private var currentPage: Int = 1
+    private val pageSize: Int = 40
+    private var totalPages: Int = 1
 
     companion object {
         const val TAG = "AmiiboDialogFragment"
@@ -139,6 +143,25 @@ class AmiiboDialogFragment : DialogFragment() {
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
+
+        binding.buttonFirstPage.setOnClickListener {
+            if (currentPage > 1) {
+                currentPage = 1
+                updatePage()
+            }
+        }
+        binding.buttonPrevPage.setOnClickListener {
+            if (currentPage > 1) {
+                currentPage--
+                updatePage()
+            }
+        }
+        binding.buttonNextPage.setOnClickListener {
+            if (currentPage < totalPages) {
+                currentPage++
+                updatePage()
+            }
+        }
     }
 
     private fun updateActiveAmiiboStatus() {
@@ -209,7 +232,7 @@ class AmiiboDialogFragment : DialogFragment() {
 
     private fun applyFilters() {
         val query = binding.inputSearch.text?.toString()?.trim()?.lowercase() ?: ""
-        displayedAmiibos = allAmiibos.filter { entry ->
+        filteredAmiibos = allAmiibos.filter { entry ->
             val matchesQuery = query.isEmpty() ||
                 entry.name.lowercase().contains(query) ||
                 entry.character.lowercase().contains(query) ||
@@ -218,11 +241,35 @@ class AmiiboDialogFragment : DialogFragment() {
 
             val matchesSeries = selectedSeries.isEmpty() || entry.amiiboSeries == selectedSeries
             matchesQuery && matchesSeries
-        }.toMutableList()
+        }
+
+        totalPages = maxOf(1, Math.ceil(filteredAmiibos.size.toDouble() / pageSize).toInt())
+        currentPage = 1
+        updatePage()
+    }
+
+    private fun updatePage() {
+        if (currentPage > totalPages) currentPage = totalPages
+        if (currentPage < 1) currentPage = 1
+
+        val startIndex = (currentPage - 1) * pageSize
+        val endIndex = minOf(startIndex + pageSize, filteredAmiibos.size)
+
+        displayedAmiibos.clear()
+        if (startIndex < filteredAmiibos.size) {
+            displayedAmiibos.addAll(filteredAmiibos.subList(startIndex, endIndex))
+        }
 
         binding.textEmptyAmiibo.isVisible = displayedAmiibos.isEmpty()
-        binding.textStatus.text = getString(R.string.amiibo_count_format, displayedAmiibos.size, allAmiibos.size)
+        binding.textStatus.text = getString(R.string.amiibo_count_format, filteredAmiibos.size, allAmiibos.size)
+        binding.textPageIndicator.text = "$currentPage / $totalPages"
+
+        binding.buttonFirstPage.isEnabled = currentPage > 1
+        binding.buttonPrevPage.isEnabled = currentPage > 1
+        binding.buttonNextPage.isEnabled = currentPage < totalPages
+
         binding.listAmiibo.adapter?.notifyDataSetChanged()
+        binding.listAmiibo.scrollToPosition(0)
     }
 
     override fun onDestroyView() {

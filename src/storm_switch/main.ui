@@ -258,7 +258,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Install Files to NAND...</string>
+    <string>Установить файлы в NAND</string>
    </property>
   </action>
   <action name="action_Load_File">
@@ -299,7 +299,7 @@
   </action>
   <action name="action_Check_Updates">
    <property name="text">
-    <string>Проверка &amp;обновлений...</string>
+    <string>Проверка обновлений</string>
    </property>
   </action>
   <action name="action_About">
@@ -564,12 +564,12 @@
   </action>
   <action name="action_NAND_Folder">
    <property name="text">
-    <string>Папка NAND</string>
+    <string>Каталог NAND</string>
    </property>
   </action>
   <action name="action_SDMC_Folder">
    <property name="text">
-    <string>Папка SDMC</string>
+    <string>Каталог SDMC</string>
    </property>
   </action>
   <action name="action_Mod_Folder">

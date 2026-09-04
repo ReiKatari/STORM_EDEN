@@ -3,7 +3,7 @@
  <class>ConfigureMotionTouch</class>
  <widget class="QDialog" name="ConfigureMotionTouch">
   <property name="windowTitle">
-   <string>Configure Motion / Touch</string>
+   <string>Гироскоп хоста и контроллера</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

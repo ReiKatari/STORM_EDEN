@@ -467,14 +467,17 @@ object PerGameDrircGenerator {
         when (profileType) {
             GameProfileType.ZELDA -> {
                 optionsBuilder.append("\n            <!-- ZELDA SERIES RULES (Crystal Water, Intact Shrines, Zero Strobing) -->\n")
-                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_disable_lrz\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"false\" />\n")
+                optionsBuilder.append("            <option name=\"tu_disable_fast_clears\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_lrz_fast_clear\" value=\"false\" />\n")
                 optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_depth_bias_control_all_adreno\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_dynamic_state_depth_bias_clamp\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_depth_range_unrestricted_a7xx_a8xx\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_depth_bounds\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
-                optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"true\" />\n")
             }
             GameProfileType.DIABLO -> {
                 optionsBuilder.append("\n            <!-- DIABLO II & III RULES (Flawless D32 Float Depth, Zero Strobing) -->\n")

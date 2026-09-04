@@ -2629,27 +2629,30 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         if (!emulationStarted) {
             emulationStarted = true
 
-            // For intent launches, wait for driver initialization to complete
-            if (isCustomSettingsIntent || intentGame != null) {
-                if (!driverViewModel.isInteractionAllowed.value) {
-                    Log.info("[EmulationFragment] Intent launch: waiting for driver initialization")
-                    // Driver is still initializing, wait for it
-                    lifecycleScope.launch {
-                        driverViewModel.isInteractionAllowed.collect { allowed ->
-                            if (allowed && holder.surface.isValid) {
-                                emulationState.newSurface(holder.surface)
-                            }
+            // Wait for driver initialization to complete for ALL launches before passing surface
+            if (!driverViewModel.isInteractionAllowed.value) {
+                Log.info("[EmulationFragment] Waiting for driver initialization to complete")
+                lifecycleScope.launch {
+                    driverViewModel.isInteractionAllowed.collect { allowed ->
+                        if (allowed && holder.surface.isValid) {
+                            emulationState.newSurface(holder.surface)
                         }
                     }
-                    return
                 }
+                return
             }
 
-            emulationState.newSurface(holder.surface)
+            if (holder.surface.isValid) {
+                emulationState.newSurface(holder.surface)
+            } else {
+                Log.warning("[EmulationFragment] surfaceChanged: holder.surface is not valid yet")
+            }
         } else {
             // Surface changed due to rotation/config change
             // Only update surface reference, don't trigger state changes
-            emulationState.updateSurfaceReference(holder.surface)
+            if (holder.surface.isValid) {
+                emulationState.updateSurfaceReference(holder.surface)
+            }
         }
         updatePausedFrameVisibility()
     }

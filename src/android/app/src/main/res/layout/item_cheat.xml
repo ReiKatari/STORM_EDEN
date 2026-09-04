@@ -105,15 +105,22 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_edit_value"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/EdenButton.Outlined"
             android:layout_width="wrap_content"
             android:layout_height="28dp"
             android:minHeight="0dp"
-            android:paddingHorizontal="6dp"
+            android:paddingHorizontal="8dp"
             android:paddingVertical="0dp"
             android:text="✏️ Кол-во"
             android:textSize="10sp"
+            android:textStyle="bold"
             android:textColor="?attr/colorPrimary"
+            android:backgroundTint="?attr/colorSurfaceVariant"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1dp"
+            app:cornerRadius="6dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:layout_marginStart="4dp"
             android:visibility="visible" />
 

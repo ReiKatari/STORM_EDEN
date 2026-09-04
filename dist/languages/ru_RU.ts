@@ -265,7 +265,7 @@ This would ban both their forum username and their IP address.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="41" />
       <source>Mii Edit</source>
-      <translation>Mii редактор</translation>
+      <translation>Запуск апплета Mii</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="42" />
@@ -369,7 +369,7 @@ Doesn't affect performance/stability but may allow HD texture mods to load.</sou
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="72" />
       <source>Limit Speed Percent</source>
-      <translation>Ограничение процента cкорости</translation>
+      <translation>Использовать лимит скорости</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="73" />
@@ -531,7 +531,7 @@ Please note this may result in deadlocks and other race conditions.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="142" />
       <source>API:</source>
-      <translation>Графический API:</translation>
+      <translation>Графический API</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="143" />
@@ -635,7 +635,7 @@ Disabling it is only intended for debugging.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="169" />
       <source>Use asynchronous GPU emulation</source>
-      <translation>Использовать асинхронную эмуляцию GPU</translation>
+      <translation>Асинхронная эмуляция ГПУ</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="170" />
@@ -661,7 +661,7 @@ In most cases, GPU decoding provides the best performance.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="175" />
       <source>ASTC Decoding Method:</source>
-      <translation>Метод декодирования ASTC:</translation>
+      <translation>Метод декодирования ASTC</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="176" />
@@ -701,7 +701,7 @@ BC1/BC3: промежуточный формат будет перекодиро
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="189" />
       <source>VRAM Usage Mode:</source>
-      <translation>Режим VRAM:</translation>
+      <translation>Использование виртуальной памяти</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="190" />
@@ -723,7 +723,7 @@ Aggressive mode may impact performance of other applications such as recording s
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="196" />
       <source>VSync Mode:</source>
-      <translation>Режим вертикальной синхронизации:</translation>
+      <translation>Режим вертикальной синхронизации</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="197" />
@@ -763,7 +763,7 @@ Unreal Engine 4 games often see the most significant changes thereof.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="216" />
       <source>Force maximum clocks (Vulkan only)</source>
-      <translation>Принудительно зафиксировать максимальную тактовую частоту (только для Vulkan)</translation>
+      <translation>Принудительная максимальная частота</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="217" />
@@ -813,7 +813,7 @@ Default follows the GPU Accuracy setting.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="227" />
       <source>GPU Fence Behavior:</source>
-      <translation>Барьеры ГПУ:</translation>
+      <translation>Барьеры ГПУ</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="228" />
@@ -833,7 +833,7 @@ Default follows the GPU Accuracy setting.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="229" />
       <source>Enable GPU buffer readback</source>
-      <translation>Включить обратное чтение буфера GPU</translation>
+      <translation>Обратное чтение буфера ГПУ</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="230" />
@@ -917,7 +917,7 @@ Increasing this can improve throughput on high-end GPUs but may cause TDR or dri
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="253" />
       <source>Use Vulkan pipeline cache</source>
-      <translation>Использовать кэш конвейеров Vulkan</translation>
+      <translation>Кэш конвейеров Vulkan</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="254" />
@@ -985,7 +985,7 @@ This option may improve rendering quality and performance consistency in some ga
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="273" />
       <source>Fix bloom effects</source>
-      <translation>Исправить эффекты bloom</translation>
+      <translation>Исправление эффектов свечения</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="273" />
@@ -1090,7 +1090,7 @@ Can be used to manipulate time in games.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="311" />
       <source>Language:</source>
-      <translation>Язык:</translation>
+      <translation>Язык системы</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="312" />
@@ -1193,7 +1193,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="349" />
       <source>Check for updates</source>
-      <translation>Проверять обновления</translation>
+      <translation>Проверка обновлений</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="350" />
@@ -2187,6 +2187,470 @@ When a program attempts to open the controller applet, it is immediately closed.
       <source>Grid View</source>
       <translation>Сетчатый</translation>
     </message>
+    <message>
+      <source>Theme:</source>
+      <translation>Тема и цвета</translation>
+    </message>
+    <message>
+      <source>Theme</source>
+      <translation>Тема и цвета</translation>
+    </message>
+    <message>
+      <source>Interface language:</source>
+      <translation>Язык приложения</translation>
+    </message>
+    <message>
+      <source>Interface language</source>
+      <translation>Язык приложения</translation>
+    </message>
+    <message>
+      <source>Prompt for user on game boot</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Select user on boot</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Выбирать пользователя при запуске</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Выбор активного профиля</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Home Menu</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>QLaunch</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>Reset All Settings</source>
+      <translation>Сбросить настройки по умолчанию</translation>
+    </message>
+    <message>
+      <source>Console Mode</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Режим консоли</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Режим док-станции:</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Режим док-станции</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Ограничивать скорость</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Использовать лимит скорости</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Speed Limit</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Speed Limit:</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Предел скорости</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Лимит скорости</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Fast-forward Speed</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Fast-forward Speed:</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Предел турбо-скорости</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Лимит турбо-скорости</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Slow-motion Speed</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Slow-motion Speed:</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Предел замедленной скорости</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Лимит замедленной скорости</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Language</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>System Language</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык:</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык системы:</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык системы</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Sync Core Speeds</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
+    <message>
+      <source>Синхронизировать скорость ядер</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
+    <message>
+      <source>Синхронизация скорости ядер</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
+    <message>
+      <source>CPU Affinity</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Core Affinity</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Закрепление ядер ЦП</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Привязка к ядрам ЦП</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Graphics API:</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Graphics API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Графический API:</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Графический API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>VSync Mode</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим VSync:</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим VSync</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим вертикальной синхронизации:</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим вертикальной синхронизации</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Frame Gen FP16</source>
+      <translation>Вычисления FP16</translation>
+    </message>
+    <message>
+      <source>Вычисления FP16</source>
+      <translation>Вычисления FP16</translation>
+    </message>
+    <message>
+      <source>Flow Scale Auto / Manual</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>Flow Scale</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>Авто-масштаб потока</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>GPU Fence Behavior</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Barrier Sync</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Синхронизация барьеров</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Барьеры ГПУ</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>VRAM Usage Mode</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование VRAM:</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование VRAM</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование виртуальной памяти:</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование виртуальной памяти</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>ASTC Decoding Method</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Декодирование ASTC</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Метод декодирования ASTC:</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Метод декодирования ASTC</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Синхронизация памяти</source>
+      <translation>Синхронизация операций памяти</translation>
+    </message>
+    <message>
+      <source>Синхронизация операций памяти</source>
+      <translation>Синхронизация операций памяти</translation>
+    </message>
+    <message>
+      <source>Disk Shader Cache</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Use disk shader cache</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Кэш шейдеров</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Дисковый кэш шейдеров</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Force Maximum Clocks</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>Максимальная частота</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>Принудительная максимальная частота</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>GPU Buffer Readback</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Обратное чтение GPU</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Обратное чтение буфера ГПУ</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Asynchronous GPU Emulation</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Асинхронный ГПУ</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Асинхронная эмуляция ГПУ</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Texture Unswizzle</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>GPU Texture Unswizzle</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Ансвиззлинг текстур</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Разделение развертки</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Fix Bloom</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Исправление Bloom</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Исправление эффектов свечения</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Frame Pacing</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Eco Frame Pacing</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Выравнивание кадров</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Эко-выравнивание кадров</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Shader Throttling</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Smart Shader Throttle</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Троттлинг шейдеров</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Умный троттлинг шейдеров</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Vulkan Pipeline Cache</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>Кэш Vulkan</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>Кэш конвейеров Vulkan</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>VRAM Garbage Collection</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Сборка мусора VRAM</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Сборщик мусора видеопамяти</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Очистка виртуальной памяти</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Mii редактор</source>
+      <translation>Запуск апплета Mii</translation>
+    </message>
+    <message>
+      <source>Запуск апплета Mii</source>
+      <translation>Запуск апплета Mii</translation>
+    </message>
+    <message>
+      <source>Web Applet</source>
+      <translation>Встроенный браузер</translation>
+    </message>
+    <message>
+      <source>Веб-апплет</source>
+      <translation>Встроенный браузер</translation>
+    </message>
+    <message>
+      <source>Встроенный браузер</source>
+      <translation>Встроенный браузер</translation>
+    </message>
+    <message>
+      <source>Cabinet</source>
+      <translation>Кабинет Amiibo</translation>
+    </message>
+    <message>
+      <source>Кабинет Amiibo</source>
+      <translation>Кабинет Amiibo</translation>
+    </message>
+    <message>
+      <source>Проверять наличие обновлений</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверять обновления</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверка обновлений</source>
+      <translation>Проверка обновлений</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureApplets</name>
@@ -2204,6 +2668,26 @@ When a program attempts to open the controller applet, it is immediately closed.
       <location filename="../../src/yuzu/configuration/configure_applets.ui" line="25" />
       <source>Applet mode preference</source>
       <translation>Режим предпочтения апплета</translation>
+    </message>
+    <message>
+      <source>Home Menu</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>QLaunch</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>Web Applet</source>
+      <translation>Встроенный браузер</translation>
+    </message>
+    <message>
+      <source>Веб-апплет</source>
+      <translation>Встроенный браузер</translation>
+    </message>
+    <message>
+      <source>Cabinet</source>
+      <translation>Кабинет Amiibo</translation>
     </message>
   </context>
   <context>
@@ -2299,6 +2783,22 @@ When a program attempts to open the controller applet, it is immediately closed.
       <location filename="../../src/yuzu/configuration/configure_cpu.ui" line="101" />
       <source>These settings reduce accuracy for speed.</source>
       <translation>Эти настройки уменьшают точность ради скорости.</translation>
+    </message>
+    <message>
+      <source>CPU Affinity</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Core Affinity</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Закрепление ядер ЦП</source>
+      <translation>Привязка к ядрам ЦП</translation>
+    </message>
+    <message>
+      <source>Привязка к ядрам ЦП</source>
+      <translation>Привязка к ядрам ЦП</translation>
     </message>
   </context>
   <context>
@@ -2735,7 +3235,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="498" />
       <source>Disable Web Applet</source>
-      <translation>Отключить веб-апплет</translation>
+      <translation>Отключить встроенный браузер</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="505" />
@@ -2836,6 +3336,22 @@ When a program attempts to open the controller applet, it is immediately closed.
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="787" />
       <source>**This will be reset automatically when Eden closes.</source>
       <translation>**Это будет автоматически сброшено после закрытия Eden.</translation>
+    </message>
+    <message>
+      <source>Flush by line</source>
+      <translation>Сброс логов по строкам</translation>
+    </message>
+    <message>
+      <source>Сброс по строкам</source>
+      <translation>Сброс логов по строкам</translation>
+    </message>
+    <message>
+      <source>Сброс логов по строкам</source>
+      <translation>Сброс логов по строкам</translation>
+    </message>
+    <message>
+      <source>GPU Log Level</source>
+      <translation>Уровень логирования ГПУ</translation>
     </message>
   </context>
   <context>
@@ -3019,7 +3535,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="101" />
       <source>Gamecard</source>
-      <translation>Картридж</translation>
+      <translation>Игровая карта</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="107" />
@@ -3079,7 +3595,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="105" />
       <source>Select Emulated NAND Directory...</source>
-      <translation>Выберите папку для эмулируемого NAND...</translation>
+      <translation>Выберите каталог эмулируемого NAND...</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="108" />
@@ -3090,7 +3606,7 @@ When a program attempts to open the controller applet, it is immediately closed.
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="111" />
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="159" />
       <source>Select Save Data Directory...</source>
-      <translation>Выберите папку для сохранений...</translation>
+      <translation>Выберите каталог сохранений...</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="114" />
@@ -3110,7 +3626,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="148" />
       <source>Save Data Directory</source>
-      <translation>Папка для сохранений</translation>
+      <translation>Каталог сохранений</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.cpp" line="149" />
@@ -3202,6 +3718,14 @@ Would you like to delete the old save data?</source>
 
 Удалить старые сохранения?</translation>
     </message>
+    <message>
+      <source>Select SDMC Directory...</source>
+      <translation>Выберите каталог SDMC...</translation>
+    </message>
+    <message>
+      <source>Gamecard Inserted / Current Game</source>
+      <translation>Игровая карта вставлена / Текущая игра</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureGeneral</name>
@@ -3266,6 +3790,30 @@ Would you like to delete the old save data?</source>
       <source>This directory is already in the list.</source>
       <translation>Эта папка уже есть в списке.</translation>
     </message>
+    <message>
+      <source>Prompt for user on game boot</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Select user on boot</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Выбирать пользователя при запуске</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Выбор активного профиля</source>
+      <translation>Выбор активного профиля</translation>
+    </message>
+    <message>
+      <source>Сбросить все настройки</source>
+      <translation>Сбросить настройки по умолчанию</translation>
+    </message>
+    <message>
+      <source>Сбросить настройки по умолчанию</source>
+      <translation>Сбросить настройки по умолчанию</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureGraphics</name>
@@ -3325,6 +3873,102 @@ Would you like to delete the old save data?</source>
       <source>VSync On</source>
       <translation>VSync On</translation>
     </message>
+    <message>
+      <source>API:</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Graphics API:</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Graphics API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Графический API:</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>Графический API</source>
+      <translation>Графический API</translation>
+    </message>
+    <message>
+      <source>VSync Mode:</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>VSync Mode</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим VSync</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим VSync:</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Режим вертикальной синхронизации</source>
+      <translation>Режим вертикальной синхронизации</translation>
+    </message>
+    <message>
+      <source>Frame Gen FP16</source>
+      <translation>Вычисления FP16</translation>
+    </message>
+    <message>
+      <source>Вычисления FP16</source>
+      <translation>Вычисления FP16</translation>
+    </message>
+    <message>
+      <source>Flow Scale Auto / Manual</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>Flow Scale</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>Авто-масштаб потока</source>
+      <translation>Авто-масштаб потока</translation>
+    </message>
+    <message>
+      <source>Asynchronous GPU Emulation</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Use asynchronous GPU emulation</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Асинхронный ГПУ</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Асинхронная эмуляция ГПУ</source>
+      <translation>Асинхронная эмуляция ГПУ</translation>
+    </message>
+    <message>
+      <source>Frame Pacing</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Eco Frame Pacing</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Выравнивание кадров</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
+    <message>
+      <source>Эко-выравнивание кадров</source>
+      <translation>Эко-выравнивание кадров</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureGraphicsAdvanced</name>
@@ -3342,6 +3986,198 @@ Would you like to delete the old save data?</source>
       <location filename="../../src/yuzu/configuration/configure_graphics_advanced.ui" line="23" />
       <source>Advanced Graphics Settings</source>
       <translation>Расширенные настройки графики</translation>
+    </message>
+    <message>
+      <source>GPU Fence Behavior:</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>GPU Fence Behavior</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Barrier Sync</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Синхронизация барьеров</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>Барьеры ГПУ</source>
+      <translation>Барьеры ГПУ</translation>
+    </message>
+    <message>
+      <source>VRAM Usage Mode:</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>VRAM Usage Mode</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование VRAM</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Использование виртуальной памяти</source>
+      <translation>Использование виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>ASTC Decoding Method:</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>ASTC Decoding Method</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Декодирование ASTC</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Метод декодирования ASTC</source>
+      <translation>Метод декодирования ASTC</translation>
+    </message>
+    <message>
+      <source>Sync Memory Operations</source>
+      <translation>Синхронизация операций памяти</translation>
+    </message>
+    <message>
+      <source>Синхронизация памяти</source>
+      <translation>Синхронизация операций памяти</translation>
+    </message>
+    <message>
+      <source>Синхронизация операций памяти</source>
+      <translation>Синхронизация операций памяти</translation>
+    </message>
+    <message>
+      <source>Disk Shader Cache</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Use disk shader cache</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Кэш шейдеров</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Дисковый кэш шейдеров</source>
+      <translation>Дисковый кэш шейдеров</translation>
+    </message>
+    <message>
+      <source>Force Maximum Clocks</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>Force maximum clocks (Vulkan only)</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>Максимальная частота</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>Принудительная максимальная частота</source>
+      <translation>Принудительная максимальная частота</translation>
+    </message>
+    <message>
+      <source>GPU Buffer Readback</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Enable GPU buffer readback</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Обратное чтение GPU</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Обратное чтение буфера ГПУ</source>
+      <translation>Обратное чтение буфера ГПУ</translation>
+    </message>
+    <message>
+      <source>Texture Unswizzle</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>GPU Texture Unswizzle</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Ансвиззлинг текстур</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Разделение развертки</source>
+      <translation>Разделение развертки</translation>
+    </message>
+    <message>
+      <source>Fix Bloom</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Fix bloom effects</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Исправление Bloom</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Исправление эффектов свечения</source>
+      <translation>Исправление эффектов свечения</translation>
+    </message>
+    <message>
+      <source>Shader Throttling</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Smart Shader Throttle</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Троттлинг шейдеров</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Умный троттлинг шейдеров</source>
+      <translation>Умный троттлинг шейдеров</translation>
+    </message>
+    <message>
+      <source>Use Vulkan pipeline cache</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>Vulkan Pipeline Cache</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>Кэш Vulkan</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>Кэш конвейеров Vulkan</source>
+      <translation>Кэш конвейеров Vulkan</translation>
+    </message>
+    <message>
+      <source>VRAM Garbage Collection</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Сборка мусора VRAM</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Сборщик мусора видеопамяти</source>
+      <translation>Очистка виртуальной памяти</translation>
+    </message>
+    <message>
+      <source>Очистка виртуальной памяти</source>
+      <translation>Очистка виртуальной памяти</translation>
     </message>
   </context>
   <context>
@@ -3563,7 +4399,7 @@ Would you like to delete the old save data?</source>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input.ui" line="179" />
       <source>Vibration</source>
-      <translation>Вибрация</translation>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input.ui" line="215" />
@@ -3635,6 +4471,10 @@ Would you like to delete the old save data?</source>
       <location filename="../../src/yuzu/configuration/configure_input.ui" line="537" />
       <source>Clear</source>
       <translation>Очистить</translation>
+    </message>
+    <message>
+      <source>Настройка вибрации</source>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
   </context>
   <context>
@@ -3840,6 +4680,10 @@ Would you like to delete the old save data?</source>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input_advanced.ui" line="2749" />
       <source>Motion / Touch</source>
+      <translation>Гироскоп хоста и контроллера</translation>
+    </message>
+    <message>
+      <source>Движение и сенсор</source>
       <translation>Гироскоп хоста и контроллера</translation>
     </message>
   </context>
@@ -4430,7 +5274,7 @@ To invert the axes, first move your joystick vertically, and then horizontally.<
     <message>
       <location filename="../../src/yuzu/configuration/configure_motion_touch.ui" line="6" />
       <source>Configure Motion / Touch</source>
-      <translation>Настройка движения и сенсора</translation>
+      <translation>Гироскоп хоста и контроллера</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_motion_touch.ui" line="15" />
@@ -4569,6 +5413,10 @@ To invert the axes, first move your joystick vertically, and then horizontally.<
       <location filename="../../src/yuzu/configuration/configure_motion_touch.cpp" line="281" />
       <source>UDP Test or calibration configuration is in progress.&lt;br&gt;Please wait for them to finish.</source>
       <translation>Тест UDP или калибрация в процессе.&lt;br&gt;Пожалуйста, подождите завершения.</translation>
+    </message>
+    <message>
+      <source>Motion / Touch</source>
+      <translation>Гироскоп хоста и контроллера</translation>
     </message>
   </context>
   <context>
@@ -5207,6 +6055,118 @@ UUID: %2</translation>
       <source>Warning: "%1" is not a valid language for region "%2"</source>
       <translation>Внимание: язык "%1" не подходит для региона "%2"</translation>
     </message>
+    <message>
+      <source>Console Mode</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Режим консоли</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Режим док-станции</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Limit Speed Percent</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Limit Speed</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Ограничивать скорость</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Использовать лимит скорости</source>
+      <translation>Использовать лимит скорости</translation>
+    </message>
+    <message>
+      <source>Speed Limit</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Speed Limit:</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Предел скорости</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Лимит скорости</source>
+      <translation>Лимит скорости</translation>
+    </message>
+    <message>
+      <source>Fast-forward Speed</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Fast-forward Speed:</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Предел турбо-скорости</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Лимит турбо-скорости</source>
+      <translation>Лимит турбо-скорости</translation>
+    </message>
+    <message>
+      <source>Slow-motion Speed</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Slow-motion Speed:</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Предел замедленной скорости</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Лимит замедленной скорости</source>
+      <translation>Лимит замедленной скорости</translation>
+    </message>
+    <message>
+      <source>Language:</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Language</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>System Language</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык:</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Язык системы</source>
+      <translation>Язык системы</translation>
+    </message>
+    <message>
+      <source>Sync Core Speeds</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
+    <message>
+      <source>Синхронизировать скорость ядер</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
+    <message>
+      <source>Синхронизация скорости ядер</source>
+      <translation>Синхронизация скорости ядер</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureTas</name>
@@ -5453,12 +6413,12 @@ Drag points to change position, or double-click table cells to edit values.</sou
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="43" />
       <source>Interface language:</source>
-      <translation>Язык приложения:</translation>
+      <translation>Язык приложения</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="57" />
       <source>Theme:</source>
-      <translation>Тема и цвета:</translation>
+      <translation>Тема и цвета</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="74" />
@@ -5551,6 +6511,34 @@ Drag points to change position, or double-click table cells to edit values.</sou
       <comment>Screenshot width value</comment>
       <translation>Авто (%1 x %2, %3 x %4)</translation>
     </message>
+    <message>
+      <source>Theme</source>
+      <translation>Тема и цвета</translation>
+    </message>
+    <message>
+      <source>Тема:</source>
+      <translation>Тема и цвета</translation>
+    </message>
+    <message>
+      <source>Тема</source>
+      <translation>Тема и цвета</translation>
+    </message>
+    <message>
+      <source>Interface language</source>
+      <translation>Язык приложения</translation>
+    </message>
+    <message>
+      <source>Language:</source>
+      <translation>Язык приложения</translation>
+    </message>
+    <message>
+      <source>Language</source>
+      <translation>Язык приложения</translation>
+    </message>
+    <message>
+      <source>Язык интерфейса:</source>
+      <translation>Язык приложения</translation>
+    </message>
   </context>
   <context>
     <name>ConfigureVibration</name>
@@ -5567,7 +6555,7 @@ Drag points to change position, or double-click table cells to edit values.</sou
     <message>
       <location filename="../../src/yuzu/configuration/configure_vibration.ui" line="30" />
       <source>Vibration</source>
-      <translation>Вибрация</translation>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_vibration.ui" line="63" />
@@ -6161,7 +7149,7 @@ Please go to Configure -&gt; System -&gt; Network and make a selection.</source>
     <message>
       <location filename="../../src/yuzu/game/game_list.cpp" line="482" />
       <source>Create Shortcut</source>
-      <translation>Создать ярлык</translation>
+      <translation>Добавить ярлык на домашний экран</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/game/game_list.cpp" line="483" />
@@ -6653,7 +7641,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/install_dialog.cpp" line="52" />
       <source>Install Files to NAND</source>
-      <translation>Установка файлов в NAND</translation>
+      <translation>Установить файлы в NAND</translation>
     </message>
   </context>
   <context>
@@ -6883,7 +7871,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="178" />
       <source>Am&amp;iibo</source>
-      <translation>Amiibo</translation>
+      <translation>Кабинет Amiibo</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="187" />
@@ -6898,7 +7886,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="206" />
       <source>&amp;Create Home Menu Shortcut</source>
-      <translation>Добавить &amp;ярлык на домашний экран</translation>
+      <translation>Добавить ярлык на домашний экран</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="213" />
@@ -6913,7 +7901,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="254" />
       <source>&amp;Install Files to NAND...</source>
-      <translation>&amp;Установить файлы в NAND</translation>
+      <translation>Установить файлы в NAND</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="259" />
@@ -7014,7 +8002,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="386" />
       <source>F&amp;ullscreen</source>
-      <translation>&amp;Полноэкранный режим</translation>
+      <translation>Полноэкранный режим</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="394" />
@@ -7074,7 +8062,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="455" />
       <source>&amp;Mii Editor</source>
-      <translation>Запуск апплета &amp;Mii</translation>
+      <translation>Запуск апплета Mii</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="460" />
@@ -7116,7 +8104,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="513" />
       <source>&amp;Home Menu</source>
-      <translation>&amp;QLaunch</translation>
+      <translation>QLaunch</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="518" />
@@ -8161,6 +9149,142 @@ Would you like to bypass this and exit anyway?</source>
       <location filename="../../src/qt_common/config/shared_translation.h" line="78" />
       <source>Null</source>
       <translation>Null</translation>
+    </message>
+    <message>
+      <source>F&amp;amp;ullscreen</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>Fullscreen</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>&amp;Fullscreen</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>&amp;Полноэкранный режим</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>Полный экран</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>&amp;Полный экран</source>
+      <translation>Полноэкранный режим</translation>
+    </message>
+    <message>
+      <source>Проверка &amp;обновлений...</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверка &amp;amp;обновлений...</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверка обновлений...</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверка обновлений</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Check for Updates</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>&amp;Check for Updates</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>&amp;Check for updates...</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Check for Updates...</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Проверить обновления</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>&amp;Проверить обновления</source>
+      <translation>Проверка обновлений</translation>
+    </message>
+    <message>
+      <source>Home Menu</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>&amp;QLaunch</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>QLaunch</source>
+      <translation>QLaunch</translation>
+    </message>
+    <message>
+      <source>Mii Editor</source>
+      <translation>Запуск апплета Mii</translation>
+    </message>
+    <message>
+      <source>Mii Edit</source>
+      <translation>Запуск апплета Mii</translation>
+    </message>
+    <message>
+      <source>Am&amp;amp;iibo</source>
+      <translation>Кабинет Amiibo</translation>
+    </message>
+    <message>
+      <source>Cabinet</source>
+      <translation>Кабинет Amiibo</translation>
+    </message>
+    <message>
+      <source>Папка NAND</source>
+      <translation>Каталог NAND</translation>
+    </message>
+    <message>
+      <source>NAND</source>
+      <translation>Каталог NAND</translation>
+    </message>
+    <message>
+      <source>Папка SDMC</source>
+      <translation>Каталог SDMC</translation>
+    </message>
+    <message>
+      <source>Create Home Menu Shortcut</source>
+      <translation>Добавить ярлык на домашний экран</translation>
+    </message>
+    <message>
+      <source>Create Shortcut</source>
+      <translation>Добавить ярлык на домашний экран</translation>
+    </message>
+    <message>
+      <source>Install Files to NAND...</source>
+      <translation>Установить файлы в NAND</translation>
+    </message>
+    <message>
+      <source>&amp;Install Files to NAND</source>
+      <translation>Установить файлы в NAND</translation>
+    </message>
+    <message>
+      <source>Install Files to NAND</source>
+      <translation>Установить файлы в NAND</translation>
+    </message>
+    <message>
+      <source>&amp;Установить файлы в NAND...</source>
+      <translation>Установить файлы в NAND</translation>
+    </message>
+    <message>
+      <source>&amp;Установить файлы в NAND</source>
+      <translation>Установить файлы в NAND</translation>
+    </message>
+    <message>
+      <source>Установить файлы в NAND</source>
+      <translation>Установить файлы в NAND</translation>
     </message>
   </context>
   <context>
@@ -9754,7 +10878,7 @@ Would you like to manually select a portable folder to use?</source>
     <message>
       <location filename="../../src/qt_common/util/game.cpp" line="381" />
       <source>Create Shortcut</source>
-      <translation>Создать ярлык</translation>
+      <translation>Добавить ярлык на домашний экран</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/util/game.cpp" line="381" />
@@ -9809,17 +10933,21 @@ Would you like to manually select a portable folder to use?</source>
     <message>
       <location filename="../../src/qt_common/util/game.cpp" line="519" />
       <source>Please install firmware to use the home menu.</source>
-      <translation>Пожалуйста, установите прошивку, чтобы использовать Home Menu.</translation>
+      <translation>Пожалуйста, установите прошивку, чтобы использовать QLaunch.</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/util/game.cpp" line="525" />
       <source>Home Menu Applet</source>
-      <translation>Приложение Home Menu</translation>
+      <translation>Апплет QLaunch</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/util/game.cpp" line="526" />
       <source>Home Menu is not available. Please reinstall firmware.</source>
-      <translation>Home Menu недоступно. Переустановите прошивку.</translation>
+      <translation>QLaunch недоступен. Переустановите прошивку.</translation>
+    </message>
+    <message>
+      <source>Home Menu</source>
+      <translation>QLaunch</translation>
     </message>
   </context>
   <context>
@@ -9973,7 +11101,7 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     <message>
       <location filename="../../src/qt_common/qt_string_lookup.h" line="101" />
       <source>Firmware missing. Firmware is required to run certain games and use the Home Menu.</source>
-      <translation>Отсутствует прошивка, необходимая для запуска некоторых игр и для использования Home Menu.</translation>
+      <translation>Отсутствует прошивка, необходимая для запуска некоторых игр и использования QLaunch.</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/qt_string_lookup.h" line="104" />
@@ -10189,7 +11317,7 @@ This is recommended if you want to share data between emulators.</source>
     <message>
       <location filename="../../src/yuzu/applets/qt_controller.ui" line="2272" />
       <source>Console Mode</source>
-      <translation>Режим консоли</translation>
+      <translation>Режим док-станции</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/applets/qt_controller.ui" line="2293" />
@@ -10199,7 +11327,7 @@ This is recommended if you want to share data between emulators.</source>
     <message>
       <location filename="../../src/yuzu/applets/qt_controller.ui" line="2313" />
       <source>Vibration</source>
-      <translation>Вибрация</translation>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/applets/qt_controller.ui" line="2349" />
@@ -11831,6 +12959,17 @@ Error code: %3</source>
     <message>
       <source>Reset to Defaults</source>
       <translation>Сбросить по умолчанию</translation>
+    </message>
+  </context>
+  <context>
+    <name>QtController</name>
+    <message>
+      <source>Console Mode</source>
+      <translation>Режим док-станции</translation>
+    </message>
+    <message>
+      <source>Vibration</source>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
   </context>
 </TS>

@@ -40,7 +40,7 @@
           <item>
            <widget class="QLabel" name="language_label">
             <property name="text">
-             <string>Interface language:</string>
+             <string>Язык приложения</string>
             </property>
            </widget>
           </item>
@@ -54,7 +54,7 @@
           <item>
            <widget class="QLabel" name="theme_label">
             <property name="text">
-             <string>Theme:</string>
+             <string>Тема и цвета</string>
             </property>
            </widget>
           </item>

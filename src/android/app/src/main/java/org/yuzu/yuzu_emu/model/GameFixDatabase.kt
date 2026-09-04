@@ -149,13 +149,13 @@ object GameFixDatabase {
             "The Legend of Zelda: Breath of the Wild",
             "• Черный силуэт Линка из-за рассинхрона буфера освещения и трафарета\n• Белые вспышки и мерцание освещения/погоды\n• Пропадание текстур скал и земли при нехватке памяти\n• Бирюзовая сетка и артефакты Z-буфера в Святилищах",
             "• Link black silhouette caused by unsynced lighting and stencil buffers\n• White screen flashes and lighting flicker\n• Ground and terrain textures disappearing due to memory pressure\n• Shrine depth bias / cyan grid artifacts",
-            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (устранение белой воды)\n✓ Сжатие ASTC: BC1/BC3 (стабильность текстур Adreno 732)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8 ГБ DRAM (предотвращение вытеснения текстур)",
-            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Fixes white water)\n✓ ASTC Recompression: BC1/BC3 (Prevents texture dropping on Adreno 732)\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM (Prevents texture dropping)",
+            "✓ Точность GPU: Высокая (исправление силуэта Линка)\n✓ Реактивная очистка: Отключено (устранение белой воды)\n✓ Сжатие ASTC: Отключено (максимальная точность текстур)\n✓ Быстрое время GPU: Отключено (стабильные таймеры)\n✓ Быстрая память: Включено\n✓ Асинхронные шейдеры: Включено\n✓ Память: 8 ГБ DRAM (предотвращение вытеснения текстур)",
+            "✓ GPU Accuracy: High (Fixes Link black silhouette)\n✓ Reactive Flushing: Disabled (Fixes white water)\n✓ ASTC Recompression: Uncompressed (Maximum texture quality)\n✓ Fast GPU Time: Disabled\n✓ Fastmem: Enabled\n✓ Asynchronous Shaders: Enabled\n✓ Memory Layout: 8GB DRAM (Prevents texture dropping)",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_reactive_flushing" to "false",
                 "Renderer\\use_fast_gpu_time" to "false",
-                "Renderer\\astc_recompression" to "1",
+                "Renderer\\astc_recompression" to "0",
                 "Cpu\\cpuopt_fastmem" to "true",
                 "Renderer\\use_asynchronous_shaders" to "true",
                 "System\\memory_layout_mode" to "2"
@@ -3259,8 +3259,38 @@ object GameFixDatabase {
             "Streets of Rage 4",
             "• Рассинхронизация кадров в битвах с боссами\n• Разрывы спрайтовой анимации",
             "• Boss fight frame pacing desync\n• Sprite animation tearing",
-            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено",
-            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Игнорировать прерывания памяти: Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Ignore Memory Aborts: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpuopt_ignore_memory_aborts" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x010085800E33E000L,
+            "Streets of Rage 4",
+            "• Рассинхронизация кадров в битвах с боссами\n• Разрывы спрайтовой анимации",
+            "• Boss fight frame pacing desync\n• Sprite animation tearing",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Игнорировать прерывания памяти: Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Ignore Memory Aborts: Enabled",
+            mapOf(
+                "Renderer\\gpu_accuracy" to "1",
+                "Renderer\\use_asynchronous_shaders" to "true",
+                "Renderer\\use_fast_gpu_time" to "true",
+                "Cpu\\cpuopt_fastmem" to "true",
+                "Cpu\\cpuopt_ignore_memory_aborts" to "true"
+            )
+        ),
+        GameFixProfile(
+            0x0100BA700E340000L,
+            "Streets of Rage 4",
+            "• Рассинхронизация кадров в битвах с боссами\n• Разрывы спрайтовой анимации",
+            "• Boss fight frame pacing desync\n• Sprite animation tearing",
+            "✓ Точность GPU: Высокая (High)\n✓ Асинхронные шейдеры: Включено\n✓ Быстрое время GPU: Включено\n✓ Быстрая память (Fastmem): Включено\n✓ Игнорировать прерывания памяти: Включено",
+            "✓ GPU Accuracy: High\n✓ Asynchronous Shaders: Enabled\n✓ Fast GPU Time: Enabled\n✓ Fastmem: Enabled\n✓ Ignore Memory Aborts: Enabled",
             mapOf(
                 "Renderer\\gpu_accuracy" to "1",
                 "Renderer\\use_asynchronous_shaders" to "true",

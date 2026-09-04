@@ -139,7 +139,7 @@
        <item>
         <widget class="QPushButton" name="button_reset_defaults">
          <property name="text">
-          <string>Reset All Settings</string>
+          <string>Сбросить настройки по умолчанию</string>
          </property>
         </widget>
        </item>

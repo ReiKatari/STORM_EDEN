@@ -234,8 +234,7 @@ class DriverViewModel : ViewModel() {
     }
 
     // It is the Emulation Fragment's responsibility to load per-game settings so that this function
-    // knows what driver to load.
-    fun onLaunchGame() {
+    fun onLaunchGame(game: Game? = null) {
         _isDriverReady.value = false
 
         viewModelScope.launch {
@@ -262,6 +261,12 @@ class DriverViewModel : ViewModel() {
                 } else {
                     GpuDriverHelper.installDefaultDriver()
                 }
+
+                // Crucial: ALWAYS apply per-game driver config (00-storm.conf / drirc) AFTER the driver is unzipped and parameters initialized!
+                if (game != null) {
+                    GpuDriverHelper.applyPerGameDriverConfig(game.programIdHex, game.title)
+                }
+
                 setDriverReady()
             }
         }

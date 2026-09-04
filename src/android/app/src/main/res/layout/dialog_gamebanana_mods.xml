@@ -80,6 +80,20 @@
             android:layout_weight="1"
             android:background="@drawable/bg_spinner_rounded" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_manual_install"
+            style="@style/EdenButton.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:text="@string/gamebanana_install_manual"
+            android:textSize="10sp"
+            android:paddingHorizontal="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_install"
+            app:iconSize="14dp" />
+
     </LinearLayout>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator

@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +41,66 @@ class GameBananaDialogFragment : DialogFragment() {
 
     private var currentPage: Int = 1
     private var currentSortIndex: Int = 0
+
+    private val installManualModFile =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) return@registerForActivityResult
+            val g = game ?: return@registerForActivityResult
+            val progressDialog = MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.gamebanana_install_manual))
+                .setMessage(getString(R.string.gamebanana_installing_manual))
+                .setCancelable(false)
+                .show()
+
+            lifecycleScope.launch {
+                val (success, modName) = GameBananaHelper.installManualMod(g, uri, requireContext())
+                progressDialog.dismiss()
+                if (success) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.gamebanana_manual_success, modName),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    onModsUpdated?.invoke()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.gamebanana_manual_error),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
+    private val installManualModFolder =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            if (uri == null) return@registerForActivityResult
+            val g = game ?: return@registerForActivityResult
+            val progressDialog = MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.gamebanana_install_manual))
+                .setMessage(getString(R.string.gamebanana_installing_manual))
+                .setCancelable(false)
+                .show()
+
+            lifecycleScope.launch {
+                val (success, modName) = GameBananaHelper.installManualModDirectory(g, uri, requireContext())
+                progressDialog.dismiss()
+                if (success) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.gamebanana_manual_success, modName),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    onModsUpdated?.invoke()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.gamebanana_manual_error),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
 
     companion object {
         const val TAG = "GameBananaDialogFragment"
@@ -142,6 +203,23 @@ class GameBananaDialogFragment : DialogFragment() {
 
         binding.buttonNextPage.setOnClickListener {
             performSearch(currentPage + 1)
+        }
+
+        binding.buttonManualInstall.setOnClickListener {
+            val options = arrayOf(
+                getString(R.string.gamebanana_manual_source_zip),
+                getString(R.string.gamebanana_manual_source_folder)
+            )
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.gamebanana_install_manual))
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> installManualModFile.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"))
+                        1 -> installManualModFolder.launch(null)
+                    }
+                }
+                .setNegativeButton(R.string.close, null)
+                .show()
         }
     }
 

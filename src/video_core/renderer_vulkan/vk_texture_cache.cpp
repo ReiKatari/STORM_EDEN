@@ -2454,13 +2454,30 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
         .b = ComponentSwizzle(swizzle[2]),
         .a = ComponentSwizzle(swizzle[3]),
     };
-    // Sanitize single-channel alpha textures used for fonts and UI glyphs (e.g. Alan Wake Remastered)
-    // Ensures RGB channels evaluate to 1.0 so vertex color tint doesn't multiply by zero resulting in black text
-    if (format_info.format == VK_FORMAT_R8_UNORM && swizzle[3] == SwizzleSource::R &&
-        swizzle[0] == SwizzleSource::Zero && swizzle[1] == SwizzleSource::Zero && swizzle[2] == SwizzleSource::Zero) {
-        swizzle_mapping.r = VK_COMPONENT_SWIZZLE_ONE;
-        swizzle_mapping.g = VK_COMPONENT_SWIZZLE_ONE;
-        swizzle_mapping.b = VK_COMPONENT_SWIZZLE_ONE;
+    // Sanitize single-channel alpha and font glyph textures (e.g. Alan Wake Remastered, Unreal Engine text, Unity UI)
+    // Ensures RGB channels evaluate to 1.0 so vertex color tint doesn't multiply by zero resulting in black text/subtitles
+    const bool is_glyph_format =
+        (format_info.format == VK_FORMAT_R8_UNORM ||
+         format_info.format == VK_FORMAT_R8_SNORM ||
+         format_info.format == VK_FORMAT_BC4_UNORM_BLOCK ||
+         format_info.format == VK_FORMAT_BC4_SNORM_BLOCK ||
+         format_info.format == VK_FORMAT_A8_UNORM_KHR);
+
+    if (is_glyph_format) {
+        if (swizzle[3] == SwizzleSource::R &&
+            (swizzle[0] == SwizzleSource::Zero || swizzle[0] == SwizzleSource::R) &&
+            (swizzle[1] == SwizzleSource::Zero || swizzle[1] == SwizzleSource::R) &&
+            (swizzle[2] == SwizzleSource::Zero || swizzle[2] == SwizzleSource::R)) {
+            swizzle_mapping.r = VK_COMPONENT_SWIZZLE_ONE;
+            swizzle_mapping.g = VK_COMPONENT_SWIZZLE_ONE;
+            swizzle_mapping.b = VK_COMPONENT_SWIZZLE_ONE;
+            swizzle_mapping.a = VK_COMPONENT_SWIZZLE_R;
+        } else if (swizzle[0] == SwizzleSource::Zero && swizzle[1] == SwizzleSource::Zero &&
+                   swizzle[2] == SwizzleSource::Zero) {
+            swizzle_mapping.r = VK_COMPONENT_SWIZZLE_ONE;
+            swizzle_mapping.g = VK_COMPONENT_SWIZZLE_ONE;
+            swizzle_mapping.b = VK_COMPONENT_SWIZZLE_ONE;
+        }
     }
     has_identity_swizzle = swizzle[0] == SwizzleSource::R && swizzle[1] == SwizzleSource::G &&
                            swizzle[2] == SwizzleSource::B && swizzle[3] == SwizzleSource::A;

@@ -25,6 +25,7 @@ import org.yuzu.yuzu_emu.model.AddonViewModel
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.utils.AddonUtil
 import org.yuzu.yuzu_emu.utils.FileUtil.copyFilesTo
+import org.yuzu.yuzu_emu.utils.GameBananaHelper
 import org.yuzu.yuzu_emu.utils.InstallableActions
 import org.yuzu.yuzu_emu.utils.ViewUtils.updateMargins
 import org.yuzu.yuzu_emu.utils.collect
@@ -153,33 +154,37 @@ class AddonsFragment : Fragment() {
                 return@registerForActivityResult
             }
 
-            val isValid = externalAddonDirectory.listFiles()
-                .any { AddonUtil.validAddonDirectories.contains(it.name?.lowercase()) }
-            val errorMessage = MessageDialogFragment.newInstance(
+            ProgressDialogFragment.newInstance(
                 requireActivity(),
-                titleId = R.string.invalid_directory,
-                descriptionId = R.string.invalid_directory_description
-            )
-            if (isValid) {
-                ProgressDialogFragment.newInstance(
+                R.string.installing_game_content,
+                false
+            ) { progressCallback, _ ->
+                val errorMessage = MessageDialogFragment.newInstance(
                     requireActivity(),
-                    R.string.installing_game_content,
-                    false
-                ) { progressCallback, _ ->
-                    val parentDirectoryName = externalAddonDirectory.name
-                    val internalAddonDirectory =
-                        File(args.game.addonDir + parentDirectoryName)
+                    titleId = R.string.invalid_directory,
+                    descriptionId = R.string.invalid_directory_description
+                )
+                try {
+                    val parentDirectoryName = externalAddonDirectory.name ?: "Mod"
+                    val cleanModName = parentDirectoryName.replace(Regex("[^a-zA-Z0-9._ -]"), "_").trim()
+                    val finalModName = if (cleanModName.isEmpty()) "Mod_${System.currentTimeMillis()}" else cleanModName
+                    val targetDir = File(args.game.addonDir, finalModName)
+                    targetDir.mkdirs()
+
+                    val tempDir = File(args.game.addonDir, "temp_tree_${System.currentTimeMillis()}")
+                    tempDir.mkdirs()
                     try {
-                        externalAddonDirectory.copyFilesTo(internalAddonDirectory, progressCallback)
-                    } catch (_: Exception) {
-                        return@newInstance errorMessage
+                        externalAddonDirectory.copyFilesTo(tempDir, progressCallback)
+                        GameBananaHelper.organizeModStructure(tempDir, targetDir)
+                    } finally {
+                        tempDir.deleteRecursively()
                     }
-                    addonViewModel.refreshAddons(force = true)
-                    return@newInstance getString(R.string.addon_installed_successfully)
-                }.show(parentFragmentManager, ProgressDialogFragment.TAG)
-            } else {
-                errorMessage.show(parentFragmentManager, MessageDialogFragment.TAG)
-            }
+                } catch (_: Exception) {
+                    return@newInstance errorMessage
+                }
+                addonViewModel.refreshAddons(force = true)
+                return@newInstance getString(R.string.addon_installed_successfully)
+            }.show(parentFragmentManager, ProgressDialogFragment.TAG)
         }
 
     private val installGameUpdate =

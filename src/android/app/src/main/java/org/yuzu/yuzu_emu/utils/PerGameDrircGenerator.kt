@@ -318,8 +318,9 @@ object PerGameDrircGenerator {
             return GameProfileType.EA_SPORTS
         }
 
-        // 20. Alan Wake Remastered (Font & Subtitle Color Fix)
-        if (cleanId.startsWith("010074B01456A") || // Alan Wake USA
+        // 20. Alan Wake Remastered (Font and Subtitle Color Fix)
+        if (cleanId.startsWith("0100F830138E6") || // Alan Wake Remastered
+            cleanId.startsWith("010074B01456A") || // Alan Wake USA
             cleanId.startsWith("010065F014C5E") || // Alan Wake EUR
             cleanTitle.contains("alan wake")
         ) {
@@ -671,7 +672,7 @@ object PerGameDrircGenerator {
                 optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
             }
             GameProfileType.ALAN_WAKE -> {
-                optionsBuilder.append("\n            <!-- ALAN WAKE REMASTERED (Pristine White Subtitles, Font Glyph Swizzle & Flashlight HDR) -->\n")
+                optionsBuilder.append("\n            <!-- ALAN WAKE REMASTERED (Pristine White Subtitles, Font Glyph Swizzle and Flashlight HDR) -->\n")
                 optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_a8_unorm_swizzle_one\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_r8_unorm_swizzle_alpha\" value=\"true\" />\n")

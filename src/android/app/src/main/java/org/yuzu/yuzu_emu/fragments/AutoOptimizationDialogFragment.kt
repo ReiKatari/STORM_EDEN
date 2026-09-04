@@ -25,6 +25,7 @@ import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
 import org.yuzu.yuzu_emu.utils.NativeConfig
+import org.yuzu.yuzu_emu.utils.StormHardwareCalibrator
 
 class AutoOptimizationDialogFragment : DialogFragment() {
 
@@ -110,127 +111,20 @@ class AutoOptimizationDialogFragment : DialogFragment() {
 
     private fun detectAndDisplayHardwareInfo() {
         val context = requireContext()
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-        val memInfo = ActivityManager.MemoryInfo()
-        am?.getMemoryInfo(memInfo)
+        val profile = StormHardwareCalibrator.detectHardware(context)
 
-        val totalRamGb = memInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
-        val availRamGb = memInfo.availMem / (1024.0 * 1024.0 * 1024.0)
-
-        val soc = detectSoCName()
-        val gpu = detectGpuName()
-        val tier = calculateDeviceTier(totalRamGb)
-
-        binding.textHwSoc.text = "SoC: $soc (${Runtime.getRuntime().availableProcessors()} ядер, ${Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"})"
-        binding.textHwGpu.text = "GPU: $gpu"
-        binding.textHwRam.text = String.format("RAM: %.1f ГБ (Доступно: %.1f ГБ)", totalRamGb, availRamGb)
-        binding.textHwTier.text = "Класс устройства: $tier"
-    }
-
-    private fun detectSoCName(): String {
-        val hardware = Build.HARDWARE.lowercase()
-        val board = Build.BOARD.lowercase()
-        val soc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else ""
-
-        if (soc.isNotBlank() && soc != Build.UNKNOWN) {
-            return when {
-                soc.contains("8750", ignoreCase = true) || soc.contains("sun", ignoreCase = true) -> "Qualcomm Snapdragon 8 Elite (SM8750)"
-                soc.contains("8650", ignoreCase = true) || soc.contains("pineapple", ignoreCase = true) -> "Qualcomm Snapdragon 8 Gen 3 (SM8650)"
-                soc.contains("8550", ignoreCase = true) || soc.contains("kalama", ignoreCase = true) -> "Qualcomm Snapdragon 8 Gen 2 (SM8550)"
-                soc.contains("8450", ignoreCase = true) || soc.contains("taro", ignoreCase = true) -> "Qualcomm Snapdragon 8 Gen 1 (SM8450)"
-                soc.contains("8475", ignoreCase = true) || soc.contains("cape", ignoreCase = true) -> "Qualcomm Snapdragon 8+ Gen 1 (SM8475)"
-                soc.contains("8350", ignoreCase = true) || soc.contains("lahaina", ignoreCase = true) -> "Qualcomm Snapdragon 888 (SM8350)"
-                soc.contains("8250", ignoreCase = true) || soc.contains("kona", ignoreCase = true) -> "Qualcomm Snapdragon 865 / 870 (SM8250)"
-                soc.contains("9400", ignoreCase = true) || soc.contains("mt6991", ignoreCase = true) -> "MediaTek Dimensity 9400"
-                soc.contains("9300", ignoreCase = true) || soc.contains("mt6989", ignoreCase = true) -> "MediaTek Dimensity 9300 / 9300+"
-                soc.contains("2400", ignoreCase = true) || soc.contains("s5e9945", ignoreCase = true) -> "Samsung Exynos 2400 (Xclipse 940)"
-                soc.contains("2200", ignoreCase = true) || soc.contains("s5e9925", ignoreCase = true) -> "Samsung Exynos 2200 (Xclipse 920)"
-                soc.contains("g4", ignoreCase = true) || soc.contains("zuma", ignoreCase = true) -> "Google Tensor G4 / G3"
-                else -> soc.uppercase()
-            }
+        val formFactor = if (profile.isTablet) "Планшет" else "Смартфон"
+        binding.textHwSoc.text = "SoC: ${profile.socName} (${profile.cpuCores} ядер, $formFactor)"
+        binding.textHwGpu.text = "GPU: ${profile.gpuName}"
+        binding.textHwRam.text = String.format("RAM: %.1f ГБ (Доступно: %.1f ГБ)", profile.totalRamGb, profile.availRamGb)
+        val tierDesc = when (profile.tier) {
+            StormHardwareCalibrator.HardwareTier.FLAGSHIP_ELITE -> "Ультра-флагман (Snapdragon 8 Elite / 12GB+ RAM)"
+            StormHardwareCalibrator.HardwareTier.FLAGSHIP -> "Флагман (Высокая производительность, 12GB+ RAM)"
+            StormHardwareCalibrator.HardwareTier.HIGH_MIDRANGE -> "Продвинутый (Сбалансированная производительность, 8GB RAM)"
+            StormHardwareCalibrator.HardwareTier.MIDRANGE -> "Средний (6GB RAM)"
+            StormHardwareCalibrator.HardwareTier.BUDGET -> "Базовый (< 6GB RAM)"
         }
-
-        return when {
-            hardware.contains("qcom") || board.contains("qualcomm") || hardware.contains("snapdragon") || hardware.contains("sun") -> {
-                when {
-                    hardware.contains("sun") || board.contains("sun") || hardware.contains("sm8750") -> "Snapdragon 8 Elite (SM8750)"
-                    hardware.contains("sm8650") || board.contains("sm8650") -> "Snapdragon 8 Gen 3"
-                    hardware.contains("sm8550") || board.contains("sm8550") -> "Snapdragon 8 Gen 2"
-                    hardware.contains("sm8450") || board.contains("sm8450") || hardware.contains("sm8475") -> "Snapdragon 8 Gen 1 / 8+ Gen 1"
-                    hardware.contains("sm8350") || board.contains("sm8350") -> "Snapdragon 888"
-                    hardware.contains("sm8250") || board.contains("sm8250") -> "Snapdragon 865 / 870"
-                    hardware.contains("sm8150") || board.contains("sm8150") -> "Snapdragon 855"
-                    hardware.contains("sdm845") || board.contains("sdm845") -> "Snapdragon 845"
-                    hardware.contains("sm7475") || board.contains("sm7475") -> "Snapdragon 7+ Gen 2"
-                    hardware.contains("sm7675") || board.contains("sm7675") -> "Snapdragon 7+ Gen 3"
-                    hardware.contains("sm7325") || board.contains("sm7325") -> "Snapdragon 778G"
-                    else -> "Qualcomm Snapdragon (${Build.HARDWARE})"
-                }
-            }
-            hardware.contains("mt") || board.contains("mediatek") || hardware.contains("dimensity") -> {
-                when {
-                    hardware.contains("mt6991") -> "MediaTek Dimensity 9400"
-                    hardware.contains("mt6989") -> "MediaTek Dimensity 9300 / 9300+"
-                    hardware.contains("mt6985") -> "MediaTek Dimensity 9200"
-                    hardware.contains("mt6983") -> "MediaTek Dimensity 9000"
-                    hardware.contains("mt6896") || hardware.contains("mt6897") -> "MediaTek Dimensity 8200 / 8300"
-                    else -> "MediaTek Dimensity (${Build.HARDWARE})"
-                }
-            }
-            hardware.contains("exynos") || board.contains("universal") || hardware.contains("s5e") -> {
-                when {
-                    hardware.contains("9945") || board.contains("9945") -> "Samsung Exynos 2400 (Xclipse 940)"
-                    hardware.contains("9925") || board.contains("9925") -> "Samsung Exynos 2200 (Xclipse 920)"
-                    else -> "Samsung Exynos (${Build.HARDWARE})"
-                }
-            }
-            hardware.contains("tensor") || board.contains("gs") || board.contains("zuma") -> {
-                "Google Tensor (${Build.HARDWARE})"
-            }
-            hardware.contains("kirin") || board.contains("hi") -> {
-                "HiSilicon Kirin (${Build.HARDWARE})"
-            }
-            hardware.contains("tegra") || board.contains("tegra") -> {
-                "NVIDIA Tegra (${Build.HARDWARE})"
-            }
-            else -> "${Build.MANUFACTURER} ${Build.MODEL}"
-        }
-    }
-
-    private fun detectGpuName(): String {
-        val hw = (Build.HARDWARE + " " + Build.BOARD + " " + Build.MODEL).lowercase()
-        return if (GpuDriverHelper.isAdrenoGpu()) {
-            when {
-                hw.contains("sun") || hw.contains("8750") || hw.contains("s938") -> "Qualcomm Adreno 830 (Snapdragon 8 Elite / Turnip)"
-                hw.contains("8650") -> "Qualcomm Adreno 750 (Snapdragon 8 Gen 3 / Turnip)"
-                hw.contains("8550") -> "Qualcomm Adreno 740 (Snapdragon 8 Gen 2 / Turnip)"
-                hw.contains("8450") || hw.contains("8475") -> "Qualcomm Adreno 730 (Snapdragon 8 Gen 1 / Turnip)"
-                hw.contains("8350") -> "Qualcomm Adreno 660 (Snapdragon 888 / Turnip)"
-                hw.contains("8250") -> "Qualcomm Adreno 650 (Snapdragon 865/870 / Turnip)"
-                else -> "Qualcomm Adreno (Turnip Vulkan 1.3 / 1.4)"
-            }
-        } else {
-            when {
-                hw.contains("mt6991") || hw.contains("9400") || hw.contains("x200") || hw.contains("immortalis-g925") -> "ARM Immortalis-G925 (MediaTek Dimensity 9400 / Vulkan 1.3)"
-                hw.contains("mt6989") || hw.contains("9300") -> "ARM Immortalis-G720 (MediaTek Dimensity 9300 / Vulkan 1.3)"
-                hw.contains("mt6985") || hw.contains("9200") -> "ARM Immortalis-G715 (MediaTek Dimensity 9200 / Vulkan 1.3)"
-                hw.contains("9945") || hw.contains("2400") -> "Samsung Xclipse 940 (AMD RDNA3 Vulkan)"
-                hw.contains("9925") || hw.contains("2200") -> "Samsung Xclipse 920 (AMD RDNA2 Vulkan)"
-                hw.contains("powervr") || hw.contains("img") || hw.contains("rogue") -> "PowerVR GPU (Vulkan)"
-                hw.contains("tegra") || hw.contains("nvidia") -> "NVIDIA Tegra (Vulkan)"
-                hw.contains("mt") || hw.contains("dimensity") || hw.contains("mali") || hw.contains("tensor") -> "ARM Mali (Vulkan Standard / PanVK)"
-                else -> "Vulkan 1.3 Compatible GPU (${Build.HARDWARE})"
-            }
-        }
-    }
-
-    private fun calculateDeviceTier(totalRamGb: Double): String {
-        return when {
-            totalRamGb >= 11.0 -> "Флагман (Высокая производительность, 12GB+ RAM)"
-            totalRamGb >= 7.0 -> "Продвинутый (Сбалансированная производительность, 8GB RAM)"
-            totalRamGb >= 5.0 -> "Средний (6GB RAM)"
-            else -> "Базовый (< 6GB RAM)"
-        }
+        binding.textHwTier.text = "Класс устройства: $tierDesc"
     }
 
     private fun setupModeSelectors() {
@@ -272,62 +166,8 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
         prefs.edit().putInt("selected_auto_optimization_mode", MODE_DEFAULT).apply()
 
-        // 1. Renderer / Video Defaults
-        IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan (1 = Vulkan, 2 = Null)
-        IntSetting.RENDERER_ACCURACY.setInt(0) // Normal
-        IntSetting.RENDERER_RESOLUTION.setInt(3) // 1.0X (720p/1080p)
-        IntSetting.RENDERER_VSYNC.setInt(0) // FIFO
-        IntSetting.RENDERER_ASPECT_RATIO.setInt(0) // 16:9
-        IntSetting.RENDERER_ANTI_ALIASING.setInt(0) // None
-        IntSetting.RENDERER_SCALING_FILTER.setInt(0) // Nearest / Bilinear
-        IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(0) // CPU / Default
-        IntSetting.ASTC_RECOMPRESSION.setInt(0) // Uncompressed
-        IntSetting.RENDERER_NVDEC_EMULATION.setInt(2) // GPU
-        IntSetting.DMA_ACCURACY.setInt(1) // Normal
-        IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(1) // Normal
-        IntSetting.GPU_FENCE_BEHAVIOR.setInt(1) // Balanced
-        IntSetting.MAX_ANISOTROPY.setInt(0) // Automatic
-        IntSetting.RENDERER_DYNA_STATE.setInt(0) // Default
-
-        // 2. CPU / System Defaults
-        BooleanSetting.USE_DOCKED_MODE.setBoolean(false) // Handheld for speed/efficiency
-        IntSetting.CPU_BACKEND.setInt(1) // NCE
-        IntSetting.CPU_ACCURACY.setInt(0) // Auto
-        IntSetting.MEMORY_LAYOUT.setInt(0) // 4GB
-        val cpuCores = Runtime.getRuntime().availableProcessors()
-        IntSetting.ANDROID_PIPELINE_WORKERS.setInt((cpuCores - 2).coerceIn(2, 4))
-
-        // 3. Audio Defaults
-        IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0) // Auto
-        BooleanSetting.AUDIO_MUTED.setBoolean(false)
-
-        // 4. Renderer Booleans
-        BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-        BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
-        BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
-        BooleanSetting.FASTMEM.setBoolean(true)
-        BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-        BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(false)
-        BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-        BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
-        BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
-        BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
-        BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
-        BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-
-        // 5. Auto-Optimization Engine Flags
-        BooleanSetting.ECO_THERMAL_MODE.setBoolean(false)
-        BooleanSetting.ECO_FRAME_PACING.setBoolean(false)
-        BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(false)
-        BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
-        BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-        BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
-
-        try {
-            NativeConfig.saveGlobalConfig()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // Apply tailored "По умолчанию" defaults for this specific device
+        StormHardwareCalibrator.applyPreset(StormHardwareCalibrator.StormPreset.DEFAULT, context)
 
         Toast.makeText(
             context,
@@ -339,229 +179,24 @@ class AutoOptimizationDialogFragment : DialogFragment() {
     }
 
     private fun applyOptimization(mode: Int) {
-        if (mode == MODE_DEFAULT) {
-            restoreDefaults()
-            return
-        }
-
         val context = requireContext()
         val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
         prefs.edit().putInt("selected_auto_optimization_mode", mode).apply()
 
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-        val memInfo = ActivityManager.MemoryInfo()
-        am?.getMemoryInfo(memInfo)
-        val totalRamGb = memInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
-
-        val hw = (Build.HARDWARE + " " + Build.BOARD + " " + Build.MODEL + " " + Build.MANUFACTURER).lowercase()
-        val isAdreno = GpuDriverHelper.isAdrenoGpu()
-        val isDimensity9400 = hw.contains("mt6991") || hw.contains("9400") || hw.contains("x200") || hw.contains("immortalis-g925")
-        val isMali = !isAdreno
-        val isFlagship = totalRamGb >= 11.0
-        val isMidRange = totalRamGb in 6.0..10.9
-        val isLowEnd = totalRamGb < 6.0
-        val cpuCores = Runtime.getRuntime().availableProcessors()
-        val optimalWorkers = if (isDimensity9400) 2 else (cpuCores - 2).coerceIn(2, 6)
-
-        when (mode) {
-            MODE_FAST -> {
-                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 0.75X (2) for budget / Mali / Dimensity 9400, 1X (3) for Flagship Adreno
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno && !isDimensity9400) 3 else 2)
-                // GPU Accuracy: Normal (0)
-                IntSetting.RENDERER_ACCURACY.setInt(0)
-                // DMA Accuracy: Normal (1)
-                IntSetting.DMA_ACCURACY.setInt(1)
-                // VRAM Usage Mode: Conservative (0)
-                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(0)
-                // GPU Fence Behavior: Fast (2)
-                IntSetting.GPU_FENCE_BEHAVIOR.setInt(2)
-                // Anti-Aliasing: None (0)
-                IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
-                // Scaling Filter: AMD FSR (6) for Dimensity 9400, Bilinear (0) for others
-                IntSetting.RENDERER_SCALING_FILTER.setInt(if (isDimensity9400) 6 else 0)
-                if (isDimensity9400) {
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
-                }
-                // ASTC: GPU (1) for Adreno/Flagship, CPU (0) for budget Mali
-                IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(if (isLowEnd && !isAdreno) 0 else 1)
-                // ASTC Recompression: Uncompressed (0) for 100% video core stability
-                IntSetting.ASTC_RECOMPRESSION.setInt(0)
-                // NVDEC: GPU (2)
-                IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
-                // Anisotropy: Default (0)
-                IntSetting.MAX_ANISOTROPY.setInt(0)
-                // CPU Backend: NCE (1)
-                IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(0) // Auto
-                // Memory Layout: 4GB (0)
-                IntSetting.MEMORY_LAYOUT.setInt(0)
-                // System / Docked: Handheld (false)
-                BooleanSetting.USE_DOCKED_MODE.setBoolean(false)
-                // Audio: Auto engine, unmuted
-                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
-                BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State: Disabled (0) on Mali / Dimensity 9400, Enabled (1) on Adreno
-                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
-                // Pipeline Workers: 2 (reduces background CPU load, battery drain and heat on All-Big-Core Dimensity 9400)
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(2)
-
-                // Booleans
-                BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
-                BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
-                BooleanSetting.FASTMEM.setBoolean(true)
-                BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(false)
-                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
-                BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
-                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
-                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
-                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(isDimensity9400)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(isDimensity9400)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(isDimensity9400)
-                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
-                BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
-            }
-
-            MODE_NORMAL -> {
-                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 0.75X (2) for Dimensity 9400 / low-end Mali, 1X (3) standard
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isDimensity9400 || (isLowEnd && !isAdreno)) 2 else 3)
-                // GPU Accuracy: Normal (0)
-                IntSetting.RENDERER_ACCURACY.setInt(0)
-                // DMA Accuracy: Normal (1)
-                IntSetting.DMA_ACCURACY.setInt(1)
-                // VRAM Usage Mode: Normal (1)
-                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isLowEnd || isDimensity9400) 0 else 1)
-                // GPU Fence Behavior: Balanced (1)
-                IntSetting.GPU_FENCE_BEHAVIOR.setInt(1)
-                // Anti-Aliasing: None (0) for maximum framerate
-                IntSetting.RENDERER_ANTI_ALIASING.setInt(0)
-                // Scaling Filter: AMD FSR (6) for Dimensity 9400, Bilinear (0) for others
-                IntSetting.RENDERER_SCALING_FILTER.setInt(if (isDimensity9400) 6 else 0)
-                if (isDimensity9400) {
-                    IntSetting.FSR_SHARPENING_SLIDER.setInt(85)
-                }
-                // ASTC: GPU (1)
-                IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
-                // ASTC Recompression: Uncompressed (0) for universal stability
-                IntSetting.ASTC_RECOMPRESSION.setInt(0)
-                // NVDEC: GPU (2)
-                IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
-                // Anisotropy: Default (0)
-                IntSetting.MAX_ANISOTROPY.setInt(0)
-                // CPU Backend: NCE (1)
-                IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(0) // Auto
-                // Memory Layout: 6GB (1) if RAM >= 11GB, else 4GB (0)
-                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship && !isDimensity9400) 1 else 0)
-                // System / Docked: Handheld (false) for speed
-                BooleanSetting.USE_DOCKED_MODE.setBoolean(false)
-                // Audio: Auto engine, unmuted
-                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
-                BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State: Disabled on Mali / Dimensity 9400
-                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
-                // Pipeline Workers: 2 for Dimensity 9400 to prevent All-Big-Core overheating
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(if (isDimensity9400) 2 else optimalWorkers.coerceIn(2, 4))
-
-                // Booleans
-                BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(false)
-                BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
-                BooleanSetting.FASTMEM.setBoolean(true)
-                BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(false)
-                BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(false)
-                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
-                BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
-                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(false)
-                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
-                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(isDimensity9400)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(isDimensity9400)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(isDimensity9400)
-                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(false)
-                BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(false)
-            }
-
-            MODE_ACCURATE -> {
-                IntSetting.RENDERER_BACKEND.setInt(1) // Vulkan
-                // Resolution: 1.5X (5) for Flagship Adreno, 1X (3) for Dimensity 9400 / Mid-Range
-                IntSetting.RENDERER_RESOLUTION.setInt(if (isFlagship && isAdreno && !isDimensity9400) 5 else 3)
-                // GPU Accuracy: Normal (0) on Dimensity 9400 (avoids Mali TBDR stall), High (1) on Adreno
-                IntSetting.RENDERER_ACCURACY.setInt(if (isDimensity9400) 0 else 1)
-                // DMA Accuracy: Safe (3)
-                IntSetting.DMA_ACCURACY.setInt(3)
-                // VRAM Usage Mode: Aggressive (2) for Flagship, Normal (1) for others
-                IntSetting.RENDERER_VRAM_USAGE_MODE.setInt(if (isFlagship && !isDimensity9400) 2 else 1)
-                // GPU Fence Behavior: Strict (0)
-                IntSetting.GPU_FENCE_BEHAVIOR.setInt(0)
-                // Anti-Aliasing: SMAA (2)
-                IntSetting.RENDERER_ANTI_ALIASING.setInt(2)
-                // Scaling Filter: AMD FSR (6)
-                IntSetting.RENDERER_SCALING_FILTER.setInt(6)
-                IntSetting.FSR_SHARPENING_SLIDER.setInt(90)
-                // ASTC: GPU (1)
-                IntSetting.RENDERER_ASTC_DECODE_METHOD.setInt(1)
-                // ASTC Recompression: Uncompressed (0)
-                IntSetting.ASTC_RECOMPRESSION.setInt(0)
-                // NVDEC: GPU (2)
-                IntSetting.RENDERER_NVDEC_EMULATION.setInt(2)
-                // Anisotropy: 16x (4) for Flagship/Mid, 4x (2) for Low
-                IntSetting.MAX_ANISOTROPY.setInt(if (isFlagship && !isDimensity9400) 4 else 2)
-                // CPU Backend: NCE (1)
-                IntSetting.CPU_BACKEND.setInt(1)
-                IntSetting.CPU_ACCURACY.setInt(if (isDimensity9400) 0 else 1) // Auto on Dimensity 9400
-                // Memory Layout: 6GB/8GB if RAM >= 11GB
-                IntSetting.MEMORY_LAYOUT.setInt(if (isFlagship && !isDimensity9400) 2 else 1)
-                // System / Docked: Handheld on Dimensity 9400 (prevents thermal runaway), Docked on Flagship Adreno
-                BooleanSetting.USE_DOCKED_MODE.setBoolean(isFlagship && !isDimensity9400)
-                // Audio: Auto engine, unmuted
-                IntSetting.AUDIO_OUTPUT_ENGINE.setInt(0)
-                BooleanSetting.AUDIO_MUTED.setBoolean(false)
-                // Dynamic State: Disabled on Mali / Dimensity 9400
-                IntSetting.RENDERER_DYNA_STATE.setInt(if (isAdreno && !isDimensity9400) 1 else 0)
-                // Pipeline Workers: 3 on Dimensity 9400
-                IntSetting.ANDROID_PIPELINE_WORKERS.setInt(if (isDimensity9400) 3 else optimalWorkers.coerceIn(3, 4))
-
-                // Booleans
-                BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNC_PRESENTATION.setBoolean(true)
-                BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.setBoolean(true)
-                BooleanSetting.FASTMEM.setBoolean(true)
-                BooleanSetting.RENDERER_REACTIVE_FLUSHING.setBoolean(true)
-                BooleanSetting.SYNC_MEMORY_OPERATIONS.setBoolean(true)
-                BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.setBoolean(true)
-                BooleanSetting.SKIP_CPU_INNER_INVALIDATION.setBoolean(false)
-                BooleanSetting.RENDERER_FORCE_MAX_CLOCK.setBoolean(false)
-                BooleanSetting.ENABLE_BUFFER_HISTORY.setBoolean(true)
-                BooleanSetting.ENABLE_GPU_BUFFER_READBACK.setBoolean(false)
-                BooleanSetting.RENDERER_VERTEX_INPUT_DYNAMIC_STATE.setBoolean(true)
-                BooleanSetting.ECO_THERMAL_MODE.setBoolean(true)
-                BooleanSetting.ECO_FRAME_PACING.setBoolean(true)
-                BooleanSetting.SMART_SHADER_THROTTLE.setBoolean(true)
-                BooleanSetting.CPU_AFFINITY_PINNING.setBoolean(true)
-                BooleanSetting.VULKAN_PIPELINE_CACHE.setBoolean(true)
-                BooleanSetting.VRAM_GARBAGE_COLLECTION.setBoolean(true)
-            }
+        val preset = when (mode) {
+            MODE_FAST -> StormHardwareCalibrator.StormPreset.FAST
+            MODE_NORMAL -> StormHardwareCalibrator.StormPreset.NORMAL
+            MODE_ACCURATE -> StormHardwareCalibrator.StormPreset.ACCURATE
+            else -> StormHardwareCalibrator.StormPreset.DEFAULT
         }
 
-        try {
-            NativeConfig.saveGlobalConfig()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        StormHardwareCalibrator.applyPreset(preset, context)
 
         val modeName = when (mode) {
             MODE_FAST -> getString(R.string.auto_optimization_mode_fast)
             MODE_ACCURATE -> getString(R.string.auto_optimization_mode_accurate)
-            else -> getString(R.string.auto_optimization_mode_normal)
+            MODE_NORMAL -> getString(R.string.auto_optimization_mode_normal)
+            else -> getString(R.string.auto_optimization_mode_default)
         }
 
         Toast.makeText(

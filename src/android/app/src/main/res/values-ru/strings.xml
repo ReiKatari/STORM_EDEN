@@ -1169,7 +1169,14 @@
     <string name="gamebanana_author">Автор: %1$s</string>
     <string name="gamebanana_downloads">%1$d скачиваний</string>
     <string name="gamebanana_download_button">Скачать и установить</string>
-    <string name="addons_overview">Дополнения и Моды</string>
+    <string name="gamebanana_install_manual">Установить мод вручную</string>
+    <string name="gamebanana_install_manual_description">Выбрать ZIP-архив с модом для автоматической распаковки и структурирования в load</string>
+    <string name="gamebanana_installing_manual">Распаковка и структурирование мода…</string>
+    <string name="gamebanana_manual_success">Мод «%1$s» успешно установлен и доступен в Дополнениях!</string>
+    <string name="gamebanana_manual_error">Не удалось установить мод из выбранного архива</string>
+    <string name="gamebanana_manual_source_zip">Выбрать ZIP-архив</string>
+    <string name="gamebanana_manual_source_folder">Выбрать папку с модом</string>
+    <string name="addons_overview">Дополнения и моды</string>
     <string name="addons_overview_description">Управление обновлениями, DLC и пользовательскими модами</string>
     <string name="game_version_label">Версия %1$s</string>
 

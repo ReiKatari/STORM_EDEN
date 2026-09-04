@@ -1348,8 +1348,15 @@
     <string name="gamebanana_install_error">Failed to install mod</string>
     <string name="gamebanana_author">By %1$s</string>
     <string name="gamebanana_downloads">%1$d downloads</string>
-    <string name="gamebanana_download_button">Download &amp; Install</string>
-    <string name="addons_overview">Add-ons &amp; Modifications</string>
+    <string name="gamebanana_download_button">Download and install</string>
+    <string name="gamebanana_install_manual">Install mod manually</string>
+    <string name="gamebanana_install_manual_description">Select a ZIP archive containing the mod to unpack and structure in load</string>
+    <string name="gamebanana_installing_manual">Extracting and organizing mod structure…</string>
+    <string name="gamebanana_manual_success">Mod «%1$s» installed successfully and available in Addons!</string>
+    <string name="gamebanana_manual_error">Failed to install mod from selected archive</string>
+    <string name="gamebanana_manual_source_zip">Select ZIP archive</string>
+    <string name="gamebanana_manual_source_folder">Select mod folder</string>
+    <string name="addons_overview">Add-ons and modifications</string>
     <string name="addons_overview_description">Manage installed updates, DLCs, and custom mods</string>
     <string name="game_version_label">Version %1$s</string>
 

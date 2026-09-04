@@ -1124,11 +1124,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
                 updateScreenLayout()
 
+                // Final safety: ensure per-game driver config is applied right before launch
+                game?.let { g ->
+                    GpuDriverHelper.applyPerGameDriverConfig(g.programIdHex, g.title)
+                }
+
                 emulationState.run(emulationActivity!!.isActivityRecreated)
             }
         }
 
-        driverViewModel.onLaunchGame()
+        driverViewModel.onLaunchGame(game)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

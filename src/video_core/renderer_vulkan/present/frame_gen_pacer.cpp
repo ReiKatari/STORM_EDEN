@@ -14,33 +14,33 @@ namespace {
 
 using Clock = std::chrono::steady_clock;
 
-constexpr f32 INTERVAL_SMOOTHING = 0.333f;
+constexpr f32 INTERVAL_SMOOTHING = 0.15f;
 constexpr f32 MINIMUM_BASE_RATE = 10.0f;
-constexpr f32 BURST_CADENCE_RATIO = 3.0f;
-constexpr f32 BURST_TARGET_RATIO = 2.0f;
-constexpr f32 PROBE_THROUGHPUT_TOLERANCE = 0.95f;
-constexpr f32 PROBE_BASE_COLLAPSE_RATIO = 0.70f;
-constexpr f32 PROBE_MARGINAL_GAIN = 1.15f;
+constexpr f32 BURST_CADENCE_RATIO = 3.5f;
+constexpr f32 BURST_TARGET_RATIO = 2.5f;
+constexpr f32 PROBE_THROUGHPUT_TOLERANCE = 0.90f;
+constexpr f32 PROBE_BASE_COLLAPSE_RATIO = 0.60f;
+constexpr f32 PROBE_MARGINAL_GAIN = 1.10f;
 constexpr f32 TARGET_SATISFIED_RATIO = 0.95f;
-constexpr f32 UNLOADED_BASE_RETENTION = 0.75f;
+constexpr f32 UNLOADED_BASE_RETENTION = 0.70f;
 constexpr f32 CREDIT_EPSILON = 1.0e-4f;
-constexpr u32 MAX_PROBE_FAILURES = 4;
+constexpr u32 MAX_PROBE_FAILURES = 3;
 
-constexpr auto STABILIZATION_DURATION = std::chrono::seconds(1);
-constexpr auto PROBE_DURATION = std::chrono::seconds(1);
-constexpr auto DEFICIT_DURATION = std::chrono::seconds(1);
-constexpr auto PROBE_STEP_DELAY = std::chrono::milliseconds(250);
+constexpr auto STABILIZATION_DURATION = std::chrono::milliseconds(300);
+constexpr auto PROBE_DURATION = std::chrono::milliseconds(500);
+constexpr auto DEFICIT_DURATION = std::chrono::milliseconds(500);
+constexpr auto PROBE_STEP_DELAY = std::chrono::milliseconds(150);
 
 [[nodiscard]] Clock::duration ProbeBackoff(u32 failures) {
     switch (failures) {
     case 1:
-        return std::chrono::seconds(5);
+        return std::chrono::milliseconds(500);
     case 2:
-        return std::chrono::seconds(15);
+        return std::chrono::seconds(1);
     case 3:
-        return std::chrono::seconds(30);
+        return std::chrono::seconds(2);
     default:
-        return std::chrono::seconds(60);
+        return std::chrono::seconds(3);
     }
 }
 
@@ -78,7 +78,7 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
         }
         if (1.0f / interval_seconds > burst_threshold) {
             DeferEvaluations(interval);
-            output_credit = std::min(output_credit * 0.5f, 0.5f);
+            output_credit = std::min(output_credit * 0.8f, 0.8f);
             return {};
         }
     }
@@ -88,9 +88,13 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
         return {};
     }
 
+    const f32 clamped_step = smoothed_interval > 0.0f
+                                 ? std::clamp(interval_seconds, smoothed_interval * 0.5f,
+                                              smoothed_interval * 1.5f)
+                                 : interval_seconds;
     smoothed_interval = smoothed_interval > 0.0f
                             ? smoothed_interval +
-                                  (interval_seconds - smoothed_interval) * INTERVAL_SMOOTHING
+                                  (clamped_step - smoothed_interval) * INTERVAL_SMOOTHING
                             : interval_seconds;
 
     if (previous_generations == 0) {
@@ -120,7 +124,7 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
     const size_t allowed = std::min(limit, ceiling);
     const f32 desired_outputs = smoothed_interval * target_rate;
     if (allowed == 0 || desired_outputs <= 1.0f) {
-        output_credit = std::max(0.0f, output_credit * 0.5f);
+        output_credit = std::max(0.0f, output_credit * 0.8f);
         return {};
     }
 

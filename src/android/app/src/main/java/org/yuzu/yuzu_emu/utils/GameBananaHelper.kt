@@ -3,6 +3,10 @@
 
 package org.yuzu.yuzu_emu.utils
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -10,6 +14,7 @@ import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
 import org.yuzu.yuzu_emu.model.Game
+import org.yuzu.yuzu_emu.utils.FileUtil.copyFilesTo
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URLEncoder
@@ -312,36 +317,70 @@ object GameBananaHelper {
         return null
     }
 
-    private fun organizeModStructure(sourceDir: File, targetDir: File) {
-        val romfsDir = findSubdirIgnoreCase(sourceDir, "romfs")
-        val exefsDir = findSubdirIgnoreCase(sourceDir, "exefs")
-        val cheatsDir = findSubdirIgnoreCase(sourceDir, "cheats")
+    private fun unwrapSingleFolder(dir: File): File {
+        var current = dir
+        while (true) {
+            val children = current.listFiles() ?: break
+            val subdirs = children.filter { it.isDirectory }
+            val files = children.filter { it.isFile }
+            // If there's exactly 1 directory and no files, or only metadata files (.txt, .md, .nfo), step into it
+            if (subdirs.size == 1 && (files.isEmpty() || files.all { it.name.endsWith(".txt", true) || it.name.endsWith(".md", true) || it.name.endsWith(".nfo", true) })) {
+                val subName = subdirs[0].name.lowercase()
+                if (subName == "romfs" || subName == "exefs" || subName == "cheats" || subName == "romfslite" || subName == "romfs_ext") {
+                    break
+                }
+                current = subdirs[0]
+            } else {
+                break
+            }
+        }
+        return current
+    }
+
+    fun organizeModStructure(sourceDir: File, targetDir: File) {
+        // Step 1: Unwrap any outer wrapper directories
+        var effectiveRoot = unwrapSingleFolder(sourceDir)
+
+        // Step 2: Check for atmosphere/contents/<TitleID> or contents/<TitleID>
+        val contentsDir = findSubdirIgnoreCase(effectiveRoot, "contents")
+        if (contentsDir != null && contentsDir.isDirectory) {
+            val titleDirs = contentsDir.listFiles()?.filter { it.isDirectory }
+            if (!titleDirs.isNullOrEmpty()) {
+                effectiveRoot = titleDirs[0]
+            }
+        }
 
         var organized = false
 
-        if (romfsDir != null) {
+        // Check for romfs
+        val romfsDir = findSubdirIgnoreCase(effectiveRoot, "romfs") ?: findSubdirIgnoreCase(effectiveRoot, "romfslite")
+        if (romfsDir != null && romfsDir.isDirectory) {
             val targetRomfs = File(targetDir, "romfs")
             targetRomfs.mkdirs()
             romfsDir.copyRecursively(targetRomfs, overwrite = true)
             organized = true
         }
 
-        if (exefsDir != null) {
+        // Check for exefs
+        val exefsDir = findSubdirIgnoreCase(effectiveRoot, "exefs")
+        if (exefsDir != null && exefsDir.isDirectory) {
             val targetExefs = File(targetDir, "exefs")
             targetExefs.mkdirs()
             exefsDir.copyRecursively(targetExefs, overwrite = true)
             organized = true
         }
 
-        if (cheatsDir != null) {
+        // Check for cheats
+        val cheatsDir = findSubdirIgnoreCase(effectiveRoot, "cheats")
+        if (cheatsDir != null && cheatsDir.isDirectory) {
             val targetCheats = File(targetDir, "cheats")
             targetCheats.mkdirs()
             cheatsDir.copyRecursively(targetCheats, overwrite = true)
             organized = true
         }
 
-        // Check if there are .ips or .pchtxt patch files
-        val patchFiles = sourceDir.walkTopDown().filter {
+        // Check for .ips or .pchtxt patch files
+        val patchFiles = effectiveRoot.walkTopDown().filter {
             it.isFile && (it.extension.equals("ips", ignoreCase = true) || it.extension.equals("pchtxt", ignoreCase = true))
         }.toList()
 
@@ -354,15 +393,33 @@ object GameBananaHelper {
             organized = true
         }
 
+        // Check for cheat .txt files (16 hex character filename like 01007EF00011E000.txt or build ID)
+        val cheatTxtFiles = effectiveRoot.walkTopDown().filter {
+            it.isFile && it.extension.equals("txt", ignoreCase = true) &&
+                (it.nameWithoutExtension.matches(Regex("^[0-9a-fA-F]{16}$")) || it.parentFile?.name.equals("cheats", ignoreCase = true))
+        }.toList()
+
+        if (cheatTxtFiles.isNotEmpty()) {
+            val targetCheats = File(targetDir, "cheats")
+            targetCheats.mkdirs()
+            cheatTxtFiles.forEach { cheatFile ->
+                cheatFile.copyTo(File(targetCheats, cheatFile.name), overwrite = true)
+            }
+            organized = true
+        }
+
         // If no standard directory structure was detected, wrap bare files/folders into romfs
         if (!organized) {
             val targetRomfs = File(targetDir, "romfs")
             targetRomfs.mkdirs()
-            sourceDir.listFiles()?.forEach { child ->
-                if (child.isDirectory) {
-                    child.copyRecursively(File(targetRomfs, child.name), overwrite = true)
-                } else if (child.isFile) {
-                    child.copyTo(File(targetRomfs, child.name), overwrite = true)
+            effectiveRoot.listFiles()?.forEach { child ->
+                val isMeta = child.isFile && (child.name.startsWith("readme", true) || child.name.startsWith("license", true) || child.name.endsWith(".md", true))
+                if (!isMeta) {
+                    if (child.isDirectory) {
+                        child.copyRecursively(File(targetRomfs, child.name), overwrite = true)
+                    } else if (child.isFile) {
+                        child.copyTo(File(targetRomfs, child.name), overwrite = true)
+                    }
                 }
             }
         }
@@ -423,23 +480,140 @@ object GameBananaHelper {
                     tempExtractDir.deleteRecursively()
                     tempFile.delete()
                 }
+            } else if (file.filename.endsWith(".ips", ignoreCase = true) || file.filename.endsWith(".pchtxt", ignoreCase = true)) {
+                val exefs = File(targetDir, "exefs")
+                exefs.mkdirs()
+                tempFile.copyTo(File(exefs, file.filename), overwrite = true)
+                tempFile.delete()
+            } else if (file.filename.endsWith(".txt", ignoreCase = true) && file.filename.substringBeforeLast(".").matches(Regex("^[0-9a-fA-F]{16}$"))) {
+                val cheats = File(targetDir, "cheats")
+                cheats.mkdirs()
+                tempFile.copyTo(File(cheats, file.filename), overwrite = true)
+                tempFile.delete()
             } else {
-                // Single file mod (e.g. .ips, .pchtxt, etc.)
-                if (file.filename.endsWith(".ips", ignoreCase = true) || file.filename.endsWith(".pchtxt", ignoreCase = true)) {
-                    val exefs = File(targetDir, "exefs")
-                    exefs.mkdirs()
-                    tempFile.copyTo(File(exefs, file.filename), overwrite = true)
-                } else {
-                    val romfs = File(targetDir, "romfs")
-                    romfs.mkdirs()
-                    tempFile.copyTo(File(romfs, file.filename), overwrite = true)
-                }
+                val romfs = File(targetDir, "romfs")
+                romfs.mkdirs()
+                tempFile.copyTo(File(romfs, file.filename), overwrite = true)
                 tempFile.delete()
             }
             true
         } catch (e: Exception) {
             e.printStackTrace()
             false
+        }
+    }
+
+    /**
+     * Manually installs a mod from a selected file URI (ZIP archive or single patch/cheat/romfs file)
+     * into load/<TitleID>/<ModName>/ with automatic directory structure organization.
+     */
+    suspend fun installManualMod(
+        game: Game,
+        uri: Uri,
+        context: Context,
+        customModName: String? = null,
+        onProgress: (Int) -> Unit = {}
+    ): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        try {
+            var fileName = "ManualMod"
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) {
+                        val name = it.getString(nameIndex)
+                        if (!name.isNullOrBlank()) {
+                            fileName = name
+                        }
+                    }
+                }
+            }
+
+            val modName = customModName?.takeIf { it.isNotBlank() }
+                ?: fileName.substringBeforeLast(".").trim()
+            val cleanModName = modName.replace(Regex("[^a-zA-Z0-9._ -]"), "_").trim()
+            val finalModName = if (cleanModName.isEmpty()) "ManualMod_${System.currentTimeMillis()}" else cleanModName
+
+            val targetDir = File(game.addonDir, finalModName)
+            targetDir.mkdirs()
+
+            val tempFile = File(game.addonDir, "temp_manual_${System.currentTimeMillis()}_$fileName")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return@withContext Pair(false, "Could not read source file")
+
+            val isZip = fileName.endsWith(".zip", ignoreCase = true) ||
+                fileName.endsWith(".7z", ignoreCase = true) ||
+                fileName.endsWith(".rar", ignoreCase = true)
+
+            if (isZip) {
+                val tempExtractDir = File(game.addonDir, "temp_extract_manual_${System.currentTimeMillis()}")
+                tempExtractDir.mkdirs()
+                try {
+                    FileUtil.unzipToInternalStorage(tempFile.absolutePath, tempExtractDir)
+                    organizeModStructure(tempExtractDir, targetDir)
+                } finally {
+                    tempExtractDir.deleteRecursively()
+                    tempFile.delete()
+                }
+            } else if (fileName.endsWith(".ips", ignoreCase = true) || fileName.endsWith(".pchtxt", ignoreCase = true)) {
+                val exefs = File(targetDir, "exefs")
+                exefs.mkdirs()
+                tempFile.copyTo(File(exefs, fileName), overwrite = true)
+                tempFile.delete()
+            } else if (fileName.endsWith(".txt", ignoreCase = true) && fileName.substringBeforeLast(".").matches(Regex("^[0-9a-fA-F]{16}$"))) {
+                val cheats = File(targetDir, "cheats")
+                cheats.mkdirs()
+                tempFile.copyTo(File(cheats, fileName), overwrite = true)
+                tempFile.delete()
+            } else {
+                val romfs = File(targetDir, "romfs")
+                romfs.mkdirs()
+                tempFile.copyTo(File(romfs, fileName), overwrite = true)
+                tempFile.delete()
+            }
+
+            Pair(true, finalModName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Pair(false, e.message ?: "Unknown error")
+        }
+    }
+
+    /**
+     * Manually installs a mod from a selected directory DocumentFile tree
+     * into load/<TitleID>/<ModName>/ with automatic directory structure organization.
+     */
+    suspend fun installManualModDirectory(
+        game: Game,
+        treeUri: Uri,
+        context: Context,
+        onProgress: (Int) -> Unit = {}
+    ): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        try {
+            val docDir = DocumentFile.fromTreeUri(context, treeUri)
+                ?: return@withContext Pair(false, "Invalid directory")
+            val dirName = docDir.name ?: "ManualMod"
+            val cleanModName = dirName.replace(Regex("[^a-zA-Z0-9._ -]"), "_").trim()
+            val finalModName = if (cleanModName.isEmpty()) "ManualMod_${System.currentTimeMillis()}" else cleanModName
+            val targetDir = File(game.addonDir, finalModName)
+            targetDir.mkdirs()
+
+            val tempDir = File(game.addonDir, "temp_tree_${System.currentTimeMillis()}")
+            tempDir.mkdirs()
+            try {
+                docDir.copyFilesTo(tempDir) { _, _ -> false }
+                organizeModStructure(tempDir, targetDir)
+            } finally {
+                tempDir.deleteRecursively()
+            }
+
+            Pair(true, finalModName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Pair(false, e.message ?: "Unknown error")
         }
     }
 }

@@ -171,6 +171,9 @@ class SettingsActivity : AppCompatActivity() {
                 throw IOException("Failed to delete $settingsFile")
             }
             NativeConfig.initializeGlobalConfig()
+            try {
+                org.yuzu.yuzu_emu.utils.StormHardwareCalibrator.autoCalibrate(applicationContext, force = true)
+            } catch (_: Exception) {}
         } else {
             NativeConfig.unloadPerGameConfig()
             val settingsFile = SettingsFile.getCustomSettingsFile(args.game!!)

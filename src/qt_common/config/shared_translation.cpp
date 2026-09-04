@@ -33,15 +33,15 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     // A setting can be ignored by giving it a blank name
 
     // Applets
-    INSERT(Settings, cabinet_applet_mode, tr("Amiibo editor"), QString());
+    INSERT(Settings, cabinet_applet_mode, tr("Кабинет Amiibo"), QString());
     INSERT(Settings, controller_applet_mode, tr("Controller configuration"), QString());
     INSERT(Settings, data_erase_applet_mode, tr("Data erase"), QString());
     INSERT(Settings, error_applet_mode, tr("Error"), QString());
     INSERT(Settings, net_connect_applet_mode, tr("Net connect"), QString());
     INSERT(Settings, player_select_applet_mode, tr("Player select"), QString());
     INSERT(Settings, swkbd_applet_mode, tr("Software keyboard"), QString());
-    INSERT(Settings, mii_edit_applet_mode, tr("Mii Edit"), QString());
-    INSERT(Settings, web_applet_mode, tr("Online web"), QString());
+    INSERT(Settings, mii_edit_applet_mode, tr("Запуск апплета Mii"), QString());
+    INSERT(Settings, web_applet_mode, tr("Встроенный браузер"), QString());
     INSERT(Settings, shop_applet_mode, tr("Shop"), QString());
     INSERT(Settings, photo_viewer_applet_mode, tr("Photo viewer"), QString());
     INSERT(Settings, offline_web_applet_mode, tr("Offline web"), QString());
@@ -69,19 +69,20 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(Settings, memory_layout_mode, tr("Конфигурация памяти DRAM"),
            tr("Увеличивает объем виртуальной оперативной памяти, доступной гостевой системе.\n"
               "Позволяет загружать ресурсоемкие моды высокого разрешения (HD-текстуры) и предотвращает вылеты из-за нехватки памяти."));
-    INSERT(Settings, use_speed_limit, QString(), QString());
+    INSERT(Settings, use_speed_limit, tr("Использовать лимит скорости"),
+           tr("Включает или отключает ограничение максимальной скорости рендеринга."));
     INSERT(Settings, current_speed_mode, QString(), QString());
-    INSERT(Settings, speed_limit, tr("Ограничение скорости"),
+    INSERT(Settings, speed_limit, tr("Лимит скорости"),
            tr("Задает максимальную скорость рендеринга игры (100% = стандартная скорость).\n"
               "200% для 30 FPS игры даст 60 FPS, для 60 FPS — 120 FPS.\n"
               "Отключение опции (0%) полностью разблокирует частоту кадров."));
 
-    INSERT(Settings, turbo_speed_limit, tr("Турбо-скорость"),
+    INSERT(Settings, turbo_speed_limit, tr("Лимит турбо-скорости"),
            tr("Скорость эмуляции при зажатии горячей клавиши Турбо-режима."));
-    INSERT(Settings, slow_speed_limit, tr("Замедленная скорость"),
+    INSERT(Settings, slow_speed_limit, tr("Лимит замедленной скорости"),
            tr("Скорость эмуляции при зажатии горячей клавиши Замедления."));
 
-    INSERT(Settings, sync_core_speed, tr("Синхронизация частоты ядер ЦП"),
+    INSERT(Settings, sync_core_speed, tr("Синхронизация скорости ядер"),
            tr("Синхронизирует тактовую частоту ядер ЦП со скоростью рендеринга для повышения FPS без ускорения внутриигровой физики.\n"
               "Помогает устранить рывки и микрофризы при низком фреймрейте."));
 
@@ -93,7 +94,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Повышает тактовую частоту, о которой эмулятор сообщает гостевой системе, снимая встроенные лимиты FPS.\n"
               "На слабых процессорах может снижать общую производительность."));
 
-    INSERT(Settings, cpu_affinity_pinning, tr("Привязка потоков ЦП"),
+    INSERT(Settings, cpu_affinity_pinning, tr("Привязка к ядрам ЦП"),
            tr("Жесткая привязка критических потоков JIT и GPU к производительным ядрам ЦП, а фоновых задач — к энергоэффективным ядрам."));
 
     INSERT(Settings, use_custom_cpu_ticks, QString(), QString());
@@ -141,30 +142,30 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Устраняет неровности и ступенчатость на краях 3D-объектов."));
     INSERT(Settings, fullscreen_mode, tr("Полноэкранный режим:"), QString());
     INSERT(Settings, aspect_ratio, tr("Соотношение сторон:"), QString());
-    INSERT(Settings, use_disk_shader_cache, tr("Кэш шейдеров на диске"),
+    INSERT(Settings, use_disk_shader_cache, tr("Дисковый кэш шейдеров"),
            tr("Сохраняет скомпилированные шейдеры на диск, устраняя задержки и фризы при повторных запусках игр."));
     INSERT(
         Settings, use_asynchronous_gpu_emulation, tr("Асинхронная эмуляция ГПУ"),
         tr("Выполняет задачи графического процессора в отдельном потоке, значительно повышая частоту кадров (FPS)."));
     INSERT(Settings, nvdec_emulation, tr("Декодирование видео NVDEC:"),
            tr("Метод воспроизведения внутриигровых видеороликов (аппаратный ГПУ или ЦП)."));
-    INSERT(Settings, accelerate_astc, tr("Декодирование текстур ASTC:"),
+    INSERT(Settings, accelerate_astc, tr("Метод декодирования ASTC:"),
            tr("Метод декодирования сжатых текстур ASTC.\n"
               "ГПУ — быстрое аппаратное декодирование на видеокарте.\n"
               "ЦП Асинхронно — фоновое декодирование на процессоре для устранения статтеров."));
     INSERT(Settings, astc_recompression, tr("Пересжатие ASTC:"),
            tr("Сжимает текстуры в более компактные форматы (BC1-BC5), снижая потребление видеопамяти (VRAM)."));
-    INSERT(Settings, eco_frame_pacing, tr("Энергоэффективный фреймпейсинг"),
+    INSERT(Settings, eco_frame_pacing, tr("Эко-выравнивание кадров"),
            tr("Устраняет холостую загрузку ядер ЦП в циклах ожидания кадра и снижает нагрев устройства при стабильных 60 FPS."));
     INSERT(Settings, drs_resolution_lock, tr("Блокировка динамического разрешения"),
            tr("Блокирует снижение разрешения в играх с динамическим масштабированием (DRS), сохраняя максимальную четкость картинки."));
     INSERT(Settings, frame_pacing_mode, tr("Контроль плавности кадров"),
            tr("Ограничивает максимальный FPS для обеспечения равномерного интервала между кадрами."));
-    INSERT(Settings, vram_usage_mode, tr("Режим использования VRAM:"),
+    INSERT(Settings, vram_usage_mode, tr("Использование виртуальной памяти:"),
            tr("Ограничивает использование видеопамяти для видеокарт с объемом памяти менее 4 ГБ."));
     INSERT(Settings, skip_cpu_inner_invalidation, tr("Пропуск внутренней инвалидации ЦП"),
            tr("Снижает нагрузку на центральный процессор за счет пропуска некоторых сбросов кэша памяти."));
-    INSERT(Settings, vsync_mode, tr("Режим VSync:"),
+    INSERT(Settings, vsync_mode, tr("Режим вертикальной синхронизации:"),
            tr("Синхронизирует кадры с частотой обновления монитора, предотвращая разрывы изображения."));
     INSERT(Settings, bg_red, QString(), QString());
     INSERT(Settings, bg_green, QString(), QString());
@@ -175,10 +176,10 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
 
     INSERT(Settings, sync_memory_operations, tr("Синхронизация операций памяти"),
            tr("Синхронизирует потоки памяти ЦП и ГПУ, устраняя мерцание текстур в играх на движке Unreal Engine."));
-    INSERT(Settings, async_presentation, tr("Асинхронный вывод кадров"),
+    INSERT(Settings, async_presentation, tr("Асинхронный вывод"),
            tr("Отделяет вывод готового кадра на экран от основного потока рендеринга, снижая задержки управления."));
     INSERT(
-        Settings, renderer_force_max_clock, tr("Форсировать макс. частоту ГПУ (только Adreno)"),
+        Settings, renderer_force_max_clock, tr("Принудительная максимальная частота"),
         tr("Принудительно удерживает графический процессор Adreno на максимальных тактовых частотах."));
     INSERT(Settings, max_anisotropy, tr("Анизотропная фильтрация:"),
            tr("Улучшает четкость текстур, расположенных под острым углом к камере."));
@@ -188,7 +189,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "Высокая (High) — необходима для устранения визуальных артефактов в некоторых играх."));
     INSERT(Settings, dma_accuracy, tr("Точность DMA"),
            tr("Управляет точностью прямого доступа к памяти (DMA) при передаче текстур и геометрии."));
-    INSERT(Settings, gpu_fence_behavior, tr("Синхронизация барьеров"),
+    INSERT(Settings, gpu_fence_behavior, tr("Барьеры ГПУ"),
            tr("Управляет синхронизацией очередей команд ГПУ.\n"
               "Немедленно — максимальная скорость работы.\n"
               "Сбалансированно — оптимальная совместимость.\n"
@@ -197,31 +198,35 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Сохраняет модифицированные графическим процессором данные путем их считывания перед отправкой. Требуется некоторым играм для корректного рендеринга эффектов."));
     INSERT(Settings, use_asynchronous_shaders, tr("Включить асинхронную компиляцию шейдеров"),
            tr("Компилирует новые шейдеры в фоновом режиме, снижая статтеры и фризы во время игрового процесса."));
-    INSERT(Settings, smart_shader_throttle, tr("Умный троттлинг компиляции шейдеров"),
+    INSERT(Settings, smart_shader_throttle, tr("Умный троттлинг шейдеров"),
            tr("Динамически регулирует приоритет фоновых потоков компиляции шейдеров для предотвращения микростаттеров в игре."));
     INSERT(Settings, gpu_clock, tr("Частота ГПУ"),
            tr("Регулирует частоту, которую видит гостевая игра, позволяя удерживать максимальное разрешение без срабатывания встроенных в игру ограничителей."));
-    INSERT(Settings, gpu_unswizzle_enabled, tr("Unswizzle ГПУ"),
+    INSERT(Settings, gpu_unswizzle_enabled, tr("Разделение развертки"),
            tr("Ускоряет декодирование 3D-текстур BCn с использованием вычислительных мощностей ГПУ.\n"
               "Отключите при возникновении графических сбоев."));
-    INSERT(Settings, gpu_unswizzle_texture_size, tr("Макс. размер текстуры Unswizzle ГПУ"),
+    INSERT(Settings, gpu_unswizzle_texture_size, tr("Макс. размер текстуры разделения развертки"),
            tr("Задает максимальный размер текстур (МБ), обрабатываемых на ГПУ.\n"
               "ГПУ быстрее справляется со средними и большими текстурами, в то время как мелкие эффективнее обрабатывать на ЦП."));
-    INSERT(Settings, gpu_unswizzle_stream_size, tr("Размер потока Unswizzle ГПУ"),
+    INSERT(Settings, gpu_unswizzle_stream_size, tr("Размер потока разделения развертки"),
            tr("Максимальный объем данных текстур (в МБ), обрабатываемый за один кадр. Помогает сбалансировать скорость загрузки сцены."));
-    INSERT(Settings, gpu_unswizzle_chunk_size, tr("Размер чанка Unswizzle ГПУ"),
+    INSERT(Settings, gpu_unswizzle_chunk_size, tr("Размер чанка разделения развертки"),
            tr("Количество срезов глубины, обрабатываемых за один проход. Увеличение повышает пропускную способность на мощных видеокартах."));
 
     INSERT(Settings, use_vulkan_driver_pipeline_cache, tr("Использовать кэш пайплайнов драйвера Vulkan"),
            tr("Задействует внутренний кэш драйвера видеокарты для ускорения повторного запуска игр."));
     INSERT(Settings, vulkan_pipeline_cache, tr("Кэш конвейеров Vulkan"),
            tr("Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров и микрофризов при компиляции шейдеров."));
-    INSERT(Settings, vram_garbage_collection, tr("Сборщик мусора видеопамяти"),
+    INSERT(Settings, vram_garbage_collection, tr("Очистка виртуальной памяти"),
            tr("Периодическая фоновая очистка неиспользуемых текстурных буферов и кэша ASTC для предотвращения утечек видеопамяти и лагов."));
     INSERT(Settings, enable_hdr10, tr("Поддержка HDR10"),
            tr("Включает цветовое пространство HDR10 (BT.2020 PQ / ST2084) для совместимых HDR-мониторов и OLED-дисплеев, обеспечивая глубокие цвета и расширенный динамический диапазон."));
     INSERT(Settings, frame_generation, tr("Генерация кадров"),
            tr("Интерполяция промежуточных кадров на этапе вывода Vulkan для увеличения плавности с 30 FPS до 60/120 FPS на мониторах с высокой частотой обновления."));
+    INSERT(Settings, frame_gen_fp16, tr("Вычисления FP16"),
+           tr("Использовать 16-битные вычисления FP16 для генерации кадров."));
+    INSERT(Settings, frame_gen_flow_scale_auto, tr("Авто-масштаб потока"),
+           tr("Автоматический расчет масштаба сетки оптического потока для генерации кадров."));
     INSERT(Settings, enable_compute_pipelines, tr("Включить вычислительные пайплайны (только Intel Vulkan)"),
            tr("Специальная настройка совместимости для встроенной графики Intel."));
     INSERT(
@@ -233,7 +238,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Улучшает отрисовку эффектов прозрачности, зеркал и отражений в ряде игр."));
     INSERT(Settings, enable_buffer_history, tr("Включить историю буферов"),
            tr("Сохраняет предыдущие состояния буферов, повышая стабильность отрисовки пост-эффектов."));
-    INSERT(Settings, fix_bloom_effects, tr("Исправить эффекты bloom"),
+    INSERT(Settings, fix_bloom_effects, tr("Исправление эффектов свечения"),
            tr("Устраняет избыточное размытие, пересветы и графические искажения свечения."));
 
     INSERT(Settings, emulate_bgr565, tr("Эмуляция формата BGR565"),
@@ -276,13 +281,13 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
     INSERT(Settings, region_index, tr("Регион:"), tr("Регион виртуальной консоли."));
     INSERT(Settings, time_zone_index, tr("Часовой пояс:"), tr("Часовой пояс виртуальной консоли."));
     INSERT(Settings, sound_index, tr("Режим вывода звука:"), QString());
-    INSERT(Settings, use_docked_mode, tr("Режим консоли:"),
+    INSERT(Settings, use_docked_mode, tr("Режим док-станции:"),
            tr("Переключает консоль между режимами \"В док-станции\" и \"Портативный\".\n"
               "В режиме док-станции игры работают в повышенном разрешении и графическом профиле."));
     INSERT(Settings, current_user, QString(), QString());
 
     // Ui General
-    INSERT(UISettings, select_user_on_boot, tr("Запрашивать профиль при запуске игры"),
+    INSERT(UISettings, select_user_on_boot, tr("Выбор активного профиля"),
            tr("Отображает окно выбора пользователя при старте каждой игры."));
     INSERT(UISettings, pause_when_in_background, tr("Приостанавливать при потере фокуса"),
            tr("Ставит игру на паузу при переключении на другое окно."));

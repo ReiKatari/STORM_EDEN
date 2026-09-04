@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
     <string name="app_disclaimer">Это программное обеспечение предназначено для запуска игр для игровой консоли Nintendo Switch. Игры и ключи в комплект не входят.<br /><br />Прежде чем начать, пожалуйста, найдите файл <![CDATA[<b>prod.keys</b>]]> на вашем устройстве.<br /><br /> <![CDATA[<a href=\"https://yuzu-mirror.github.io/help/quickstart\">Узнать больше</a>]]></string>
@@ -120,8 +120,8 @@
     <string name="multiplayer">Мультиплеер</string>
     <string name="multiplayer_description">Создайте свою игровую комнату или присоединитесь к существующей</string>
     <string name="multiplayer_create_room">Создать</string>
-    <string name="multiplayer_join_room">Присоединиться</string>
-    <string name="multiplayer_public_room">Общедоступные комнаты</string>
+    <string name="multiplayer_join_room">Прямое подключение к комнате</string>
+    <string name="multiplayer_public_room">Браузер комнат / Создать комнату</string>
     <string name="multiplayer_username">Имя пользователя</string>
     <string name="multiplayer_ip_address">IP-адрес</string>
     <string name="multiplayer_ip_port">Порт</string>
@@ -160,9 +160,9 @@
     <string name="multiplayer_creating">Создание...</string>
     <string name="multiplayer_room_name">Название комнаты</string>
     <string name="multiplayer_max_players_value">Макс. игроков: %d</string>
-    <string name="multiplayer_chat">Чат</string>
+    <string name="multiplayer_chat">Окно чата комнаты</string>
     <string name="multiplayer_more_options">Дополнительные настройки</string>
-    <string name="chat">Чат</string>
+    <string name="chat">Окно чата комнаты</string>
     <string name="clear">Очистить</string>
     <string name="type_message">Введите сообщение…</string>
     <string name="send_message">Отправить сообщение</string>
@@ -312,7 +312,7 @@
     <string name="save_file_imported_success">Успешно импортировано</string>
     <string name="save_file_invalid_zip_structure">Недопустимая структура папки сохранения</string>
     <string name="save_file_invalid_zip_structure_description">Название первой вложенной папки должно быть идентификатором игры.</string>
-    <string name="install_firmware">Установить прошивку</string>
+    <string name="install_firmware">Установить прошивку из XCI/ZIP</string>
     <string name="install_firmware_description">Прошивка должна находиться в ZIP-архиве и необходима для загрузки некоторых игр</string>
     <string name="firmware_installing">Установка прошивки</string>
     <string name="firmware_installed_failure">Не удалось установить прошивку</string>
@@ -324,7 +324,7 @@
     <string name="share_gpu_log">Поделиться журналом ГПУ</string>
     <string name="share_gpu_log_description">Поделиться журналом ГПУ STORM SWITCH для отладки графики</string>
     <string name="share_gpu_log_missing">Журнал ГПУ не найден</string>
-    <string name="install_game_content">Установить игровой контент</string>
+    <string name="install_game_content">Установить файлы в NAND</string>
     <string name="install_game_content_description">Установить обновления игры или дополнений</string>
     <string name="installing_game_content">Установка контента...</string>
     <string name="install_game_content_failure">Ошибка установки файл(ов) в NAND.</string>
@@ -388,7 +388,7 @@
     <string name="album_applet_description">Просмотрите изображения, сохраненные в папке скриншотов пользователя, с помощью системного просмотрщика фотографий.</string>
     <string name="mii_edit_applet">Mii редактор</string>
     <string name="mii_edit_applet_description">Просмотр и редактирование Mii с помощью системного редактора</string>
-    <string name="cabinet_applet">Шкаф</string>
+    <string name="cabinet_applet">Кабинет Amiibo</string>
     <string name="cabinet_applet_description">Редактирование и удаление данных, хранящихся на amiibo</string>
     <string name="cabinet_launcher">Запуск шкафа</string>
     <string name="cabinet_nickname_and_owner">Никнейм и настройки владельца</string>
@@ -448,13 +448,13 @@
     <string name="emulated_language">Язык консоли</string>
     <string name="select_rtc_date">Выберите дату RTC</string>
     <string name="select_rtc_time">Выберите время RTC</string>
-    <string name="use_custom_rtc">Пользовательский RTC</string>
+    <string name="use_custom_rtc">Пользовательские RTC</string>
     <string name="use_custom_rtc_description">Позволяет установить пользовательские часы реального времени отдельно от текущего системного времени.</string>
     <string name="set_custom_rtc">Установить пользовательский RTC</string>
 
     <!-- CPU -->
     <string name="clocks">Тактовые частоты</string>
-    <string name="fast_cpu_time">Разгон ЦП</string>
+    <string name="fast_cpu_time">Тайминги ЦП</string>
     <string name="fast_cpu_time_description">Принудительно повышает тактовую частоту эмулируемого ЦП, снижая влияние некоторых ограничителей FPS. Используйте Разгон (1 700 МГц) для работы на максимальной штатной частоте Switch или Быстрая (2 000 МГц) для удвоенной частоты.</string>
     <string name="custom_cpu_ticks">Пользовательские такты ЦП</string>
     <string name="custom_cpu_ticks_description">Установите пользовательское значение тактов ЦП. Более высокие значения могут увеличить производительность, но также могут вызвать зависание игры. Рекомендуется диапазон 77–21000.</string>
@@ -473,7 +473,7 @@
 
     <!-- Graphics settings strings -->
     <string name="renderer_resolution">Разрешение (портативное/в док-станции)</string>
-    <string name="renderer_vsync">Режим верт. синхронизации</string>
+    <string name="renderer_vsync">Режим вертикальной синхронизации</string>
     <string name="renderer_scaling_filter">Фильтр адаптации окна</string>
     <string name="fsr_sharpness">Резкость FSR/SGSR</string>
     <string name="fsr_sharpness_description">Определяет, насколько чётким будет изображение при использовании динамического контраста FSR или SGSR фильтров</string>
@@ -490,7 +490,7 @@
     <string name="gpu_fence_behavior_description">Управляет поведением синхронизации через барьеры ГПУ. Мгновенный — самый быстрый вариант, но может вызывать некоторые проблемы. Сбалансированный обеспечивает лучшую совместимость и может исправлять проблемы в некоторых играх. Точный ещё больше повышает совместимость ценой некоторого снижения производительности. Строгий — самый медленный вариант, но может исправлять проблемы, требующие более строгой синхронизации. По умолчанию соответствует настройке точности ГПУ.</string>
     <string name="anisotropic_filtering">Анизотропная фильтрация</string>
     <string name="anisotropic_filtering_description">Улучшает качество текстур под углом</string>
-    <string name="vram_usage_mode">Режим использования VRAM</string>
+    <string name="vram_usage_mode">Использование виртуальной памяти</string>
     <string name="vram_usage_mode_description">Стратегия управления видеопамятью</string>
     <string name="accelerate_astc">Метод декодирования ASTC</string>
     <string name="accelerate_astc_description">Выберите способ декодирования сжатых текстур ASTC для рендеринга: ЦП (медленно, безопасно), ГПУ (быстро, рекомендуется) или ЦП асинхронно (без заиканий, могут возникнуть проблемы)</string>
@@ -503,15 +503,15 @@
 
     <string name="sync_memory_operations">Синхронизация операций с памятью</string>
     <string name="sync_memory_operations_description">Обеспечивает согласованность данных между вычислительными операциями и операциями с памятью. Эта опция должна исправлять проблемы в некоторых играх, но может снижать производительность в некоторых случаях. Наиболее сильно это затрагивает игры на Unreal Engine 4.</string>
-    <string name="use_disk_shader_cache">Кэш шейдеров на диске</string>
-    <string name="use_disk_shader_cache_description">Уменьшение зависаний за счет хранения и загрузки сгенерированных шейдеров.</string>
-    <string name="renderer_force_max_clock">Принудительная максимальная тактовая частота (только для Adreno)</string>
+    <string name="use_disk_shader_cache">Использовать кэш шейдеров на накопителе</string>
+    <string name="use_disk_shader_cache_description">Уменьшает заикания за счет сохранения скомпилированных шейдеров на накопитель.</string>
+    <string name="renderer_force_max_clock">Принудительная максимальная частота</string>
     <string name="renderer_force_max_clock_description">Заставляет ГПУ работать на максимально возможных тактовых частотах (тепловые ограничения все равно будут применяться).</string>
     <string name="renderer_asynchronous_gpu_emulation">Асинхронная эмуляция ГПУ</string>
-    <string name="renderer_asynchronous_gpu_emulation_description">Может повысить производительность за счёт асинхронного запуска эмуляции ГПУ, но ценой появления графических ошибок и увеличения частоты вылетов из-за операций, зависящих от синхронизации.</string>
-    <string name="renderer_async_presentation">Асинхронная презентация</string>
-    <string name="renderer_async_presentation_description">Может повысить производительность за счёт перемещения вывода кадров в отдельный поток ЦП, но ценой возникновения графических проблем.</string>
-    <string name="renderer_reactive_flushing">Реактивная очистка</string>
+    <string name="renderer_asynchronous_gpu_emulation_description">Запускает рендерер ГПУ в отдельном потоке.</string>
+    <string name="renderer_async_presentation">Асинхронный вывод</string>
+    <string name="renderer_async_presentation_description">Снижает задержку вывода кадров на экран.</string>
+    <string name="renderer_reactive_flushing">Реактивный сброс</string>
     <string name="renderer_reactive_flushing_description">Повышение точности рендеринга в некоторых играх за счет снижения производительности.</string>
     <string name="enable_buffer_history">Включить историю буфера</string>
     <string name="enable_buffer_history_description">Позволяет обращаться к предыдущим состояниям буфера. Эта опция может повысить качество рендеринга и стабильность производительности в некоторых играх.</string>
@@ -522,13 +522,13 @@
 
     <string name="hacks">Хаки</string>
 
-    <string name="fast_gpu_time">Быстрое время ГПУ</string>
+    <string name="fast_gpu_time">Тайминги ГПУ</string>
     <string name="fast_gpu_time_description">Принудительно запускает большинство игр в их максимальном нативном разрешении. Используйте значение 256 для максимальной производительности и 512 для максимального качества графики.</string>
-    <string name="skip_cpu_inner_invalidation">Пропустить внутреннюю инвалидацию ЦП</string>
+    <string name="skip_cpu_inner_invalidation">Пропуск инвалидации ЦП</string>
     <string name="skip_cpu_inner_invalidation_description">Пропускает некоторые инвалидации кэша на стороне ЦП при обновлениях памяти, уменьшая нагрузку на процессор и повышая производительность. Может вызывать сбои в некоторых играх.</string>
-    <string name="fix_bloom_effects">Исправить эффекты размытия</string>
+    <string name="fix_bloom_effects">Исправление эффектов свечения</string>
     <string name="fix_bloom_effects_description">Частично убирает размытие в LA/EOW (Adreno A6XX - A7XX/ Turnip), полностью отключает его в Burnout. Внимание: может вызывать графические артефакты в других играх.</string>
-    <string name="emulate_bgr565">Эмулировать BGR565</string>
+    <string name="emulate_bgr565">Эмуляция BGR565</string>
     <string name="emulate_bgr565_description">Исправляет проблемы с инвертированными цветами в играх, а также со странными артефактами или некорректными тенями.</string>
     <string name="rescale_hack">Включить старый метод изменения разрешения</string>
     <string name="rescale_hack_description">Включает старый метод обработки этапа перенастройки масштабирования для игр за счёт использования быстрого алгоритма перемасштабирования.</string>
@@ -934,7 +934,7 @@
     <string name="reset">Сброс</string>
 
     <!-- Amiibo -->
-    <string name="amiibo_title">Amiibo</string>
+    <string name="amiibo_title">Браузер Amiibo</string>
     <string name="amiibo_removed_message">Текущий amiibo был убран</string>
     <string name="amiibo_wrong_state">Текущая игра не ищет amiibo</string>
     <string name="amiibo_not_valid">Выбранный файл не является допустимым amiibo</string>
@@ -1236,7 +1236,7 @@
     <string name="percent">%1$d %%</string>
 
     <!-- Amiibo Manager -->
-    <string name="amiibo">Amiibo</string>
+    <string name="amiibo">Браузер Amiibo</string>
     <string name="amiibo_database_title">Онлайн-база Amiibo</string>
     <string name="amiibo_database_description">Каталог, генерация и быстрая загрузка виртуальных Amiibo в эмуляцию</string>
     <string name="search_amiibo_hint">Поиск по имени, персонажу или ID...</string>
@@ -1337,7 +1337,7 @@
     <string name="cpu_affinity_pinning_description">Жесткая привязка критических потоков JIT и GPU к производительным ядрам Cortex-X/A7xx, а вспомогательных задач — к энергоэффективным ядрам.</string>
     <string name="vulkan_pipeline_cache">Кэш конвейеров Vulkan</string>
     <string name="vulkan_pipeline_cache_description">Предкомпиляция и сохранение бинарного кэша конвейеров Vulkan на накопителе для полного устранения внутриигровых статтеров.</string>
-    <string name="vram_garbage_collection">Сборщик мусора видеопамяти</string>
+    <string name="vram_garbage_collection">Очистка виртуальной памяти</string>
     <string name="vram_garbage_collection_description">Периодическая фоновая очистка неиспользуемых текстурных буферов для предотвращения микрофризов и вылетов от системного LMK Android.</string>
 
     <!-- Авто-настройка устройства -->

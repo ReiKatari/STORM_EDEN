@@ -531,7 +531,7 @@ Please note this may result in deadlocks and other race conditions.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="142" />
       <source>API:</source>
-      <translation>API:</translation>
+      <translation>Графический API:</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="143" />
@@ -723,7 +723,7 @@ Aggressive mode may impact performance of other applications such as recording s
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="196" />
       <source>VSync Mode:</source>
-      <translation>Режим VSync:</translation>
+      <translation>Режим вертикальной синхронизации:</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="197" />
@@ -813,7 +813,7 @@ Default follows the GPU Accuracy setting.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="227" />
       <source>GPU Fence Behavior:</source>
-      <translation>Синхронизация барьеров GPU:</translation>
+      <translation>Барьеры ГПУ:</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="228" />
@@ -1139,7 +1139,7 @@ Setting to Handheld can help improve performance for low end systems.</source>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="337" />
       <source>Prompt for user profile on boot</source>
-      <translation>Запрашивать профиль пользователя при запуске игры</translation>
+      <translation>Выбор активного профиля</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/shared_translation.cpp" line="338" />
@@ -2545,7 +2545,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="224" />
       <source>GPU Logging/Level</source>
-      <translation>Уровень логирования GPU</translation>
+      <translation>Уровень логирования ГПУ</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="231" />
@@ -2815,7 +2815,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="730" />
       <source>Flush log output on each line</source>
-      <translation>Сбрасывать вывод лога после каждой строки</translation>
+      <translation>Сброс логов по строкам</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_debug.ui" line="737" />
@@ -2994,7 +2994,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="31" />
       <source>NAND</source>
-      <translation>NAND</translation>
+      <translation>Каталог NAND</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="38" />
@@ -3009,12 +3009,12 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="51" />
       <source>SD Card</source>
-      <translation>SD Карта</translation>
+      <translation>Каталог SDMC</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="65" />
       <source>Save Data</source>
-      <translation>Сохранения</translation>
+      <translation>Каталог сохранений</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="101" />
@@ -3029,7 +3029,7 @@ When a program attempts to open the controller applet, it is immediately closed.
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="117" />
       <source>Inserted</source>
-      <translation>Вставлен</translation>
+      <translation>Игровая карта вставлена</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_filesystem.ui" line="124" />
@@ -3239,7 +3239,7 @@ Would you like to delete the old save data?</source>
     <message>
       <location filename="../../src/yuzu/configuration/configure_general.ui" line="142" />
       <source>Reset All Settings</source>
-      <translation>Сбросить все настройки</translation>
+      <translation>Сбросить настройки по умолчанию</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_general.cpp" line="101" />
@@ -3548,7 +3548,7 @@ Would you like to delete the old save data?</source>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input.ui" line="138" />
       <source>Console Mode</source>
-      <translation>Режим консоли</translation>
+      <translation>Режим док-станции</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input.ui" line="159" />
@@ -3840,7 +3840,7 @@ Would you like to delete the old save data?</source>
     <message>
       <location filename="../../src/yuzu/configuration/configure_input_advanced.ui" line="2749" />
       <source>Motion / Touch</source>
-      <translation>Движение и сенсор</translation>
+      <translation>Гироскоп хоста и контроллера</translation>
     </message>
   </context>
   <context>
@@ -5453,12 +5453,12 @@ Drag points to change position, or double-click table cells to edit values.</sou
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="43" />
       <source>Interface language:</source>
-      <translation>Язык интерфейса:</translation>
+      <translation>Язык приложения:</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="57" />
       <source>Theme:</source>
-      <translation>Тема:</translation>
+      <translation>Тема и цвета:</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_ui.ui" line="74" />
@@ -5557,7 +5557,7 @@ Drag points to change position, or double-click table cells to edit values.</sou
     <message>
       <location filename="../../src/yuzu/configuration/configure_vibration.ui" line="14" />
       <source>Configure Vibration</source>
-      <translation>Настройка вибрации</translation>
+      <translation>Вибрация и тактильная отдача</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/configuration/configure_vibration.ui" line="23" />
@@ -6515,7 +6515,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/qt_common/config/uisettings.cpp" line="46" />
       <source>Fullscreen</source>
-      <translation>Полный экран</translation>
+      <translation>Полноэкранный режим</translation>
     </message>
     <message>
       <location filename="../../src/qt_common/config/uisettings.cpp" line="47" />
@@ -6898,7 +6898,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="206" />
       <source>&amp;Create Home Menu Shortcut</source>
-      <translation>Создать &amp;ярлык Home Menu</translation>
+      <translation>Добавить &amp;ярлык на домашний экран</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="213" />
@@ -6913,7 +6913,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="254" />
       <source>&amp;Install Files to NAND...</source>
-      <translation>&amp;Установить файлы в NAND...</translation>
+      <translation>&amp;Установить файлы в NAND</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="259" />
@@ -7014,7 +7014,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="386" />
       <source>F&amp;ullscreen</source>
-      <translation>&amp;Полноэкранный</translation>
+      <translation>&amp;Полноэкранный режим</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="394" />
@@ -7074,7 +7074,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="455" />
       <source>&amp;Mii Editor</source>
-      <translation>Открыт&amp;ь Mii Editor</translation>
+      <translation>Запуск апплета &amp;Mii</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="460" />
@@ -7116,7 +7116,7 @@ Debug Message: </source>
     <message>
       <location filename="../../src/yuzu/main.ui" line="513" />
       <source>&amp;Home Menu</source>
-      <translation>Отк&amp;рыть Home Menu</translation>
+      <translation>&amp;QLaunch</translation>
     </message>
     <message>
       <location filename="../../src/yuzu/main.ui" line="518" />

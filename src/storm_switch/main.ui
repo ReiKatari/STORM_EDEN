@@ -299,7 +299,7 @@
   </action>
   <action name="action_Check_Updates">
    <property name="text">
-    <string>Проверить &amp;обновления...</string>
+    <string>Проверка &amp;обновлений...</string>
    </property>
   </action>
   <action name="action_About">
@@ -544,7 +544,7 @@
   </action>
   <action name="action_Launch_QLaunch">
    <property name="text">
-    <string>&amp;Home Menu</string>
+    <string>&amp;QLaunch</string>
    </property>
   </action>
   <action name="action_Desktop">

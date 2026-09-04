@@ -6815,7 +6815,7 @@ void MainWindow::ShowFooterCustomizeMenu() {
         {tr("Пересж. ASTC"), astc_recompress_button},
         {tr("Режим ТВ / Портал"), dock_status_button},
         {tr("Режим полёта"), airplane_mode_button},
-        {tr("Ограничение скорости"), speed_limit_button},
+        {tr("Лимит скорости"), speed_limit_button},
         {tr("Громкость"), volume_button},
         {tr("Отключение звука"), mute_button},
         {tr("Прошивка"), firmware_label},
@@ -6892,7 +6892,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         header_act->setEnabled(false);
         context_menu.addSeparator();
 
-        auto* decode_menu = context_menu.addMenu(tr("⚙️ Декодирование ASTC"));
+        auto* decode_menu = context_menu.addMenu(tr("⚙️ Метод декодирования ASTC"));
         const auto cur_dec = Settings::values.accelerate_astc.GetValue();
         const std::vector<std::pair<Settings::AstcDecodeMode, QString>> dec_options = {
             {Settings::AstcDecodeMode::CpuAsynchronous, tr("ЦП Асинхронно (Рекомендуется)")},
@@ -7131,7 +7131,7 @@ void MainWindow::ShowGroupMenu(const QString& title, QWidget* group_widget) {
         header_act->setEnabled(false);
         context_menu.addSeparator();
 
-        auto* dock_menu = context_menu.addMenu(tr("📺 Режим консоли"));
+        auto* dock_menu = context_menu.addMenu(tr("📺 Режим док-станции"));
         const auto cur_dock = Settings::values.use_docked_mode.GetValue();
         for (const auto& pair : ConfigurationShared::use_docked_mode_texts_map) {
             auto* act = dock_menu->addAction(pair.second, [this, pair] {

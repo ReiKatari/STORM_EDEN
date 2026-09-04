@@ -23,6 +23,7 @@ object PerGameDrircGenerator {
         HEAVY_3D,
         EA_SPORTS,
         POKEMON,
+        ALAN_WAKE,
         UNIVERSAL_DEFAULT
     }
 
@@ -183,6 +184,14 @@ object PerGameDrircGenerator {
             return GameProfileType.POKEMON
         }
 
+        // 10. Alan Wake Remastered (Font & Subtitle Color Fix)
+        if (cleanId.startsWith("010074B01456A") || // Alan Wake USA
+            cleanId.startsWith("010065F014C5E") || // Alan Wake EUR
+            cleanTitle.contains("alan wake")
+        ) {
+            return GameProfileType.ALAN_WAKE
+        }
+
         return GameProfileType.UNIVERSAL_DEFAULT
     }
 
@@ -331,6 +340,15 @@ object PerGameDrircGenerator {
                 optionsBuilder.append("            <option name=\"tu_lrz_preserve_across_cmdbuf\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_adaptive_frame_pacing\" value=\"true\" />\n")
                 optionsBuilder.append("            <option name=\"tu_mail_box_vsync_pacing\" value=\"true\" />\n")
+            }
+            GameProfileType.ALAN_WAKE -> {
+                optionsBuilder.append("\n            <!-- ALAN WAKE REMASTERED (Pristine White Subtitles, Font Glyph Swizzle & Flashlight HDR) -->\n")
+                optionsBuilder.append("            <option name=\"tu_tile_discard\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_a8_unorm_swizzle_one\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_r8_unorm_swizzle_alpha\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_force_d32_unnormalized\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_indirect_ubo_bounds\" value=\"true\" />\n")
+                optionsBuilder.append("            <option name=\"tu_depth_clamp_control_fix\" value=\"true\" />\n")
             }
             GameProfileType.UNIVERSAL_DEFAULT -> {
                 optionsBuilder.append("\n            <!-- UNIVERSAL 0.0.29 DEFAULT ENGINE RULES -->\n")

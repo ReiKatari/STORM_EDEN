@@ -14,7 +14,7 @@ namespace {
 
 using Clock = std::chrono::steady_clock;
 
-constexpr f32 INTERVAL_SMOOTHING = 0.25f;
+constexpr f32 INTERVAL_SMOOTHING = 0.333f;
 constexpr f32 MINIMUM_BASE_RATE = 10.0f;
 constexpr f32 BURST_CADENCE_RATIO = 3.0f;
 constexpr f32 BURST_TARGET_RATIO = 2.0f;
@@ -78,7 +78,7 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
         }
         if (1.0f / interval_seconds > burst_threshold) {
             DeferEvaluations(interval);
-            output_credit = 0.0f;
+            output_credit = std::min(output_credit * 0.5f, 0.5f);
             return {};
         }
     }
@@ -120,7 +120,7 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
     const size_t allowed = std::min(limit, ceiling);
     const f32 desired_outputs = smoothed_interval * target_rate;
     if (allowed == 0 || desired_outputs <= 1.0f) {
-        output_credit = 0.0f;
+        output_credit = std::max(0.0f, output_credit * 0.5f);
         return {};
     }
 
@@ -149,7 +149,7 @@ void FrameGenPacer::UpdateLimit(Clock::time_point now, f32 base_rate, f32 target
             return;
         }
         probe_until.reset();
-        output_credit = 0.0f;
+        output_credit = std::min(output_credit, 0.5f);
 
         const f32 previous_output =
             std::min(target_rate, probe_base_rate * static_cast<f32>(probe_previous_limit + 1));
@@ -198,7 +198,7 @@ void FrameGenPacer::UpdateLimit(Clock::time_point now, f32 base_rate, f32 target
     ++limit;
     probe_until = now + PROBE_DURATION;
     deficit_since.reset();
-    output_credit = 0.0f;
+    output_credit = std::min(output_credit, 0.5f);
 }
 
 void FrameGenPacer::DeferEvaluations(Clock::duration amount) {

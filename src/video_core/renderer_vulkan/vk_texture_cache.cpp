@@ -2454,6 +2454,14 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
         .b = ComponentSwizzle(swizzle[2]),
         .a = ComponentSwizzle(swizzle[3]),
     };
+    // Sanitize single-channel alpha textures used for fonts and UI glyphs (e.g. Alan Wake Remastered)
+    // Ensures RGB channels evaluate to 1.0 so vertex color tint doesn't multiply by zero resulting in black text
+    if (format_info.format == VK_FORMAT_R8_UNORM && swizzle[3] == SwizzleSource::R &&
+        swizzle[0] == SwizzleSource::Zero && swizzle[1] == SwizzleSource::Zero && swizzle[2] == SwizzleSource::Zero) {
+        swizzle_mapping.r = VK_COMPONENT_SWIZZLE_ONE;
+        swizzle_mapping.g = VK_COMPONENT_SWIZZLE_ONE;
+        swizzle_mapping.b = VK_COMPONENT_SWIZZLE_ONE;
+    }
     has_identity_swizzle = swizzle[0] == SwizzleSource::R && swizzle[1] == SwizzleSource::G &&
                            swizzle[2] == SwizzleSource::B && swizzle[3] == SwizzleSource::A;
     const VkImageUsageFlags requested_view_usage = ImageUsageFlags(format_info, format);

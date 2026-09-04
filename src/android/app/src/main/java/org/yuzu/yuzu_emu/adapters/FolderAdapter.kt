@@ -33,8 +33,13 @@ class FolderAdapter(val activity: FragmentActivity, val gamesViewModel: GamesVie
         AbstractViewHolder<GameDir>(binding) {
         override fun bind(model: GameDir) {
             binding.apply {
-                path.text = Uri.parse(model.uriString).path
-                path.marquee()
+                val rawPath = Uri.parse(model.uriString).path ?: model.uriString
+                val decodedPath = try {
+                    Uri.decode(rawPath).replace("/tree/primary:", "")
+                } catch (_: Exception) {
+                    rawPath
+                }
+                path.text = decodedPath
 
                 // Set type indicator, shows below folder name, to see if DLC or Games
                 typeIndicator.text = when (model.type) {

@@ -126,6 +126,24 @@ class AutoCorrectionDialogFragment : DialogFragment() {
         return dialog
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.let { window ->
+            val dm = resources.displayMetrics
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val width = if (isLandscape) (dm.widthPixels * 0.95).toInt() else (dm.widthPixels * 0.94).toInt()
+            val height = if (isLandscape) (dm.heightPixels * 0.92).toInt() else android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            window.setLayout(width, height)
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.setGravity(android.view.Gravity.CENTER)
+            val lp = window.attributes
+            lp.width = width
+            lp.height = height
+            lp.gravity = android.view.Gravity.CENTER
+            window.attributes = lp
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

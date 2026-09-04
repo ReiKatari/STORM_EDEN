@@ -96,8 +96,19 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         dialog?.window?.let { window ->
             val dm = resources.displayMetrics
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val width = if (isLandscape) (dm.widthPixels * 0.88).toInt().coerceIn(550, 1100) else (dm.widthPixels * 0.94).toInt()
-            val height = if (isLandscape) (dm.heightPixels * 0.94).toInt().coerceIn(360, 900) else ViewGroup.LayoutParams.WRAP_CONTENT
+            val isInGame = activity is org.yuzu.yuzu_emu.activities.EmulationActivity
+            val width = if (isInGame) {
+                (dm.widthPixels * 0.95).toInt()
+            } else if (isLandscape) {
+                (dm.widthPixels * 0.88).toInt().coerceIn(550, 1100)
+            } else {
+                (dm.widthPixels * 0.94).toInt()
+            }
+            val height = if (isInGame || isLandscape) {
+                (dm.heightPixels * 0.94).toInt().coerceIn(360, 900)
+            } else {
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            }
             window.setLayout(width, height)
             window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window.setGravity(Gravity.CENTER)
@@ -114,9 +125,9 @@ class AutoOptimizationDialogFragment : DialogFragment() {
         val profile = StormHardwareCalibrator.detectHardware(context)
 
         val formFactor = if (profile.isTablet) "Планшет" else "Смартфон"
-        binding.textHwSoc.text = "SoC: ${profile.socName} (${profile.cpuCores} ядер, $formFactor)"
-        binding.textHwGpu.text = "GPU: ${profile.gpuName}"
-        binding.textHwRam.text = String.format("RAM: %.1f ГБ (Доступно: %.1f ГБ)", profile.totalRamGb, profile.availRamGb)
+        binding.textHwSoc.text = "SoC / ЦП: ${profile.socName} (${profile.cpuCores} ядер, $formFactor)"
+        binding.textHwGpu.text = "ГПУ: ${profile.gpuName}"
+        binding.textHwRam.text = String.format("ОЗУ: %.1f ГБ (Доступно: %.1f ГБ)", profile.totalRamGb, profile.availRamGb)
         val tierDesc = when (profile.tier) {
             StormHardwareCalibrator.HardwareTier.FLAGSHIP_ELITE -> "Ультра-флагман (Snapdragon 8 Elite / 12GB+ RAM)"
             StormHardwareCalibrator.HardwareTier.FLAGSHIP -> "Флагман (Высокая производительность, 12GB+ RAM)"

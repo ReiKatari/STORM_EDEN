@@ -57,7 +57,7 @@
     <string name="stats_overlay_options_description">Настройка отображаемой информации в оверлее</string>
     <string name="show_fps">Показать FPS</string>
     <string name="show_fps_description">Текущее количество кадров в секунду</string>
-    <string name="show_frametime">Показать Frametime</string>
+    <string name="show_frametime">Показать время кадра (Frametime)</string>
     <string name="show_app_ram_usage">Показать RAM эмулятора</string>
     <string name="show_app_ram_usage_description">Показать объем оперативной памяти, используемой эмулятором</string>
     <string name="show_system_ram_usage">Показать RAM системы</string>
@@ -1369,14 +1369,14 @@
 
     <!-- Авто-настройка устройства -->
     <string name="auto_optimization_wizard_title">Авто-настройка</string>
-    <string name="auto_optimization_wizard_description">Анализ процессора, GPU и ОЗУ с автоматической настройкой всех разделов под ваше устройство</string>
+    <string name="auto_optimization_wizard_description">Анализ ЦП, ГПУ и ОЗУ с автоматической настройкой всех разделов под ваше устройство</string>
     <string name="auto_optimization_device_info">Характеристики устройства</string>
     <string name="auto_optimization_mode_fast">⚡ Быстрый</string>
-    <string name="auto_optimization_mode_fast_desc">Максимальный FPS, минимальный нагрев и экономия батареи. 0.75X разрешение, экономный VRAM, быстрые барьеры GPU, NCE.</string>
+    <string name="auto_optimization_mode_fast_desc">Максимальный FPS, минимальный нагрев и экономия батареи. 0.75X разрешение, экономный VRAM, быстрые барьеры ГПУ, NCE.</string>
     <string name="auto_optimization_mode_normal">⚖️ Нормальный (Рекомендуется)</string>
     <string name="auto_optimization_mode_normal_desc">Идеальный баланс между великолепной графикой, плавностью и стабильностью. 1X (720p/1080p), FSR 85%, FXAA, сбалансированные барьеры.</string>
     <string name="auto_optimization_mode_accurate">💎 Точный</string>
-    <string name="auto_optimization_mode_accurate_desc">Максимальное качество графики, разрешение 1.5X/1X, Безопасный DMA, строгие барьеры GPU, SMAA, анизотропия 16x.</string>
+    <string name="auto_optimization_mode_accurate_desc">Максимальное качество графики, разрешение 1.5X/1X, Безопасный DMA, строгие барьеры ГПУ, SMAA, анизотропия 16x.</string>
     <string name="auto_optimization_apply">Применить режим</string>
     <string name="auto_optimization_applied_toast">⚡ Авто-настройка успешно применена: профиль «%1$s»!</string>
     <string name="auto_optimization_summary_title">Примененные настройки</string>

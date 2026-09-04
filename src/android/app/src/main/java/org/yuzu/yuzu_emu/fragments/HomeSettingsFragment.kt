@@ -531,17 +531,27 @@ class HomeSettingsFragment : Fragment() {
         }
 
         if (targetFile != null && targetFile.exists()) {
-            val uri = androidx.core.content.FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.provider",
-                targetFile
-            )
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                setDataAndType(uri, FileUtil.TEXT_PLAIN)
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                val cacheLogDir = java.io.File(requireContext().cacheDir, "logs")
+                if (!cacheLogDir.exists()) {
+                    cacheLogDir.mkdirs()
+                }
+                val shareableFile = java.io.File(cacheLogDir, targetFile.name)
+                targetFile.copyTo(shareableFile, overwrite = true)
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.provider",
+                    shareableFile
+                )
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    setDataAndType(uri, FileUtil.TEXT_PLAIN)
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, getText(R.string.share_log)))
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), e.localizedMessage ?: "Error sharing log", Toast.LENGTH_SHORT).show()
             }
-            startActivity(Intent.createChooser(intent, getText(R.string.share_log)))
         } else {
             Toast.makeText(
                 requireContext(),
@@ -589,17 +599,27 @@ class HomeSettingsFragment : Fragment() {
         }
 
         if (targetFile != null && targetFile.exists()) {
-            val uri = androidx.core.content.FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.provider",
-                targetFile
-            )
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                setDataAndType(uri, FileUtil.TEXT_PLAIN)
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                val cacheLogDir = java.io.File(requireContext().cacheDir, "logs")
+                if (!cacheLogDir.exists()) {
+                    cacheLogDir.mkdirs()
+                }
+                val shareableFile = java.io.File(cacheLogDir, targetFile.name)
+                targetFile.copyTo(shareableFile, overwrite = true)
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.provider",
+                    shareableFile
+                )
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    setDataAndType(uri, FileUtil.TEXT_PLAIN)
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, getText(R.string.share_gpu_log)))
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), e.localizedMessage ?: "Error sharing GPU log", Toast.LENGTH_SHORT).show()
             }
-            startActivity(Intent.createChooser(intent, getText(R.string.share_gpu_log)))
         } else {
             Toast.makeText(
                 requireContext(),

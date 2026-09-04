@@ -29,6 +29,12 @@ import org.yuzu.yuzu_emu.model.GamesViewModel
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.model.Installable
 import org.yuzu.yuzu_emu.model.TaskState
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.os.Environment
+import android.provider.DocumentsContract
+import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.FileUtil
 import org.yuzu.yuzu_emu.utils.InstallableActions
 import org.yuzu.yuzu_emu.utils.NativeConfig
@@ -39,6 +45,64 @@ import java.io.File
 import java.math.BigInteger
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+open class OpenDocumentWithInitialPath(private val getInitialPath: () -> String) :
+    ActivityResultContracts.OpenDocument() {
+    override fun createIntent(context: Context, input: Array<String>): Intent {
+        val intent = super.createIntent(context, input)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val path = getInitialPath()
+                val file = File(path)
+                if (!file.exists()) {
+                    file.mkdirs()
+                }
+                val externalRoot = Environment.getExternalStorageDirectory().canonicalPath
+                val relativePath = if (file.canonicalPath.startsWith(externalRoot)) {
+                    file.canonicalPath.removePrefix(externalRoot).trimStart('/', '\\')
+                } else {
+                    path.trimStart('/', '\\')
+                }
+                val uri = DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents",
+                    "primary:$relativePath"
+                )
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+            } catch (_: Exception) {}
+        }
+        return intent
+    }
+}
+
+open class CreateDocumentWithInitialPath(
+    mimeType: String,
+    private val getInitialPath: () -> String
+) : ActivityResultContracts.CreateDocument(mimeType) {
+    override fun createIntent(context: Context, input: String): Intent {
+        val intent = super.createIntent(context, input)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val path = getInitialPath()
+                val file = File(path)
+                if (!file.exists()) {
+                    file.mkdirs()
+                }
+                val externalRoot = Environment.getExternalStorageDirectory().canonicalPath
+                val relativePath = if (file.canonicalPath.startsWith(externalRoot)) {
+                    file.canonicalPath.removePrefix(externalRoot).trimStart('/', '\\')
+                } else {
+                    path.trimStart('/', '\\')
+                }
+                val uri = DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents",
+                    "primary:$relativePath"
+                )
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+            } catch (_: Exception) {}
+        }
+        return intent
+    }
+}
 
 class InstallableFragment : Fragment() {
     private var _binding: FragmentInstallablesBinding? = null
@@ -201,7 +265,9 @@ class InstallableFragment : Fragment() {
         }
 
     private val getAmiiboKeyLauncher =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { result ->
+        registerForActivityResult(OpenDocumentWithInitialPath {
+            "${DirectoryInitialization.userDirectory ?: File(Environment.getExternalStorageDirectory(), "STORM SWITCH").path}/amiibo"
+        }) { result ->
             if (result != null) {
                 InstallableActions.processKey(
                     activity = requireActivity(),
@@ -261,7 +327,9 @@ class InstallableFragment : Fragment() {
         }
 
     private val importSaves =
-        registerForActivityResult(ActivityResultContracts.OpenDocument()) { result ->
+        registerForActivityResult(OpenDocumentWithInitialPath {
+            "${DirectoryInitialization.userDirectory ?: File(Environment.getExternalStorageDirectory(), "STORM SWITCH").path}/nand/user/save"
+        }) { result ->
             if (result == null) {
                 return@registerForActivityResult
             }
@@ -361,7 +429,9 @@ class InstallableFragment : Fragment() {
         }
 
     private val exportSaves = registerForActivityResult(
-        ActivityResultContracts.CreateDocument("application/zip")
+        CreateDocumentWithInitialPath("application/zip") {
+            "${DirectoryInitialization.userDirectory ?: File(Environment.getExternalStorageDirectory(), "STORM SWITCH").path}/nand/user/save"
+        }
     ) { result ->
         if (result == null) {
             return@registerForActivityResult

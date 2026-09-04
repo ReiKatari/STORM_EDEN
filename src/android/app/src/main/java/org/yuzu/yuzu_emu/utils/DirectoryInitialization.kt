@@ -43,7 +43,7 @@ object DirectoryInitialization {
         try {
             val rootExternal = File(android.os.Environment.getExternalStorageDirectory(), "STORM SWITCH")
             if (rootExternal.exists() || rootExternal.mkdirs()) {
-                listOf("keys", "config", "config/custom", "load", "nand", "sdmc", "amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
+                listOf("keys", "config", "config/custom", "load", "nand", "nand/user/save", "sdmc", "amiibo", "Amiibo", "cheats", "gpu_drivers", "logs", "screenshots", "profiles").forEach { sub ->
                     File(rootExternal, sub).mkdirs()
                 }
                 val internalBaseDir = YuzuApplication.appContext.getExternalFilesDir(null) ?: YuzuApplication.appContext.filesDir

@@ -6,45 +6,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="5dp"
+    android:layout_marginVertical="6dp"
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="16dp"
     app:cardBackgroundColor="?attr/colorSurfaceVariant"
-    app:cardElevation="0dp"
+    app:cardElevation="2dp"
     app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_gravity="center_vertical">
+        android:padding="16dp">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/path"
-            style="@style/TextAppearance.Material3.BodyLarge"
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
-            android:requiresFadingEdge="horizontal"
+            android:layout_marginEnd="12dp"
+            android:gravity="start|top"
             android:textAlignment="viewStart"
-            app:layout_constraintBottom_toTopOf="@+id/type_indicator"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:breakStrategy="high_quality"
+            android:hyphenationFrequency="normal"
             app:layout_constraintEnd_toStartOf="@+id/button_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/select_gpu_driver_default" />
+            app:layout_constraintBottom_toTopOf="@+id/type_indicator"
+            tools:text="/storage/emulated/0/STORM SWITCH/Games" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/type_indicator"
-            style="@style/TextAppearance.Material3.LabelSmall"
+            style="@style/TextAppearance.Material3.LabelMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginTop="6dp"
+            android:gravity="start"
+            android:textAlignment="viewStart"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/path"
             tools:text="Games" />
@@ -53,6 +56,7 @@
             android:id="@+id/button_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical|end"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -61,9 +65,9 @@
             <Button
                 android:id="@+id/button_edit"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/delete"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:contentDescription="@string/edit"
                 android:tooltipText="@string/edit"
                 app:icon="@drawable/ic_edit"
                 app:iconTint="?attr/colorControlNormal" />
@@ -71,8 +75,9 @@
             <Button
                 android:id="@+id/button_delete"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
                 android:contentDescription="@string/delete"
                 android:tooltipText="@string/delete"
                 app:icon="@drawable/ic_delete"

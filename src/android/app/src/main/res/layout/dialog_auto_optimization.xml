@@ -103,7 +103,7 @@
                         android:id="@+id/text_hw_soc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="SoC: Snapdragon 8 Gen 2 (8 ядер, ARMv9)"
+                        android:text="SoC / ЦП: Snapdragon 8 Gen 2 (8 ядер, ARMv9)"
                         android:textSize="11sp"
                         android:textColor="?attr/colorOnBackground"
                         android:layout_marginBottom="2dp" />
@@ -112,7 +112,7 @@
                         android:id="@+id/text_hw_gpu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="GPU: Adreno 740 / Turnip Vulkan 1.3"
+                        android:text="ГПУ: Adreno 740 / Turnip Vulkan 1.3"
                         android:textSize="11sp"
                         android:textColor="?attr/colorOnBackground"
                         android:layout_marginBottom="2dp" />
@@ -121,7 +121,7 @@
                         android:id="@+id/text_hw_ram"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="RAM: 12.0 ГБ (Доступно: 7.2 ГБ)"
+                        android:text="ОЗУ: 12.0 ГБ (Доступно: 7.2 ГБ)"
                         android:textSize="11sp"
                         android:textColor="?attr/colorOnBackground"
                         android:layout_marginBottom="2dp" />

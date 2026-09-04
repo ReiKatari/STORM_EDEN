@@ -32,7 +32,11 @@ class PathSetting(
 
     fun setPath(path: String) = pathSetter(path)
 
-    fun isUsingDefaultPath(): Boolean = getCurrentPath() == getDefaultPath()
+    fun isUsingDefaultPath(): Boolean {
+        val cur = getCurrentPath().trim().trimEnd('/', '\\')
+        val def = getDefaultPath().trim().trimEnd('/', '\\')
+        return cur.isEmpty() || cur.equals(def, ignoreCase = true)
+    }
 
     companion object {
         const val TYPE_PATH = 14

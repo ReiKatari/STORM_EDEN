@@ -261,14 +261,6 @@ class SettingsFragmentPresenter(
             )
             add(
                 SubmenuSetting(
-                    titleId = R.string.freedreno_settings_title,
-                    descriptionId = R.string.gpu_driver_settings,
-                    iconId = R.drawable.ic_graphics,
-                    menuKey = MenuTag.SECTION_FREEDRENO
-                )
-            )
-            add(
-                SubmenuSetting(
                     titleId = R.string.preferences_debug,
                     descriptionId = R.string.preferences_debug_description,
                     iconId = R.drawable.ic_code,

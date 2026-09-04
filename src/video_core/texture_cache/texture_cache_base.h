@@ -6,11 +6,13 @@
 
 #pragma once
 
+#include <algorithm>
 #include <atomic>
 #include <deque>
 #include <limits>
 #include <mutex>
 #include <span>
+#include <thread>
 #include <type_traits>
 // TODO: find out which don't require stable iters
 #include <unordered_map>
@@ -505,8 +507,10 @@ private:
     u64 modification_tick = 0;
     u64 frame_tick = 0;
 
-    Common::ThreadWorker texture_decode_worker{1, "TextureDecoder", {},
-                                               Common::ThreadPlacement::Efficiency};
+    Common::ThreadWorker texture_decode_worker{
+        std::clamp<size_t>(static_cast<size_t>(std::thread::hardware_concurrency() > 2 ? std::thread::hardware_concurrency() - 2 : 4), size_t{4}, size_t{8}),
+        "TextureDecoder", {},
+        Common::ThreadPlacement::Default};
     std::vector<std::unique_ptr<AsyncDecodeContext>> async_decodes;
 
     std::deque<PendingUnswizzle> unswizzle_queue;

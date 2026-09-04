@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_theme"
+    style="@style/EdenCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="1.5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <!-- Volumetric Dual-Color Preview Circle -->
+        <FrameLayout
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="14dp">
+
+            <View
+                android:id="@+id/view_color_preview_bg"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:background="@drawable/circle_white" />
+
+            <View
+                android:id="@+id/view_color_pressed_dot"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/circle_white" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_theme_title"
+                style="@style/TextAppearance.Material3.TitleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                tools:text="Cyberpunk Neon" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_theme_style"
+                style="@style/TextAppearance.Material3.BodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="11sp"
+                tools:text="Неоновое кибер-свечение (3D)" />
+
+        </LinearLayout>
+
+        <RadioButton
+            android:id="@+id/radio_theme_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

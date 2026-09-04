@@ -2827,22 +2827,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 }
 
                 R.id.menu_overlay_theme -> {
-                    val themes = org.yuzu.yuzu_emu.overlay.model.OverlayTheme.values()
-                    val themeNames = themes.map { getString(it.titleResId) }.toTypedArray()
-                    val currentThemeId = IntSetting.OVERLAY_SKIN_THEME.getInt()
-                    val currentIdx = themes.indexOfFirst { it.id == currentThemeId }.let { if (it >= 0) it else 0 }
-
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.overlay_skin_theme)
-                        .setSingleChoiceItems(themeNames, currentIdx) { dialog, which ->
-                            val selected = themes[which]
-                            IntSetting.OVERLAY_SKIN_THEME.setInt(selected.id)
-                            NativeConfig.saveGlobalConfig()
-                            binding.surfaceInputOverlay.refreshControls()
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show()
+                    TouchOverlayStyleDialogFragment.newInstance {
+                        binding.surfaceInputOverlay.refreshControls()
+                    }.show(parentFragmentManager, TouchOverlayStyleDialogFragment.TAG)
                     true
                 }
 

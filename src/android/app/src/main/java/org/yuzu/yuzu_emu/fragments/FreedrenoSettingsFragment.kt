@@ -100,7 +100,13 @@ class FreedrenoSettingsFragment : Fragment() {
         // Setup current settings adapter (vertical list)
         settingsAdapter = FreedrenoVariableAdapter(requireContext()) { variable, onDelete ->
             onDelete()
+            if (isPerGameConfig) {
+                NativeFreedrenoConfig.savePerGameConfig(game!!.programIdHex)
+            } else {
+                NativeFreedrenoConfig.saveFreedrenoConfig()
+            }
             loadCurrentSettings() // Refresh list after deletion
+            showSnackbar(getString(R.string.delete) + ": " + variable.name)
         }
         binding.listFreedrenoSettings.apply {
             adapter = settingsAdapter
@@ -140,6 +146,11 @@ class FreedrenoSettingsFragment : Fragment() {
             }
 
             if (NativeFreedrenoConfig.setFreedrenoEnv(varName, varValue)) {
+                if (isPerGameConfig) {
+                    NativeFreedrenoConfig.savePerGameConfig(game!!.programIdHex)
+                } else {
+                    NativeFreedrenoConfig.saveFreedrenoConfig()
+                }
                 showSnackbar(getString(R.string.freedreno_variable_added, varName))
                 binding.variableNameInput.text?.clear()
                 binding.variableValueInput.text?.clear()
@@ -151,6 +162,12 @@ class FreedrenoSettingsFragment : Fragment() {
 
         binding.buttonClearAll.setOnClickListener {
             NativeFreedrenoConfig.clearAllFreedrenoEnv()
+            if (isPerGameConfig) {
+                NativeFreedrenoConfig.deletePerGameConfig(game!!.programIdHex)
+                NativeFreedrenoConfig.savePerGameConfig(game!!.programIdHex)
+            } else {
+                NativeFreedrenoConfig.saveFreedrenoConfig()
+            }
             showSnackbar(getString(R.string.freedreno_cleared_all))
             loadCurrentSettings()
         }
@@ -173,6 +190,12 @@ class FreedrenoSettingsFragment : Fragment() {
         // Apply all variables in the preset
         for ((varName, varValue) in preset.variables) {
             NativeFreedrenoConfig.setFreedrenoEnv(varName, varValue)
+        }
+
+        if (isPerGameConfig) {
+            NativeFreedrenoConfig.savePerGameConfig(game!!.programIdHex)
+        } else {
+            NativeFreedrenoConfig.saveFreedrenoConfig()
         }
 
         showSnackbar(getString(R.string.freedreno_preset_applied, preset.name))

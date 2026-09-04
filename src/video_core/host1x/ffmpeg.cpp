@@ -4,8 +4,10 @@
 // SPDX-FileCopyrightText: Copyright 2023 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include <cstring>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 #include "common/assert.h"
@@ -171,7 +173,7 @@ Decoder::Decoder(Tegra::Host1x::NvdecCommon::VideoCodec codec) {
 
 #if defined(__ANDROID__)
     const auto nvdec_mode = Settings::values.nvdec_emulation.GetValue();
-    if (nvdec_mode == Settings::NvdecEmulation::Gpu || nvdec_mode == Settings::NvdecEmulation::Hybrid) {
+    if (nvdec_mode == Settings::NvdecEmulation::Gpu) {
         const char* mc_name = nullptr;
         switch (av_codec) {
         case AV_CODEC_ID_H264: mc_name = "h264_mediacodec"; break;
@@ -227,6 +229,10 @@ HardwareContext::~HardwareContext() {
 }
 
 bool HardwareContext::InitializeForDecoder(DecoderContext& decoder_context, const Decoder& decoder) {
+    if (Settings::values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Hybrid) {
+        // Hybrid mode offloads video decoding to multi-threaded CPU to alleviate GPU load
+        return false;
+    }
     const auto supported_types = GetSupportedDeviceTypes();
     for (const auto type : PreferredGpuDecoders) {
         AVPixelFormat hw_pix_fmt;
@@ -281,8 +287,16 @@ bool HardwareContext::InitializeWithType(AVHWDeviceType type) {
 DecoderContext::DecoderContext(const Decoder& decoder) : m_decoder{decoder} {
     m_codec_context = avcodec_alloc_context3(m_decoder.GetCodec());
     av_opt_set(m_codec_context->priv_data, "tune", "zerolatency", 0);
-    m_codec_context->thread_count = 0;
-    m_codec_context->thread_type &= ~FF_THREAD_FRAME;
+    const auto nvdec_mode = Settings::values.nvdec_emulation.GetValue();
+    if (nvdec_mode == Settings::NvdecEmulation::Hybrid || nvdec_mode == Settings::NvdecEmulation::Cpu) {
+        // Utilize multiple CPU cores (4-8 threads) for slice and frame decoding to load CPU 40%+ and relieve GPU
+        const int cpu_threads = std::clamp(static_cast<int>(std::thread::hardware_concurrency()), 4, 8);
+        m_codec_context->thread_count = cpu_threads;
+        m_codec_context->thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE;
+    } else {
+        m_codec_context->thread_count = 0;
+        m_codec_context->thread_type &= ~FF_THREAD_FRAME;
+    }
 #if defined(__ANDROID__)
     m_codec_context->flags |= AV_CODEC_FLAG_LOW_DELAY;
     m_codec_context->flags2 |= AV_CODEC_FLAG2_FAST;

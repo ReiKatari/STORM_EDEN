@@ -148,6 +148,12 @@ class SettingsAdapter(
     }
 
     fun onIntSingleChoiceClick(item: IntSingleChoiceSetting, position: Int) {
+        if (item.setting == org.yuzu.yuzu_emu.features.settings.model.IntSetting.OVERLAY_SKIN_THEME) {
+            org.yuzu.yuzu_emu.fragments.TouchOverlayStyleDialogFragment.newInstance {
+                notifyItemChanged(position)
+            }.show(fragment.childFragmentManager, org.yuzu.yuzu_emu.fragments.TouchOverlayStyleDialogFragment.TAG)
+            return
+        }
         SettingsDialogFragment.newInstance(
             settingsViewModel,
             item,

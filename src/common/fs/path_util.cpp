@@ -329,7 +329,7 @@ std::string GetLegacyPathString(EmuPath legacy_path) {
 void SetEdenPath(EdenPath eden_path, const fs::path& new_path) {
     auto& instance = PathManagerImpl::GetInstance();
     if (!FS::Exists(new_path)) {
-        FS::CreateDir(new_path);
+        FS::CreateDirs(new_path);
     }
     if (FS::IsDir(new_path)) {
         instance.SetEdenPathImpl(eden_path, new_path);

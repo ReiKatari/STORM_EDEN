@@ -271,10 +271,9 @@
                 android:contentDescription="@string/auto_correction_title"
                 app:backgroundTint="#E6101726"
                 app:borderWidth="1.5dp"
-                app:borderColor="#00D2FF"
                 app:tint="#00F0FF"
                 app:fabSize="mini"
-                android:src="@drawable/ic_tune"
+                android:src="@drawable/ic_build"
                 android:visibility="gone" />
 
         </FrameLayout>

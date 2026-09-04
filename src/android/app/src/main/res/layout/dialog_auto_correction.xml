@@ -206,7 +206,7 @@
                     android:textStyle="bold"
                     app:backgroundTint="?attr/colorPrimary"
                     app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_tune"
+                    app:icon="@drawable/ic_build"
                     app:iconTint="?attr/colorOnPrimary"
                     app:iconSize="18dp"
                     android:layout_marginBottom="8dp" />
